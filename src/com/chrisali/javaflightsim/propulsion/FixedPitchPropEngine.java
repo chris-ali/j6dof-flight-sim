@@ -18,7 +18,7 @@ public class FixedPitchPropEngine extends EngineModel {
 	
 	//TODO consider engine orientation
 	public double[] calculateThrust(double[] controls,				//{elevator,aileron,rudder,throttle,propeller,mixture,flaps,gear,leftBrake,rightBrake}
-									double[] NEDPosition,			    //{N,E,D}
+									double[] NEDPosition,			//{N,E,D}
 									double[] environmentParameters,	//{temp,rho,p,a}
 									double[] windParameters) {		//{vTrue,beta,alpha})
 		

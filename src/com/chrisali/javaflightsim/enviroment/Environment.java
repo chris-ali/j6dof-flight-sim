@@ -43,7 +43,7 @@ public class Environment {
 			rho = RHO_TROP*Math.exp(ENV_CONST_STRAT*(NEDPosition[2]-HT_TROP));   // (slug/ft^3)			
 		}
 		
-		a = Math.pow(GAMMA*R*temp,1/2);     									 // (ft/sec)
+		a = Math.sqrt(GAMMA*R*temp);     									 // (ft/sec)
 
 		return new double[] {temp,rho,p,a};
 	}

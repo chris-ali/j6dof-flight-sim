@@ -1,10 +1,5 @@
 package com.chrisali.javaflightsim.aircraft;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
 public class Aircraft {
 	public double[] centerOfGravity;    // {CG_x,CG_y,CG_z}
 	public double[] aerodynamicCenter;  // {ac_x,ac_y,ac_z}
@@ -42,27 +37,26 @@ public class Aircraft {
 	}
 	
 	// TODO Read a text file with aircraft attributes, and assign them to arrays	
-	public Aircraft(String fileName){
-
-		FileReader aircraftFile;
-		try {
-			aircraftFile = new FileReader(fileName);
-			BufferedReader aircraftReader = new BufferedReader(aircraftFile);
-			
-			while (aircraftReader.readLine()!=null) {
-				//string tempLine =aircraftReader.readLine();
-				//if (tempLine.substring(0,3).equals("CL")) {
-					//for(int i=0;i<6;i++)
-				    //    liftDerivs[i]=tempLine.split("/=",).toDouble();
-				
-			}
-			
-			aircraftReader.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
+//	public Aircraft(String fileName){
+//
+//		FileReader aircraftFile;
+//		try {
+//			aircraftFile = new FileReader(fileName);
+//			BufferedReader aircraftReader = new BufferedReader(aircraftFile);
+//			
+//			while (aircraftReader.readLine()!=null) {
+//				String tempLine = aircraftReader.readLine();
+//				if (tempLine.substring(0,3).equals("CL")) {
+//					for(int i=0;i<6;i++)
+//				        liftDerivs[i]=tempLine.split("/=",).toDouble();
+//				}
+//			}
+//			
+//			aircraftReader.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		
+//	}
 	
 }

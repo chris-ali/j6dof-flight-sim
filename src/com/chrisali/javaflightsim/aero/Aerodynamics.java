@@ -23,7 +23,7 @@ import com.chrisali.javaflightsim.utilities.integration.SixDOFUtilities;
  * 		rollMomentDerivs[]{Cl_beta,Cl_p,Cl_r,Cl_da,Cl_dr}
  * 		pitchMomentDerivs[]{CM_alpha,CM_0,CM_q,CM_alphadot,CM_de,CM_df}
  * 		yawMomentDerivs[]{CN_beta,CN_p,CN_r,CN_da,CN_dr}
- *      environmentParameters[]{temp,rho,p,a}  (deg R, slug/ft^3, lbf/ft^2, ft/sec)		
+ *      environmentParameters[]{temp,rho,p,a}  								(deg R, slug/ft^3, lbf/ft^2, ft/sec)		
  * 
  * The class outputs the following (double arrays):
  *      aerodynamicMoments[] {L,M,N} 										(ft*lbf)
@@ -117,7 +117,7 @@ public class Aerodynamics extends Aircraft {
 		
 		// Negative L and D to switch body directions and position in array swapped
 		double[] aeroForces = {-qBar*getCD(windParameters, controls)*wingDimensions[0],
-				   			   qBar*getCY(windParameters, controls)*wingDimensions[0],
+				   			    qBar*getCY(windParameters, controls)*wingDimensions[0],
 							   -qBar*getCL(angularRates, windParameters, controls, alphaDot)*wingDimensions[0]};
 		
 		return new double[] {aeroForces[0]*w2bDCM[0][0]+aeroForces[1]*w2bDCM[0][1]+aeroForces[2]*w2bDCM[0][2],
@@ -132,7 +132,7 @@ public class Aerodynamics extends Aircraft {
 								   double[] environmentParameters,
 								   double[] controls,
 								   double alphaDot) {
-		double qBar = environmentParameters[1]*windParameters[0]*windParameters[0]*0.0/2; //TODO Moments zeroed for debugging
+		double qBar = environmentParameters[1]*windParameters[0]*windParameters[0]/2; //TODO Moments zeroed for debugging
 		
 		return new double[] {qBar*getCRoll(angularRates, windParameters, controls)*wingDimensions[0]*wingDimensions[1], 
 							 qBar*getCM(angularRates, windParameters, controls, alphaDot)*wingDimensions[0]*wingDimensions[2], 

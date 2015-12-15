@@ -24,7 +24,8 @@ public class AccelAndMoments extends Aerodynamics {
 															  alphaDot));
 		Vector3D engineForce = new Vector3D(engine.getThrust());
 		
-		double[] tempLinearAccel = aeroForceVector.add(engineForce).scalarMultiply(1/massProperties[0]).toArray();
+		// Negative engine thrust propels aircraft forward according to coordinate system
+		double[] tempLinearAccel = aeroForceVector.add(engineForce.negate()).scalarMultiply(1/massProperties[0]).toArray(); 
 		
 		return SaturationLimits.limitLinearAccelerations(tempLinearAccel);
 	}
