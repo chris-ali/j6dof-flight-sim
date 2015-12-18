@@ -3,6 +3,7 @@ package com.chrisali.javaflightsim;
 import com.chrisali.javaflightsim.aircraft.Aircraft;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.utilities.plotting.SimulationPlots;
 
 public class RunSimulation {
 
@@ -40,11 +41,14 @@ public class RunSimulation {
 		//---------------------
 		// Start Simulation Here
 		//---------------------
-		new Integrate6DOFEquations(integratorConfig,
-								   initialConditions,
-								   controls,
-								   aircraft,
-								   fixedPitchEngine);
+		Integrate6DOFEquations runSim = new Integrate6DOFEquations(integratorConfig,
+																   initialConditions,
+																   controls,
+																   aircraft,
+																   fixedPitchEngine);
+		
+		SimulationPlots plotSimResults = new SimulationPlots(runSim.getLogsOut(), "6DOF Plots");
+		SimulationPlots.generatePlotWindows(plotSimResults);
 
 	}
 }

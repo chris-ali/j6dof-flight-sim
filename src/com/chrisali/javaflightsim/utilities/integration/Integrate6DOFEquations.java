@@ -2,7 +2,7 @@ package com.chrisali.javaflightsim.utilities.integration;
 
 import java.util.ArrayList;
 
-import org.apache.commons.math3.ode.*;
+import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.events.EventHandler;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 import org.apache.commons.math3.ode.sampling.FixedStepHandler;
@@ -211,7 +211,7 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 		
 		// TODO add eventHandlers to stop/continue/reset integration
 		// Recalculates derivatives for next step
-		resetState(t, yDot);
+		eventOccurred(t, yDot, false);
 		
 		// Create an output array of all state arrays
 		Double outputStep[] = {t, 
@@ -242,6 +242,7 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 		for (Double out : outputStep)
 			System.out.printf("%9.2f ", out);
 		System.out.println("\n");
+		
 	}
 	
 	public ArrayList<Double[]> getLogsOut() {return logsOut;}
@@ -250,7 +251,10 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 	public double g(double t, double[] y) {return 0;}
 
 	@Override
-	public Action eventOccurred(double t, double[] y, boolean increasing) {return Action.RESET_DERIVATIVES;}
+	public Action eventOccurred(double t, double[] y, boolean increasing) {
+		System.out.println("Derivatives Reset");
+		return Action.RESET_DERIVATIVES;
+	}
 
 	@Override
 	public void resetState(double t, double[] y) {}
