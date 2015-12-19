@@ -64,6 +64,8 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 	
 	private double[] controls				= new double[10];
 	
+	private double[] simulationStates		= new double[12];
+	
 	//TODO need a way to calculate alphaDot
 	private double alphaDot = 0.0f;
 	
@@ -95,18 +97,20 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 		
 		// Calculate initial environment parameters
 		this.environmentParameters = Environment.getEnvironmentParams(NEDPosition);
-		
-		
+				
 		// Calculate initial wind parameters
 		this.windParameters = SixDOFUtilities.getWindParameters(linearVelocities);
 		
 		// Calculate initial engine thrust
-		engine.calculateThrust(controls, NEDPosition, environmentParameters, windParameters);
+		engine.calculateThrust(controls, 
+							   NEDPosition, 
+							   environmentParameters, 
+							   windParameters);
 		
 		// Calculate initial accelerations
 		this.linearAccelerations = aircraftForcesAndMoments.getBodyAccelerations(windParameters,
 																		         angularRates,
-																		         aircraft.wingDimensions,
+																		         aircraft.getWingDimensions(),
 																		         environmentParameters,
 																		         controls,
 																		         alphaDot, 
@@ -115,23 +119,37 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 		// Calculate initial moments
 		this.totalMoments = aircraftForcesAndMoments.getTotalMoments(windParameters,
 																	 angularRates,
-																	 aircraft.wingDimensions,
+																	 aircraft.getWingDimensions(),
 																	 environmentParameters,
 																	 controls,
 																	 alphaDot,
 																	 engine);
 		
-		// construct 12 6DOF state equations to integrate numerically 
+		// Calculate 12 6DOF state equations; need this method to recalculate derivatives at each time step 
+		simulationStates = new double[] {linearVelocities[0],
+		  							     linearVelocities[1],
+										 linearVelocities[2],
+										 NEDPosition[0],
+										 NEDPosition[1],
+										 NEDPosition[2],
+										 eulerAngles[0],
+										 eulerAngles[1],
+										 eulerAngles[2],
+										 angularRates[0],
+										 angularRates[1],
+										 angularRates[2]};
+		
+		// Construct 12 6DOF state equations object  
 		SixDOFEquations equations = new SixDOFEquations();
 
-		// using fourth-order Runge-Kutta numerical integration with time step of dt
+		// Use fourth-order Runge-Kutta numerical integration with time step of dt
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
 		
-		// run stepHandler every dt time steps
+		// Run stepHandler every dt time steps
 		integrator.addStepHandler(new StepNormalizer(integratorConfig[1], this));
 
-		// run integrator
-		integrator.integrate(equations,
+		// Run integrator
+		integrator.integrate(equations,       			  // derivatives
 			     			 integratorConfig[0],         // start time
 							 initialConditions,           // initial conditions
 							 integratorConfig[2],         // end time
@@ -139,46 +157,33 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 	}
 
 	public class SixDOFEquations implements FirstOrderDifferentialEquations {		
+		
 		public SixDOFEquations() {}
 
 		public void computeDerivatives(double t, double[] y, double[] yDot) {
-			double[][] dirCosMat = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([row][column])
-			double[] inertiaCoeffs = SixDOFUtilities.getInertiaCoeffs(aircraft.massProperties);
+			double[] sixDOFderivatives = updateDerivatives(simulationStates);
 			
-			yDot[0]  = (y[11]*y[1])-(y[10]*y[2])-(gravity[2]*Math.sin(y[7]))               +linearAccelerations[0];    // u (ft/sec)
-			yDot[1]  = (y[9]* y[2])-(y[11]*y[0])+(gravity[2]*Math.sin(y[6])*Math.cos(y[7]))+linearAccelerations[1];    // v (ft/sec)
-			yDot[2]  = (y[10]*y[0])-(y[9]* y[1])+(gravity[2]*Math.cos(y[6])*Math.cos(y[7]))+linearAccelerations[2];    // w (ft/sec)
-			
-			yDot[3]  = y[0]*dirCosMat[0][0]+y[1]*dirCosMat[0][1]+y[2]*dirCosMat[0][2];      // N (ft)
-			yDot[4]  = y[0]*dirCosMat[1][0]+y[1]*dirCosMat[1][1]+y[2]*dirCosMat[1][2];      // E (ft)
-			yDot[5]  = y[0]*dirCosMat[2][0]+y[1]*dirCosMat[2][1]+y[2]*dirCosMat[2][2];      // D (ft)
-			
-			yDot[6]  =   y[9]+(Math.tan(y[7])*((y[10]*Math.sin(y[6]))+(y[11]*Math.cos(y[6])))); // phi (rad)
-			yDot[7]  =  (y[10]*Math.cos(y[6]))-(y[11]*Math.sin(y[6]));     			            // theta (rad)
-			yDot[8]  = ((y[10]*Math.sin(y[6]))+(y[11]*Math.cos(y[6])))/Math.cos(y[7]);          // psi (rad)
-			
-			yDot[9]  = ((inertiaCoeffs[1]*y[9]*y[10]) - (inertiaCoeffs[0]*y[10])*y[11]) + (inertiaCoeffs[2]*totalMoments[0])+(inertiaCoeffs[3]*totalMoments[2]);     // p (rad/sec)
-			yDot[10] =  (inertiaCoeffs[4]*y[9]*y[11]) - (inertiaCoeffs[5]*((y[9]*y[9])-(y[11]*y[11])))                      +(inertiaCoeffs[6]*totalMoments[1]);     // q (rad/sec)
-			yDot[11] = ((inertiaCoeffs[7]*y[9]*y[10]) - (inertiaCoeffs[1]*y[10]*y[11])) + (inertiaCoeffs[3]*totalMoments[0])+(inertiaCoeffs[8]*totalMoments[2]);     // r (rad/sec)
+			for (int i=0; i<yDot.length; i++)			
+				yDot[i] = sixDOFderivatives[i];
 		}
 
 		public int getDimension() {return 12;}
 	}
 		
-	// integrator init function
+	// Integrator init function
 	public void init(double t0, double[] y0, double t) {}
 	
-	// called by the integrator (via StepNormalizer) after each time step
+	// Called by the integrator (via StepNormalizer) after each time step
 	public void handleStep(double t, double[] y, double[] yDot, boolean isLast) {
-		// assign indices in yTemp array to 6DOF state arrays
+		// Assign indices in yTemp array to 6DOF state arrays
 		for (int i=0; i<linearVelocities.length; i++) {
 			linearVelocities[i] = y[i];
-			NEDPosition[i] = y[i+3];
-			eulerAngles[i] = y[i+6];
-			angularRates[i] = y[i+9];
+			NEDPosition[i]      = y[i+3];
+			eulerAngles[i]      = y[i+6];
+			angularRates[i]     = y[i+9];
 		}
 
-		// implement saturation and (2)pi bounding to keep states within realistic limits
+		// Implement saturation and (2)pi bounding to keep states within realistic limits
 		linearVelocities = SaturationLimits.limitLinearVelocities(linearVelocities);
 		eulerAngles      = SaturationLimits.piBounding(eulerAngles);
 		angularRates     = SaturationLimits.limitAngularRates(angularRates);
@@ -195,7 +200,7 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 		// Update accelerations
 		linearAccelerations = aircraftForcesAndMoments.getBodyAccelerations(windParameters,
 																		    angularRates,
-																		    aircraft.wingDimensions,
+																		    aircraft.getWingDimensions(),
 																		    environmentParameters,
 																		    controls,
 																		    alphaDot,
@@ -203,7 +208,7 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 		// Update moments
 		totalMoments = aircraftForcesAndMoments.getTotalMoments(windParameters,
 														 		angularRates,
-																aircraft.wingDimensions,
+																aircraft.getWingDimensions(),
 																environmentParameters,
 																controls,
 																alphaDot,
@@ -211,7 +216,18 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 		
 		// TODO add eventHandlers to stop/continue/reset integration
 		// Recalculates derivatives for next step
-		eventOccurred(t, yDot, false);
+		updateDerivatives(new double[] {linearVelocities[0],
+										linearVelocities[1],
+										linearVelocities[2],
+										NEDPosition[0],
+										NEDPosition[1],
+										NEDPosition[2],
+										eulerAngles[0],
+										eulerAngles[1],
+										eulerAngles[2],
+										angularRates[0],
+										angularRates[1],
+										angularRates[2]});
 		
 		// Create an output array of all state arrays
 		Double outputStep[] = {t, 
@@ -239,10 +255,35 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 		
 		logsOut.add(outputStep);
 		
-		for (Double out : outputStep)
-			System.out.printf("%9.2f ", out);
-		System.out.println("\n");
+//		for (Double out : outputStep)
+//			System.out.printf("%9.2f ", out);
+//		System.out.println("\n");
 		
+	}
+	
+	protected double[] updateDerivatives(double[] y) {
+		double[] yDot = new double[12];
+		
+		double[][] dirCosMat = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([row][column])
+		double[] inertiaCoeffs = SixDOFUtilities.getInertiaCoeffs(aircraft.getMassProperties());
+		
+		yDot[0]  = (y[11]*y[1])-(y[10]*y[2])-(gravity[2]*Math.sin(y[7]))               +linearAccelerations[0];    // u (ft/sec)
+		yDot[1]  = (y[9]* y[2])-(y[11]*y[0])+(gravity[2]*Math.sin(y[6])*Math.cos(y[7]))+linearAccelerations[1];    // v (ft/sec)
+		yDot[2]  = (y[10]*y[0])-(y[9]* y[1])+(gravity[2]*Math.cos(y[6])*Math.cos(y[7]))+linearAccelerations[2];    // w (ft/sec)
+		
+		yDot[3]  = y[0]*dirCosMat[0][0]+y[1]*dirCosMat[0][1]+y[2]*dirCosMat[0][2];      // N (ft)
+		yDot[4]  = y[0]*dirCosMat[1][0]+y[1]*dirCosMat[1][1]+y[2]*dirCosMat[1][2];      // E (ft)
+		yDot[5]  = y[0]*dirCosMat[2][0]+y[1]*dirCosMat[2][1]+y[2]*dirCosMat[2][2];      // D (ft)
+		
+		yDot[6]  =   y[9]+(Math.tan(y[7])*((y[10]*Math.sin(y[6]))+(y[11]*Math.cos(y[6])))); // phi (rad)
+		yDot[7]  =  (y[10]*Math.cos(y[6]))-(y[11]*Math.sin(y[6]));     			            // theta (rad)
+		yDot[8]  = ((y[10]*Math.sin(y[6]))+(y[11]*Math.cos(y[6])))/Math.cos(y[7]);          // psi (rad)
+		
+		yDot[9]  = ((inertiaCoeffs[1]*y[9]*y[10]) - (inertiaCoeffs[0]*y[10])*y[11]) + (inertiaCoeffs[2]*totalMoments[0])+(inertiaCoeffs[3]*totalMoments[2]);     // p (rad/sec)
+		yDot[10] =  (inertiaCoeffs[4]*y[9]*y[11]) - (inertiaCoeffs[5]*((y[9]*y[9])-(y[11]*y[11])))                      +(inertiaCoeffs[6]*totalMoments[1]);     // q (rad/sec)
+		yDot[11] = ((inertiaCoeffs[7]*y[9]*y[10]) - (inertiaCoeffs[1]*y[10]*y[11])) + (inertiaCoeffs[3]*totalMoments[0])+(inertiaCoeffs[8]*totalMoments[2]);     // r (rad/sec)
+		
+		return yDot;
 	}
 	
 	public ArrayList<Double[]> getLogsOut() {return logsOut;}
@@ -251,10 +292,7 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 	public double g(double t, double[] y) {return 0;}
 
 	@Override
-	public Action eventOccurred(double t, double[] y, boolean increasing) {
-		System.out.println("Derivatives Reset");
-		return Action.RESET_DERIVATIVES;
-	}
+	public Action eventOccurred(double t, double[] y, boolean increasing) {return Action.RESET_DERIVATIVES;}
 
 	@Override
 	public void resetState(double t, double[] y) {}

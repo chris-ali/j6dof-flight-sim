@@ -47,8 +47,7 @@ public class RunSimulation {
 																   aircraft,
 																   fixedPitchEngine);
 		
-		SimulationPlots plotSimResults = new SimulationPlots(runSim.getLogsOut(), "6DOF Plots");
-		SimulationPlots.generatePlotWindows(plotSimResults);
+		new SimulationPlots(runSim.getLogsOut(), "Simulation Plots");
 
 	}
 }

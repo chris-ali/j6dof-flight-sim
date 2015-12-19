@@ -1,20 +1,18 @@
 package com.chrisali.javaflightsim.utilities.plotting;
 
+import java.util.ArrayList;
+
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.data.xy.*;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 
 public class SimulationPlots extends ApplicationFrame {
 
@@ -116,32 +114,32 @@ public class SimulationPlots extends ApplicationFrame {
 		windParamSeries.addSeries(alphaData);
 		
 		XYPlot linearVelPlot    = new XYPlot(linearVelSeries,    
-											 null, 
-											 new NumberAxis("Linear Velocities [ft/sec]"), 
+											 null,
+											 new NumberAxis("Velocity [ft/sec]"), 
 									 		 new StandardXYItemRenderer()); 
 		XYPlot nedPositionPlot  = new XYPlot(nedPositionSeries, 
 											 null, 
-											 new NumberAxis("NED Position [ft]"), 
+											 new NumberAxis("Position [ft]"), 
 											 new StandardXYItemRenderer());
 		XYPlot eulerAnglesPlot  = new XYPlot(eulerAnglesSeries, 
 											 null, 
-											 new NumberAxis("Euler Angles [rad]"), 
+											 new NumberAxis("Angle [rad]"), 
 											 new StandardXYItemRenderer());
 		XYPlot angularRatesPlot = new XYPlot(angularRatesSeries, 
-										     null, 
-									     	 new NumberAxis("Angular Rates [rad/sec]"), 
+											 null, 
+									     	 new NumberAxis("Rate [rad/sec]"), 
 									     	 new StandardXYItemRenderer());
 		XYPlot linearAccelPlot  = new XYPlot(linearAccelSeries, 
-											 null, 
-											 new NumberAxis("Linear Accelerations [ft/sec^2]"), 
+										     null, 
+											 new NumberAxis("Accel [ft/sec^2]"), 
 											 new StandardXYItemRenderer());
 		XYPlot totalMomentPlot  = new XYPlot(totalMomentSeries, 
 											 null, 
-											 new NumberAxis("Total Moments [fl*lb]"), 
+											 new NumberAxis("Moment [ft*lb]"), 
 											 new StandardXYItemRenderer()); 
 		XYPlot windParamPlot    = new XYPlot(windParamSeries, 
 											 null, 
-											 new NumberAxis("Wind Parameters [rad]"), 
+											 new NumberAxis("Angle [rad]"), 
 											 new StandardXYItemRenderer());
 		
 		CombinedDomainXYPlot simulationPlot1 = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
@@ -153,29 +151,25 @@ public class SimulationPlots extends ApplicationFrame {
 		simulationPlot1.add(totalMomentPlot,  1);
 		simulationPlot1.add(windParamPlot,    1);
 		simulationPlot1.setOrientation(PlotOrientation.VERTICAL);
-		simulationPlot1.setGap(10);
+		simulationPlot1.setGap(20);
 		
-		JFreeChart sixDOFPlots = new JFreeChart("6DOF States Plots", 
+		JFreeChart sixDOFPlots = new JFreeChart("Simulaton States", 
 										 	    JFreeChart.DEFAULT_TITLE_FONT, 
 										        simulationPlot1, 
 										        true);
 		
 		// Create Chart Panels to populate AWT window 
 		ChartPanel plotPanel = new ChartPanel(sixDOFPlots);
-		plotPanel.setPreferredSize(new java.awt.Dimension(1000, 900));
+		plotPanel.setPreferredSize(new java.awt.Dimension(1000, 950));
 		setContentPane(plotPanel);
+		
+		generatePlotWindows(this);
 	}
 	
-	public static void generatePlotWindows(SimulationPlots simPlots) {
+	private static void generatePlotWindows(SimulationPlots simPlots) {
 		simPlots.pack();
 		RefineryUtilities.centerFrameOnScreen(simPlots);
 		simPlots.setVisible(true);
-	}
-	
-	// Save plot as a jpg file in project folder
-	public static void savePlotJPG(JFreeChart xyPlot)  throws IOException  {
-		File plotPic = new File("xyPlot.jpeg");
-		ChartUtilities.saveChartAsJPEG(plotPic, xyPlot, 640, 480);
 	}
 
 }
