@@ -132,7 +132,7 @@ public class Aerodynamics extends Aircraft {
 								   double[] environmentParameters,
 								   double[] controls,
 								   double alphaDot) {
-		double qBar = environmentParameters[1]*windParameters[0]*windParameters[0]/2; //TODO Moments zeroed for debugging
+		double qBar = environmentParameters[1]*windParameters[0]*windParameters[0]/2;
 		
 		return new double[] {qBar*getCRoll(angularRates, windParameters, controls)*wingDimensions[0]*wingDimensions[1], 
 							 qBar*getCM(angularRates, windParameters, controls, alphaDot)*wingDimensions[0]*wingDimensions[2], 

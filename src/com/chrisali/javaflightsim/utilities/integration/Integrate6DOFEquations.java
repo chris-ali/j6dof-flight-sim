@@ -3,10 +3,7 @@ package com.chrisali.javaflightsim.utilities.integration;
 import java.util.ArrayList;
 
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
-import org.apache.commons.math3.ode.events.EventHandler;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
-import org.apache.commons.math3.ode.sampling.FixedStepHandler;
-import org.apache.commons.math3.ode.sampling.StepNormalizer;
 
 import com.chrisali.javaflightsim.aero.AccelAndMoments;
 import com.chrisali.javaflightsim.aircraft.Aircraft;
@@ -15,16 +12,16 @@ import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 
 /*
  * This class integrates all 12 6DOF equations numerically to obtain the aircraft states.
- * The Apache Commons' Classical Runge-Kutta is used to integrate over a period of time defined in the simConfig double array. 
+ * The Apache Commons' Classical Runge-Kutta is used to integrate over a period of time defined in the integratorConfig double array. 
  *  
  * In order to formulate the first order ODE, the following (double arrays) must be passed in:
  * 		integratorConfig[]{0,dt,dt}    (sec)
  * 		initialConditions[]{initU,initV,initW,initN,initE,initD,initPhi,initTheta,initPsi,initP,initQ,initR}
- *   	controls[]{elevator,aileron,rudder,throttle,propeller,mixture,flaps,gear,leftBrake,rightBrake}   (rad,rad,rad,norm,norm,norm,rad,norm,norm,norm)
- *		Aircraft aircraft
- *      FixedPitchPropEngine engine
+ *   	controlsIn[]{elevator,aileron,rudder,throttle,propeller,mixture,flaps,gear,leftBrake,rightBrake}   (rad,rad,rad,norm,norm,norm,rad,norm,norm,norm)
+ *		Aircraft aircraftIn
+ *      FixedPitchPropEngine engineIn
  * 
- * The class outputs at each step using logData in FixedStepHandler the following double array:
+ * The class outputs at each step using logData to generate the following double array:
  * 	    t,							(time [sec])
  *	    linearVelocities[0],        (u [ft/sec])
  *	    linearVelocities[1],		(v [ft/sec])
@@ -48,7 +45,7 @@ import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
  *	    NEDPosition[1],				(E [ft])
  *	    NEDPosition[2]				(D [ft])
  */
-public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
+public class Integrate6DOFEquations {
 	
 	private double[] linearVelocities 		= new double[3];
 	private double[] NEDPosition      		= new double[3];
@@ -92,38 +89,38 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
 		
-		// Run stepHandler every dt time steps
-		integrator.addStepHandler(new StepNormalizer(integratorConfig[1], this));
-
-		// Run integrator
-		integrator.integrate(new SixDOFEquations(),       // derivatives
-			     			 integratorConfig[0],         // start time
-							 initialConditions,           // initial conditions
-							 integratorConfig[2],         // end time
-							 new double[12]);             // storage 
+		// Allocate states array
+		double[] y = new double[12];
+		
+		// Integration loop
+		for (double t = integratorConfig[0]; t < integratorConfig[2]; t += integratorConfig[1]) {
+			// Run a single step of integration each step of the loop
+			y = integrator.singleStep(new SixDOFEquations(), 	  // derivatives
+									  t, 		  				  // start time
+									  initialConditions, 		  // initial conditions
+									  t+integratorConfig[1]);     // end time
+			
+			// Update data members' values
+			updateDataMembers(y);
+			
+			// Update initial conditions for next step of integration
+			initialConditions = y;
+			
+			// Update output log (don't output states to console)
+			logData(t, false);
+		}
+		
 	}
 
 	private class SixDOFEquations implements FirstOrderDifferentialEquations {		
 		private SixDOFEquations() {}
 
 		public void computeDerivatives(double t, double[] y, double[] yDot) {
-			for (int i=0; i<yDot.length; i++)			
+			for (int i = 0; i < yDot.length; i++) 
 				yDot[i] = sixDOFDerivatives[i];
 		}
 
 		public int getDimension() {return 12;}
-	}
-		
-	// Integrator init function
-	public void init(double t0, double[] y0, double t) {}
-	
-	// Called by the integrator (via StepNormalizer) after each time step
-	public void handleStep(double t, double[] y, double[] yDot, boolean isLast) {
-		// Update all data members of integrator instance
-		updateDataMembers(y);
-		
-		// Update logging list and output data to console (if desired)
-		logData(t, false);		
 	}
 	
 	private double[] updateDerivatives(double[] y) {
@@ -153,6 +150,7 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 	
 	public ArrayList<Double[]> getLogsOut() {return logsOut;}
 	
+	// Runs helper methods to update data members in functions
 	private void updateDataMembers(double[] y) {
 		// Assign indices in yTemp array to 6DOF state arrays
 		for (int i=0; i<linearVelocities.length; i++) {
@@ -196,7 +194,6 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 															alphaDot,
 															engine);
 		
-		// TODO add eventHandlers to stop/continue/reset integration
 		// Recalculates derivatives for next step
 		this.sixDOFDerivatives = updateDerivatives(new double[] {linearVelocities[0],
 																 linearVelocities[1],
@@ -212,6 +209,7 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 																 angularRates[2]});
 	}
 	
+	// After each step adds data to a logging arrayList for plotting and outputs to the console (if desired)
 	private void logData(double t, boolean useConsole) {
 		// Create an output array of all state arrays
 		Double outputStep[] = {t, 
@@ -246,14 +244,5 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 			System.out.println("\n");
 		}
 	}
-
-	@Override
-	public double g(double t, double[] y) {return 0;}
-
-	@Override
-	public Action eventOccurred(double t, double[] y, boolean increasing) {return Action.RESET_DERIVATIVES;}
-
-	@Override
-	public void resetState(double t, double[] y) {}
 	
 }
