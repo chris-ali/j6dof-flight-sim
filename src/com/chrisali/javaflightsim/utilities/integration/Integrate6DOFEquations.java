@@ -24,7 +24,7 @@ import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
  *		Aircraft aircraft
  *      FixedPitchPropEngine engine
  * 
- * The class outputs at each step using FixedStepHandler the following double array:
+ * The class outputs at each step using logData in FixedStepHandler the following double array:
  * 	    t,							(time [sec])
  *	    linearVelocities[0],        (u [ft/sec])
  *	    linearVelocities[1],		(v [ft/sec])
@@ -64,83 +64,30 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 	
 	private double[] controls				= new double[10];
 	
-	private double[] simulationStates		= new double[12];
+	private double[] sixDOFDerivatives		= new double[12];
 	
 	//TODO need a way to calculate alphaDot
 	private double alphaDot = 0.0f;
 	
-	private Aircraft aircraft  						 = new Aircraft();
-	private FixedPitchPropEngine engine 			 = new FixedPitchPropEngine();
-	private AccelAndMoments aircraftForcesAndMoments = new AccelAndMoments();
+	private Aircraft aircraft  				= new Aircraft();
+	private FixedPitchPropEngine engine 	= new FixedPitchPropEngine();
+	private AccelAndMoments accelAndMoments = new AccelAndMoments();
 	
 	private ArrayList<Double[]> logsOut = new ArrayList<>();
 	
 	public Integrate6DOFEquations(double[] integratorConfig,
 								  double[] initialConditions,
-								  double[] controls,
-								  Aircraft aircraft,
-								  FixedPitchPropEngine engine) {
+								  double[] controlsIn,
+								  Aircraft aircraftIn,
+								  FixedPitchPropEngine engineIn) {
 
-		for (int i=0; i<linearVelocities.length; i++) {
-			this.linearVelocities[i] = initialConditions[i];
-			this.NEDPosition[i]      = initialConditions[i+3];
-			this.eulerAngles[i]		 = initialConditions[i+6];
-			this.angularRates[i] 	 = initialConditions[i+9];
-		}
+		this.aircraft = aircraftIn;
+		this.engine   = engineIn;
+		this.controls = controlsIn;
+		this.gravity  = Environment.getGravity();
 		
-		this.aircraft = aircraft;
-		this.engine   = engine;
-		this.controls = controls;
-		
-		// Calculate gravity
-		this.gravity = Environment.getGravity();
-		
-		// Calculate initial environment parameters
-		this.environmentParameters = Environment.getEnvironmentParams(NEDPosition);
-				
-		// Calculate initial wind parameters
-		this.windParameters = SixDOFUtilities.getWindParameters(linearVelocities);
-		
-		// Calculate initial engine thrust
-		engine.calculateThrust(controls, 
-							   NEDPosition, 
-							   environmentParameters, 
-							   windParameters);
-		
-		// Calculate initial accelerations
-		this.linearAccelerations = aircraftForcesAndMoments.getBodyAccelerations(windParameters,
-																		         angularRates,
-																		         aircraft.getWingDimensions(),
-																		         environmentParameters,
-																		         controls,
-																		         alphaDot, 
-																		         engine);
-		
-		// Calculate initial moments
-		this.totalMoments = aircraftForcesAndMoments.getTotalMoments(windParameters,
-																	 angularRates,
-																	 aircraft.getWingDimensions(),
-																	 environmentParameters,
-																	 controls,
-																	 alphaDot,
-																	 engine);
-		
-		// Calculate 12 6DOF state equations; need this method to recalculate derivatives at each time step 
-		simulationStates = new double[] {linearVelocities[0],
-		  							     linearVelocities[1],
-										 linearVelocities[2],
-										 NEDPosition[0],
-										 NEDPosition[1],
-										 NEDPosition[2],
-										 eulerAngles[0],
-										 eulerAngles[1],
-										 eulerAngles[2],
-										 angularRates[0],
-										 angularRates[1],
-										 angularRates[2]};
-		
-		// Construct 12 6DOF state equations object  
-		SixDOFEquations equations = new SixDOFEquations();
+		// Calculate initial data members' values
+		updateDataMembers(initialConditions);
 
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
@@ -149,22 +96,19 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 		integrator.addStepHandler(new StepNormalizer(integratorConfig[1], this));
 
 		// Run integrator
-		integrator.integrate(equations,       			  // derivatives
+		integrator.integrate(new SixDOFEquations(),       // derivatives
 			     			 integratorConfig[0],         // start time
 							 initialConditions,           // initial conditions
 							 integratorConfig[2],         // end time
 							 new double[12]);             // storage 
 	}
 
-	public class SixDOFEquations implements FirstOrderDifferentialEquations {		
-		
-		public SixDOFEquations() {}
+	private class SixDOFEquations implements FirstOrderDifferentialEquations {		
+		private SixDOFEquations() {}
 
 		public void computeDerivatives(double t, double[] y, double[] yDot) {
-			double[] sixDOFderivatives = updateDerivatives(simulationStates);
-			
 			for (int i=0; i<yDot.length; i++)			
-				yDot[i] = sixDOFderivatives[i];
+				yDot[i] = sixDOFDerivatives[i];
 		}
 
 		public int getDimension() {return 12;}
@@ -175,93 +119,14 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 	
 	// Called by the integrator (via StepNormalizer) after each time step
 	public void handleStep(double t, double[] y, double[] yDot, boolean isLast) {
-		// Assign indices in yTemp array to 6DOF state arrays
-		for (int i=0; i<linearVelocities.length; i++) {
-			linearVelocities[i] = y[i];
-			NEDPosition[i]      = y[i+3];
-			eulerAngles[i]      = y[i+6];
-			angularRates[i]     = y[i+9];
-		}
-
-		// Implement saturation and (2)pi bounding to keep states within realistic limits
-		linearVelocities = SaturationLimits.limitLinearVelocities(linearVelocities);
-		eulerAngles      = SaturationLimits.piBounding(eulerAngles);
-		angularRates     = SaturationLimits.limitAngularRates(angularRates);
+		// Update all data members of integrator instance
+		updateDataMembers(y);
 		
-		// Update wind parameters
-		windParameters = SixDOFUtilities.getWindParameters(linearVelocities);
-		
-		// Update environment		
-		environmentParameters = Environment.getEnvironmentParams(NEDPosition);
-		
-		// Update engine
-		engine.calculateThrust(controls, NEDPosition, environmentParameters, windParameters);
-		
-		// Update accelerations
-		linearAccelerations = aircraftForcesAndMoments.getBodyAccelerations(windParameters,
-																		    angularRates,
-																		    aircraft.getWingDimensions(),
-																		    environmentParameters,
-																		    controls,
-																		    alphaDot,
-																		    engine);
-		// Update moments
-		totalMoments = aircraftForcesAndMoments.getTotalMoments(windParameters,
-														 		angularRates,
-																aircraft.getWingDimensions(),
-																environmentParameters,
-																controls,
-																alphaDot,
-																engine);
-		
-		// TODO add eventHandlers to stop/continue/reset integration
-		// Recalculates derivatives for next step
-		updateDerivatives(new double[] {linearVelocities[0],
-										linearVelocities[1],
-										linearVelocities[2],
-										NEDPosition[0],
-										NEDPosition[1],
-										NEDPosition[2],
-										eulerAngles[0],
-										eulerAngles[1],
-										eulerAngles[2],
-										angularRates[0],
-										angularRates[1],
-										angularRates[2]});
-		
-		// Create an output array of all state arrays
-		Double outputStep[] = {t, 
-							   linearVelocities[0],
-							   linearVelocities[1],
-							   linearVelocities[2],
-							   angularRates[0],
-							   angularRates[1],
-							   angularRates[2],						
-							   eulerAngles[0],
-							   eulerAngles[1],
-							   eulerAngles[2],
-							   windParameters[0],
-							   windParameters[1],
-							   windParameters[2],
-							   linearAccelerations[0],
-							   linearAccelerations[1],
-							   linearAccelerations[2],
-							   totalMoments[0],
-							   totalMoments[1],
-							   totalMoments[2],
-							   NEDPosition[0],
-							   NEDPosition[1],
-							   NEDPosition[2]};
-		
-		logsOut.add(outputStep);
-		
-//		for (Double out : outputStep)
-//			System.out.printf("%9.2f ", out);
-//		System.out.println("\n");
-		
+		// Update logging list and output data to console (if desired)
+		logData(t, false);		
 	}
 	
-	protected double[] updateDerivatives(double[] y) {
+	private double[] updateDerivatives(double[] y) {
 		double[] yDot = new double[12];
 		
 		double[][] dirCosMat = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([row][column])
@@ -287,6 +152,100 @@ public class Integrate6DOFEquations implements FixedStepHandler, EventHandler {
 	}
 	
 	public ArrayList<Double[]> getLogsOut() {return logsOut;}
+	
+	private void updateDataMembers(double[] y) {
+		// Assign indices in yTemp array to 6DOF state arrays
+		for (int i=0; i<linearVelocities.length; i++) {
+			this.linearVelocities[i] = y[i];
+			this.NEDPosition[i]      = y[i+3];
+			this.eulerAngles[i]      = y[i+6];
+			this.angularRates[i]     = y[i+9];
+		}
+
+		// Implement saturation and (2)pi bounding to keep states within realistic limits
+		this.linearVelocities = SaturationLimits.limitLinearVelocities(linearVelocities);
+		this.eulerAngles      = SaturationLimits.piBounding(eulerAngles);
+		this.angularRates     = SaturationLimits.limitAngularRates(angularRates);
+		
+		// Update wind parameters
+		this.windParameters = SixDOFUtilities.getWindParameters(linearVelocities);
+		
+		// Update environment		
+		this.environmentParameters = Environment.getEnvironmentParams(NEDPosition);
+		
+		// Update engine
+		this.engine.calculateThrust(controls, 
+									NEDPosition, 
+									environmentParameters, 
+									windParameters);
+		
+		// Update accelerations
+		this.linearAccelerations = accelAndMoments.getBodyAccelerations(windParameters,
+																	    angularRates,
+																	    aircraft.getWingDimensions(),
+																	    environmentParameters,
+																	    controls,
+																	    alphaDot,
+																	    engine);
+		// Update moments
+		this.totalMoments = accelAndMoments.getTotalMoments(windParameters,
+													 		angularRates,
+															aircraft.getWingDimensions(),
+															environmentParameters,
+															controls,
+															alphaDot,
+															engine);
+		
+		// TODO add eventHandlers to stop/continue/reset integration
+		// Recalculates derivatives for next step
+		this.sixDOFDerivatives = updateDerivatives(new double[] {linearVelocities[0],
+																 linearVelocities[1],
+																 linearVelocities[2],
+																 NEDPosition[0],
+																 NEDPosition[1],
+																 NEDPosition[2],
+																 eulerAngles[0],
+																 eulerAngles[1],
+																 eulerAngles[2],
+																 angularRates[0],
+																 angularRates[1],
+																 angularRates[2]});
+	}
+	
+	private void logData(double t, boolean useConsole) {
+		// Create an output array of all state arrays
+		Double outputStep[] = {t, 
+							   linearVelocities[0],
+							   linearVelocities[1],
+							   linearVelocities[2],
+							   angularRates[0],
+							   angularRates[1],
+							   angularRates[2],						
+							   eulerAngles[0],
+							   eulerAngles[1],
+							   eulerAngles[2],
+							   windParameters[0],
+							   windParameters[1],
+							   windParameters[2],
+							   linearAccelerations[0],
+							   linearAccelerations[1],
+							   linearAccelerations[2],
+							   totalMoments[0],
+							   totalMoments[1],
+							   totalMoments[2],
+							   NEDPosition[0],
+							   NEDPosition[1],
+							   NEDPosition[2]};
+		
+		// Add output step to logging arrayList
+		logsOut.add(outputStep);
+		
+		if (useConsole) {
+			for (Double out : outputStep)
+				System.out.printf("%9.2f ", out);
+			System.out.println("\n");
+		}
+	}
 
 	@Override
 	public double g(double t, double[] y) {return 0;}
