@@ -1,0 +1,12 @@
+initU = 200
+initV = 0
+initW = 0
+initN = 0
+initE = 0
+initD = 5000
+initPhi = 0
+initTheta = 0
+initPsi = 1.57
+initP = 0
+initQ = 0
+initR = 0
