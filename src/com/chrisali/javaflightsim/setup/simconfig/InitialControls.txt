@@ -1,0 +1,10 @@
+elevator = 0.02185
+aileron = 0.0
+rudder = 0.0
+throttle = 0.55
+propeller = 1.0
+mixture = 1.0
+flaps = 0.0
+gear = 0.0
+leftBrake = 0.0
+rightBrake = 0.0
