@@ -1,6 +1,7 @@
 package com.chrisali.javaflightsim.utilities.plotting;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -8,154 +9,34 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
 
 public class SimulationPlots extends ApplicationFrame {
 
 	private static final long serialVersionUID = 1L;
 	
-	// Creates plots of 3 ([phi, theta, psi], [u, v, w], etc) for all variables 
-	// monitored in the logsOut ArrayList
+
+	// Creates plots for variables monitored in the logsOut ArrayList
 	public SimulationPlots(ArrayList<Double[]> logsOut, String applicationTitle) {
 		super(applicationTitle);
 		
-		XYSeries uData      = new XYSeries("u");
-		XYSeries vData      = new XYSeries("v");
-		XYSeries wData      = new XYSeries("w");
+		PlotUtilities.makePlotLists(logsOut);
 		
-		XYSeries northData  = new XYSeries("North");
-		XYSeries eastData   = new XYSeries("East");
-		XYSeries downData   = new XYSeries("Down");
+		HashMap<String, XYPlot> plotLists = PlotUtilities.getPlotLists();
 		
-		XYSeries phiData    = new XYSeries("Phi");
-		XYSeries thetaData  = new XYSeries("Theta");
-		XYSeries psiData    = new XYSeries("Psi");
-		
-		XYSeries pData      = new XYSeries("p");
-		XYSeries qData      = new XYSeries("q");
-		XYSeries rData      = new XYSeries("r");
-				
-		XYSeries axData     = new XYSeries("a_x");
-		XYSeries ayData     = new XYSeries("a_y");
-		XYSeries azData     = new XYSeries("a_z");		
-		
-		XYSeries lData      = new XYSeries("L");
-		XYSeries mData      = new XYSeries("M");
-		XYSeries nData      = new XYSeries("N");
-		
-		XYSeries betaData   = new XYSeries("Beta");
-		XYSeries alphaData  = new XYSeries("Alpha");
-		
-		for (Double[] y : logsOut) {
-			uData.add(y[0],y[1]);      // u
-			vData.add(y[0],y[2]);      // v
-			wData.add(y[0],y[3]);      // w
-			
-			northData.add(y[0],y[19]); // N
-			eastData.add(y[0],y[20]);  // E
-			downData.add(y[0],y[21]);  // D
-			
-			phiData.add(y[0],y[7]);    // phi
-			thetaData.add(y[0],y[8]);  // theta
-			psiData.add(y[0],y[9]);    // psi
-			
-			pData.add(y[0],y[4]);      // p
-			qData.add(y[0],y[5]);      // q
-			rData.add(y[0],y[6]);      // r
-			
-			axData.add(y[0],y[13]);    // a_x
-			ayData.add(y[0],y[14]);    // a_y
-			azData.add(y[0],y[15]);    // a_z
-			
-			lData.add(y[0],y[16]);     // L
-			mData.add(y[0],y[17]);     // M
-			nData.add(y[0],y[18]);     // N
-			
-			betaData.add(y[0],y[11]);  // beta
-			alphaData.add(y[0],y[12]); // alpha
-		}
-		
-		XYSeriesCollection linearVelSeries = new XYSeriesCollection();
-		linearVelSeries.addSeries(uData);
-		linearVelSeries.addSeries(vData);
-		linearVelSeries.addSeries(wData);
-		
-		XYSeriesCollection nedPositionSeries = new XYSeriesCollection();
-		nedPositionSeries.addSeries(northData);
-		nedPositionSeries.addSeries(eastData);
-		nedPositionSeries.addSeries(downData);
-		
-		XYSeriesCollection eulerAnglesSeries = new XYSeriesCollection();
-		eulerAnglesSeries.addSeries(phiData);
-		eulerAnglesSeries.addSeries(thetaData);
-		eulerAnglesSeries.addSeries(psiData);
-		
-		XYSeriesCollection angularRatesSeries = new XYSeriesCollection();
-		angularRatesSeries.addSeries(pData);
-		angularRatesSeries.addSeries(qData);
-		angularRatesSeries.addSeries(rData);
-		
-		XYSeriesCollection linearAccelSeries = new XYSeriesCollection();
-		linearAccelSeries.addSeries(axData);
-		linearAccelSeries.addSeries(ayData);
-		linearAccelSeries.addSeries(azData);
-		
-		XYSeriesCollection totalMomentSeries = new XYSeriesCollection();
-		totalMomentSeries.addSeries(lData);
-		totalMomentSeries.addSeries(mData);
-		totalMomentSeries.addSeries(nData);
-		
-		XYSeriesCollection windParamSeries = new XYSeriesCollection();
-		windParamSeries.addSeries(betaData);
-		windParamSeries.addSeries(alphaData);
-		
-		XYPlot linearVelPlot    = new XYPlot(linearVelSeries,    
-											 null,
-											 new NumberAxis("Velocity [ft/sec]"), 
-									 		 new StandardXYItemRenderer()); 
-		XYPlot nedPositionPlot  = new XYPlot(nedPositionSeries, 
-											 null, 
-											 new NumberAxis("Position [ft]"), 
-											 new StandardXYItemRenderer());
-		XYPlot eulerAnglesPlot  = new XYPlot(eulerAnglesSeries, 
-											 null, 
-											 new NumberAxis("Angle [rad]"), 
-											 new StandardXYItemRenderer());
-		XYPlot angularRatesPlot = new XYPlot(angularRatesSeries, 
-											 null, 
-									     	 new NumberAxis("Rate [rad/sec]"), 
-									     	 new StandardXYItemRenderer());
-		XYPlot linearAccelPlot  = new XYPlot(linearAccelSeries, 
-										     null, 
-											 new NumberAxis("Accel [ft/sec^2]"), 
-											 new StandardXYItemRenderer());
-		XYPlot totalMomentPlot  = new XYPlot(totalMomentSeries, 
-											 null, 
-											 new NumberAxis("Moment [ft*lb]"), 
-											 new StandardXYItemRenderer()); 
-		XYPlot windParamPlot    = new XYPlot(windParamSeries, 
-											 null, 
-											 new NumberAxis("Angle [rad]"), 
-											 new StandardXYItemRenderer());
-		
-		CombinedDomainXYPlot simulationPlot1 = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
-		simulationPlot1.add(linearVelPlot,    1);
-		simulationPlot1.add(nedPositionPlot,  1);
-		simulationPlot1.add(eulerAnglesPlot,  1);
-		simulationPlot1.add(angularRatesPlot, 1);
-		simulationPlot1.add(linearAccelPlot,  1);
-		simulationPlot1.add(totalMomentPlot,  1);
-		simulationPlot1.add(windParamPlot,    1);
-		simulationPlot1.setOrientation(PlotOrientation.VERTICAL);
-		simulationPlot1.setGap(20);
+		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
+		simulationPlot.add(plotLists.get("TAS"),            1);
+		simulationPlot.add(plotLists.get("Altitude"),       1);
+		simulationPlot.add(plotLists.get("Heading"),        1);
+		simulationPlot.add(plotLists.get("Euler Angles"),   1);
+		simulationPlot.add(plotLists.get("Accelerations"),  1);
+		simulationPlot.add(plotLists.get("Wind Parameters"),1);
+		simulationPlot.setOrientation(PlotOrientation.VERTICAL);
+		simulationPlot.setGap(20);
 		
 		JFreeChart sixDOFPlots = new JFreeChart("Simulaton States", 
 										 	    JFreeChart.DEFAULT_TITLE_FONT, 
-										        simulationPlot1, 
+										        simulationPlot, 
 										        true);
 		
 		// Create Chart Panels to populate AWT window 
@@ -163,13 +44,7 @@ public class SimulationPlots extends ApplicationFrame {
 		plotPanel.setPreferredSize(new java.awt.Dimension(1000, 950));
 		setContentPane(plotPanel);
 		
-		generatePlotWindows(this);
-	}
-	
-	private static void generatePlotWindows(SimulationPlots simPlots) {
-		simPlots.pack();
-		RefineryUtilities.centerFrameOnScreen(simPlots);
-		simPlots.setVisible(true);
+		PlotUtilities.generatePlotWindows(this);
 	}
 
 }

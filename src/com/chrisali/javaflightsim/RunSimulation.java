@@ -20,7 +20,7 @@ public class RunSimulation {
 																   IntegrationSetup.gatherInitialConditions("InitialConditions"), //{initU,initV,initW,initN,initE,initD,initPhi,initTheta,initPsi,initP,initQ,initR}
 																   IntegrationSetup.gatherInitialControls("InitialControls"), // {elevator,aileron,rudder,throttle,propeller,mixture,flaps,gear,leftBrake,rightBrake}
 																   new Aircraft(), // Default to Navion
-																   new FixedPitchPropEngine(200, 2700, 6.5)); // Default to Lycoming IO-360
+																   new FixedPitchPropEngine()); // Default to Lycoming IO-360
 		//TODO enable/disable debug mode
 		new SimulationPlots(runSim.getLogsOut(), "Simulation Plots");
 

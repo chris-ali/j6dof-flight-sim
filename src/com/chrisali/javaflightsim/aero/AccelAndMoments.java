@@ -7,7 +7,6 @@ import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.utilities.integration.SaturationLimits;
 
 public class AccelAndMoments extends Aerodynamics {
-	//TODO need a way to obtain alphadot
 	
 	public double[] getBodyAccelerations(double[] windParameters,
 									     double[] angularRates,
@@ -16,12 +15,14 @@ public class AccelAndMoments extends Aerodynamics {
 									     double[] controls,
 									     double alphaDot,
 									     FixedPitchPropEngine engine) {
+		
 		Vector3D aeroForceVector = new Vector3D(getBodyForces(windParameters, 
 															  angularRates, 
 															  wingDimensions, 
 															  environmentParameters, 
 															  controls, 
 															  alphaDot));
+		
 		Vector3D engineForce = new Vector3D(engine.getThrust());
 		
 		// Negative engine thrust propels aircraft forward according to coordinate system
@@ -44,6 +45,7 @@ public class AccelAndMoments extends Aerodynamics {
 															  environmentParameters, 
 															  controls, 
 															  alphaDot));
+		
 		Vector3D acVector = new Vector3D(aerodynamicCenter);
 		Vector3D cgVector = new Vector3D(centerOfGravity);
 		
@@ -56,7 +58,7 @@ public class AccelAndMoments extends Aerodynamics {
 																controls, 
 																alphaDot)); 
 		
-		Vector3D engineMoment = new Vector3D(engine.calculateEngMoments());
+		Vector3D engineMoment = new Vector3D(engine.getEngineMoment());
 		
 		double[] tempTotalMoments = aeroMomentVector.add(engineMoment).add(aeroForceCrossProd).toArray();
 		

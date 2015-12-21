@@ -29,22 +29,27 @@ public abstract class EngineModel extends Aircraft {
 	
 	protected double[] engineThrust = {0, 0, 0};	//{T_x,T_y,T_z}	(lbf)			
 	protected double[] engineMoment = {0, 0, 0};	//{M_x,M_y,M_z} (lbf)
-
+	
+	protected double rpm;
+	protected double fuelFlow;
 	
 	//TODO need engine model properties (etaP, advance ratio, bhp curves) for lookup tables
 	//TODO etaP needs to vary
   	//TODO model depends on if prop/jet	
-
-	public double[] calculateEngMoments() {
+	
+	// Moment calculation same regardless of engine type
+	protected void calculateEngMoments() {
 		Vector3D forceVector = new Vector3D(engineThrust);
 		Vector3D armVector = new Vector3D(enginePosition);
 		
-		engineMoment = Vector3D.crossProduct(forceVector, armVector).toArray();
-		return engineMoment;
+		this.engineMoment = Vector3D.crossProduct(forceVector, armVector).toArray();
 	}
 	
-	public double[] getThrust() {
-		return engineThrust;
-	}
+	public double[] getThrust() {return engineThrust;}
 	
+	public double[] getEngineMoment() {return engineMoment;}
+	
+	public double getRPM() {return rpm;}
+	
+	public double getFuelFlow() {return fuelFlow;}
 }

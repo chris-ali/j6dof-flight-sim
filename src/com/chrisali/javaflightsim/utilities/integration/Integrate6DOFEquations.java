@@ -64,13 +64,14 @@ public class Integrate6DOFEquations {
 	private double[] sixDOFDerivatives		= new double[12];
 	
 	//TODO need a way to calculate alphaDot
-	private double alphaDot = 0.0f;
+	private double alphaDot = 0.0f; // = u*w_dot-w*u_dot/(u^2+w^2)
 	
 	private Aircraft aircraft  				= new Aircraft();
 	private FixedPitchPropEngine engine 	= new FixedPitchPropEngine();
 	private AccelAndMoments accelAndMoments = new AccelAndMoments();
 	
-	private ArrayList<Double[]> logsOut = new ArrayList<>();
+	private ArrayList<Double[]> logsOut     = new ArrayList<>();
+	private Double[] simOut;
 	
 	public Integrate6DOFEquations(double[] integratorConfig,
 								  double[] initialConditions,
@@ -89,7 +90,7 @@ public class Integrate6DOFEquations {
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
 		
-		// Allocate states array
+		// Allocate states array for integrated states
 		double[] y = new double[12];
 		
 		// Integration loop
@@ -172,10 +173,10 @@ public class Integrate6DOFEquations {
 		this.environmentParameters = Environment.getEnvironmentParams(NEDPosition);
 		
 		// Update engine
-		this.engine.calculateThrust(controls, 
-									NEDPosition, 
-									environmentParameters, 
-									windParameters);
+		this.engine.updateEngineState(controls, 
+									  NEDPosition, 
+									  environmentParameters, 
+									  windParameters);
 		
 		// Update accelerations
 		this.linearAccelerations = accelAndMoments.getBodyAccelerations(windParameters,
@@ -212,16 +213,19 @@ public class Integrate6DOFEquations {
 	// After each step adds data to a logging arrayList for plotting and outputs to the console (if desired)
 	private void logData(double t, boolean useConsole) {
 		// Create an output array of all state arrays
-		Double outputStep[] = {t, 
+		simOut = new Double[] {t, 
 							   linearVelocities[0],
 							   linearVelocities[1],
 							   linearVelocities[2],
-							   angularRates[0],
-							   angularRates[1],
-							   angularRates[2],						
+							   NEDPosition[0],
+							   NEDPosition[1],
+							   NEDPosition[2],
 							   eulerAngles[0],
 							   eulerAngles[1],
 							   eulerAngles[2],
+							   angularRates[0],
+							   angularRates[1],
+							   angularRates[2],
 							   windParameters[0],
 							   windParameters[1],
 							   windParameters[2],
@@ -231,18 +235,31 @@ public class Integrate6DOFEquations {
 							   totalMoments[0],
 							   totalMoments[1],
 							   totalMoments[2],
-							   NEDPosition[0],
-							   NEDPosition[1],
-							   NEDPosition[2]};
+							   sixDOFDerivatives[0],
+							   sixDOFDerivatives[1],
+							   sixDOFDerivatives[2],
+							   sixDOFDerivatives[3],
+							   sixDOFDerivatives[4],
+							   sixDOFDerivatives[5],
+							   sixDOFDerivatives[6],
+							   sixDOFDerivatives[7],
+							   sixDOFDerivatives[8],
+							   sixDOFDerivatives[9],
+							   sixDOFDerivatives[10],
+							   sixDOFDerivatives[11],
+							   engine.getThrust()[0],
+							   engine.getRPM(),
+							   engine.getFuelFlow()};
 		
 		// Add output step to logging arrayList
-		logsOut.add(outputStep);
+		logsOut.add(simOut);
 		
 		if (useConsole) {
-			for (Double out : outputStep)
+			for (Double out : simOut)
 				System.out.printf("%9.2f ", out);
 			System.out.println("\n");
 		}
 	}
 	
+	public Double[] getOutputStep() {return simOut;}
 }
