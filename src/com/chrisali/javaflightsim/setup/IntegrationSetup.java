@@ -14,7 +14,7 @@ public class IntegrationSetup {
 		
 		if (initConditionsList.size() != 12) {
 			System.err.println("Error in initial conditions file! Generating default initial conditions...");
-			return new double[] {200,0.0,0.0,0.0,0.0,5000.0,0.0,0.0,1.57,0.0,0.0,0.0};
+			return new double[] {210,0.0,-3.99,0.0,0.0,5000.0,0.0,-0.025,1.57,0.0,0.0,0.0};
 		} else {
 			double[] initialCondtions = new double[initConditionsList.size()];
 			for (int i = 0; i < initConditionsList.size(); i++)
@@ -28,26 +28,26 @@ public class IntegrationSetup {
 		
 		if (intCongigFile.size() != 3) {
 			System.err.println("Error in integration configuration file! Generating default integration configuration...");
-			return new double[] {0.0,0.05,200.0};
+			return new double[] {0.0,0.05,100.0};
 		} else {
-			double[] integratorCongig = new double[intCongigFile.size()];
+			double[] integratorConfig = new double[intCongigFile.size()];
 			for (int i = 0; i < intCongigFile.size(); i++)
-				integratorCongig[i] = Double.parseDouble(intCongigFile.get(i)[1]);
-			return integratorCongig;
+				integratorConfig[i] = Double.parseDouble(intCongigFile.get(i)[1]);
+			return integratorConfig;
 		}
 	}
 	
 	public static double[] gatherInitialControls(String fileName) {
 		ArrayList<String[]> initControlFile = readFileAndSplit(fileName);
 		
-		if (initControlFile.size() != 10) {
+		if (initControlFile.size() != 13) {
 			System.err.println("Error in controls file! Generating default control deflections...");
-			return new double[] {0.02185,0,0,0.55,0,0,0,0,0,0};
+			return new double[] {0.036,0,0,0.65,0.65,1.0,1.0,1.0,1.0,0,0,0,0};
 		} else {
-			double[] integratorCongig = new double[initControlFile.size()];
+			double[] initControl = new double[initControlFile.size()];
 			for (int i = 0; i < initControlFile.size(); i++)
-				integratorCongig[i] = Double.parseDouble(initControlFile.get(i)[1]);
-			return integratorCongig;
+				initControl[i] = Double.parseDouble(initControlFile.get(i)[1]);
+			return initControl;
 		}
 	}
 	

@@ -17,7 +17,7 @@ import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
  * In order to formulate the first order ODE, the following (double arrays) must be passed in:
  * 		integratorConfig[]{0,dt,dt}    (sec)
  * 		initialConditions[]{initU,initV,initW,initN,initE,initD,initPhi,initTheta,initPsi,initP,initQ,initR}
- *   	controlsIn[]{elevator,aileron,rudder,throttle,propeller,mixture,flaps,gear,leftBrake,rightBrake}   (rad,rad,rad,norm,norm,norm,rad,norm,norm,norm)
+ * 		controls[]{elevator,aileron,rudder,leftThrottle,rightThrottle,leftPropeller,rightPropeller,leftMixture,rightMixture,flaps,gear,leftBrake,rightBrake}   (rad,rad,rad,norm,norm,norm,norm,norm,norm,rad,norm,norm,norm)
  *		Aircraft aircraftIn
  *      FixedPitchPropEngine engineIn
  * 
@@ -134,9 +134,9 @@ public class Integrate6DOFEquations {
 		yDot[1]  = (y[9]* y[2])-(y[11]*y[0])+(gravity[2]*Math.sin(y[6])*Math.cos(y[7]))+linearAccelerations[1];    // v (ft/sec)
 		yDot[2]  = (y[10]*y[0])-(y[9]* y[1])+(gravity[2]*Math.cos(y[6])*Math.cos(y[7]))+linearAccelerations[2];    // w (ft/sec)
 		
-		yDot[3]  = y[0]*dirCosMat[0][0]+y[1]*dirCosMat[0][1]+y[2]*dirCosMat[0][2];      // N (ft)
-		yDot[4]  = y[0]*dirCosMat[1][0]+y[1]*dirCosMat[1][1]+y[2]*dirCosMat[1][2];      // E (ft)
-		yDot[5]  = y[0]*dirCosMat[2][0]+y[1]*dirCosMat[2][1]+y[2]*dirCosMat[2][2];      // D (ft)
+		yDot[3]  =  y[0]*dirCosMat[0][0]+y[1]*dirCosMat[0][1]+y[2]*dirCosMat[0][2];         // N (ft)
+		yDot[4]  =  y[0]*dirCosMat[1][0]+y[1]*dirCosMat[1][1]+y[2]*dirCosMat[1][2];         // E (ft)
+		yDot[5]  = (y[0]*dirCosMat[2][0]+y[1]*dirCosMat[2][1]+y[2]*dirCosMat[2][2])*-1;     // D (ft) (Negative value to reverse altitude sensing)
 		
 		yDot[6]  =   y[9]+(Math.tan(y[7])*((y[10]*Math.sin(y[6]))+(y[11]*Math.cos(y[6])))); // phi (rad)
 		yDot[7]  =  (y[10]*Math.cos(y[6]))-(y[11]*Math.sin(y[6]));     			            // theta (rad)
@@ -214,42 +214,42 @@ public class Integrate6DOFEquations {
 	private void logData(double t, boolean useConsole) {
 		// Create an output array of all state arrays
 		simOut = new Double[] {t, 
-							   linearVelocities[0],
-							   linearVelocities[1],
-							   linearVelocities[2],
-							   NEDPosition[0],
-							   NEDPosition[1],
-							   NEDPosition[2],
-							   eulerAngles[0],
-							   eulerAngles[1],
-							   eulerAngles[2],
-							   angularRates[0],
-							   angularRates[1],
-							   angularRates[2],
-							   windParameters[0],
-							   windParameters[1],
-							   windParameters[2],
-							   linearAccelerations[0],
-							   linearAccelerations[1],
-							   linearAccelerations[2],
-							   totalMoments[0],
-							   totalMoments[1],
-							   totalMoments[2],
-							   sixDOFDerivatives[0],
-							   sixDOFDerivatives[1],
-							   sixDOFDerivatives[2],
-							   sixDOFDerivatives[3],
-							   sixDOFDerivatives[4],
-							   sixDOFDerivatives[5],
-							   sixDOFDerivatives[6],
-							   sixDOFDerivatives[7],
-							   sixDOFDerivatives[8],
-							   sixDOFDerivatives[9],
-							   sixDOFDerivatives[10],
-							   sixDOFDerivatives[11],
-							   engine.getThrust()[0],
-							   engine.getRPM(),
-							   engine.getFuelFlow()};
+							   linearVelocities[0],						// u (ft/sec)
+							   linearVelocities[1],						// v (ft/sec)
+							   linearVelocities[2],						// w (ft/sec)
+							   NEDPosition[0],							// N (ft)
+							   NEDPosition[1],							// E (ft)
+							   NEDPosition[2],							// D (ft)
+							   eulerAngles[0],							// phi (rad)
+							   eulerAngles[1],							// theta (rad)
+							   eulerAngles[2],							// psi (rad)
+							   angularRates[0],							// p (rad/sec)
+							   angularRates[1],							// q (rad/sec)
+							   angularRates[2],							// e (rad/sec)
+							   windParameters[0],						// TAS (ft/sec)
+							   windParameters[1],						// beta (rad)
+							   windParameters[2],						// alpha (rad)
+							   linearAccelerations[0],					// a_x (ft/sec^2) (engine and aero)
+							   linearAccelerations[1],					// a_y (ft/sec^2) (engine and aero)
+							   linearAccelerations[2],					// a_z (ft/sec^2) (engine and aero)
+							   totalMoments[0],							// L (ft*lb)
+							   totalMoments[1],							// M (ft*lb)
+							   totalMoments[2],							// N (ft*lb)
+							  (sixDOFDerivatives[0]/gravity[2]),      	// an_x (g) 
+							  (sixDOFDerivatives[1]/gravity[2]),	  	// an_y (g)
+							 ((sixDOFDerivatives[2]/gravity[2])+1.0), 	// an_z (g) (with 1.0 bias of gravity)
+							   sixDOFDerivatives[3],					// N_dot (ft/sec)
+							   sixDOFDerivatives[4],					// E_dot (ft/sec)
+							   sixDOFDerivatives[5],					// D_dot (ft/sec)
+							   sixDOFDerivatives[6],					// phi_dot (rad/sec)
+							   sixDOFDerivatives[7],					// theta_dot (rad/sec)
+							   sixDOFDerivatives[8],					// psi_dot (rad/sec)
+							   sixDOFDerivatives[9],					// p_dot (rad/sec^2)
+							   sixDOFDerivatives[10],					// q_dot (rad/sec^2)
+							   sixDOFDerivatives[11],					// r_dot (rad/sec^2)
+							   engine.getThrust()[0],					// thrust (lb)
+							   engine.getRPM(),							// rpm (rev/min)
+							   engine.getFuelFlow()};					// fuelFlow (gal/hr)
 		
 		// Add output step to logging arrayList
 		logsOut.add(simOut);

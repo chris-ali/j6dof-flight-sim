@@ -1,9 +1,12 @@
 elevator = 0.036
 aileron = 0.0
 rudder = 0.0
-throttle = 0.65
-propeller = 1.0
-mixture = 1.0
+leftThrottle = 0.65
+rightThrottle = 0.65
+leftPropeller = 1.0
+rightPropeller = 1.0
+leftMixture = 1.0
+rightMixture = 1.0
 flaps = 0.0
 gear = 0.0
 leftBrake = 0.0
