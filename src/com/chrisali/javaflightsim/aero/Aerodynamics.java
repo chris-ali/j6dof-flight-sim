@@ -56,7 +56,7 @@ public class Aerodynamics extends Aircraft {
 	// Calculate CD
 	private double getCD(double[] windParameters,
 						 double[] controls) {
-		return dragDerivs[0]*windParameters[2]+
+		return dragDerivs[0]*Math.abs(windParameters[2])+ // Need absolute value to prevent negative drag at negative alpha
 			   dragDerivs[1]+
 			   dragDerivs[2]*controls[6]+
 			   dragDerivs[3]*controls[0]+

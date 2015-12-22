@@ -1,7 +1,7 @@
-elevator = 0.02185
+elevator = 0.036
 aileron = 0.0
 rudder = 0.0
-throttle = 0.55
+throttle = 0.65
 propeller = 1.0
 mixture = 1.0
 flaps = 0.0
