@@ -15,7 +15,6 @@ public class SimulationPlots extends ApplicationFrame {
 
 	private static final long serialVersionUID = 1L;
 	
-
 	// Creates plots for variables monitored in the logsOut ArrayList
 	public SimulationPlots(ArrayList<Double[]> logsOut, String applicationTitle) {
 		super(applicationTitle);

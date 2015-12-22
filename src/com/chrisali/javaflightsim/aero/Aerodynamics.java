@@ -10,7 +10,7 @@ import com.chrisali.javaflightsim.utilities.integration.SixDOFUtilities;
  * TODO Make lookup tables for alpha/beta derivatives 
  *  
  * The following must be passed in:
- * 		controls[]{elevator,aileron,rudder,throttle,propeller,mixture,flaps,gear,leftBrake,rightBrake}   (rad,rad,rad,norm,norm,norm,rad,norm,norm,norm)
+ * 		controls[]{elevator,aileron,rudder,leftThrottle,rightThrottle,leftPropeller,rightPropeller,leftMixture,rightMixture,flaps,gear,leftBrake,rightBrake}   (rad,rad,rad,norm,norm,norm,norm,norm,norm,rad,norm,norm,norm)
  *      windParameters[]{vTrue,alpha,beta}  								(ft/sec,rad,rad)
  * 		angularRates[]{p,q,r}		  										(rad/sec)
  * 		double alphaDot				 										(rad/sec)
@@ -43,7 +43,7 @@ public class Aerodynamics extends Aircraft {
 			   liftDerivs[2]*angularRates[1]*rotaryTerm+
 			   liftDerivs[3]*alphaDot+
 			   liftDerivs[4]*controls[0]+	
-			   liftDerivs[5]*controls[6];		
+			   liftDerivs[5]*controls[9];		
 	}
 	
 	// Calculate CY
@@ -58,9 +58,9 @@ public class Aerodynamics extends Aircraft {
 						 double[] controls) {
 		return dragDerivs[0]*Math.abs(windParameters[2])+ // Need absolute value to prevent negative drag at negative alpha
 			   dragDerivs[1]+
-			   dragDerivs[2]*controls[6]+
+			   dragDerivs[2]*controls[9]+
 			   dragDerivs[3]*controls[0]+
-			   dragDerivs[4]*controls[7];		
+			   dragDerivs[4]*controls[10];		
 	}
 	
 	// Calculate CRoll
@@ -88,7 +88,7 @@ public class Aerodynamics extends Aircraft {
 			   pitchMomentDerivs[2]*angularRates[1]*rotaryTerm+
 			   pitchMomentDerivs[3]*alphaDot+
 			   pitchMomentDerivs[4]*controls[0]+
-			   pitchMomentDerivs[5]*controls[6];
+			   pitchMomentDerivs[5]*controls[9];
 	}
 	
 	// Calculate CN

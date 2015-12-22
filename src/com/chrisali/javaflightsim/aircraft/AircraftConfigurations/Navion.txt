@@ -4,7 +4,7 @@
 cla = 4.44
 cladot = 0
 clq = 3.8
-clde = 0.0355
+clde = 0.355
 clo = 0.41
 
 %CD

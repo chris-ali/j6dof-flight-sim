@@ -3,8 +3,7 @@ package com.chrisali.javaflightsim.aircraft;
 public class Aircraft {
 	protected double[] centerOfGravity;    // {CG_x,CG_y,CG_z}
 	protected double[] aerodynamicCenter;  // {ac_x,ac_y,ac_z}
-	protected double[] enginePosition;	   // {eng_x,eng_y,eng_z}
-	
+
 	protected double[] massProperties;     // {weight,Ix,Iy,Iz,Ixz}
 	
 	protected double[] wingDimensions;	   // {wingSfcArea,b,c_bar}
@@ -21,7 +20,6 @@ public class Aircraft {
 	public Aircraft() { 
 		centerOfGravity     = new double[]{0,0,0};
 		aerodynamicCenter   = new double[]{0,0,0};
-		enginePosition		= new double[]{0,0,0};
 		
 		massProperties      = new double[]{2750/32.2,1048,3000,3050,0};
 		
@@ -46,47 +44,47 @@ public class Aircraft {
 				switch (tempLine.substring(0,1)){
 					case "CL": {
 						for(int i=0;i<6;i++)
-					        liftDerivs[i]=tempLine.split("=")[1].parseDouble();
+					        liftDerivs[i]=tempLine.split(" = ")[1].parseDouble();
 						break;
 					}
 					case "CY": {
 						for(int i=0;i<6;i++)
-							sideForceDerivs[i]=tempLine.split("=")[1].parseDouble();
+							sideForceDerivs[i]=tempLine.split(" = ")[1].parseDouble();
 						break;
 					}
 					case "CD": {
 						for(int i=0;i<6;i++)
-							dragDerivs[i]=tempLine.split("=")[1].parseDouble();
+							dragDerivs[i]=tempLine.split(" = ")[1].parseDouble();
 						break;
 					}
 					case "Cl": {
 						for(int i=0;i<6;i++)
-							rollMomentDerivs[i]=tempLine.split("=")[1].parseDouble();
+							rollMomentDerivs[i]=tempLine.split(" = ")[1].parseDouble();
 						break;
 					}
 					case "CM": {
 						for(int i=0;i<6;i++)
-							pitchMomentDerivs[i]=tempLine.split("=")[1].parseDouble();
+							pitchMomentDerivs[i]=tempLine.split(" = ")[1].parseDouble();
 						break;
 					}
 					case "CN": {
 						for(int i=0;i<5;i++)
-							yawMomentDerivs[i]=tempLine.split("=")[1].parseDouble();
+							yawMomentDerivs[i]=tempLine.split(" = ")[1].parseDouble();
 						break;
 					}
 					case "ac": {
 						for(int i=0;i<3;i++)
-							aerodynamicCenter[i]=tempLine.split("=")[1].parseDouble();
+							aerodynamicCenter[i]=tempLine.split(" = ")[1].parseDouble();
 						break;
 					}
 					case "CG": {
 						for(int i=0;i<3;i++)
-							centerOfGravity[i]=tempLine.split("=")[1].parseDouble();
+							centerOfGravity[i]=tempLine.split(" = ")[1].parseDouble();
 						break;
 					}
-					case "en": {
+					case "ac": {
 						for(int i=0;i<3;i++)
-							enginePosition[i]=tempLine.split("=")[1].parseDouble();
+							aerodynamicCenter[i]=tempLine.split(" = ")[1].parseDouble();
 						break;
 					}
 				}
@@ -97,8 +95,6 @@ public class Aircraft {
 	public double[] getCenterOfGravity() {return centerOfGravity;}
 
 	public double[] getAerodynamicCenter() {return aerodynamicCenter;}
-
-	public double[] getEnginePosition() {return enginePosition;}
 
 	public double[] getMassProperties() {return massProperties;}
 

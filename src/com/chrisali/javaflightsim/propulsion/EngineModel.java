@@ -16,22 +16,24 @@ import com.chrisali.javaflightsim.aircraft.Aircraft;
  */
 public abstract class EngineModel extends Aircraft {
 	
-	final protected double A_P = 1.132; 
-	final protected double B_P = 0.132;
-	final protected double RHO_SSL = 0.002377;
-	final protected double HP_2_FTLBS = 550;
+	final static protected double A_P        = 1.132; 
+	final static protected double B_P        = 0.132;
+	final static protected double RHO_SSL    = 0.002377;
+	final static protected double HP_2_FTLBS = 550;
 	
 	protected double maxBHP;            //BHP at standard sea level
 	protected double maxRPM;			//rev/min
 	protected double propDiameter;		//ft
 	protected double propArea;			//ft^2
-	protected double propEfficiency;    
+	protected double propEfficiency;
 	
-	protected double[] engineThrust = {0, 0, 0};	//{T_x,T_y,T_z}	(lbf)			
-	protected double[] engineMoment = {0, 0, 0};	//{M_x,M_y,M_z} (lbf)
+	protected double[] enginePosition = {0, 0, 0};	// {eng_x,eng_y,eng_z}  (ft)
+	protected double[] engineThrust   = {0, 0, 0};	// {T_x,T_y,T_z}	    (lbf)			
+	protected double[] engineMoment;				// {M_x,M_y,M_z}        (lbf)
 	
 	protected double rpm;
 	protected double fuelFlow;
+	protected int isRightSide; // If eng_y > 0, set to 1 to indicate right side, else left side (or single engine)
 	
 	//TODO need engine model properties (etaP, advance ratio, bhp curves) for lookup tables
 	//TODO etaP needs to vary

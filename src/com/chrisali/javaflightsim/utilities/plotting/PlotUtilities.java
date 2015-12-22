@@ -102,20 +102,20 @@ public class PlotUtilities {
 		angularRatesSeries.addSeries(qData);
 		angularRatesSeries.addSeries(rData);
 		
-		XYSeriesCollection linearAccelSeries = new XYSeriesCollection();
+		XYSeriesCollection linearAccelSeries  = new XYSeriesCollection();
 		linearAccelSeries.addSeries(axData);
 		linearAccelSeries.addSeries(ayData);
 		linearAccelSeries.addSeries(azData);
 		
-		XYSeriesCollection totalMomentSeries = new XYSeriesCollection();
+		XYSeriesCollection totalMomentSeries  = new XYSeriesCollection();
 		totalMomentSeries.addSeries(lData);
 		totalMomentSeries.addSeries(mData);
 		totalMomentSeries.addSeries(nData);
 		
-		XYSeriesCollection tasSeries         = new XYSeriesCollection();
+		XYSeriesCollection tasSeries          = new XYSeriesCollection();
 		tasSeries.addSeries(tasData);
 		
-		XYSeriesCollection windParamSeries   = new XYSeriesCollection();
+		XYSeriesCollection windParamSeries    = new XYSeriesCollection();
 		windParamSeries.addSeries(betaData);
 		windParamSeries.addSeries(alphaData);
 		
@@ -142,7 +142,7 @@ public class PlotUtilities {
 		
 		XYPlot altDotPlot       = new XYPlot(altDotSeries, 
 										     null, 
-										     new NumberAxis("Vert Speed [ft/sec]"), 
+										     new NumberAxis("Vertical Speed [ft/sec]"), 
 										     new StandardXYItemRenderer());
 
 		plotLists.put("Vertical Speed", altDotPlot);
@@ -170,7 +170,7 @@ public class PlotUtilities {
 		
 		XYPlot linearAccelPlot  = new XYPlot(linearAccelSeries, 
 										     null, 
-											 new NumberAxis("Accel [ft/sec^2]"), 
+											 new NumberAxis("Acceleration [ft/sec^2]"), 
 											 new StandardXYItemRenderer());
 		
 		plotLists.put("Accelerations", linearAccelPlot);
@@ -184,7 +184,7 @@ public class PlotUtilities {
 		
 		XYPlot tasPlot          = new XYPlot(tasSeries, 
 										     null, 
-										     new NumberAxis("Airspeed [ft/sec]"), 
+										     new NumberAxis("True Airspeed [ft/sec]"), 
 										     new StandardXYItemRenderer());
 
 		plotLists.put("Wind Parameters", tasPlot);
