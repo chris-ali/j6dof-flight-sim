@@ -26,7 +26,7 @@ public abstract class EngineModel extends Aircraft {
 	protected double propDiameter;		//ft
 	protected double propArea;			//ft^2
 	protected double propEfficiency;
-	
+
 	protected double[] engineThrust   = {0, 0, 0};	// {T_x,T_y,T_z}	    (lbf)			
 	protected double[] engineMoment;				// {M_x,M_y,M_z}        (lbf)
 	

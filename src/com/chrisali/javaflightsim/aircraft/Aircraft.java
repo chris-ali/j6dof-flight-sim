@@ -4,7 +4,7 @@ public class Aircraft {
 	protected double[] centerOfGravity;    // {CG_x,CG_y,CG_z}
 	protected double[] aerodynamicCenter;  // {ac_x,ac_y,ac_z}
 	protected double[] enginePosition; 	   // {eng_x,eng_y,eng_z}  (ft)
-	
+
 	protected double[] massProperties;     // {weight,Ix,Iy,Iz,Ixz}
 	
 	protected double[] wingDimensions;	   // {wingSfcArea,b,c_bar}
