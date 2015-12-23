@@ -3,7 +3,8 @@ package com.chrisali.javaflightsim.aircraft;
 public class Aircraft {
 	protected double[] centerOfGravity;    // {CG_x,CG_y,CG_z}
 	protected double[] aerodynamicCenter;  // {ac_x,ac_y,ac_z}
-
+	protected double[] enginePosition; 	   // {eng_x,eng_y,eng_z}  (ft)
+	
 	protected double[] massProperties;     // {weight,Ix,Iy,Iz,Ixz}
 	
 	protected double[] wingDimensions;	   // {wingSfcArea,b,c_bar}
@@ -18,20 +19,21 @@ public class Aircraft {
 	
 	// Default constructor to give default values for aircraft definition (Navion)
 	public Aircraft() { 
-		centerOfGravity     = new double[]{0,0,0};
-		aerodynamicCenter   = new double[]{0,0,0};
+		this.centerOfGravity    = new double[]{0,0,0};
+		this.aerodynamicCenter  = new double[]{0,0,0};
+		this.enginePosition		= new double[]{0,0,0};
 		
-		massProperties      = new double[]{2750/32.2,1048,3000,3050,0};
+		this.massProperties     = new double[]{2750/32.2,1048,3000,3050,0};
 		
-		wingDimensions		= new double[]{184,33.4,5.7};
+		this.wingDimensions		= new double[]{184,33.4,5.7};
 		
-		liftDerivs			= new double[]{4.44,0.41,3.8,0,0.355,0.355};
-		sideForceDerivs		= new double[]{-0.564,0.157};
-		dragDerivs			= new double[]{0.33,0.025,0.02,0.001,0.09};
+		this.liftDerivs			= new double[]{4.44,0.41,3.8,0,0.355,0.355};
+		this.sideForceDerivs	= new double[]{-0.564,0.157};
+		this.dragDerivs			= new double[]{0.33,0.025,0.02,0.001,0.09};
 		
-		rollMomentDerivs	= new double[]{-0.074,-0.410,0.107,-0.134,0.107};
-		pitchMomentDerivs	= new double[]{-0.683,0.02,-9.96,-4.36,-0.923,-0.050};
-		yawMomentDerivs		= new double[]{0.071,-0.0575,-0.125,-0.0035,-0.072};
+		this.rollMomentDerivs	= new double[]{-0.074,-0.410,0.107,-0.134,0.107};
+		this.pitchMomentDerivs	= new double[]{-0.683,0.02,-9.96,-4.36,-0.923,-0.050};
+		this.yawMomentDerivs	= new double[]{0.071,-0.0575,-0.125,-0.0035,-0.072};
 	}
 	
 	// TODO Read a text file with aircraft attributes, and assign them to arrays	

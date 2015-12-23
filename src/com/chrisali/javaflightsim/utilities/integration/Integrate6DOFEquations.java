@@ -26,6 +26,9 @@ import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
  *	    linearVelocities[0],        (u [ft/sec])
  *	    linearVelocities[1],		(v [ft/sec])
  *	    linearVelocities[2],		(w [ft/sec])
+ *	    NEDPosition[0],				(N [ft])
+ *	    NEDPosition[1],				(E [ft])
+ *	    NEDPosition[2],				(D [ft])
  *	    angularRates[0],			(p [rad/sec])
  *	    angularRates[1],			(q [rad/sec])
  *	    angularRates[2],			(r [rad/sec])
@@ -41,9 +44,6 @@ import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
  *	    totalMoments[0],			(L [ft*lbf])
  *	    totalMoments[1],			(M [ft*lbf])
  *	    totalMoments[2],			(N [ft*lbf])
- *	    NEDPosition[0],				(N [ft])
- *	    NEDPosition[1],				(E [ft])
- *	    NEDPosition[2]				(D [ft])
  */
 public class Integrate6DOFEquations {
 	
@@ -249,7 +249,12 @@ public class Integrate6DOFEquations {
 							   sixDOFDerivatives[11],					// r_dot (rad/sec^2)
 							   engine.getThrust()[0],					// thrust (lb)
 							   engine.getRPM(),							// rpm (rev/min)
-							   engine.getFuelFlow()};					// fuelFlow (gal/hr)
+							   engine.getFuelFlow(),					// fuelFlow (gal/hr)
+							   controls[0],								// elevator (rad)
+							   controls[1],								// aileron (rad)
+							   controls[2],								// rudder (rad)
+							   controls[3],								// throttle (norm)
+							   controls[9]};							// flaps (rad)
 		
 		// Add output step to logging arrayList
 		logsOut.add(simOut);
@@ -261,5 +266,5 @@ public class Integrate6DOFEquations {
 		}
 	}
 	
-	public Double[] getOutputStep() {return simOut;}
+	public Double[] getSimOut() {return simOut;}
 }

@@ -11,7 +11,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
 
 public class PlotUtilities {
-	private static HashMap<String, XYPlot> plotLists = new HashMap<>();
+	private static HashMap<PlotType, XYPlot> plotLists = new HashMap<>();
 	
 	static void makePlotLists(ArrayList<Double[]> logsOut) {
 		XYSeries uData      = new XYSeries("u");
@@ -44,6 +44,12 @@ public class PlotUtilities {
 		XYSeries betaData   = new XYSeries("Beta");
 		XYSeries alphaData  = new XYSeries("Alpha");
 		
+		XYSeries elevData   = new XYSeries("Elevator");
+		XYSeries ailData    = new XYSeries("Aileron");
+		XYSeries rudData    = new XYSeries("Rudder");
+		XYSeries throtData  = new XYSeries("Throttle");
+		XYSeries flapData   = new XYSeries("Flaps");
+		
 		for (Double[] y : logsOut) {
 			uData.add(y[0],y[1]);        // u
 			vData.add(y[0],y[2]);        // v
@@ -74,6 +80,12 @@ public class PlotUtilities {
 			
 			betaData.add(y[0],y[14]);    // beta
 			alphaData.add(y[0],y[15]);   // alpha
+			
+			elevData.add(y[0], y[37]);	 // elevator
+			ailData.add(y[0], y[38]);	 // aileron
+			rudData.add(y[0], y[39]);	 // rudder
+			throtData.add(y[0], y[40]);	 // throttle
+			flapData.add(y[0], y[41]);	 // flaps
 		}
 		
 		XYSeriesCollection linearVelSeries    = new XYSeriesCollection();
@@ -119,85 +131,135 @@ public class PlotUtilities {
 		windParamSeries.addSeries(betaData);
 		windParamSeries.addSeries(alphaData);
 		
+		XYSeriesCollection elevSeries		  = new XYSeriesCollection();
+		elevSeries.addSeries(elevData);
+		
+		XYSeriesCollection ailSeries		  = new XYSeriesCollection();
+		ailSeries.addSeries(ailData);
+		
+		XYSeriesCollection rudSeries		  = new XYSeriesCollection();
+		rudSeries.addSeries(rudData);
+		
+		XYSeriesCollection throtSeries		  = new XYSeriesCollection();
+		throtSeries.addSeries(throtData);
+		
+		XYSeriesCollection flapSeries		  = new XYSeriesCollection();
+		flapSeries.addSeries(flapData);
+		
 		XYPlot linearVelPlot    = new XYPlot(linearVelSeries,    
 											 null,
 											 new NumberAxis("Velocity [ft/sec]"), 
 									 		 new StandardXYItemRenderer()); 
 		
-		plotLists.put("Velocity", linearVelPlot);
+		plotLists.put(PlotType.VELOCITY, linearVelPlot);
 		
 		XYPlot positionPlot     = new XYPlot(positionSeries, 
 											 new NumberAxis("East [ft]"), 
 											 new NumberAxis("North [ft]"), 
 											 new StandardXYItemRenderer());
 		
-		plotLists.put("Position", positionPlot);
+		plotLists.put(PlotType.POSITION, positionPlot);
 		
 		XYPlot altitudePlot     = new XYPlot(altitudeSeries, 
 											 null, 
 											 new NumberAxis("Altitude [ft]"), 
 											 new StandardXYItemRenderer());
 
-		plotLists.put("Altitude", altitudePlot);
+		plotLists.put(PlotType.ALTITUDE, altitudePlot);
 		
 		XYPlot altDotPlot       = new XYPlot(altDotSeries, 
 										     null, 
 										     new NumberAxis("Vertical Speed [ft/sec]"), 
 										     new StandardXYItemRenderer());
 
-		plotLists.put("Vertical Speed", altDotPlot);
+		plotLists.put(PlotType.VERT_SPEED, altDotPlot);
 		
 		XYPlot headingPlot      = new XYPlot(headingSeries, 
 											 null, 
 											 new NumberAxis("Heading [rad]"), 
 											 new StandardXYItemRenderer());
 							
-		plotLists.put("Heading", headingPlot);
+		plotLists.put(PlotType.HEADING, headingPlot);
 		
 		XYPlot eulerAnglesPlot  = new XYPlot(eulerAnglesSeries, 
 											 null, 
 											 new NumberAxis("Angle [rad]"), 
 											 new StandardXYItemRenderer());
 		
-		plotLists.put("Euler Angles", eulerAnglesPlot);
+		plotLists.put(PlotType.EULER_ANGLES, eulerAnglesPlot);
 		
 		XYPlot angularRatesPlot = new XYPlot(angularRatesSeries, 
 											 null, 
 									     	 new NumberAxis("Rate [rad/sec]"), 
 									     	 new StandardXYItemRenderer());
 		
-		plotLists.put("Angular Rates", angularRatesPlot);
+		plotLists.put(PlotType.ANGULAR_RATE, angularRatesPlot);
 		
 		XYPlot linearAccelPlot  = new XYPlot(linearAccelSeries, 
 										     null, 
 											 new NumberAxis("Acceleration [ft/sec^2]"), 
 											 new StandardXYItemRenderer());
 		
-		plotLists.put("Accelerations", linearAccelPlot);
+		plotLists.put(PlotType.ACCELERATION, linearAccelPlot);
 		
 		XYPlot totalMomentPlot  = new XYPlot(totalMomentSeries, 
 											 null, 
 											 new NumberAxis("Moment [ft*lb]"), 
 											 new StandardXYItemRenderer()); 
 		
-		plotLists.put("Total Moments", totalMomentPlot);
+		plotLists.put(PlotType.MOMENT, totalMomentPlot);
 		
 		XYPlot tasPlot          = new XYPlot(tasSeries, 
 										     null, 
 										     new NumberAxis("True Airspeed [ft/sec]"), 
 										     new StandardXYItemRenderer());
 
-		plotLists.put("Wind Parameters", tasPlot);
+		plotLists.put(PlotType.TAS, tasPlot);
 		
 		XYPlot windParamPlot    = new XYPlot(windParamSeries, 
 											 null, 
 											 new NumberAxis("Angle [rad]"), 
 											 new StandardXYItemRenderer());
 		
-		plotLists.put("TAS", windParamPlot);
+		plotLists.put(PlotType.WIND_PARAM, windParamPlot);
+		
+		XYPlot elevPlot    		= new XYPlot(elevSeries, 
+											 null, 
+											 new NumberAxis("Deflection [rad]"), 
+											 new StandardXYItemRenderer());
+
+		plotLists.put(PlotType.ELEVATOR, elevPlot);
+		
+		XYPlot ailPlot		    = new XYPlot(ailSeries, 
+											 null, 
+											 new NumberAxis("Deflection [rad]"), 
+											 new StandardXYItemRenderer());
+		
+		plotLists.put(PlotType.AILERON, ailPlot);
+		
+		XYPlot rudPlot    		= new XYPlot(rudSeries, 
+											 null, 
+											 new NumberAxis("Deflection [rad]"), 
+											 new StandardXYItemRenderer());
+		
+		plotLists.put(PlotType.RUDDER, rudPlot);
+		
+		XYPlot throtPlot        = new XYPlot(throtSeries, 
+											 null, 
+											 new NumberAxis("Position [norm]"), 
+											 new StandardXYItemRenderer());
+		
+		plotLists.put(PlotType.THROTTLE, throtPlot);
+		
+		XYPlot flapPlot         = new XYPlot(flapSeries, 
+											 null, 
+											 new NumberAxis("Deflection [rad]"), 
+											 new StandardXYItemRenderer());
+		
+		plotLists.put(PlotType.FLAPS, flapPlot);
 	}
 	
-	public static HashMap<String, XYPlot> getPlotLists() {return plotLists;}
+	public static HashMap<PlotType, XYPlot> getPlotLists() {return plotLists;}
 	
 	static void generatePlotWindows(SimulationPlots simPlots) {
 		simPlots.pack();

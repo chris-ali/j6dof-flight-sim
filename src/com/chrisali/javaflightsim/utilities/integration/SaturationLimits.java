@@ -3,9 +3,9 @@ package com.chrisali.javaflightsim.utilities.integration;
 public class SaturationLimits {
 	
 	public static double[] piBounding(double[] eulerAngles) {
-		double phi = eulerAngles[0];
+		double phi   = eulerAngles[0];
 		double theta = eulerAngles[1];
-		double psi = eulerAngles[2];
+		double psi   = eulerAngles[2];
 		
 		if (eulerAngles[0] > Math.PI || eulerAngles[0] < -Math.PI)
 			phi %= Math.PI;
@@ -13,12 +13,12 @@ public class SaturationLimits {
 		if (eulerAngles[1] > Math.PI || eulerAngles[1] < -Math.PI)
 			theta %= Math.PI;
 		else if (eulerAngles[1] == Math.PI/2)
-			theta = Math.PI*0.95;
+			theta = Math.PI*0.95; // Prevent theta from reaching PI, which would cause singularity in Euler angles
 		
-		if (eulerAngles[2] > 2*Math.PI || eulerAngles[2] < -2*Math.PI)
+		if (eulerAngles[2] > 2*Math.PI || eulerAngles[2] < 0)
 			psi %= 2*Math.PI;
 		
-		return new double[] {phi,theta,psi};
+		return new double[] {phi,theta,Math.abs(psi)}; // Return only positive values of psi between 0 and 2*pi
 	}
 	
 	public static double[] limitLinearVelocities(double[] linearVelocities) {
@@ -115,7 +115,7 @@ public class SaturationLimits {
 	
 	public static double[] limitWindParameters(double[] windParameters) {
 		double vTrue = windParameters[0];
-		double beta = windParameters[1];
+		double beta  = windParameters[1];
 		double alpha = windParameters[2];
 		
 		if (windParameters[0] < 0.5)

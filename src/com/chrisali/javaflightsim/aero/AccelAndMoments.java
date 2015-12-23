@@ -3,7 +3,6 @@ package com.chrisali.javaflightsim.aero;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import com.chrisali.javaflightsim.propulsion.EngineModel;
-import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.utilities.integration.SaturationLimits;
 
 public class AccelAndMoments extends Aerodynamics {
@@ -14,7 +13,7 @@ public class AccelAndMoments extends Aerodynamics {
 									     double[] environmentParameters,
 									     double[] controls,
 									     double alphaDot,
-									     FixedPitchPropEngine engine) {
+									     EngineModel engine) {
 		
 		Vector3D aeroForceVector = new Vector3D(getBodyForces(windParameters, 
 															  angularRates, 

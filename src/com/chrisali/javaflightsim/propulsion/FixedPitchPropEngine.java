@@ -9,7 +9,7 @@ public class FixedPitchPropEngine extends EngineModel {
 		this.propEfficiency = 0.85;
 		this.enginePosition = enginePosition;
 		
-		if (enginePosition[1] > 0)
+		if (enginePosition[1] > 0) // Determines whether the engine is on the left/right
 			this.isRightSide = 1;
 		else
 			this.isRightSide = 0;
@@ -24,7 +24,7 @@ public class FixedPitchPropEngine extends EngineModel {
 		this.isRightSide    = 0;
 	}
 	
-	// Update all engine states 
+	// Update all states for one engine
 	public void updateEngineState(double[] controls,				//{elevator,aileron,rudder,throttle,propeller,mixture,flaps,gear,leftBrake,rightBrake}
 								  double[] NEDPosition,				//{N,E,D}
 								  double[] environmentParameters,	//{temp,rho,p,a}

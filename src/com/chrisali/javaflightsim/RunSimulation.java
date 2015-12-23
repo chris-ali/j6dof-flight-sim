@@ -18,11 +18,13 @@ public class RunSimulation {
 		//---------------------
 		Integrate6DOFEquations runSim = new Integrate6DOFEquations(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"),  // {startTime, dt, endTime}
 																   IntegrationSetup.gatherInitialConditions("InitialConditions"), //{initU,initV,initW,initN,initE,initD,initPhi,initTheta,initPsi,initP,initQ,initR}
-																   IntegrationSetup.gatherInitialControls("InitialControls"), // {elevator,aileron,rudder,throttle,propeller,mixture,flaps,gear,leftBrake,rightBrake}
+																   IntegrationSetup.gatherInitialControls("InitialControls"), // {elevator,aileron,rudder,leftThrottle,rightThrottle,leftPropeller,rightPropeller,leftMixture,rightMixture,flaps,gear,leftBrake,rightBrake}
 																   new Aircraft(), // Default to Navion
 																   new FixedPitchPropEngine()); // Default to Lycoming IO-360
 		//TODO enable/disable debug mode
-		new SimulationPlots(runSim.getLogsOut(), "Simulation Plots");
-
+		new SimulationPlots(runSim.getLogsOut(), "Controls");
+		new SimulationPlots(runSim.getLogsOut(), "Instruments");
+		new SimulationPlots(runSim.getLogsOut(), "Position");
+		new SimulationPlots(runSim.getLogsOut(), "Rates");
 	}
 }
