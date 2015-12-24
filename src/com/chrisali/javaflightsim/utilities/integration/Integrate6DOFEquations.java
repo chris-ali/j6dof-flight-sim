@@ -7,6 +7,8 @@ import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
 import com.chrisali.javaflightsim.aero.AccelAndMoments;
 import com.chrisali.javaflightsim.aircraft.Aircraft;
+import com.chrisali.javaflightsim.controls.FlightControlType;
+import com.chrisali.javaflightsim.controls.FlightControlsUtilities;
 import com.chrisali.javaflightsim.enviroment.Environment;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 
@@ -85,7 +87,7 @@ public class Integrate6DOFEquations {
 		this.gravity  = Environment.getGravity();
 		
 		// Calculate initial data members' values
-		updateDataMembers(initialConditions);
+		updateDataMembers(initialConditions, integratorConfig[0]);
 
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
 		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
@@ -102,7 +104,7 @@ public class Integrate6DOFEquations {
 									  t+integratorConfig[1]);     // end time
 			
 			// Update data members' values
-			updateDataMembers(y);
+			updateDataMembers(y, t);
 			
 			// Update initial conditions for next step of integration
 			initialConditions = y;
@@ -152,7 +154,7 @@ public class Integrate6DOFEquations {
 	public ArrayList<Double[]> getLogsOut() {return logsOut;}
 	
 	// Runs helper methods to update data members in functions
-	private void updateDataMembers(double[] y) {
+	private void updateDataMembers(double[] y, double t) {
 		// Assign indices in yTemp array to 6DOF state arrays
 		for (int i=0; i<linearVelocities.length; i++) {
 			this.linearVelocities[i] = y[i];
@@ -171,6 +173,14 @@ public class Integrate6DOFEquations {
 		
 		// Update environment		
 		this.environmentParameters = Environment.getEnvironmentParams(NEDPosition);
+		
+		// Update controls
+		this.controls = FlightControlsUtilities.makeDoublet(controls, 
+															t, 
+															10, 
+															0.5, 
+															0.035, 
+															FlightControlType.AILERON);
 		
 		// Update engine
 		this.engine.updateEngineState(controls, 
