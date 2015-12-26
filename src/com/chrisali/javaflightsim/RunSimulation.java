@@ -26,5 +26,6 @@ public class RunSimulation {
 		new SimulationPlots(runSim.getLogsOut(), "Instruments");
 		new SimulationPlots(runSim.getLogsOut(), "Position");
 		new SimulationPlots(runSim.getLogsOut(), "Rates");
+		new SimulationPlots(runSim.getLogsOut(), "Miscellaneous");
 	}
 }

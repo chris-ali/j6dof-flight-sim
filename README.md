@@ -1,5 +1,5 @@
 # my-j6dof-sim 
-JavaFlightSim - A Six Degree of Freedom Flight Simulator Written in Java
+JavaFlightSim - A Six Degree of Freedom (6DOF) Flight Simulator Written in Java
 Chris Ali
 
 This program was written to apply my knowledge and background in Flight Dynamics to build my Java language skills. I hope for it to run as a simple analysis tool for flight dynamics, as well as a real time simulation for pilot in the loop use. One day I'd like to tie objectives or a scoring element into the simulation to make it a game as well.
@@ -30,8 +30,6 @@ Until I learn OpenGL or Java3D, this program will send/receive data to/from an e
 
 ##Libraries
 -This program makes use of the Apache Commons Math libraries to do the numerical integration (Runge-Kutta) necessary to make the program tick.
-
--The Guava library contains *HashBasedTable.java* which can be used as a 2D look-up table
 
 -In addition, the jFreeChart libraries are used to graph the simulation states after the simulation stops.
 

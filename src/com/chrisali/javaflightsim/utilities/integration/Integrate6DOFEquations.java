@@ -65,13 +65,14 @@ public class Integrate6DOFEquations {
 	
 	private double[] sixDOFDerivatives		= new double[12];
 	
-	//TODO need a way to calculate alphaDot
-	private double alphaDot = 0.0f; // = u*w_dot-w*u_dot/(u^2+w^2)
+	private double alphaDot = 0.0f;
+	private double mach     = 0.0f;
 	
 	private Aircraft aircraft  				= new Aircraft();
 	private FixedPitchPropEngine engine 	= new FixedPitchPropEngine();
 	private AccelAndMoments accelAndMoments = new AccelAndMoments();
 	
+	//
 	private ArrayList<Double[]> logsOut     = new ArrayList<>();
 	private Double[] simOut;
 	
@@ -174,7 +175,7 @@ public class Integrate6DOFEquations {
 		// Update environment		
 		this.environmentParameters = Environment.getEnvironmentParams(NEDPosition);
 		
-		// Update controls
+		// Update controls with a doublet
 		this.controls = FlightControlsUtilities.makeDoublet(controls, 
 															t, 
 															10, 
@@ -182,11 +183,24 @@ public class Integrate6DOFEquations {
 															0.035, 
 															FlightControlType.AILERON);
 		
+		this.controls = FlightControlsUtilities.makeDoublet(controls, 
+															t, 
+															13, 
+															0.5, 
+															0.035, 
+															FlightControlType.RUDDER);
+		
 		// Update engine
 		this.engine.updateEngineState(controls, 
 									  NEDPosition, 
 									  environmentParameters, 
 									  windParameters);
+		
+		// Update alphaDot (need to check calculation)
+		//this.alphaDot = SixDOFUtilities.getAlphaDot(linearVelocities, sixDOFDerivatives);
+		
+		// Update mach
+		this.mach = SixDOFUtilities.getMach(windParameters, environmentParameters);
 		
 		// Update accelerations
 		this.linearAccelerations = accelAndMoments.getBodyAccelerations(windParameters,
@@ -264,7 +278,9 @@ public class Integrate6DOFEquations {
 							   controls[1],								// aileron (rad)
 							   controls[2],								// rudder (rad)
 							   controls[3],								// throttle (norm)
-							   controls[9]};							// flaps (rad)
+							   controls[9],								// flaps (rad)
+							   alphaDot,								// alphaDot (rad/sec)
+							   mach};									// Mach (norm)
 		
 		// Add output step to logging arrayList
 		logsOut.add(simOut);

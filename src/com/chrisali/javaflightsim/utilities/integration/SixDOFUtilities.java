@@ -62,5 +62,14 @@ public class SixDOFUtilities {
 		
 		return SaturationLimits.limitWindParameters(new double[] {vTrue,beta,alpha});
 	}
+	
+	public static double getAlphaDot(double[] linearVelocities, double[] sixDOFDerivatives) {
+		return ((linearVelocities[0]*sixDOFDerivatives[2])-(linearVelocities[2]*sixDOFDerivatives[0]))
+				/((linearVelocities[0]*linearVelocities[0])+(linearVelocities[2]*linearVelocities[2]));// = u*w_dot-w*u_dot/(u^2+w^2)
+	}
+	
+	public static double getMach(double[] windParameters, double[] environmentParameters) {
+		return windParameters[0]/environmentParameters[3];
+	}
 
 }
