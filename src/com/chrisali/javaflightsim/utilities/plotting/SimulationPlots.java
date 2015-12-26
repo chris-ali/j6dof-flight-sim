@@ -129,6 +129,8 @@ public class SimulationPlots extends ApplicationFrame {
 		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
 		
 		simulationPlot.add(plotLists.get(PlotType.WIND_PARAM), 1);
+		simulationPlot.add(plotLists.get(PlotType.ALPHA_DOT),  1);
+		simulationPlot.add(plotLists.get(PlotType.MACH),  1);
 		
 		simulationPlot.setOrientation(PlotOrientation.VERTICAL);
 		simulationPlot.setGap(20);

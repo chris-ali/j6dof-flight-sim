@@ -14,79 +14,92 @@ public class PlotUtilities {
 	private static HashMap<PlotType, XYPlot> plotLists = new HashMap<>();
 	
 	static void makePlotLists(ArrayList<Double[]> logsOut) {
-		XYSeries uData      = new XYSeries("u");
-		XYSeries vData      = new XYSeries("v");
-		XYSeries wData      = new XYSeries("w");
 		
-		XYSeries posData    = new XYSeries("Position");
-		XYSeries altData    = new XYSeries("Altitude");
+		// Create XY series for each set of data
 		
-		XYSeries altDotData = new XYSeries("Alt Dot");
+		XYSeries uData        = new XYSeries("u");
+		XYSeries vData        = new XYSeries("v");
+		XYSeries wData        = new XYSeries("w");
 		
-		XYSeries phiData    = new XYSeries("Phi");
-		XYSeries thetaData  = new XYSeries("Theta");
-		XYSeries psiData    = new XYSeries("Psi");
+		XYSeries posData      = new XYSeries("Position");
+		XYSeries altData      = new XYSeries("Altitude");
 		
-		XYSeries pData      = new XYSeries("p");
-		XYSeries qData      = new XYSeries("q");
-		XYSeries rData      = new XYSeries("r");
+		XYSeries altDotData   = new XYSeries("Alt Dot");
+		
+		XYSeries phiData      = new XYSeries("Phi");
+		XYSeries thetaData    = new XYSeries("Theta");
+		XYSeries psiData      = new XYSeries("Psi");
+		
+		XYSeries pData        = new XYSeries("p");
+		XYSeries qData        = new XYSeries("q");
+		XYSeries rData        = new XYSeries("r");
 				
-		XYSeries axData     = new XYSeries("a_x");
-		XYSeries ayData     = new XYSeries("a_y");
-		XYSeries azData     = new XYSeries("a_z");		
+		XYSeries axData       = new XYSeries("a_x");
+		XYSeries ayData       = new XYSeries("a_y");
+		XYSeries azData       = new XYSeries("a_z");		
 		
-		XYSeries lData      = new XYSeries("L");
-		XYSeries mData      = new XYSeries("M");
-		XYSeries nData      = new XYSeries("N");
+		XYSeries lData        = new XYSeries("L");
+		XYSeries mData        = new XYSeries("M");
+		XYSeries nData        = new XYSeries("N");
 		
-		XYSeries tasData    = new XYSeries("TAS");
+		XYSeries tasData      = new XYSeries("TAS");
 		
-		XYSeries betaData   = new XYSeries("Beta");
-		XYSeries alphaData  = new XYSeries("Alpha");
+		XYSeries betaData     = new XYSeries("Beta");
+		XYSeries alphaData    = new XYSeries("Alpha");
 		
-		XYSeries elevData   = new XYSeries("Elevator");
-		XYSeries ailData    = new XYSeries("Aileron");
-		XYSeries rudData    = new XYSeries("Rudder");
-		XYSeries throtData  = new XYSeries("Throttle");
-		XYSeries flapData   = new XYSeries("Flaps");
+		XYSeries elevData     = new XYSeries("Elevator");
+		XYSeries ailData      = new XYSeries("Aileron");
+		XYSeries rudData      = new XYSeries("Rudder");
+		XYSeries throtData    = new XYSeries("Throttle");
+		XYSeries flapData     = new XYSeries("Flaps");
+		
+		XYSeries alphaDotData = new XYSeries("Alpha Dot");
+		XYSeries machData     = new XYSeries("Mach");
+		
+		// Add data from logsOut to each XYSeries
 		
 		for (Double[] y : logsOut) {
-			uData.add(y[0],y[1]);        // u
-			vData.add(y[0],y[2]);        // v
-			wData.add(y[0],y[3]);        // w
+			uData.add(y[0],y[1]);           // u
+			vData.add(y[0],y[2]);           // v
+			wData.add(y[0],y[3]);           // w
 			
-			posData.add(y[5],y[4]);      // NE Position
-			altData.add(y[0],y[6]);      // Altitude
+			posData.add(y[5],y[4]);         // NE Position
+			altData.add(y[0],y[6]);         // Altitude
 			
-			altDotData.add(y[0], y[25]); // Alt Dot
+			altDotData.add(y[0], y[27]);    // Alt Dot
 			
-			phiData.add(y[0],y[7]);      // phi
-			thetaData.add(y[0],y[8]);    // theta
-			psiData.add(y[0],y[9]);      // psi
+			phiData.add(y[0],y[7]);         // phi
+			thetaData.add(y[0],y[8]);       // theta
+			psiData.add(y[0],y[9]);         // psi
 			
-			pData.add(y[0],y[10]);       // p
-			qData.add(y[0],y[11]);       // q
-			rData.add(y[0],y[12]);       // r
+			pData.add(y[0],y[10]);          // p
+			qData.add(y[0],y[11]);          // q
+			rData.add(y[0],y[12]);          // r
 			
-			axData.add(y[0],y[22]);      // a_x
-			ayData.add(y[0],y[23]);      // a_y
-			azData.add(y[0],y[24]);      // a_z
+			axData.add(y[0],y[22]);         // a_x
+			ayData.add(y[0],y[23]);         // a_y
+			azData.add(y[0],y[24]);         // a_z
 			
-			lData.add(y[0],y[19]);       // L
-			mData.add(y[0],y[20]);       // M
-			nData.add(y[0],y[21]);       // N
+			lData.add(y[0],y[19]);          // L
+			mData.add(y[0],y[20]);          // M
+			nData.add(y[0],y[21]);          // N
 			
-			tasData.add(y[0], y[13]);    // TAS
+			tasData.add(y[0], y[13]);       // TAS
 			
-			betaData.add(y[0],y[14]);    // beta
-			alphaData.add(y[0],y[15]);   // alpha
+			betaData.add(y[0],y[14]);       // beta
+			alphaData.add(y[0],y[15]);      // alpha
 			
-			elevData.add(y[0], y[37]);	 // elevator
-			ailData.add(y[0], y[38]);	 // aileron
-			rudData.add(y[0], y[39]);	 // rudder
-			throtData.add(y[0], y[40]);	 // throttle
-			flapData.add(y[0], y[41]);	 // flaps
+			elevData.add(y[0], y[37]);	    // elevator
+			ailData.add(y[0], y[38]);	    // aileron
+			rudData.add(y[0], y[39]);	    // rudder
+			throtData.add(y[0], y[40]);	    // throttle
+			flapData.add(y[0], y[41]);	    // flaps
+			
+			alphaDotData.add(y[0], y[42]);  // alphaDot
+			machData.add(y[0], y[43]);		// mach
 		}
+		
+		// Create XYSeriesCollections for each desired plot and add series to them
 		
 		XYSeriesCollection linearVelSeries    = new XYSeriesCollection();
 		linearVelSeries.addSeries(uData);
@@ -146,6 +159,14 @@ public class PlotUtilities {
 		XYSeriesCollection flapSeries		  = new XYSeriesCollection();
 		flapSeries.addSeries(flapData);
 		
+		XYSeriesCollection alphaDotSeries	  = new XYSeriesCollection();
+		alphaDotSeries.addSeries(alphaDotData);
+		
+		XYSeriesCollection machSeries		  = new XYSeriesCollection();
+		machSeries.addSeries(machData);
+		
+		// Create plots, add series collections to them and put the plots into a HashMap with an enum key
+		
 		XYPlot linearVelPlot    = new XYPlot(linearVelSeries,    
 											 null,
 											 new NumberAxis("Velocity [ft/sec]"), 
@@ -197,7 +218,7 @@ public class PlotUtilities {
 		
 		XYPlot linearAccelPlot  = new XYPlot(linearAccelSeries, 
 										     null, 
-											 new NumberAxis("Acceleration [ft/sec^2]"), 
+											 new NumberAxis("Acceleration [g]"), 
 											 new StandardXYItemRenderer());
 		
 		plotLists.put(PlotType.ACCELERATION, linearAccelPlot);
@@ -257,6 +278,20 @@ public class PlotUtilities {
 											 new StandardXYItemRenderer());
 		
 		plotLists.put(PlotType.FLAPS, flapPlot);
+		
+		XYPlot alphaDotPlot     = new XYPlot(alphaDotSeries, 
+											 null, 
+											 new NumberAxis("Rate [rad/sec]"), 
+											 new StandardXYItemRenderer());
+							
+		plotLists.put(PlotType.ALPHA_DOT, alphaDotPlot);
+
+		XYPlot machPlot         = new XYPlot(machSeries, 
+											 null, 
+											 new NumberAxis("Mach Number"), 
+											 new StandardXYItemRenderer());
+
+		plotLists.put(PlotType.MACH, machPlot);
 	}
 	
 	public static HashMap<PlotType, XYPlot> getPlotLists() {return plotLists;}
