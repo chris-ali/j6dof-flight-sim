@@ -72,7 +72,6 @@ public class Integrate6DOFEquations {
 	private FixedPitchPropEngine engine 	= new FixedPitchPropEngine();
 	private AccelAndMoments accelAndMoments = new AccelAndMoments();
 	
-	//
 	private ArrayList<Double[]> logsOut     = new ArrayList<>();
 	private Double[] simOut;
 	
@@ -196,8 +195,8 @@ public class Integrate6DOFEquations {
 									  environmentParameters, 
 									  windParameters);
 		
-		// Update alphaDot (need to check calculation)
-		//this.alphaDot = SixDOFUtilities.getAlphaDot(linearVelocities, sixDOFDerivatives);
+		// Update alphaDot
+		this.alphaDot = SixDOFUtilities.getAlphaDot(linearVelocities, sixDOFDerivatives);
 		
 		// Update mach
 		this.mach = SixDOFUtilities.getMach(windParameters, environmentParameters);
@@ -208,7 +207,7 @@ public class Integrate6DOFEquations {
 																	    aircraft.getWingDimensions(),
 																	    environmentParameters,
 																	    controls,
-																	    alphaDot,
+																	    alphaDot*0.05,
 																	    engine);
 		// Update moments
 		this.totalMoments = accelAndMoments.getTotalMoments(windParameters,
@@ -216,7 +215,7 @@ public class Integrate6DOFEquations {
 															aircraft.getWingDimensions(),
 															environmentParameters,
 															controls,
-															alphaDot,
+															alphaDot*0.05,
 															engine);
 		
 		// Recalculates derivatives for next step

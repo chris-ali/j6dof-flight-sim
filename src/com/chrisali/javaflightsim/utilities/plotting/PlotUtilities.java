@@ -1,7 +1,7 @@
 package com.chrisali.javaflightsim.utilities.plotting;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
@@ -11,7 +11,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
 
 public class PlotUtilities {
-	private static HashMap<PlotType, XYPlot> plotLists = new HashMap<>();
+	private static EnumMap<PlotType, XYPlot> plotLists = new EnumMap<PlotType, XYPlot>(PlotType.class);
 	
 	static void makePlotLists(ArrayList<Double[]> logsOut) {
 		
@@ -294,7 +294,7 @@ public class PlotUtilities {
 		plotLists.put(PlotType.MACH, machPlot);
 	}
 	
-	public static HashMap<PlotType, XYPlot> getPlotLists() {return plotLists;}
+	public static EnumMap<PlotType, XYPlot> getPlotLists() {return plotLists;}
 	
 	static void generatePlotWindows(SimulationPlots simPlots) {
 		simPlots.pack();

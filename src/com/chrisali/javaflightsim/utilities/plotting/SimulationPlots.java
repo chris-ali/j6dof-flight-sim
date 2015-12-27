@@ -1,7 +1,7 @@
 package com.chrisali.javaflightsim.utilities.plotting;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -75,7 +75,7 @@ public class SimulationPlots extends ApplicationFrame {
 	}
 	
 	// Plots associated with rates and accelerations
-	private JFreeChart makeRatesPlots(HashMap<PlotType, XYPlot> plotLists) {
+	private JFreeChart makeRatesPlots(EnumMap<PlotType, XYPlot> plotLists) {
 		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
 		
 		simulationPlot.add(plotLists.get(PlotType.ANGULAR_RATE), 1);
@@ -91,7 +91,7 @@ public class SimulationPlots extends ApplicationFrame {
 	}
 	
 	// North vs East plot of aircraft position
-	private JFreeChart makePositionPlot(HashMap<PlotType, XYPlot> plotLists) {
+	private JFreeChart makePositionPlot(EnumMap<PlotType, XYPlot> plotLists) {
 		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("East [ft]"));
 		
 		simulationPlot.add(plotLists.get(PlotType.POSITION), 1);
@@ -106,7 +106,7 @@ public class SimulationPlots extends ApplicationFrame {
 	}
 	
 	// Plots associated with typical aircraft instrumentation
-	private JFreeChart makeInstrumentPlots(HashMap<PlotType, XYPlot> plotLists) {
+	private JFreeChart makeInstrumentPlots(EnumMap<PlotType, XYPlot> plotLists) {
 		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
 		
 		simulationPlot.add(plotLists.get(PlotType.EULER_ANGLES), 1);
@@ -125,7 +125,7 @@ public class SimulationPlots extends ApplicationFrame {
 	}
 	
 	// Miscellaneous plots such as alpha, beta
-	private JFreeChart makeMiscPlots(HashMap<PlotType, XYPlot> plotLists) {
+	private JFreeChart makeMiscPlots(EnumMap<PlotType, XYPlot> plotLists) {
 		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
 		
 		simulationPlot.add(plotLists.get(PlotType.WIND_PARAM), 1);
@@ -142,7 +142,7 @@ public class SimulationPlots extends ApplicationFrame {
 	}
 	
 	// Plots associated with typical aircraft instrumentation
-	private JFreeChart makeControlsPlots(HashMap<PlotType, XYPlot> plotLists) {
+	private JFreeChart makeControlsPlots(EnumMap<PlotType, XYPlot> plotLists) {
 		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
 		
 		simulationPlot.add(plotLists.get(PlotType.ELEVATOR), 1);
