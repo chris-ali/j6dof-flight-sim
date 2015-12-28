@@ -1,5 +1,10 @@
 package com.chrisali.javaflightsim.aircraft;
 
+import java.util.EnumMap;
+import java.util.Map;
+
+import com.chrisali.javaflightsim.aero.StabilityDerivatives;
+
 public class Aircraft {
 	protected double[] centerOfGravity;    // {CG_x,CG_y,CG_z}
 	protected double[] aerodynamicCenter;  // {ac_x,ac_y,ac_z}
@@ -9,13 +14,7 @@ public class Aircraft {
 	
 	protected double[] wingDimensions;	   // {wingSfcArea,b,c_bar}
 	
-	protected double[] liftDerivs; 		   // {CL_alpha,CL_0,CL_q,CL_alphadot,CL_de,CL_df}
-	protected double[] sideForceDerivs;	   // {CY_beta,CY_dr}
-	protected double[] dragDerivs; 		   // {CD_alpha,CD_0,CD_df,CD_de,CD_dg}
-
-	protected double[] rollMomentDerivs;   // {Cl_beta,Cl_p,Cl_r,Cl_da,Cl_dr}
-	protected double[] pitchMomentDerivs;  // {CM_alpha,CM_0,CM_q,CM_alphadot,CM_de,CM_df}
-	protected double[] yawMomentDerivs;    // {CN_beta,CN_p,CN_r,CN_da,CN_dr}
+	protected Map<StabilityDerivatives, Object> stabDerivs;
 	
 	// Default constructor to give default values for aircraft definition (Navion)
 	public Aircraft() { 
@@ -27,13 +26,43 @@ public class Aircraft {
 		
 		this.wingDimensions		= new double[]{184,33.4,5.7};
 		
-		this.liftDerivs			= new double[]{4.44,0.41,3.8,0,0.355,0.355};
-		this.sideForceDerivs	= new double[]{-0.564,0.157};
-		this.dragDerivs			= new double[]{0.33,0.025,0.02,0.001,0.09};
+		// Creates an EnumMap and populates it with stability derivative values (either Double or PiecewiseBicubicSplineInterpolatingFunction)
+		this.stabDerivs			= new EnumMap<StabilityDerivatives, Object>(StabilityDerivatives.class);
 		
-		this.rollMomentDerivs	= new double[]{-0.074,-0.410,0.107,-0.134,0.107};
-		this.pitchMomentDerivs	= new double[]{-0.683,0.02,-9.96,-4.36,-0.923,-0.050};
-		this.yawMomentDerivs	= new double[]{0.071,-0.0575,-0.125,-0.0035,-0.072};
+		stabDerivs.put(StabilityDerivatives.CL_ALPHA,     new Double(4.44));
+		stabDerivs.put(StabilityDerivatives.CL_0, 	      new Double(0.41));
+		stabDerivs.put(StabilityDerivatives.CL_Q,         new Double(3.80));
+		stabDerivs.put(StabilityDerivatives.CL_ALPHA_DOT, new Double(0.0));
+		stabDerivs.put(StabilityDerivatives.CL_D_ELEV,    new Double(0.355));
+		stabDerivs.put(StabilityDerivatives.CL_D_FLAP,    new Double(0.355));
+		
+		stabDerivs.put(StabilityDerivatives.CY_BETA,      new Double(-0.564));
+		stabDerivs.put(StabilityDerivatives.CY_D_RUD,     new Double(0.157));
+		
+		stabDerivs.put(StabilityDerivatives.CD_ALPHA,     new Double(0.33));
+		stabDerivs.put(StabilityDerivatives.CD_0,         new Double(0.025));
+		stabDerivs.put(StabilityDerivatives.CD_D_FLAP,    new Double(0.02));
+		stabDerivs.put(StabilityDerivatives.CD_D_ELEV,    new Double(0.001));
+		stabDerivs.put(StabilityDerivatives.CD_D_GEAR,    new Double(0.09));
+		
+		stabDerivs.put(StabilityDerivatives.CROLL_BETA,   new Double(-0.074));
+		stabDerivs.put(StabilityDerivatives.CROLL_P,      new Double(-0.410));
+		stabDerivs.put(StabilityDerivatives.CROLL_R,      new Double(0.107));
+		stabDerivs.put(StabilityDerivatives.CROLL_D_AIL,  new Double(-0.134));
+		stabDerivs.put(StabilityDerivatives.CROLL_D_RUD,  new Double(0.107));
+		
+		stabDerivs.put(StabilityDerivatives.CM_ALPHA,     new Double(-0.683));
+		stabDerivs.put(StabilityDerivatives.CM_0,         new Double(0.02));
+		stabDerivs.put(StabilityDerivatives.CM_Q,         new Double(-9.96));
+		stabDerivs.put(StabilityDerivatives.CM_ALPHA_DOT, new Double(-4.36));
+		stabDerivs.put(StabilityDerivatives.CM_D_ELEV,    new Double(-0.923));
+		stabDerivs.put(StabilityDerivatives.CM_D_FLAP,    new Double(-0.050));
+		
+		stabDerivs.put(StabilityDerivatives.CN_BETA,      new Double(0.071));
+		stabDerivs.put(StabilityDerivatives.CN_P,      	  new Double(-0.0575));
+		stabDerivs.put(StabilityDerivatives.CN_R,         new Double(-0.125));
+		stabDerivs.put(StabilityDerivatives.CN_D_AIL,     new Double(-0.0035));
+		stabDerivs.put(StabilityDerivatives.CN_D_RUD,     new Double(-0.072));
 	}
 	
 	// TODO Read a text file with aircraft attributes, and assign them to arrays	
@@ -101,16 +130,4 @@ public class Aircraft {
 	public double[] getMassProperties() {return massProperties;}
 
 	public double[] getWingDimensions() {return wingDimensions;}
-
-	public double[] getLiftDerivs() {return liftDerivs;}
-
-	public double[] getSideForceDerivs() {return sideForceDerivs;}
-
-	public double[] getDragDerivs() {return dragDerivs;}
-
-	public double[] getRollMomentDerivs() {return rollMomentDerivs;}
-
-	public double[] getPitchMomentDerivs() {return pitchMomentDerivs;}
-
-	public double[] getYawMomentDerivs() {return yawMomentDerivs;}
 }

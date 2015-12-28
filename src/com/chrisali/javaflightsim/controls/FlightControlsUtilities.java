@@ -8,7 +8,7 @@ public class FlightControlsUtilities {
 									   double startTime, 
 									   double duration, 
 									   double amplitude, 
-									   FlightControlType controlInput) {
+									   FlightControls controlInput) {
 		
 		Double shortT = new BigDecimal(t).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
 		

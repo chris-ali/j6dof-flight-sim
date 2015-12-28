@@ -8,7 +8,7 @@ import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
 import com.chrisali.javaflightsim.aero.AccelAndMoments;
 import com.chrisali.javaflightsim.aircraft.Aircraft;
-import com.chrisali.javaflightsim.controls.FlightControlType;
+import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.controls.FlightControlsUtilities;
 import com.chrisali.javaflightsim.enviroment.Environment;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
@@ -182,14 +182,14 @@ public class Integrate6DOFEquations {
 															10, 
 															0.5, 
 															0.035, 
-															FlightControlType.AILERON);
+															FlightControls.AILERON);
 		// Update controls with a rudder doublet
 		this.controls = FlightControlsUtilities.makeDoublet(controls, 
 															t, 
 															13, 
 															0.5, 
 															0.035, 
-															FlightControlType.RUDDER);
+															FlightControls.RUDDER);
 		
 		// Update controls with a rudder doublet
 		this.controls = FlightControlsUtilities.makeDoublet(controls, 
@@ -197,7 +197,7 @@ public class Integrate6DOFEquations {
 															50, 
 															0.5, 
 															0.035, 
-															FlightControlType.ELEVATOR);
+															FlightControls.ELEVATOR);
 		
 		// Update engine
 		this.engine.updateEngineState(controls, 

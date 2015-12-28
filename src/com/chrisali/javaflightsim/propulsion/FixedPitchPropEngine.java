@@ -29,6 +29,7 @@ public class FixedPitchPropEngine extends EngineModel {
 								  double[] NEDPosition,				//{N,E,D}
 								  double[] environmentParameters,	//{temp,rho,p,a}
 								  double[] windParameters) {		//{vTrue,beta,alpha}
+		
 		calculateThrust(controls,
 						NEDPosition,
 						environmentParameters,
@@ -48,16 +49,10 @@ public class FixedPitchPropEngine extends EngineModel {
 								 double[] windParameters) {		 
 		
 		// Consider static thrust case at low speeds
-		if (windParameters[0] <= 5) {
-			double totalThrust = Math.pow((controls[3+isRightSide]*maxBHP*HP_2_FTLBS), 2/3)*Math.pow(2*environmentParameters[1]*propArea, 1/3);
-			
-			this.engineThrust[0] = totalThrust;
-		}			
-		else {
-			double totalThrust = (controls[3+isRightSide]*maxBHP*HP_2_FTLBS)*((A_P*environmentParameters[1]/RHO_SSL)-B_P)*(propEfficiency/windParameters[0]);
-
-			this.engineThrust[0] = totalThrust;	
-		}
+		if (windParameters[0] <= 5)
+			this.engineThrust[0] = Math.pow((controls[3+isRightSide]*maxBHP*HP_2_FTLBS), 2/3)*Math.pow(2*environmentParameters[1]*propArea, 1/3);			
+		else
+			this.engineThrust[0] = (controls[3+isRightSide]*maxBHP*HP_2_FTLBS)*((A_P*environmentParameters[1]/RHO_SSL)-B_P)*(propEfficiency/windParameters[0]);
 	}
 	
 	private void calculateFuelFlow(double[] controls) {
