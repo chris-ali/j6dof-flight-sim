@@ -9,9 +9,7 @@ public class Aircraft {
 	protected double[] centerOfGravity;    // {CG_x,CG_y,CG_z}
 	protected double[] aerodynamicCenter;  // {ac_x,ac_y,ac_z}
 	protected double[] enginePosition; 	   // {eng_x,eng_y,eng_z}  (ft)
-
 	protected double[] massProperties;     // {weight,Ix,Iy,Iz,Ixz}
-	
 	protected double[] wingDimensions;	   // {wingSfcArea,b,c_bar}
 	
 	protected Map<StabilityDerivatives, Object> stabDerivs;
@@ -29,6 +27,7 @@ public class Aircraft {
 		// Creates an EnumMap and populates it with stability derivative values (either Double or PiecewiseBicubicSplineInterpolatingFunction)
 		this.stabDerivs			= new EnumMap<StabilityDerivatives, Object>(StabilityDerivatives.class);
 		
+		// Lift
 		stabDerivs.put(StabilityDerivatives.CL_ALPHA,     new Double(4.44));
 		stabDerivs.put(StabilityDerivatives.CL_0, 	      new Double(0.41));
 		stabDerivs.put(StabilityDerivatives.CL_Q,         new Double(3.80));
@@ -36,21 +35,25 @@ public class Aircraft {
 		stabDerivs.put(StabilityDerivatives.CL_D_ELEV,    new Double(0.355));
 		stabDerivs.put(StabilityDerivatives.CL_D_FLAP,    new Double(0.355));
 		
+		// Side Force
 		stabDerivs.put(StabilityDerivatives.CY_BETA,      new Double(-0.564));
 		stabDerivs.put(StabilityDerivatives.CY_D_RUD,     new Double(0.157));
 		
+		// Drag
 		stabDerivs.put(StabilityDerivatives.CD_ALPHA,     new Double(0.33));
 		stabDerivs.put(StabilityDerivatives.CD_0,         new Double(0.025));
 		stabDerivs.put(StabilityDerivatives.CD_D_FLAP,    new Double(0.02));
 		stabDerivs.put(StabilityDerivatives.CD_D_ELEV,    new Double(0.001));
 		stabDerivs.put(StabilityDerivatives.CD_D_GEAR,    new Double(0.09));
 		
+		// Roll Moment
 		stabDerivs.put(StabilityDerivatives.CROLL_BETA,   new Double(-0.074));
 		stabDerivs.put(StabilityDerivatives.CROLL_P,      new Double(-0.410));
 		stabDerivs.put(StabilityDerivatives.CROLL_R,      new Double(0.107));
 		stabDerivs.put(StabilityDerivatives.CROLL_D_AIL,  new Double(-0.134));
 		stabDerivs.put(StabilityDerivatives.CROLL_D_RUD,  new Double(0.107));
 		
+		// Pitch Moment
 		stabDerivs.put(StabilityDerivatives.CM_ALPHA,     new Double(-0.683));
 		stabDerivs.put(StabilityDerivatives.CM_0,         new Double(0.02));
 		stabDerivs.put(StabilityDerivatives.CM_Q,         new Double(-9.96));
@@ -58,6 +61,7 @@ public class Aircraft {
 		stabDerivs.put(StabilityDerivatives.CM_D_ELEV,    new Double(-0.923));
 		stabDerivs.put(StabilityDerivatives.CM_D_FLAP,    new Double(-0.050));
 		
+		// Yaw Moment
 		stabDerivs.put(StabilityDerivatives.CN_BETA,      new Double(0.071));
 		stabDerivs.put(StabilityDerivatives.CN_P,      	  new Double(-0.0575));
 		stabDerivs.put(StabilityDerivatives.CN_R,         new Double(-0.125));

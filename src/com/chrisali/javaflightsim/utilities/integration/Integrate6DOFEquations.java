@@ -2,6 +2,7 @@ package com.chrisali.javaflightsim.utilities.integration;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.Map;
 
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
@@ -12,6 +13,7 @@ import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.controls.FlightControlsUtilities;
 import com.chrisali.javaflightsim.enviroment.Environment;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
+import com.chrisali.javaflightsim.setup.IntegrationSetup;
 
 /*
  * This class integrates all 12 6DOF equations numerically to obtain the aircraft states.
@@ -20,35 +22,12 @@ import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
  * In order to formulate the first order ODE, the following (double arrays) must be passed in:
  * 		integratorConfig[]{0,dt,dt}    (sec)
  * 		initialConditions[]{initU,initV,initW,initN,initE,initD,initPhi,initTheta,initPsi,initP,initQ,initR}
- * 		controls[]{elevator,aileron,rudder,leftThrottle,rightThrottle,leftPropeller,rightPropeller,leftMixture,rightMixture,flaps,gear,leftBrake,rightBrake}   (rad,rad,rad,norm,norm,norm,norm,norm,norm,rad,norm,norm,norm)
  *		Aircraft aircraftIn
  *      FixedPitchPropEngine engineIn
  * 
- * The class outputs at each step using logData to generate the following double array:
- * 	    t,							(time [sec])
- *	    linearVelocities[0],        (u [ft/sec])
- *	    linearVelocities[1],		(v [ft/sec])
- *	    linearVelocities[2],		(w [ft/sec])
- *	    NEDPosition[0],				(N [ft])
- *	    NEDPosition[1],				(E [ft])
- *	    NEDPosition[2],				(D [ft])
- *	    angularRates[0],			(p [rad/sec])
- *	    angularRates[1],			(q [rad/sec])
- *	    angularRates[2],			(r [rad/sec])
- *	    eulerAngles[0],				(phi [rad])
- *	    eulerAngles[1],				(theta [rad])
- *	    eulerAngles[2],				(psi [rad])
- *	    windParameters[0],			(vTrue [ft/sec])
- *	    windParameters[1],			(beta [rad])
- *	    windParameters[2],			(alpha [rad])
- *	    linearAccelerations[0],		(a_x [ft/sec^2])
- *	    linearAccelerations[1],		(a_y [ft/sec^2])
- *	    linearAccelerations[2],		(a_z [ft/sec^2])
- *	    totalMoments[0],			(L [ft*lbf])
- *	    totalMoments[1],			(M [ft*lbf])
- *	    totalMoments[2],			(N [ft*lbf])
+ * The class outputs at each step using logData to generate a logsOut ArrayList of simOut EnumMaps containing simulation outputs.
  */
-public class Integrate6DOFEquations {
+public class Integrate6DOFEquations implements Runnable {
 	
 	// Data Members
 	private double[] linearVelocities 		= new double[3];
@@ -65,10 +44,15 @@ public class Integrate6DOFEquations {
 	
 	private double[] controls				= new double[10];
 	
-	private double[] sixDOFDerivatives		= new double[12];
+	private double alphaDot 				= 0.0f;
+	private double mach     				= 0.0f;
 	
-	private double alphaDot = 0.0f;
-	private double mach     = 0.0f;
+	// Integrator Members
+	private double[] sixDOFDerivatives		= new double[12];
+	private double[] y					    = new double[12];
+	private double[] initialConditions		= new double[12];
+	private double[] integratorConfig		= new double[3];
+	private ClassicalRungeKuttaIntegrator integrator;
 	
 	// Aircraft Properties
 	private Aircraft aircraft  				= new Aircraft();
@@ -76,49 +60,25 @@ public class Integrate6DOFEquations {
 	private AccelAndMoments accelAndMoments = new AccelAndMoments();
 	
 	// Output Logging
-	private ArrayList<EnumMap<SimOuts, Double>> logsOut     = new ArrayList<>();
+	private ArrayList<EnumMap<SimOuts, Double>> logsOut = new ArrayList<>();
 	private EnumMap<SimOuts, Double> simOut;
 	
-	public Integrate6DOFEquations(double[] integratorConfig,
-								  double[] initialConditions,
-								  double[] controlsIn,
-								  Aircraft aircraftIn,
-								  FixedPitchPropEngine engineIn) {
-
-		this.aircraft = aircraftIn;
-		this.engine   = engineIn;
-		this.controls = controlsIn;
-		this.gravity  = Environment.getGravity();
+	public Integrate6DOFEquations(Aircraft aircraft, FixedPitchPropEngine engine) {
+		this.aircraft 		   = aircraft;
+		this.engine   		   = engine;
+		this.controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
+		this.initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions"); //{initU,initV,initW,initN,initE,initD,initPhi,initTheta,initPsi,initP,initQ,initR}
+		this.integratorConfig  = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");  // {startTime, dt, endTime}
+		this.gravity  		   = Environment.getGravity();
+		
+		// Use fourth-order Runge-Kutta numerical integration with time step of dt
+		this.integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
 		
 		// Calculate initial data members' values
 		updateDataMembers(initialConditions, integratorConfig[0]);
-
-		// Use fourth-order Runge-Kutta numerical integration with time step of dt
-		ClassicalRungeKuttaIntegrator integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
-		
-		// Allocate states array for integrated states
-		double[] y = new double[12];
-		
-		// Integration loop
-		for (double t = integratorConfig[0]; t < integratorConfig[2]; t += integratorConfig[1]) {
-			// Run a single step of integration each step of the loop
-			y = integrator.singleStep(new SixDOFEquations(), 	  // derivatives
-									  t, 		  				  // start time
-									  initialConditions, 		  // initial conditions
-									  t+integratorConfig[1]);     // end time
-			
-			// Update data members' values
-			updateDataMembers(y, t);
-			
-			// Update initial conditions for next step of integration
-			initialConditions = y;
-			
-			// Update output log (don't output states to console)
-			logData(t, false);
-		}
-		
 	}
-
+	
+	// Creates the 12 state derivatives integrator uses to numerically integrate
 	private class SixDOFEquations implements FirstOrderDifferentialEquations {		
 		private SixDOFEquations() {}
 
@@ -130,6 +90,7 @@ public class Integrate6DOFEquations {
 		public int getDimension() {return 12;}
 	}
 	
+	// Recalculates derivatives based on newly calculated accelerations and moments
 	private double[] updateDerivatives(double[] y) {
 		double[] yDot = new double[12];
 		
@@ -292,20 +253,48 @@ public class Integrate6DOFEquations {
 		simOut.put(SimOuts.THROTTLE, 	controls[3]);
 		simOut.put(SimOuts.FLAPS, 	 	controls[9]);
 		simOut.put(SimOuts.ALPHA_DOT,   alphaDot);
-		simOut.put(SimOuts.MACH, 		 mach);
+		simOut.put(SimOuts.MACH, 		mach);
 		
 		// Add output step to logging arrayList
 		logsOut.add(simOut);
 		
 		// Needs to implement an interator for EnumMap
-//		if (useConsole) {
-//			for (Double out : simOut)
-//				System.out.printf("%9.2f ", out);
-//			System.out.println("\n");
-//		}
+		if (useConsole) {
+			for (Map.Entry<SimOuts, Double> out : simOut.entrySet())
+				System.out.printf("%9.2f ", out.getValue());
+			System.out.println("\n");
+		}
 	}
 	
 	public ArrayList<EnumMap<SimOuts, Double>> getLogsOut() {return logsOut;}
 	
 	public EnumMap<SimOuts, Double> getSimOut() {return simOut;}
+	
+	// Runs integration loop
+	@Override
+	public void run() {
+		// Integration loop
+		try {
+			for (double t = integratorConfig[0]; t < integratorConfig[2]; t += integratorConfig[1]) {
+				// Run a single step of integration each step of the loop
+				y = integrator.singleStep(new SixDOFEquations(), 	  // derivatives
+										  t, 		  				  // start time
+										  initialConditions, 		  // initial conditions
+										  t+integratorConfig[1]);     // end time
+				
+				// Update data members' values
+				updateDataMembers(y, t);
+				
+				// Update initial conditions for next step of integration
+				initialConditions = y;
+				
+				// Update output log (don't output states to console)
+				logData(t, true);
+				
+				// Pause the integration for dt*1000 milliseconds to emulate real time operation (zeroed for now)
+				Thread.sleep((long)(integratorConfig[1]*1000*0));
+			}
+		} catch (InterruptedException e) {System.err.println("Warning! Simulation interrupted!");
+		}
+	}
 }
