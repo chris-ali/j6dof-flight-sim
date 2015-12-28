@@ -11,6 +11,8 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.ApplicationFrame;
 
+import com.chrisali.javaflightsim.utilities.integration.SimOuts;
+
 /*
  * This class allows the user to specify from a group of various types of plot groups by using the 
  * applicationTitle String variable in the constructor:
@@ -34,7 +36,7 @@ public class SimulationPlots extends ApplicationFrame {
 	private static final long serialVersionUID = 1L;
 	
 	// Creates plots for variables monitored in the logsOut ArrayList
-	public SimulationPlots(ArrayList<Double[]> logsOut, String applicationTitle) {
+	public SimulationPlots(ArrayList<EnumMap<SimOuts, Double>> logsOut, String applicationTitle) {
 		super(applicationTitle);
 		
 		PlotUtilities.makePlotLists(logsOut);

@@ -41,7 +41,7 @@ public class Aerodynamics extends Aircraft {
 		return liftDerivs[0]*windParameters[2]+
 			   liftDerivs[1]+	
 			   liftDerivs[2]*angularRates[1]*rotaryTerm+
-			   liftDerivs[3]*alphaDot+
+			   liftDerivs[3]*alphaDot*rotaryTerm+
 			   liftDerivs[4]*controls[0]+	
 			   liftDerivs[5]*controls[9];		
 	}
@@ -86,7 +86,7 @@ public class Aerodynamics extends Aircraft {
 		return pitchMomentDerivs[0]*windParameters[2]+
 			   pitchMomentDerivs[1]+
 			   pitchMomentDerivs[2]*angularRates[1]*rotaryTerm+
-			   pitchMomentDerivs[3]*alphaDot+
+			   pitchMomentDerivs[3]*alphaDot*rotaryTerm+
 			   pitchMomentDerivs[4]*controls[0]+
 			   pitchMomentDerivs[5]*controls[9];
 	}

@@ -10,10 +10,12 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
 
+import com.chrisali.javaflightsim.utilities.integration.SimOuts;
+
 public class PlotUtilities {
 	private static EnumMap<PlotType, XYPlot> plotLists = new EnumMap<PlotType, XYPlot>(PlotType.class);
 	
-	static void makePlotLists(ArrayList<Double[]> logsOut) {
+	static void makePlotLists(ArrayList<EnumMap<SimOuts, Double>> logsOut) {
 		
 		// Create XY series for each set of data
 		
@@ -58,45 +60,45 @@ public class PlotUtilities {
 		
 		// Add data from logsOut to each XYSeries
 		
-		for (Double[] y : logsOut) {
-			uData.add(y[0],y[1]);           // u
-			vData.add(y[0],y[2]);           // v
-			wData.add(y[0],y[3]);           // w
+		for (EnumMap<SimOuts, Double> simOut : logsOut) {
+			uData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.U));
+			vData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.V));
+			wData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.W));
 			
-			posData.add(y[5],y[4]);         // NE Position
-			altData.add(y[0],y[6]);         // Altitude
+			posData.add(simOut.get(SimOuts.EAST),simOut.get(SimOuts.NORTH));
+			altData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALT));
 			
-			altDotData.add(y[0], y[27]);    // Alt Dot
+			altDotData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALT_DOT));
 			
-			phiData.add(y[0],y[7]);         // phi
-			thetaData.add(y[0],y[8]);       // theta
-			psiData.add(y[0],y[9]);         // psi
+			phiData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.PHI));
+			thetaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.THETA));
+			psiData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.PSI));
 			
-			pData.add(y[0],y[10]);          // p
-			qData.add(y[0],y[11]);          // q
-			rData.add(y[0],y[12]);          // r
+			pData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.P));
+			qData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.Q));
+			rData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.R));
 			
-			axData.add(y[0],y[22]);         // a_x
-			ayData.add(y[0],y[23]);         // a_y
-			azData.add(y[0],y[24]);         // a_z
+			axData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_X));
+			ayData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_Y));
+			azData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_Z));
 			
-			lData.add(y[0],y[19]);          // L
-			mData.add(y[0],y[20]);          // M
-			nData.add(y[0],y[21]);          // N
+			lData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.L));
+			mData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.M));
+			nData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.N));
 			
-			tasData.add(y[0], y[13]);       // TAS
+			tasData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.TAS));
 			
-			betaData.add(y[0],y[14]);       // beta
-			alphaData.add(y[0],y[15]);      // alpha
+			betaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.BETA));
+			alphaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALPHA));
 			
-			elevData.add(y[0], y[37]);	    // elevator
-			ailData.add(y[0], y[38]);	    // aileron
-			rudData.add(y[0], y[39]);	    // rudder
-			throtData.add(y[0], y[40]);	    // throttle
-			flapData.add(y[0], y[41]);	    // flaps
+			elevData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ELEVATOR));
+			ailData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AILERON));
+			rudData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.RUDDER));
+			throtData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.THROTTLE));
+			flapData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.FLAPS));
 			
-			alphaDotData.add(y[0], y[42]);  // alphaDot
-			machData.add(y[0], y[43]);		// mach
+			alphaDotData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALPHA_DOT));
+			machData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.MACH));
 		}
 		
 		// Create XYSeriesCollections for each desired plot and add series to them

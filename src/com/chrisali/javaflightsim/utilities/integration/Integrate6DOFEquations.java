@@ -1,6 +1,7 @@
 package com.chrisali.javaflightsim.utilities.integration;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
@@ -49,6 +50,7 @@ import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
  */
 public class Integrate6DOFEquations {
 	
+	// Data Members
 	private double[] linearVelocities 		= new double[3];
 	private double[] NEDPosition      		= new double[3];
 	private double[] eulerAngles      		= new double[3];
@@ -68,12 +70,14 @@ public class Integrate6DOFEquations {
 	private double alphaDot = 0.0f;
 	private double mach     = 0.0f;
 	
+	// Aircraft Properties
 	private Aircraft aircraft  				= new Aircraft();
 	private FixedPitchPropEngine engine 	= new FixedPitchPropEngine();
 	private AccelAndMoments accelAndMoments = new AccelAndMoments();
 	
-	private ArrayList<Double[]> logsOut     = new ArrayList<>();
-	private Double[] simOut;
+	// Output Logging
+	private ArrayList<EnumMap<SimOuts, Double>> logsOut     = new ArrayList<>();
+	private EnumMap<SimOuts, Double> simOut;
 	
 	public Integrate6DOFEquations(double[] integratorConfig,
 								  double[] initialConditions,
@@ -151,8 +155,6 @@ public class Integrate6DOFEquations {
 		return yDot;
 	}
 	
-	public ArrayList<Double[]> getLogsOut() {return logsOut;}
-	
 	// Runs helper methods to update data members in functions
 	private void updateDataMembers(double[] y, double t) {
 		// Assign indices in yTemp array to 6DOF state arrays
@@ -174,20 +176,28 @@ public class Integrate6DOFEquations {
 		// Update environment		
 		this.environmentParameters = Environment.getEnvironmentParams(NEDPosition);
 		
-		// Update controls with a doublet
+		// Update controls with a aileron doublet
 		this.controls = FlightControlsUtilities.makeDoublet(controls, 
 															t, 
 															10, 
 															0.5, 
 															0.035, 
 															FlightControlType.AILERON);
-		
+		// Update controls with a rudder doublet
 		this.controls = FlightControlsUtilities.makeDoublet(controls, 
 															t, 
 															13, 
 															0.5, 
 															0.035, 
 															FlightControlType.RUDDER);
+		
+		// Update controls with a rudder doublet
+		this.controls = FlightControlsUtilities.makeDoublet(controls, 
+															t, 
+															50, 
+															0.5, 
+															0.035, 
+															FlightControlType.ELEVATOR);
 		
 		// Update engine
 		this.engine.updateEngineState(controls, 
@@ -207,7 +217,7 @@ public class Integrate6DOFEquations {
 																	    aircraft.getWingDimensions(),
 																	    environmentParameters,
 																	    controls,
-																	    alphaDot*0.05,
+																	    alphaDot,
 																	    engine);
 		// Update moments
 		this.totalMoments = accelAndMoments.getTotalMoments(windParameters,
@@ -215,9 +225,9 @@ public class Integrate6DOFEquations {
 															aircraft.getWingDimensions(),
 															environmentParameters,
 															controls,
-															alphaDot*0.05,
+															alphaDot,
 															engine);
-		
+				
 		// Recalculates derivatives for next step
 		this.sixDOFDerivatives = updateDerivatives(new double[] {linearVelocities[0],
 																 linearVelocities[1],
@@ -235,61 +245,67 @@ public class Integrate6DOFEquations {
 	
 	// After each step adds data to a logging arrayList for plotting and outputs to the console (if desired)
 	private void logData(double t, boolean useConsole) {
-		// Create an output array of all state arrays
-		simOut = new Double[] {t, 
-							   linearVelocities[0],						// u (ft/sec)
-							   linearVelocities[1],						// v (ft/sec)
-							   linearVelocities[2],						// w (ft/sec)
-							   NEDPosition[0],							// N (ft)
-							   NEDPosition[1],							// E (ft)
-							   NEDPosition[2],							// D (ft)
-							   eulerAngles[0],							// phi (rad)
-							   eulerAngles[1],							// theta (rad)
-							   eulerAngles[2],							// psi (rad)
-							   angularRates[0],							// p (rad/sec)
-							   angularRates[1],							// q (rad/sec)
-							   angularRates[2],							// e (rad/sec)
-							   windParameters[0],						// TAS (ft/sec)
-							   windParameters[1],						// beta (rad)
-							   windParameters[2],						// alpha (rad)
-							   linearAccelerations[0],					// a_x (ft/sec^2) (engine and aero)
-							   linearAccelerations[1],					// a_y (ft/sec^2) (engine and aero)
-							   linearAccelerations[2],					// a_z (ft/sec^2) (engine and aero)
-							   totalMoments[0],							// L (ft*lb)
-							   totalMoments[1],							// M (ft*lb)
-							   totalMoments[2],							// N (ft*lb)
-							  (sixDOFDerivatives[0]/gravity[2]),      	// an_x (g) 
-							  (sixDOFDerivatives[1]/gravity[2]),	  	// an_y (g)
-							 ((sixDOFDerivatives[2]/gravity[2])+1.0), 	// an_z (g) (with 1.0 bias of gravity)
-							   sixDOFDerivatives[3],					// N_dot (ft/sec)
-							   sixDOFDerivatives[4],					// E_dot (ft/sec)
-							   sixDOFDerivatives[5],					// D_dot (ft/sec)
-							   sixDOFDerivatives[6],					// phi_dot (rad/sec)
-							   sixDOFDerivatives[7],					// theta_dot (rad/sec)
-							   sixDOFDerivatives[8],					// psi_dot (rad/sec)
-							   sixDOFDerivatives[9],					// p_dot (rad/sec^2)
-							   sixDOFDerivatives[10],					// q_dot (rad/sec^2)
-							   sixDOFDerivatives[11],					// r_dot (rad/sec^2)
-							   engine.getThrust()[0],					// thrust (lb)
-							   engine.getRPM(),							// rpm (rev/min)
-							   engine.getFuelFlow(),					// fuelFlow (gal/hr)
-							   controls[0],								// elevator (rad)
-							   controls[1],								// aileron (rad)
-							   controls[2],								// rudder (rad)
-							   controls[3],								// throttle (norm)
-							   controls[9],								// flaps (rad)
-							   alphaDot,								// alphaDot (rad/sec)
-							   mach};									// Mach (norm)
+		// Make a new EnumMap
+		simOut = new EnumMap<SimOuts, Double>(SimOuts.class);
+		
+		// Assign EnumMap with data members from integration
+		simOut.put(SimOuts.TIME, 		t);
+		simOut.put(SimOuts.U, 		 	linearVelocities[0]);
+		simOut.put(SimOuts.V, 		 	linearVelocities[1]);
+		simOut.put(SimOuts.W, 		 	linearVelocities[2]);
+		simOut.put(SimOuts.NORTH, 	 	NEDPosition[0]);
+		simOut.put(SimOuts.EAST, 		NEDPosition[1]);
+		simOut.put(SimOuts.ALT, 		NEDPosition[2]);
+		simOut.put(SimOuts.PHI, 		eulerAngles[0]);
+		simOut.put(SimOuts.THETA, 	 	eulerAngles[1]);
+		simOut.put(SimOuts.PSI, 		eulerAngles[2]);
+		simOut.put(SimOuts.P, 		 	angularRates[0]);
+		simOut.put(SimOuts.Q, 		 	angularRates[1]);
+		simOut.put(SimOuts.R, 		 	angularRates[2]);
+		simOut.put(SimOuts.TAS, 		windParameters[0]);
+		simOut.put(SimOuts.BETA, 		windParameters[1]);
+		simOut.put(SimOuts.ALPHA, 	 	windParameters[2]);
+		simOut.put(SimOuts.A_X, 		linearAccelerations[0]);
+		simOut.put(SimOuts.A_Y, 		linearAccelerations[1]);
+		simOut.put(SimOuts.A_Z, 		linearAccelerations[2]);
+		simOut.put(SimOuts.L, 		 	totalMoments[0]);
+		simOut.put(SimOuts.M, 		 	totalMoments[1]);
+		simOut.put(SimOuts.N, 		 	totalMoments[2]);
+		simOut.put(SimOuts.AN_X, 	   (sixDOFDerivatives[0]/gravity[2]));
+		simOut.put(SimOuts.AN_Y, 	   (sixDOFDerivatives[1]/gravity[2]));
+		simOut.put(SimOuts.AN_Z, 	  ((sixDOFDerivatives[2]/gravity[2])+1.0));
+		simOut.put(SimOuts.NORTH_DOT,   sixDOFDerivatives[3]);
+		simOut.put(SimOuts.EAST_DOT, 	sixDOFDerivatives[4]);
+		simOut.put(SimOuts.ALT_DOT, 	sixDOFDerivatives[5]);
+		simOut.put(SimOuts.PHI_DOT, 	sixDOFDerivatives[6]);
+		simOut.put(SimOuts.THETA_DOT,   sixDOFDerivatives[7]);
+		simOut.put(SimOuts.PSI_DOT, 	sixDOFDerivatives[8]);
+		simOut.put(SimOuts.P_DOT, 	 	sixDOFDerivatives[9]);
+		simOut.put(SimOuts.Q_DOT, 	 	sixDOFDerivatives[10]);
+		simOut.put(SimOuts.R_DOT, 	 	sixDOFDerivatives[11]);
+		simOut.put(SimOuts.THRUST_L, 	engine.getThrust()[0]);
+		simOut.put(SimOuts.RPM_L, 	 	engine.getRPM());
+		simOut.put(SimOuts.FUEL_FLOW_L, engine.getFuelFlow());
+		simOut.put(SimOuts.ELEVATOR,    controls[0]);
+		simOut.put(SimOuts.AILERON, 	controls[1]);
+		simOut.put(SimOuts.RUDDER, 	 	controls[2]);
+		simOut.put(SimOuts.THROTTLE, 	controls[3]);
+		simOut.put(SimOuts.FLAPS, 	 	controls[9]);
+		simOut.put(SimOuts.ALPHA_DOT,   alphaDot);
+		simOut.put(SimOuts.MACH, 		 mach);
 		
 		// Add output step to logging arrayList
 		logsOut.add(simOut);
 		
-		if (useConsole) {
-			for (Double out : simOut)
-				System.out.printf("%9.2f ", out);
-			System.out.println("\n");
-		}
+		// Needs to implement an interator for EnumMap
+//		if (useConsole) {
+//			for (Double out : simOut)
+//				System.out.printf("%9.2f ", out);
+//			System.out.println("\n");
+//		}
 	}
 	
-	public Double[] getSimOut() {return simOut;}
+	public ArrayList<EnumMap<SimOuts, Double>> getLogsOut() {return logsOut;}
+	
+	public EnumMap<SimOuts, Double> getSimOut() {return simOut;}
 }
