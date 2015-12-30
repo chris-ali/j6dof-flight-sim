@@ -5,6 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
+
+import com.chrisali.javaflightsim.controls.FlightControls;
 
 public class IntegrationSetup {
 	public static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\setup\\simconfig\\";
@@ -24,29 +27,32 @@ public class IntegrationSetup {
 	}
 	
 	public static double[] gatherIntegratorConfig(String fileName) {
-		ArrayList<String[]> intCongigFile = readFileAndSplit(fileName);
+		ArrayList<String[]> intConfigFile = readFileAndSplit(fileName);
 		
-		if (intCongigFile.size() != 3) {
+		if (intConfigFile.size() != 3) {
 			System.err.println("Error in integration configuration file! Generating default integration configuration...");
 			return new double[] {0.0,0.05,100.0};
 		} else {
-			double[] integratorConfig = new double[intCongigFile.size()];
-			for (int i = 0; i < intCongigFile.size(); i++)
-				integratorConfig[i] = Double.parseDouble(intCongigFile.get(i)[1]);
+			double[] integratorConfig = new double[intConfigFile.size()];
+			for (int i = 0; i < intConfigFile.size(); i++)
+				integratorConfig[i] = Double.parseDouble(intConfigFile.get(i)[1]);
 			return integratorConfig;
 		}
 	}
 	
-	public static double[] gatherInitialControls(String fileName) {
+	public static EnumMap<FlightControls,Double> gatherInitialControls(String fileName) {
 		ArrayList<String[]> initControlFile = readFileAndSplit(fileName);
+		EnumMap<FlightControls,Double> initControl = new EnumMap<FlightControls,Double>(FlightControls.class); 
 		
-		if (initControlFile.size() != 13) {
+		if (!verifyControlFileIntegrity(initControlFile)) {
 			System.err.println("Error in controls file! Generating default control deflections...");
-			return new double[] {0.036,0,0,0.65,0.65,1.0,1.0,1.0,1.0,0,0,0,0};
+			double[] defaultControl = new double[] {0.036,0,0,0.65,0.65,1.0,1.0,1.0,1.0,0,0,0,0};
+			for (int i = 0; i < defaultControl.length; i++)
+				initControl.put(FlightControls.values()[i], defaultControl[i]);
+			return initControl;
 		} else {
-			double[] initControl = new double[initControlFile.size()];
 			for (int i = 0; i < initControlFile.size(); i++)
-				initControl[i] = Double.parseDouble(initControlFile.get(i)[1]);
+				initControl.put(FlightControls.values()[i], Double.parseDouble(initControlFile.get(i)[1]));
 			return initControl;
 		}
 	}
@@ -65,5 +71,20 @@ public class IntegrationSetup {
 		catch (NullPointerException e) {System.err.println("Bad reference to: " + fileName + ".txt!");} 
 		
 		return readAndSplit;
+	}
+	
+	private static boolean verifyControlFileIntegrity(ArrayList<String[]> initControlFile) {
+		// If lengths are not equal, don't bother checking integrity; return false
+		if (FlightControls.values().length == initControlFile.size()) {
+			// Compare enum string value with read string from file
+			for (int i = 0; i < FlightControls.values().length; i++) {
+				if (!initControlFile.get(i)[0].equals(FlightControls.values()[i].toString()))
+					return false;
+			}
+		}
+		else {
+			return false;
+		}
+		return true;
 	}
 }

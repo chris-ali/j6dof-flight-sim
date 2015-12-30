@@ -1,7 +1,10 @@
 package com.chrisali.javaflightsim.aero;
 
+import java.util.EnumMap;
+
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
+import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.propulsion.EngineModel;
 import com.chrisali.javaflightsim.utilities.integration.SaturationLimits;
 
@@ -11,7 +14,7 @@ public class AccelAndMoments extends Aerodynamics {
 									     double[] angularRates,
 									     double[] wingDimensions,
 									     double[] environmentParameters,
-									     double[] controls,
+									     EnumMap<FlightControls, Double> controls,
 									     double alphaDot,
 									     EngineModel engine) {
 		
@@ -33,7 +36,7 @@ public class AccelAndMoments extends Aerodynamics {
 								    double[] angularRates,
 								    double[] wingDimensions,
 								    double[] environmentParameters,
-								    double[] controls,
+								    EnumMap<FlightControls, Double> controls,
 								    double alphaDot,
 								    EngineModel engine) {
 

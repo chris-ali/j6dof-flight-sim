@@ -3,7 +3,7 @@ package com.chrisali.javaflightsim;
 import com.chrisali.javaflightsim.aircraft.Aircraft;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.utilities.plotting.SimulationPlots;
+import com.chrisali.javaflightsim.utilities.plotting.MakePlots;
 
 public class RunSimulation {
 
@@ -11,18 +11,21 @@ public class RunSimulation {
 
 		// TODO gather all initial conditions/controls from trim routine
 		// TODO integrate joystick
-
-		//---------------------
-		// Start Simulation Here
-		//---------------------
-		Integrate6DOFEquations integration = new Integrate6DOFEquations(new Aircraft(), // Default to Navion
-																		new FixedPitchPropEngine()); // Default to Lycoming IO-360
-		Thread runSim = new Thread(integration);
-		runSim.start();
+		// TODO enable/disable debug mode
 		
-		//TODO enable/disable debug mode
 		String[] simPlotCategories = {"Controls", "Instruments", "Position", "Rates", "Miscellaneous"};
-		for (String plot : simPlotCategories) 
-			new SimulationPlots(integration.getLogsOut(), plot);
+		
+		// Create simulation using 
+		Integrate6DOFEquations integration = new Integrate6DOFEquations(new Aircraft(), 			 // Default to Navion
+																		new FixedPitchPropEngine()); // Default to Lycoming IO-360
+		
+		// Create threads for simulation and plotting
+		Thread runSim  = new Thread(integration);
+		Thread plotSim = new Thread(new MakePlots(integration, simPlotCategories));
+		
+		// Start threads
+		runSim.start();
+		plotSim.start();
+		
 	}
 }

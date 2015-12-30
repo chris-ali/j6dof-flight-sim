@@ -32,7 +32,7 @@ public abstract class EngineModel extends Aircraft {
 	
 	protected double rpm;
 	protected double fuelFlow;
-	protected int isRightSide; // If eng_y > 0, set to 1 to indicate right side, else left side (or single engine)
+	protected boolean isRightSide; // If eng_y > 0, set to 1 to indicate right side, else left side (or single engine)
 	
 	//TODO need engine model properties (etaP, advance ratio, bhp curves) for lookup tables
 	//TODO etaP needs to vary

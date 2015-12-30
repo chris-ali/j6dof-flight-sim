@@ -94,7 +94,7 @@ public class PlotUtilities {
 			elevData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ELEVATOR));
 			ailData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AILERON));
 			rudData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.RUDDER));
-			throtData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.THROTTLE));
+			throtData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.THROTTLE_L));
 			flapData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.FLAPS));
 			
 			alphaDotData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALPHA_DOT));

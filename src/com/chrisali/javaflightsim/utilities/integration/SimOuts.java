@@ -49,7 +49,8 @@ public enum SimOuts {
 	ELEVATOR,
 	AILERON,
 	RUDDER,
-	THROTTLE,
+	THROTTLE_L,
+	THROTTLE_R,
 	GEAR,
 	FLAPS
 }

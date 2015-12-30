@@ -42,7 +42,7 @@ public class Integrate6DOFEquations implements Runnable {
 	private double[] linearAccelerations    = new double[3];
 	private double[] totalMoments     		= new double[3];
 	
-	private double[] controls				= new double[10];
+	private EnumMap<FlightControls, Double> controls;
 	
 	private double alphaDot 				= 0.0f;
 	private double mach     				= 0.0f;
@@ -247,11 +247,11 @@ public class Integrate6DOFEquations implements Runnable {
 		simOut.put(SimOuts.THRUST_L, 	engine.getThrust()[0]);
 		simOut.put(SimOuts.RPM_L, 	 	engine.getRPM());
 		simOut.put(SimOuts.FUEL_FLOW_L, engine.getFuelFlow());
-		simOut.put(SimOuts.ELEVATOR,    controls[0]);
-		simOut.put(SimOuts.AILERON, 	controls[1]);
-		simOut.put(SimOuts.RUDDER, 	 	controls[2]);
-		simOut.put(SimOuts.THROTTLE, 	controls[3]);
-		simOut.put(SimOuts.FLAPS, 	 	controls[9]);
+		simOut.put(SimOuts.ELEVATOR,    controls.get(FlightControls.ELEVATOR));
+		simOut.put(SimOuts.AILERON, 	controls.get(FlightControls.AILERON));
+		simOut.put(SimOuts.RUDDER, 	 	controls.get(FlightControls.RUDDER));
+		simOut.put(SimOuts.THROTTLE_L, 	controls.get(FlightControls.THROTTLE_L));
+		simOut.put(SimOuts.FLAPS, 	 	controls.get(FlightControls.FLAPS));
 		simOut.put(SimOuts.ALPHA_DOT,   alphaDot);
 		simOut.put(SimOuts.MACH, 		mach);
 		
@@ -289,7 +289,7 @@ public class Integrate6DOFEquations implements Runnable {
 				initialConditions = y;
 				
 				// Update output log (don't output states to console)
-				logData(t, true);
+				logData(t, false);
 				
 				// Pause the integration for dt*1000 milliseconds to emulate real time operation (zeroed for now)
 				Thread.sleep((long)(integratorConfig[1]*1000*0));
