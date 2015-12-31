@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.EnumMap;
 
 public class FlightControlsUtilities {
+	
+	// Generates a control doublet in the positive, then negative direction
 	public static EnumMap<FlightControls, Double> makeDoublet(EnumMap<FlightControls, Double> controls,
 															  double t,
 															  double startTime, 
