@@ -1,4 +1,4 @@
-# my-j6dof-sim 
+# j6dof-flight-sim 
 JavaFlightSim - A Six Degree of Freedom (6DOF) Flight Simulator Written in Java
 Chris Ali
 
