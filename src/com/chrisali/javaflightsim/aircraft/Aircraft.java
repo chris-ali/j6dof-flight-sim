@@ -42,8 +42,8 @@ public class Aircraft {
 		// Drag
 		stabDerivs.put(StabilityDerivatives.CD_ALPHA,     new Double(0.33));
 		stabDerivs.put(StabilityDerivatives.CD_0,         new Double(0.025));
-		stabDerivs.put(StabilityDerivatives.CD_D_FLAP,    new Double(0.02));
 		stabDerivs.put(StabilityDerivatives.CD_D_ELEV,    new Double(0.001));
+		stabDerivs.put(StabilityDerivatives.CD_D_FLAP,    new Double(0.02));
 		stabDerivs.put(StabilityDerivatives.CD_D_GEAR,    new Double(0.09));
 		
 		// Roll Moment
@@ -69,7 +69,7 @@ public class Aircraft {
 		stabDerivs.put(StabilityDerivatives.CN_D_RUD,     new Double(-0.072));
 	}
 	
-	// TODO Read a text file with aircraft attributes, and assign them to arrays	
+	// TODO Read a text file with aircraft attributes, and assign them to EnumMap	
 /*
 	public Aircraft(String fileName){
 		File file = new File(fileName);
