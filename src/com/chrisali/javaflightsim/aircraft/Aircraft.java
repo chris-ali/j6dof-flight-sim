@@ -1,5 +1,10 @@
 package com.chrisali.javaflightsim.aircraft;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -13,6 +18,8 @@ public class Aircraft {
 	protected double[] wingDimensions;	   // {wingSfcArea,b,c_bar}
 	
 	protected Map<StabilityDerivatives, Object> stabDerivs;
+	
+	public static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\aircraft\\";
 	
 	// Default constructor to give default values for aircraft definition (Navion)
 	public Aircraft() { 
@@ -70,63 +77,19 @@ public class Aircraft {
 	}
 	
 	// TODO Read a text file with aircraft attributes, and assign them to EnumMap	
-/*
+
 	public Aircraft(String fileName){
-		File file = new File(fileName);
-		try (BufferedReader aircraftReader = new BufferedReader(new FileReader(file))){
-			String tempLine;
-			while ((tempLine = aircraftReader.readLine())!=null) {
-				switch (tempLine.substring(0,1)){
-					case "CL": {
-						for(int i=0;i<6;i++)
-					        liftDerivs[i]=tempLine.split(" = ")[1].parseDouble();
-						break;
-					}
-					case "CY": {
-						for(int i=0;i<6;i++)
-							sideForceDerivs[i]=tempLine.split(" = ")[1].parseDouble();
-						break;
-					}
-					case "CD": {
-						for(int i=0;i<6;i++)
-							dragDerivs[i]=tempLine.split(" = ")[1].parseDouble();
-						break;
-					}
-					case "Cl": {
-						for(int i=0;i<6;i++)
-							rollMomentDerivs[i]=tempLine.split(" = ")[1].parseDouble();
-						break;
-					}
-					case "CM": {
-						for(int i=0;i<6;i++)
-							pitchMomentDerivs[i]=tempLine.split(" = ")[1].parseDouble();
-						break;
-					}
-					case "CN": {
-						for(int i=0;i<5;i++)
-							yawMomentDerivs[i]=tempLine.split(" = ")[1].parseDouble();
-						break;
-					}
-					case "ac": {
-						for(int i=0;i<3;i++)
-							aerodynamicCenter[i]=tempLine.split(" = ")[1].parseDouble();
-						break;
-					}
-					case "CG": {
-						for(int i=0;i<3;i++)
-							centerOfGravity[i]=tempLine.split(" = ")[1].parseDouble();
-						break;
-					}
-					case "ac": {
-						for(int i=0;i<3;i++)
-							aerodynamicCenter[i]=tempLine.split(" = ")[1].parseDouble();
-						break;
-					}
-				}
+		ArrayList<String[]> readAircraftFile = readFileAndSplit(fileName);
+		
+		for(int i = 0; i < readAircraftFile.size(); i++) {
+			for (String[] readLine : readAircraftFile) {
+				if (StabilityDerivatives.values()[i].equals(readLine[0]))
+					stabDerivs.put(StabilityDerivatives.values()[i], readLine[1]);
 			}
-		} catch (IOException e) {e.printStackTrace();}	
+		}
 	}
-*/
+
+	
 	public double[] getCenterOfGravity() {return centerOfGravity;}
 
 	public double[] getAerodynamicCenter() {return aerodynamicCenter;}
@@ -134,4 +97,20 @@ public class Aircraft {
 	public double[] getMassProperties() {return massProperties;}
 
 	public double[] getWingDimensions() {return wingDimensions;}
+
+	private static ArrayList<String[]> readFileAndSplit(String fileName) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(FILE_PATH).append(fileName).append(".txt");
+		ArrayList<String[]> readAndSplit = new ArrayList<>();
+		String readLine = null;
+		
+		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
+			while ((readLine = br.readLine()) != null)
+				readAndSplit.add(readLine.split(" = "));
+		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + ".txt!");}
+		catch (IOException e) {System.err.println("Could not read: " + fileName + ".txt!");}
+		catch (NullPointerException e) {System.err.println("Bad reference to: " + fileName + ".txt!");} 
+		
+		return readAndSplit;
+	}
 }
