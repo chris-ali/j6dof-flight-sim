@@ -3,6 +3,7 @@ package com.chrisali.javaflightsim.utilities.integration;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
@@ -63,13 +64,19 @@ public class Integrate6DOFEquations implements Runnable {
 	private ArrayList<EnumMap<SimOuts, Double>> logsOut = new ArrayList<>();
 	private EnumMap<SimOuts, Double> simOut;
 	
-	public Integrate6DOFEquations(Aircraft aircraft, FixedPitchPropEngine engine) {
+	// Threading Properties
+	private CountDownLatch latch;
+	
+	public Integrate6DOFEquations(Aircraft aircraft, 
+								  FixedPitchPropEngine engine,
+								  CountDownLatch latch) {
 		this.aircraft 		   = aircraft;
 		this.engine   		   = engine;
 		this.controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
 		this.initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions"); //{initU,initV,initW,initN,initE,initD,initPhi,initTheta,initPsi,initP,initQ,initR}
 		this.integratorConfig  = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");  // {startTime, dt, endTime}
 		this.gravity  		   = Environment.getGravity();
+		this.latch			   = latch;
 		
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
 		this.integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
@@ -237,7 +244,7 @@ public class Integrate6DOFEquations implements Runnable {
 		simOut.put(SimOuts.AN_Z, 	  ((sixDOFDerivatives[2]/gravity[2])+1.0));
 		simOut.put(SimOuts.NORTH_DOT,   sixDOFDerivatives[3]);
 		simOut.put(SimOuts.EAST_DOT, 	sixDOFDerivatives[4]);
-		simOut.put(SimOuts.ALT_DOT, 	sixDOFDerivatives[5]);
+		simOut.put(SimOuts.ALT_DOT,    (sixDOFDerivatives[5]*60));
 		simOut.put(SimOuts.PHI_DOT, 	sixDOFDerivatives[6]);
 		simOut.put(SimOuts.THETA_DOT,   sixDOFDerivatives[7]);
 		simOut.put(SimOuts.PSI_DOT, 	sixDOFDerivatives[8]);
@@ -258,7 +265,7 @@ public class Integrate6DOFEquations implements Runnable {
 		// Add output step to logging arrayList
 		logsOut.add(simOut);
 		
-		// Needs to implement an interator for EnumMap
+		// Prints to console (if desired)
 		if (useConsole) {
 			for (Map.Entry<SimOuts, Double> out : simOut.entrySet())
 				System.out.printf("%9.2f ", out.getValue());
@@ -280,7 +287,7 @@ public class Integrate6DOFEquations implements Runnable {
 				y = integrator.singleStep(new SixDOFEquations(), 	  // derivatives
 										  t, 		  				  // start time
 										  initialConditions, 		  // initial conditions
-										  t+integratorConfig[1]);     // end time
+										  t+integratorConfig[1]);     // end time (t+dt)
 				
 				// Update data members' values
 				updateDataMembers(y, t);
@@ -289,11 +296,12 @@ public class Integrate6DOFEquations implements Runnable {
 				initialConditions = y;
 				
 				// Update output log (don't output states to console)
-				logData(t, false);
+				logData(t, true);
 				
-				// Pause the integration for dt*1000 milliseconds to emulate real time operation (zeroed for now)
-				Thread.sleep((long)(integratorConfig[1]*1000*0));
+				// Pause the integration for dt*1000 milliseconds to emulate real time operation
+				Thread.sleep((long)(integratorConfig[1]*1000));
 			}
+			latch.countDown();
 		} catch (InterruptedException e) {System.err.println("Warning! Simulation interrupted!");
 		}
 	}

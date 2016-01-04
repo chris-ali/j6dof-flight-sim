@@ -62,9 +62,7 @@ public class Joystick {
 				if(componentIdentifier.getName().matches("^[0-9]*$")) { // If the component identifier contains only numbers, it is a button
 					if(component.getPollData() == 1.0f) {
 						// Button index
-						switch(component.getIdentifier().toString()) {
-						
-						}
+						switch(component.getIdentifier().toString()) {}
 					}
 					continue; // Go to next component
 				}
@@ -89,25 +87,31 @@ public class Joystick {
 				if(component.isAnalog()){
 					double axisValue = (double)component.getPollData();
 
-					// X axis
-					if(componentIdentifier == Component.Identifier.Axis.Y) {
-						controls.put(FlightControls.AILERON, 
-									 getControlDeflection(FlightControls.AILERON, 
-											 		   	  axisValue+trimAileron));
-						continue; // Go to next component
-					}
-					// Y axis
+					// X axis (Elevator)
 					if(componentIdentifier == Component.Identifier.Axis.X) {
 						controls.put(FlightControls.ELEVATOR, 
 								 	 getControlDeflection(FlightControls.ELEVATOR, 
 								 			 		   	  axisValue+trimElevator));
 						continue; // Go to next component
 					}
-					// Z axis
+					// Y axis (Aileron)
+					if(componentIdentifier == Component.Identifier.Axis.Y) {
+						controls.put(FlightControls.AILERON, 
+									 getControlDeflection(FlightControls.AILERON, 
+											 		   	  axisValue+trimAileron));
+						continue; // Go to next component
+					}
+					// Z axis (Rudder)
 					if(componentIdentifier == Component.Identifier.Axis.Z) {
 						controls.put(FlightControls.RUDDER, 
 								 	 getControlDeflection(FlightControls.RUDDER, 
 								 			 		   	  axisValue+trimRudder));
+						continue; // Go to next component
+					}
+					// Slider axis (Throttle)
+					if(componentIdentifier == Component.Identifier.Axis.SLIDER) {
+						controls.put(FlightControls.THROTTLE_L,axisValue);
+						controls.put(FlightControls.THROTTLE_R,axisValue);
 						continue; // Go to next component
 					}
 				}

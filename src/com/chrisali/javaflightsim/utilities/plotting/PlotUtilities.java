@@ -171,7 +171,7 @@ public class PlotUtilities {
 		
 		XYPlot linearVelPlot    = new XYPlot(linearVelSeries,    
 											 null,
-											 new NumberAxis("Velocity [ft/sec]"), 
+											 new NumberAxis("Body Velocity [ft/sec]"), 
 									 		 new StandardXYItemRenderer()); 
 		
 		plotLists.put(PlotType.VELOCITY, linearVelPlot);
@@ -192,7 +192,7 @@ public class PlotUtilities {
 		
 		XYPlot altDotPlot       = new XYPlot(altDotSeries, 
 										     null, 
-										     new NumberAxis("Vertical Speed [ft/sec]"), 
+										     new NumberAxis("Vertical Speed [ft/min]"), 
 										     new StandardXYItemRenderer());
 
 		plotLists.put(PlotType.VERT_SPEED, altDotPlot);
@@ -213,7 +213,7 @@ public class PlotUtilities {
 		
 		XYPlot angularRatesPlot = new XYPlot(angularRatesSeries, 
 											 null, 
-									     	 new NumberAxis("Rate [rad/sec]"), 
+									     	 new NumberAxis("Angular Rate [rad/sec]"), 
 									     	 new StandardXYItemRenderer());
 		
 		plotLists.put(PlotType.ANGULAR_RATE, angularRatesPlot);
