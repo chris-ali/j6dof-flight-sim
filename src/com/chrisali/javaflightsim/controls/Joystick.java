@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
+import net.java.games.input.Component.POV;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
@@ -19,7 +20,7 @@ public class Joystick {
 	public Joystick(EnumMap<FlightControls, Double> controls) {
 		this.controllerList = new ArrayList<>();
 		
-		// Get initial trim values from initial values in controls EnumMap
+		// Get initial trim values from initial values in controls EnumMap (rad)
 		this.trimElevator = controls.get(FlightControls.ELEVATOR);
 		this.trimAileron  = controls.get(FlightControls.AILERON);
 		this.trimRudder   = controls.get(FlightControls.RUDDER);
@@ -58,37 +59,45 @@ public class Joystick {
 				Identifier componentIdentifier = component.getIdentifier();
 
 				// Buttons
-				if(componentIdentifier.getName().matches("^[0-9]*$")) { // If the component identifier name contains only numbers, then this is a button.
-					// Is button pressed?
-					boolean isPressed = true;
-					if(component.getPollData() == 0.0f)
-						isPressed = false;
-
-					// Button index
-					String buttonIndex = component.getIdentifier().toString();
-
+				if(componentIdentifier.getName().matches("^[0-9]*$")) { // If the component identifier contains only numbers, it is a button
+					if(component.getPollData() == 1.0f) {
+						// Button index
+						switch(component.getIdentifier().toString()) {
+						
+						}
+					}
 					continue; // Go to next component
 				}
 
-				// Hat switch
+				// POV Hat Switch - Control elevator and aileron trim 
 				if(componentIdentifier == Component.Identifier.Axis.POV) {
-					float hatSwitchPosition = component.getPollData();
+					float povValue = component.getPollData();
+					
+					if(povValue == POV.UP & trimElevator <= FlightControls.ELEVATOR.getMinimum())
+						trimElevator += 0.001; 
+					else if (povValue == POV.DOWN & trimElevator >= FlightControls.ELEVATOR.getMaximum()) 
+						trimElevator -= 0.001;
+					else if (povValue == POV.LEFT & trimAileron <= FlightControls.AILERON.getMinimum()) 
+						trimAileron += 0.001;
+					else if (povValue == POV.RIGHT & trimAileron >= FlightControls.AILERON.getMaximum())
+						trimAileron -= 0.001;
+					
 					continue; // Go to next component
 				}
 
-				// Axes
+				// Joystick Axes - Read raw joystick value, convert to control deflection, and add trim value
 				if(component.isAnalog()){
 					double axisValue = (double)component.getPollData();
 
 					// X axis
-					if(componentIdentifier == Component.Identifier.Axis.X) {
+					if(componentIdentifier == Component.Identifier.Axis.Y) {
 						controls.put(FlightControls.AILERON, 
 									 getControlDeflection(FlightControls.AILERON, 
 											 		   	  axisValue+trimAileron));
 						continue; // Go to next component
 					}
 					// Y axis
-					if(componentIdentifier == Component.Identifier.Axis.Y) {
+					if(componentIdentifier == Component.Identifier.Axis.X) {
 						controls.put(FlightControls.ELEVATOR, 
 								 	 getControlDeflection(FlightControls.ELEVATOR, 
 								 			 		   	  axisValue+trimElevator));

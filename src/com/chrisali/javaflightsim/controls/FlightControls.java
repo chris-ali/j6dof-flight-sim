@@ -2,7 +2,7 @@ package com.chrisali.javaflightsim.controls;
 
 public enum FlightControls {
 	ELEVATOR    ("elevator", 		Math.toRadians(15), Math.toRadians(-25)), // "Minimum" is down elevator
-	AILERON		("aileron",  		Math.toRadians(15), Math.toRadians(-15)), // "Minimum" is right aileron
+	AILERON		("aileron",  		Math.toRadians(15), Math.toRadians(-15)), // "Minimum" is right aileron up
 	RUDDER		("rudder",   		Math.toRadians(15), Math.toRadians(-15)), // "Minimum" is left rudder
 	THROTTLE_L	("leftThrottle", 	0.0, 				1.0),
 	THROTTLE_R	("rightThrottle", 	0.0, 				1.0),
