@@ -15,6 +15,7 @@ import com.chrisali.javaflightsim.controls.FlightControlsUtilities;
 import com.chrisali.javaflightsim.enviroment.Environment;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
+import com.chrisali.javaflightsim.setup.Options;
 
 /*
  * This class integrates all 12 6DOF equations numerically to obtain the aircraft states.
@@ -64,12 +65,14 @@ public class Integrate6DOFEquations implements Runnable {
 	private ArrayList<EnumMap<SimOuts, Double>> logsOut = new ArrayList<>();
 	private EnumMap<SimOuts, Double> simOut;
 	
-	// Threading Properties
+	// Threading and Options
 	private CountDownLatch latch;
+	private EnumMap<Options, Boolean> options;
 	
 	public Integrate6DOFEquations(Aircraft aircraft, 
 								  FixedPitchPropEngine engine,
-								  CountDownLatch latch) {
+								  CountDownLatch latch,
+								  EnumMap<Options, Boolean> options) {
 		this.aircraft 		   = aircraft;
 		this.engine   		   = engine;
 		this.controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
@@ -77,6 +80,7 @@ public class Integrate6DOFEquations implements Runnable {
 		this.integratorConfig  = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");  // {startTime, dt, endTime}
 		this.gravity  		   = Environment.getGravity();
 		this.latch			   = latch;
+		this.options		   = options;
 		
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
 		this.integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
@@ -296,10 +300,12 @@ public class Integrate6DOFEquations implements Runnable {
 				initialConditions = y;
 				
 				// Update output log (don't output states to console)
-				logData(t, true);
+				logData(t, options.get(Options.CONSOLE_DISPLAY));
 				
 				// Pause the integration for dt*1000 milliseconds to emulate real time operation
-				Thread.sleep((long)(integratorConfig[1]*1000));
+				// if ANALYSIS_MODE is false
+				if (!options.get(Options.ANALYSIS_MODE))
+					Thread.sleep((long)(integratorConfig[1]*1000));
 			}
 			latch.countDown();
 		} catch (InterruptedException e) {System.err.println("Warning! Simulation interrupted!");

@@ -1,7 +1,9 @@
 package com.chrisali.javaflightsim.utilities.plotting;
 
+import java.util.EnumMap;
 import java.util.concurrent.CountDownLatch;
 
+import com.chrisali.javaflightsim.setup.Options;
 import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 
 /*
@@ -20,7 +22,8 @@ public class MakePlots implements Runnable {
 	
 	public MakePlots(Integrate6DOFEquations integration, 
 					 String[] simPlotCategories,
-					 CountDownLatch latch) {
+					 CountDownLatch latch,
+					 EnumMap<Options, Boolean> options) {
 		this.integration 	   = integration;
 		this.simPlotCategories = simPlotCategories;
 		this.latch			   = latch;
