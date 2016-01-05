@@ -12,6 +12,7 @@ import com.chrisali.javaflightsim.aero.AccelAndMoments;
 import com.chrisali.javaflightsim.aircraft.Aircraft;
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.controls.FlightControlsUtilities;
+import com.chrisali.javaflightsim.controls.Joystick;
 import com.chrisali.javaflightsim.enviroment.Environment;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
@@ -45,6 +46,7 @@ public class Integrate6DOFEquations implements Runnable {
 	private double[] totalMoments     		= new double[3];
 	
 	private EnumMap<FlightControls, Double> controls;
+	private Joystick joystick;
 	
 	private double alphaDot 				= 0.0f;
 	private double mach     				= 0.0f;
@@ -75,12 +77,24 @@ public class Integrate6DOFEquations implements Runnable {
 								  EnumMap<Options, Boolean> options) {
 		this.aircraft 		   = aircraft;
 		this.engine   		   = engine;
+		
 		this.controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
 		this.initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions"); //{initU,initV,initW,initN,initE,initD,initPhi,initTheta,initPsi,initP,initQ,initR}
 		this.integratorConfig  = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");  // {startTime, dt, endTime}
 		this.gravity  		   = Environment.getGravity();
+		
 		this.latch			   = latch;
 		this.options		   = options;
+		
+		// If USE_JOYSTICK enabled, use joystick
+		if (options.get(Options.USE_JOYSTICK))
+			this.joystick = new Joystick(controls);
+		else
+			this.joystick = null;
+		
+		// Lets simulation run forever when UNLIMITED_FLIGHT and ANALYSIS_MODE are true/false, respectively
+		if(options.get(Options.UNLIMITED_FLIGHT) & !options.get(Options.ANALYSIS_MODE))
+			integratorConfig[2] = Double.POSITIVE_INFINITY;
 		
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
 		this.integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
@@ -148,28 +162,33 @@ public class Integrate6DOFEquations implements Runnable {
 		// Update environment		
 		this.environmentParameters = Environment.getEnvironmentParams(NEDPosition);
 		
-		// Update controls with a aileron doublet
-		this.controls = FlightControlsUtilities.makeDoublet(controls, 
-															t, 
-															10, 
-															0.5, 
-															0.035, 
-															FlightControls.AILERON);
-		// Update controls with a rudder doublet
-		this.controls = FlightControlsUtilities.makeDoublet(controls, 
-															t, 
-															13, 
-															0.5, 
-															0.035, 
-															FlightControls.RUDDER);
-		
-		// Update controls with a rudder doublet
-		this.controls = FlightControlsUtilities.makeDoublet(controls, 
-															t, 
-															50, 
-															0.5, 
-															0.035, 
-															FlightControls.ELEVATOR);
+		// Update controls with joystick, doublets, or mouse (later)
+		if (options.get(Options.USE_JOYSTICK) & ! options.get(Options.ANALYSIS_MODE))
+			this.controls = joystick.updateFlightControls(controls);
+		else if (!options.get(Options.USE_JOYSTICK) & options.get(Options.ANALYSIS_MODE)) {	
+			// Update controls with an aileron doublet
+			this.controls = FlightControlsUtilities.makeDoublet(controls, 
+																t, 
+																10, 
+																0.5, 
+																0.035, 
+																FlightControls.AILERON);
+			// Update controls with a rudder doublet
+			this.controls = FlightControlsUtilities.makeDoublet(controls, 
+																t, 
+																13, 
+																0.5, 
+																0.035, 
+																FlightControls.RUDDER);
+			
+			// Update controls with an elevator doublet
+			this.controls = FlightControlsUtilities.makeDoublet(controls, 
+																t, 
+																50, 
+																0.5, 
+																0.035, 
+																FlightControls.ELEVATOR);
+		}
 		
 		// Update engine
 		this.engine.updateEngineState(controls, 
@@ -216,7 +235,7 @@ public class Integrate6DOFEquations implements Runnable {
 	}
 	
 	// After each step adds data to a logging arrayList for plotting and outputs to the console (if desired)
-	private void logData(double t, boolean useConsole) {
+	private void logData(double t) {
 		// Make a new EnumMap
 		simOut = new EnumMap<SimOuts, Double>(SimOuts.class);
 		
@@ -266,11 +285,15 @@ public class Integrate6DOFEquations implements Runnable {
 		simOut.put(SimOuts.ALPHA_DOT,   alphaDot);
 		simOut.put(SimOuts.MACH, 		mach);
 		
+		// Removes the first entry in logsOut to keep a maximum of 100 sec of flight data in UNLIMITED_FLIGHT
+		if (options.get(Options.UNLIMITED_FLIGHT) & t >= 100)
+			logsOut.remove(0);
+			
 		// Add output step to logging arrayList
 		logsOut.add(simOut);
 		
 		// Prints to console (if desired)
-		if (useConsole) {
+		if (options.get(Options.CONSOLE_DISPLAY)) {
 			for (Map.Entry<SimOuts, Double> out : simOut.entrySet())
 				System.out.printf("%9.2f ", out.getValue());
 			System.out.println("\n");
@@ -299,13 +322,17 @@ public class Integrate6DOFEquations implements Runnable {
 				// Update initial conditions for next step of integration
 				initialConditions = y;
 				
-				// Update output log (don't output states to console)
-				logData(t, options.get(Options.CONSOLE_DISPLAY));
+				// Update output log
+				logData(t);
 				
 				// Pause the integration for dt*1000 milliseconds to emulate real time operation
 				// if ANALYSIS_MODE is false
 				if (!options.get(Options.ANALYSIS_MODE))
 					Thread.sleep((long)(integratorConfig[1]*1000));
+				
+				// PAUSED option currently breaks the loop and ends the simulation
+				if (options.get(Options.PAUSED))
+					break;
 			}
 			latch.countDown();
 		} catch (InterruptedException e) {System.err.println("Warning! Simulation interrupted!");

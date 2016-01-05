@@ -8,6 +8,21 @@ import net.java.games.input.Component.POV;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
+/*
+ * The Joystick object uses JInput to integrate joystick functionality into the simulation.
+ * It works by generating an ArrayList of joysticks, gamepads and steering wheels connected
+ * to the computer, polling each one's active components (buttons, axes, POV hat), using 
+ * the polled data to calculate control deflections, and assigning these to each respective key 
+ * in the controls EnumMap. These deflections are limited by the constants defined in the 
+ * FlightControls enum. Aileron and Elevator trim are handled by the POV hat switch, and left
+ * and right throttle are handled by the throttle slider.
+ * 
+ * The following must be passed in upon creation:
+ * EnumMap<FlightControls, Double> controls
+ * 
+ * The following is returned from the object's updateFlightControls method:
+ * EnumMap<FlightControls, Double> controls
+ */
 public class Joystick {
 	private ArrayList<Controller> controllerList;
 	
@@ -28,7 +43,7 @@ public class Joystick {
 		searchForControllers();
 	}
 	
-	// Updates values for controls in 
+	// Updates values for controls in controls EnumMap
 	public EnumMap<FlightControls, Double> updateFlightControls(EnumMap<FlightControls, Double> controls) {		
 		return FlightControlsUtilities.limitControls(getJoystickValues(controls));
 	}
@@ -53,6 +68,11 @@ public class Joystick {
 		
 		// Iterate through all controllers connected
 		for (Controller controller : controllerList) {
+			
+			// Poll controller for data; if disconnected, break out of componentIdentification loop
+			if(!controller.poll()) 
+				break;
+			
 			// Iterate through all components of the controller.
 			Component[] componentList = controller.getComponents();
 			for(Component component : componentList) {
@@ -71,14 +91,14 @@ public class Joystick {
 				if(componentIdentifier == Component.Identifier.Axis.POV) {
 					float povValue = component.getPollData();
 					
-					if(povValue == POV.UP & trimElevator <= FlightControls.ELEVATOR.getMinimum())
+					if      (Float.compare(povValue, POV.UP)    == 0 & trimElevator <= FlightControls.ELEVATOR.getMaximum())
 						trimElevator += 0.001; 
-					else if (povValue == POV.DOWN & trimElevator >= FlightControls.ELEVATOR.getMaximum()) 
+					else if (Float.compare(povValue, POV.DOWN)  == 0 & trimElevator >= FlightControls.ELEVATOR.getMinimum()) 
 						trimElevator -= 0.001;
-					else if (povValue == POV.LEFT & trimAileron <= FlightControls.AILERON.getMinimum()) 
-						trimAileron += 0.001;
-					else if (povValue == POV.RIGHT & trimAileron >= FlightControls.AILERON.getMaximum())
-						trimAileron -= 0.001;
+					else if (Float.compare(povValue, POV.LEFT)  == 0 & trimAileron  >= FlightControls.AILERON.getMinimum()) 
+						trimAileron  += 0.001;
+					else if (Float.compare(povValue, POV.RIGHT) == 0 & trimAileron  <= FlightControls.AILERON.getMaximum())
+						trimAileron  -= 0.001;
 					
 					continue; // Go to next component
 				}
@@ -87,22 +107,22 @@ public class Joystick {
 				if(component.isAnalog()){
 					double axisValue = (double)component.getPollData();
 
-					// X axis (Elevator)
-					if(componentIdentifier == Component.Identifier.Axis.X) {
+					// Y axis (Elevator)
+					if(componentIdentifier == Component.Identifier.Axis.Y) {
 						controls.put(FlightControls.ELEVATOR, 
 								 	 getControlDeflection(FlightControls.ELEVATOR, 
 								 			 		   	  axisValue+trimElevator));
 						continue; // Go to next component
 					}
-					// Y axis (Aileron)
-					if(componentIdentifier == Component.Identifier.Axis.Y) {
+					// X axis (Aileron)
+					if(componentIdentifier == Component.Identifier.Axis.X) {
 						controls.put(FlightControls.AILERON, 
 									 getControlDeflection(FlightControls.AILERON, 
 											 		   	  axisValue+trimAileron));
 						continue; // Go to next component
 					}
 					// Z axis (Rudder)
-					if(componentIdentifier == Component.Identifier.Axis.Z) {
+					if(componentIdentifier == Component.Identifier.Axis.RZ) {
 						controls.put(FlightControls.RUDDER, 
 								 	 getControlDeflection(FlightControls.RUDDER, 
 								 			 		   	  axisValue+trimRudder));
@@ -110,14 +130,14 @@ public class Joystick {
 					}
 					// Slider axis (Throttle)
 					if(componentIdentifier == Component.Identifier.Axis.SLIDER) {
-						controls.put(FlightControls.THROTTLE_L,axisValue);
-						controls.put(FlightControls.THROTTLE_R,axisValue);
+						controls.put(FlightControls.THROTTLE_L,-(axisValue-1)/2);
+						controls.put(FlightControls.THROTTLE_R,-(axisValue-1)/2);
 						continue; // Go to next component
 					}
 				}
 			}
 		}
-		
+
 		return controls;
 	}
 	
@@ -127,8 +147,8 @@ public class Joystick {
 		// Calculate positive and negative slope
 		// (elevator has different values for positive/negative max)
 		if (axisValue <= 0) 
-			return (controlType.getMinimum()*axisValue);
+			return (controlType.getMaximum()*Math.abs(axisValue));
 		else
-			return (controlType.getMaximum()*axisValue);
+			return (controlType.getMinimum()*axisValue);
 	}
 }

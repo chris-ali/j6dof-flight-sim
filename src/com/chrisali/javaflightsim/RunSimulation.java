@@ -18,12 +18,14 @@ public class RunSimulation {
 		// TODO enable/disable debug mode
 		
 		String[] simPlotCategories = {"Controls", "Instruments", "Position", "Rates", "Miscellaneous"};
+		
+		//TODO Put settings into own class 
 		EnumMap<Options, Boolean> options = new EnumMap<Options, Boolean>(Options.class);
-		options.put(Options.ANALYSIS_MODE, true);
+		options.put(Options.ANALYSIS_MODE, false);
 		options.put(Options.PAUSED, false);
 		options.put(Options.RESET, false);
 		options.put(Options.UNLIMITED_FLIGHT, false);
-		options.put(Options.CONSOLE_DISPLAY, false);
+		options.put(Options.CONSOLE_DISPLAY, true);
 		options.put(Options.USE_JOYSTICK, true);
 		options.put(Options.USE_MOUSE, false);
 		
@@ -46,6 +48,5 @@ public class RunSimulation {
 		// Start threads
 		runSim.start();
 		plotSim.start();
-		
 	}
 }
