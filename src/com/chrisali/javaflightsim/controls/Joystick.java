@@ -52,14 +52,25 @@ public class Joystick {
 	// and Controller.Type.WHEEL to controllerList
 	private void searchForControllers() {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
-
+		
+		// If any suitable joysticks found, set boolean to true
+		boolean foundStick = false;
+		
 		for(Controller controller : controllers){
 			if (controller.getType() == Controller.Type.STICK || 
 				controller.getType() == Controller.Type.GAMEPAD || 
 				controller.getType() == Controller.Type.WHEEL) {
 				// Add new controller to the list of all controllers.
 				controllerList.add(controller);
+				// Found a usable joystick
+				foundStick = true;
 			}
+		}
+		
+		// No joysticks available, exit function
+		if (!foundStick) {
+			System.err.println("No controllers found!");
+			return;
 		}
 	}
 
