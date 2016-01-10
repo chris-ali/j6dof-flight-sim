@@ -72,16 +72,12 @@ public class Mouse extends SimulationController {
 
 					// Y axis (Elevator)
 					if(componentIdentifier == Component.Identifier.Axis.Y) {
-						controls.put(FlightControls.ELEVATOR, 
-								 	 calculateControlDeflection(FlightControls.ELEVATOR, 
-								 			 		   	  		axisValue)+trimElevator);
+						controls.put(FlightControls.ELEVATOR, axisValue+trimElevator);
 						continue; // Go to next component
 					}
 					// X axis (Aileron)
 					if(componentIdentifier == Component.Identifier.Axis.X) {
-						controls.put(FlightControls.AILERON, 
-									 calculateControlDeflection(FlightControls.AILERON, 
-											 		   	  		axisValue)+trimAileron);
+						controls.put(FlightControls.AILERON, axisValue+trimAileron);
 						continue; // Go to next component
 					}
 				}

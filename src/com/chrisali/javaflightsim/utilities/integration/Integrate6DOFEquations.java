@@ -3,7 +3,6 @@ package com.chrisali.javaflightsim.utilities.integration;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
@@ -18,6 +17,7 @@ import com.chrisali.javaflightsim.enviroment.Environment;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.setup.Options;
+import com.chrisali.javaflightsim.utilities.plotting.MakePlots;
 
 /*
  * This class integrates all 12 6DOF equations numerically to obtain the aircraft states.
@@ -69,13 +69,11 @@ public class Integrate6DOFEquations implements Runnable {
 	private ArrayList<EnumMap<SimOuts, Double>> logsOut = new ArrayList<>();
 	private EnumMap<SimOuts, Double> simOut;
 	
-	// Threading and Options
-	private CountDownLatch latch;
+	// Options
 	private EnumMap<Options, Boolean> options;
 	
 	public Integrate6DOFEquations(Aircraft aircraft, 
 								  FixedPitchPropEngine engine,
-								  CountDownLatch latch,
 								  EnumMap<Options, Boolean> options) {
 		this.aircraft 		   = aircraft;
 		this.engine   		   = engine;
@@ -85,7 +83,6 @@ public class Integrate6DOFEquations implements Runnable {
 		this.integratorConfig  = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");  // {startTime, dt, endTime}
 		this.gravity  		   = Environment.getGravity();
 		
-		this.latch			   = latch;
 		this.options		   = options;
 		
 		// If USE_JOYSTICK enabled, use joystick
@@ -338,10 +335,14 @@ public class Integrate6DOFEquations implements Runnable {
 				// if ANALYSIS_MODE is false
 				if (!options.get(Options.ANALYSIS_MODE))
 					Thread.sleep((long)(integratorConfig[1]*1000));
-				
 			}
-			latch.countDown();
-		} catch (InterruptedException e) {System.err.println("Warning! Simulation interrupted!");
-		}
+			
+			// If in analysis mode and not in unlimited flight, generate simulation plots
+			if (options.get(Options.ANALYSIS_MODE) & !options.get(Options.UNLIMITED_FLIGHT)) {
+				new Thread(new MakePlots(this, 
+						 				 new String[] {"Controls", "Instruments", "Position", "Rates", "Miscellaneous"},
+						 				 options)).start();
+			}
+		} catch (InterruptedException e) {System.err.println("Warning! Simulation interrupted!");}
 	}
 }
