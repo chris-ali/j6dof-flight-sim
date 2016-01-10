@@ -6,7 +6,8 @@ import com.chrisali.javaflightsim.setup.Options;
 import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 
 /*
- * This class implements threading to generate plot windows of simulation states
+ * This class implements threading to generate plot windows of simulation states. It loops through a String array
+ * and creates a SimulationPlots objects using the data from the logsOut EnumMap list in Integrate6DOFEquations  
  * 
  * The following must be passed in:
  * String[] simPlotCetegories
@@ -29,7 +30,7 @@ public class MakePlots implements Runnable {
 		try {
 			for (String plot : simPlotCategories) { 
 				new SimulationPlots(integration.getLogsOut(), plot);
-				Thread.sleep(20);
+				Thread.sleep(100);
 			}
 		} catch (InterruptedException e) {System.err.println("Warning! Plotting interrupted!");}
 	}

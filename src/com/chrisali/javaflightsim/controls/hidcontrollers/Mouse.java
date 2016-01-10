@@ -1,7 +1,9 @@
-package com.chrisali.javaflightsim.controls;
+package com.chrisali.javaflightsim.controls.hidcontrollers;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+
+import com.chrisali.javaflightsim.controls.FlightControls;
 
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;

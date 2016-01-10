@@ -1,7 +1,8 @@
-package com.chrisali.javaflightsim.controls;
+package com.chrisali.javaflightsim.controls.hidcontrollers;
 
 import java.util.EnumMap;
 
+import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
 
 public class ControllerTest implements Runnable {
