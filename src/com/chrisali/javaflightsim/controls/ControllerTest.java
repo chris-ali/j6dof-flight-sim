@@ -9,14 +9,14 @@ public class ControllerTest implements Runnable {
 	public void run() {
 		EnumMap<FlightControls, Double> controls = IntegrationSetup.gatherInitialControls("InitialControls");
 		double[] integratorConfig 				 = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");
-		Joystick joystick 						 = new Joystick(controls);
+		SimulationController joystick 			 = new Mouse(controls);
 		
 		for (double t = integratorConfig[0]; t < integratorConfig[2]; t += integratorConfig[1]) {
 			try {
 				controls = joystick.updateFlightControls(controls);
 				
 				for (double control : controls.values()) {
-					System.out.printf("%9.3f", control);
+					System.out.printf("%7.3f |", control);
 				}
 				System.out.println();
 				

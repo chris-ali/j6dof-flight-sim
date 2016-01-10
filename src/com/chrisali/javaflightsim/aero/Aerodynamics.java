@@ -25,7 +25,7 @@ import com.chrisali.javaflightsim.utilities.integration.SixDOFUtilities;
  * 
  * The class outputs the following (double arrays):
  *      aerodynamicMoments[] {L,M,N} 										(ft*lbf)
- *      aerodynamicForces[] {L,Y,D}	 										(lbf)	
+ *      aerodynamicForces[]  {-D,Y,-L}										(lbf)	
  */
 public class Aerodynamics extends Aircraft {
 	

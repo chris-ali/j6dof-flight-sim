@@ -2,6 +2,7 @@ package com.chrisali.javaflightsim.controls;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
 import net.java.games.input.Component.POV;
@@ -23,60 +24,46 @@ import net.java.games.input.ControllerEnvironment;
  * The following is returned from the object's updateFlightControls method:
  * EnumMap<FlightControls, Double> controls
  */
-public class Joystick {
-	private ArrayList<Controller> controllerList;
-	
-	// Add these trim values to getControlDeflection method call to emulate trim deflections
-	private double trimElevator = 0.0;
-	private double trimAileron  = 0.0;
-	private double trimRudder   = 0.0;
+public class Joystick extends SimulationController {
 	
 	// Constructor for Joystick class creates list of controllers using searchForControllers()
 	public Joystick(EnumMap<FlightControls, Double> controls) {
 		this.controllerList = new ArrayList<>();
 		
 		// Get initial trim values from initial values in controls EnumMap (rad)
-		this.trimElevator = controls.get(FlightControls.ELEVATOR);
-		this.trimAileron  = controls.get(FlightControls.AILERON);
-		this.trimRudder   = controls.get(FlightControls.RUDDER);
+		trimElevator = controls.get(FlightControls.ELEVATOR);
+		trimAileron  = controls.get(FlightControls.AILERON);
+		trimRudder   = controls.get(FlightControls.RUDDER);
 		
 		searchForControllers();
 	}
-	
-	// Updates values for controls in controls EnumMap
-	public EnumMap<FlightControls, Double> updateFlightControls(EnumMap<FlightControls, Double> controls) {		
-		return FlightControlsUtilities.limitControls(getJoystickValues(controls));
-	}
 
-	// Search for and add controllers of type Controller.Type.STICK, Controller.Type.GAMEPAD
-	// and Controller.Type.WHEEL to controllerList
-	private void searchForControllers() {
+	// Search for and add controllers of type Controller.Type.STICK or Controller.Type.GAMEPAD
+	// to controllerList
+	@Override
+	protected void searchForControllers() {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
-		
-		// If any suitable joysticks found, set boolean to true
-		boolean foundStick = false;
 		
 		for(Controller controller : controllers){
 			if (controller.getType() == Controller.Type.STICK || 
-				controller.getType() == Controller.Type.GAMEPAD || 
-				controller.getType() == Controller.Type.WHEEL) {
-				// Add new controller to the list of all controllers.
+				controller.getType() == Controller.Type.GAMEPAD) {
+				
+				// Add new controller to the list of joystick controllers.
 				controllerList.add(controller);
-				// Found a usable joystick
-				foundStick = true;
-			}
+			}	
 		}
 		
-		// No joysticks available, exit function
-		if (!foundStick) {
-			System.err.println("No controllers found!");
+		// If no joysticks available, exit function
+		if (controllerList.isEmpty()) {
+			System.err.println("No joysticks found!");
 			return;
 		}
 	}
 
-	// Get button, POV and axis values from joystick(s), and return a Double array for updateControls
-	private EnumMap<FlightControls, Double> getJoystickValues(EnumMap<FlightControls, Double> controls) {
-		
+	// Get button, POV and axis values from joystick(s), and return an EnumMap for updateFlightControls
+	// in SimulationController class
+	@Override
+	protected EnumMap<FlightControls, Double> calculateControllerValues(EnumMap<FlightControls, Double> controls) {
 		// Iterate through all controllers connected
 		for (Controller controller : controllerList) {
 			
@@ -85,14 +72,13 @@ public class Joystick {
 				break;
 			
 			// Iterate through all components of the controller.
-			Component[] componentList = controller.getComponents();
-			for(Component component : componentList) {
+			for(Component component : controller.getComponents()) {
 				Identifier componentIdentifier = component.getIdentifier();
 
 				// Buttons
 				if(componentIdentifier.getName().matches("^[0-9]*$")) { // If the component identifier contains only numbers, it is a button
 					if(component.getPollData() == 1.0f) {
-						// Button index
+						// Button index (nothing implemented yet)
 						switch(component.getIdentifier().toString()) {}
 					}
 					continue; // Go to next component
@@ -121,22 +107,22 @@ public class Joystick {
 					// Y axis (Elevator)
 					if(componentIdentifier == Component.Identifier.Axis.Y) {
 						controls.put(FlightControls.ELEVATOR, 
-								 	 getControlDeflection(FlightControls.ELEVATOR, 
-								 			 		   	  axisValue+trimElevator));
+								 	 calculateControlDeflection(FlightControls.ELEVATOR, 
+								 			 		   	  		axisValue)+trimElevator);
 						continue; // Go to next component
 					}
 					// X axis (Aileron)
 					if(componentIdentifier == Component.Identifier.Axis.X) {
 						controls.put(FlightControls.AILERON, 
-									 getControlDeflection(FlightControls.AILERON, 
-											 		   	  axisValue+trimAileron));
+									 calculateControlDeflection(FlightControls.AILERON, 
+											 		   	  		axisValue)+trimAileron);
 						continue; // Go to next component
 					}
 					// Z axis (Rudder)
 					if(componentIdentifier == Component.Identifier.Axis.RZ) {
 						controls.put(FlightControls.RUDDER, 
-								 	 getControlDeflection(FlightControls.RUDDER, 
-								 			 		   	  axisValue+trimRudder));
+								 	 calculateControlDeflection(FlightControls.RUDDER, 
+								 			 		   	  		axisValue)+trimRudder);
 						continue; // Go to next component
 					}
 					// Slider axis (Throttle)
@@ -148,18 +134,9 @@ public class Joystick {
 				}
 			}
 		}
-
+		
 		return controls;
 	}
 	
-	// Use maximum and minimum values defined in FlightControls enum to convert normalized joystick
-	// axis value to actual control deflection 
-	private double getControlDeflection(FlightControls controlType, double axisValue) {
-		// Calculate positive and negative slope
-		// (elevator has different values for positive/negative max)
-		if (axisValue <= 0) 
-			return (controlType.getMaximum()*Math.abs(axisValue));
-		else
-			return (controlType.getMinimum()*axisValue);
-	}
+	
 }

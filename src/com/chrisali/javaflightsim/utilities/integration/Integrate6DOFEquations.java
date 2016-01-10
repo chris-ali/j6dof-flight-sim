@@ -13,6 +13,7 @@ import com.chrisali.javaflightsim.aircraft.Aircraft;
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.controls.FlightControlsUtilities;
 import com.chrisali.javaflightsim.controls.Joystick;
+import com.chrisali.javaflightsim.controls.SimulationController;
 import com.chrisali.javaflightsim.enviroment.Environment;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
@@ -32,7 +33,7 @@ import com.chrisali.javaflightsim.setup.Options;
  */
 public class Integrate6DOFEquations implements Runnable {
 	
-	// Data Members
+	// Data Fields
 	private double[] linearVelocities 		= new double[3];
 	private double[] NEDPosition      		= new double[3];
 	private double[] eulerAngles      		= new double[3];
@@ -45,13 +46,14 @@ public class Integrate6DOFEquations implements Runnable {
 	private double[] linearAccelerations    = new double[3];
 	private double[] totalMoments     		= new double[3];
 	
-	private EnumMap<FlightControls, Double> controls;
-	private Joystick joystick;
-	
 	private double alphaDot 				= 0.0f;
 	private double mach     				= 0.0f;
 	
-	// Integrator Members
+	// Simulation controls (Joystick, Keyboard, etc.)
+	private EnumMap<FlightControls, Double> controls;
+	private SimulationController joystick;
+	
+	// Integrator Fields
 	private double[] sixDOFDerivatives		= new double[12];
 	private double[] y					    = new double[12];
 	private double[] initialConditions		= new double[12];
@@ -164,7 +166,7 @@ public class Integrate6DOFEquations implements Runnable {
 		
 		// Update controls with joystick, doublets, or mouse (later)
 		if (options.get(Options.USE_JOYSTICK) & ! options.get(Options.ANALYSIS_MODE))
-			this.controls = joystick.updateFlightControls(controls);
+			this.controls = ((Joystick) joystick).updateFlightControls(controls);
 		else if (!options.get(Options.USE_JOYSTICK) & options.get(Options.ANALYSIS_MODE)) {	
 			// Update controls with an aileron doublet
 			this.controls = FlightControlsUtilities.makeDoublet(controls, 
@@ -310,29 +312,33 @@ public class Integrate6DOFEquations implements Runnable {
 		// Integration loop
 		try {
 			for (double t = integratorConfig[0]; t < integratorConfig[2]; t += integratorConfig[1]) {
-				// Run a single step of integration each step of the loop
-				y = integrator.singleStep(new SixDOFEquations(), 	  // derivatives
-										  t, 		  				  // start time
-										  initialConditions, 		  // initial conditions
-										  t+integratorConfig[1]);     // end time (t+dt)
+				// If paused, skip the integration and update process
+				if (!options.get(Options.PAUSED)) {
+					// Run a single step of integration each step of the loop
+					y = integrator.singleStep(new SixDOFEquations(), 	  // derivatives
+											  t, 		  				  // start time
+											  initialConditions, 		  // initial conditions
+											  t+integratorConfig[1]);     // end time (t+dt)
+					
+					// Update data members' values
+					updateDataMembers(y, t);
+					
+					// Update initial conditions for next step of integration
+					initialConditions = y;
+					
+					// Update output log
+					logData(t);
+				}
 				
-				// Update data members' values
-				updateDataMembers(y, t);
-				
-				// Update initial conditions for next step of integration
-				initialConditions = y;
-				
-				// Update output log
-				logData(t);
+				// If paused and resed selected, reset initialConditions using IntegrationSetup's method 
+				if (options.get(Options.PAUSED) & options.get(Options.RESET))
+					initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
 				
 				// Pause the integration for dt*1000 milliseconds to emulate real time operation
 				// if ANALYSIS_MODE is false
 				if (!options.get(Options.ANALYSIS_MODE))
 					Thread.sleep((long)(integratorConfig[1]*1000));
 				
-				// PAUSED option currently breaks the loop and ends the simulation
-				if (options.get(Options.PAUSED))
-					break;
 			}
 			latch.countDown();
 		} catch (InterruptedException e) {System.err.println("Warning! Simulation interrupted!");
