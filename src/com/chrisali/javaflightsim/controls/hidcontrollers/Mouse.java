@@ -30,11 +30,8 @@ public class Mouse extends SimulationController {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
 
 		for (Controller controller : controllers) {
-			if (controller.getType() == Controller.Type.MOUSE) {
-				
-				// Add new controller to the list of mouse controllers.
+			if (controller.getType() == Controller.Type.MOUSE)
 				controllerList.add(controller);
-			}
 		}
 
 		// If no mice available, exit function

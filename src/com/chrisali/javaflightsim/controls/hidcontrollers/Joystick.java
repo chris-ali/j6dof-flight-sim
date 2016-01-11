@@ -47,12 +47,8 @@ public class Joystick extends SimulationController {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		
 		for(Controller controller : controllers){
-			if (controller.getType() == Controller.Type.STICK || 
-				controller.getType() == Controller.Type.GAMEPAD) {
-				
-				// Add new controller to the list of joystick controllers.
+			if (controller.getType() == Controller.Type.STICK || controller.getType() == Controller.Type.GAMEPAD)
 				controllerList.add(controller);
-			}	
 		}
 		
 		// If no joysticks available, exit function
