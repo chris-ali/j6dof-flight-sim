@@ -12,6 +12,8 @@ import com.chrisali.javaflightsim.aircraft.Aircraft;
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.controls.FlightControlsUtilities;
 import com.chrisali.javaflightsim.controls.hidcontrollers.Joystick;
+import com.chrisali.javaflightsim.controls.hidcontrollers.Keyboard;
+import com.chrisali.javaflightsim.controls.hidcontrollers.Mouse;
 import com.chrisali.javaflightsim.controls.hidcontrollers.SimulationController;
 import com.chrisali.javaflightsim.enviroment.Environment;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
@@ -51,7 +53,8 @@ public class Integrate6DOFEquations implements Runnable {
 	
 	// Simulation controls (Joystick, Keyboard, etc.)
 	private EnumMap<FlightControls, Double> controls;
-	private SimulationController joystick;
+	private SimulationController hidController;
+	private Keyboard hidKeyboard;
 	
 	// Integrator Fields
 	private double[] sixDOFDerivatives		= new double[12];
@@ -85,18 +88,26 @@ public class Integrate6DOFEquations implements Runnable {
 		
 		this.options		   = options;
 		
-		// If USE_JOYSTICK enabled, use joystick
-		if (options.get(Options.USE_JOYSTICK))
-			this.joystick = new Joystick(controls);
+		// If USE_JOYSTICK/USE_MOUSE enabled, use joystick/mouse if ANALYSIS_MODE not enabled
+		if (options.get(Options.USE_JOYSTICK) & !options.get(Options.USE_MOUSE) & !options.get(Options.ANALYSIS_MODE))
+			this.hidController = new Joystick(controls);
+		else if (options.get(Options.USE_MOUSE) & !options.get(Options.ANALYSIS_MODE))
+			this.hidController = new Mouse(controls);
 		else
-			this.joystick = null;
+			this.hidController = null;
+		
+		// If ANALYSIS_MODE not enabled use keyboard
+		if (!options.get(Options.ANALYSIS_MODE))
+			this.hidKeyboard = new Keyboard(controls);
+		else
+			this.hidKeyboard = null;
 		
 		// Lets simulation run forever when UNLIMITED_FLIGHT and ANALYSIS_MODE are true/false, respectively
 		if(options.get(Options.UNLIMITED_FLIGHT) & !options.get(Options.ANALYSIS_MODE))
 			integratorConfig[2] = Double.POSITIVE_INFINITY;
 		
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
-		this.integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
+		this.integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[1]);
 		
 		// Calculate initial data members' values
 		updateDataMembers(initialConditions, integratorConfig[0]);
@@ -162,9 +173,10 @@ public class Integrate6DOFEquations implements Runnable {
 		this.environmentParameters = Environment.getEnvironmentParams(NEDPosition);
 		
 		// Update controls with joystick, doublets, or mouse (later)
-		if (options.get(Options.USE_JOYSTICK) & ! options.get(Options.ANALYSIS_MODE))
-			this.controls = ((Joystick) joystick).updateFlightControls(controls);
-		else if (!options.get(Options.USE_JOYSTICK) & options.get(Options.ANALYSIS_MODE)) {	
+		if (options.get(Options.USE_JOYSTICK) | options.get(Options.USE_MOUSE) & ! options.get(Options.ANALYSIS_MODE)) {
+			this.controls = hidController.updateFlightControls(controls);
+			this.controls = hidKeyboard.updateFlightControls(controls);
+		} else if (!options.get(Options.USE_JOYSTICK) & options.get(Options.ANALYSIS_MODE)) {	
 			// Update controls with an aileron doublet
 			this.controls = FlightControlsUtilities.makeDoublet(controls, 
 																t, 
@@ -327,9 +339,15 @@ public class Integrate6DOFEquations implements Runnable {
 					logData(t);
 				}
 				
+				// Set pause/reset from within keyboard's updateOptions method if not in analysis mode
+				if (!options.get(Options.ANALYSIS_MODE))
+					this.options  = hidKeyboard.updateOptions(options);
+				
 				// If paused and resed selected, reset initialConditions using IntegrationSetup's method 
-				if (options.get(Options.PAUSED) & options.get(Options.RESET))
-					initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
+				if (options.get(Options.PAUSED) & options.get(Options.RESET)) {				
+ 					initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
+ 					options.put(Options.RESET, false);
+				}
 				
 				// Pause the integration for dt*1000 milliseconds to emulate real time operation
 				// if ANALYSIS_MODE is false
