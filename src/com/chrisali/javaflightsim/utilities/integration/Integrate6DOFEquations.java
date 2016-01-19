@@ -59,7 +59,7 @@ public class Integrate6DOFEquations implements Runnable {
 	// Integrator Fields
 	private double[] sixDOFDerivatives		= new double[12];
 	private double[] y					    = new double[12];
-	private double[] initialConditions		= new double[12];
+	private double[] initialConditions      = new double[12]; 
 	private double[] integratorConfig		= new double[3];
 	private ClassicalRungeKuttaIntegrator integrator;
 	
@@ -82,8 +82,8 @@ public class Integrate6DOFEquations implements Runnable {
 		this.engine   		   = engine;
 		
 		this.controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
-		this.initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions"); //{initU,initV,initW,initN,initE,initD,initPhi,initTheta,initPsi,initP,initQ,initR}
-		this.integratorConfig  = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");  // {startTime, dt, endTime}
+		this.initialConditions = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
+		this.integratorConfig  = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
 		this.gravity  		   = Environment.getGravity();
 		
 		this.options		   = options;
@@ -327,7 +327,7 @@ public class Integrate6DOFEquations implements Runnable {
 				
 				// If paused and resed selected, reset initialConditions using IntegrationSetup's method 
 				if (options.get(Options.PAUSED) & options.get(Options.RESET))				
- 					initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
+ 					initialConditions = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
 				
 				// If paused, skip the integration and update process
 				if (!options.get(Options.PAUSED)) {

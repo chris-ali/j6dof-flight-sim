@@ -10,43 +10,49 @@ import java.util.EnumMap;
 import com.chrisali.javaflightsim.controls.FlightControls;
 
 public class IntegrationSetup {
-	public static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\setup\\simconfig\\";
+	private static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\setup\\simconfig\\";
 	
-	public static double[] gatherInitialConditions(String fileName) {
-		ArrayList<String[]> initConditionsList = readFileAndSplit(fileName);
-		
-		if (initConditionsList.size() != 12) {
+	public static EnumMap<InitialConditions, Double> gatherInitialConditions(String fileName) {
+		ArrayList<String[]> initConditionsFile = readFileAndSplit(fileName);
+		EnumMap<InitialConditions,Double> initialConditions = new EnumMap<InitialConditions,Double>(InitialConditions.class); 
+				
+		if (!verifyICFileIntegrity(initConditionsFile)) {
 			System.err.println("Error in initial conditions file! Generating default initial conditions...");
-			return new double[] {210,0.0,-3.99,0.0,0.0,5000.0,0.0,-0.025,1.57,0.0,0.0,0.0};
+			Double[] defaultIC = new Double[] {210.0, 0.0, -3.99, 0.0, 0.0, 5000.0, 0.0, -0.025, 1.57, 0.0, 0.0, 0.0};
+			for (int i = 0; i < defaultIC.length; i++)
+				initialConditions.put(InitialConditions.values()[i], defaultIC[i]);
+			return initialConditions;
 		} else {
-			double[] initialCondtions = new double[initConditionsList.size()];
-			for (int i = 0; i < initConditionsList.size(); i++)
-				initialCondtions[i] = Double.parseDouble(initConditionsList.get(i)[1]);
-			return initialCondtions;
+			for (int i = 0; i < initConditionsFile.size(); i++)
+				initialConditions.put(InitialConditions.values()[i], Double.parseDouble(initConditionsFile.get(i)[1]));
+			return initialConditions;
 		}
 	}
 	
-	public static double[] gatherIntegratorConfig(String fileName) {
+	public static EnumMap<IntegratorConfig, Double> gatherIntegratorConfig(String fileName) {
 		ArrayList<String[]> intConfigFile = readFileAndSplit(fileName);
-		
-		if (intConfigFile.size() != 3) {
+		EnumMap<IntegratorConfig,Double> integratorConfig = new EnumMap<IntegratorConfig,Double>(IntegratorConfig.class); 
+				
+		if (!verifyIntConfigFileIntegrity(intConfigFile)) {
 			System.err.println("Error in integration configuration file! Generating default integration configuration...");
-			return new double[] {0.0,0.05,100.0};
+			double[] defaultIntConfig = new double[] {0.0, 0.05, 100.0};
+			for (int i = 0; i < defaultIntConfig.length; i++)
+				integratorConfig.put(IntegratorConfig.values()[i], defaultIntConfig[i]);
+			return integratorConfig;
 		} else {
-			double[] integratorConfig = new double[intConfigFile.size()];
 			for (int i = 0; i < intConfigFile.size(); i++)
-				integratorConfig[i] = Double.parseDouble(intConfigFile.get(i)[1]);
+				integratorConfig.put(IntegratorConfig.values()[i], Double.parseDouble(intConfigFile.get(i)[1]));
 			return integratorConfig;
 		}
 	}
 	
-	public static EnumMap<FlightControls,Double> gatherInitialControls(String fileName) {
+	public static EnumMap<FlightControls, Double> gatherInitialControls(String fileName) {
 		ArrayList<String[]> initControlFile = readFileAndSplit(fileName);
 		EnumMap<FlightControls,Double> initControl = new EnumMap<FlightControls,Double>(FlightControls.class); 
 		
 		if (!verifyControlFileIntegrity(initControlFile)) {
 			System.err.println("Error in controls file! Generating default control deflections...");
-			double[] defaultControl = new double[] {0.036,0,0,0.65,0.65,1.0,1.0,1.0,1.0,0,0,0,0};
+			double[] defaultControl = new double[] {0.036, 0, 0, 0.65, 0.65, 1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0};
 			for (int i = 0; i < defaultControl.length; i++)
 				initControl.put(FlightControls.values()[i], defaultControl[i]);
 			return initControl;
@@ -73,6 +79,8 @@ public class IntegrationSetup {
 		return readAndSplit;
 	}
 	
+	// Check parsed file to ensure that length and content match enum map langth and key content
+	
 	private static boolean verifyControlFileIntegrity(ArrayList<String[]> initControlFile) {
 		// If lengths are not equal, don't bother checking integrity; return false
 		if (FlightControls.values().length == initControlFile.size()) {
@@ -82,9 +90,44 @@ public class IntegrationSetup {
 					return false;
 			}
 		}
-		else {
-			return false;
-		}
+		else {return false;}
+		
 		return true;
+	}
+	
+	private static boolean verifyICFileIntegrity(ArrayList<String[]> initConditionsFile) {
+		// If lengths are not equal, don't bother checking integrity; return false
+		if (InitialConditions.values().length == initConditionsFile.size()) {
+			// Compare enum string value with read string from file
+			for (int i = 0; i < InitialConditions.values().length; i++) {
+				if (!initConditionsFile.get(i)[0].equals(InitialConditions.values()[i].toString()))
+					return false;
+			}
+		}
+		else {return false;}
+		
+		return true;
+	}
+	
+	private static boolean verifyIntConfigFileIntegrity(ArrayList<String[]> intConfigFile) {
+		// If lengths are not equal, don't bother checking integrity; return false
+		if (IntegratorConfig.values().length == intConfigFile.size()) {
+			// Compare enum string value with read string from file
+			for (int i = 0; i < IntegratorConfig.values().length; i++) {
+				if (!intConfigFile.get(i)[0].equals(IntegratorConfig.values()[i].toString()))
+					return false;
+			}
+		}
+		else {return false;}
+		
+		return true;
+	}
+	
+	// Unboxes Double[] array to double[]; integrator needs primitive arrays, necessitating this method
+	public static double[] unboxDoubleArray(EnumMap<?, Double> map) {
+		double[] unboxedArray = new double[map.values().size()]; 
+		for (int i = 0; i < unboxedArray.length; i++)
+			unboxedArray[i] = map.values().toArray(new Double[unboxedArray.length])[i];
+		return unboxedArray;
 	}
 }

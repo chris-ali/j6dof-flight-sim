@@ -9,7 +9,7 @@ public class ControllerTest implements Runnable {
 	@Override
 	public void run() {
 		EnumMap<FlightControls, Double> controls = IntegrationSetup.gatherInitialControls("InitialControls");
-		double[] integratorConfig 				 = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");
+		double[] integratorConfig 				 = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
 		SimulationController joystick 			 = new Keyboard(controls);
 		
 		for (double t = integratorConfig[0]; t < integratorConfig[2]; t += integratorConfig[1]) {
