@@ -12,6 +12,11 @@ import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
 public class Keyboard extends SimulationController {
+	// Keep track if button is pressed, so events occur only once if button held down 
+	private boolean pPressed = false;
+	private boolean rPressed = false;
+	// Keep track of reset, so that it can only be run once per pause
+	private boolean wasReset = false;
 	
 	// Constructor for Keyboard class creates list of controllers using
 	// searchForControllers()
@@ -22,7 +27,7 @@ public class Keyboard extends SimulationController {
 		trimElevator = controls.get(FlightControls.ELEVATOR);
 		trimAileron  = controls.get(FlightControls.AILERON);
 		trimRudder   = controls.get(FlightControls.RUDDER);
-
+		
 		searchForControllers();
 	}
 	
@@ -54,26 +59,38 @@ public class Keyboard extends SimulationController {
 			for (Component component : controller.getComponents()) {
 				Identifier componentIdentifier = component.getIdentifier();
 				
+				// When simulation paused, can be reset once per pause with "R" key
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.P.toString())) {
-					if(component.getPollData() == 1.0f & !options.get(Options.PAUSED)) {
+					if(component.getPollData() == 1.0f & !options.get(Options.PAUSED) & !pPressed) {
 						options.put(Options.PAUSED, true);
 						System.err.println("Simulation Paused!");
-					} else if(component.getPollData() == 1.0f & options.get(Options.PAUSED))
+						this.pPressed = true;
+					} else if(component.getPollData() == 1.0f & options.get(Options.PAUSED) & !pPressed) {
 						options.put(Options.PAUSED, false);
-					
+						this.wasReset = false;
+						this.pPressed = true;
+					} else if(component.getPollData() == 0.0f & pPressed) {
+						this.pPressed = false;
+					}
+
 					continue;
 				}
 				
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.R.toString())) {
-					if(component.getPollData() == 1.0f & options.get(Options.PAUSED) & !options.get(Options.RESET)) {
+					if(component.getPollData() == 1.0f & options.get(Options.PAUSED) & !options.get(Options.RESET) &
+					   !rPressed & !wasReset) {
 						options.put(Options.RESET, true);
 						System.err.println("Simulation Reset!");
+						this.wasReset = true;
+						this.rPressed = true;
+					} else if (component.getPollData() == 0.0f & rPressed) {
+						options.put(Options.RESET, false);
+						this.rPressed = false;
 					}
-						
+					
 					continue;
 				}
 			}
-			
 		}
 		
 		return options;
@@ -93,6 +110,7 @@ public class Keyboard extends SimulationController {
 				
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.UP.toString()) & 
 					controls.get(FlightControls.ELEVATOR) <= FlightControls.ELEVATOR.getMaximum()) {
+					
 					if(component.getPollData() == 1.0f)
 						controls.put(FlightControls.ELEVATOR,controls.get(FlightControls.ELEVATOR)+0.001);
 					
@@ -101,6 +119,7 @@ public class Keyboard extends SimulationController {
 				
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.DOWN.toString()) & 
 					controls.get(FlightControls.ELEVATOR) >= FlightControls.ELEVATOR.getMinimum()) {
+					
 					if(component.getPollData() == 1.0f)
 						controls.put(FlightControls.ELEVATOR,controls.get(FlightControls.ELEVATOR)-0.001);
 					
@@ -109,6 +128,7 @@ public class Keyboard extends SimulationController {
 				
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.LEFT.toString()) & 
 					controls.get(FlightControls.AILERON) >= FlightControls.AILERON.getMinimum()) {
+					
 					if(component.getPollData() == 1.0f)
 						controls.put(FlightControls.AILERON,controls.get(FlightControls.AILERON)+0.001);
 					
@@ -117,6 +137,7 @@ public class Keyboard extends SimulationController {
 				
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.RIGHT.toString()) & 
 					controls.get(FlightControls.AILERON) <= FlightControls.AILERON.getMaximum()) {
+					
 					if(component.getPollData() == 1.0f)
 						controls.put(FlightControls.AILERON,controls.get(FlightControls.AILERON)-0.001);
 					
@@ -126,6 +147,7 @@ public class Keyboard extends SimulationController {
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.PAGEUP.toString()) & 
 					controls.get(FlightControls.THROTTLE_L) <= FlightControls.THROTTLE_L.getMaximum() &
 					controls.get(FlightControls.THROTTLE_R) <= FlightControls.THROTTLE_R.getMaximum()) {
+					
 					if(component.getPollData() == 1.0f) {
 						controls.put(FlightControls.THROTTLE_L,controls.get(FlightControls.THROTTLE_L)+0.01);
 						controls.put(FlightControls.THROTTLE_R,controls.get(FlightControls.THROTTLE_R)+0.01);
@@ -137,6 +159,7 @@ public class Keyboard extends SimulationController {
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.PAGEDOWN.toString()) & 
 					controls.get(FlightControls.THROTTLE_L) >= FlightControls.THROTTLE_L.getMinimum() &
 					controls.get(FlightControls.THROTTLE_R) >= FlightControls.THROTTLE_R.getMinimum()) {
+					
 					if(component.getPollData() == 1.0f) {
 						controls.put(FlightControls.THROTTLE_L,controls.get(FlightControls.THROTTLE_L)-0.01);
 						controls.put(FlightControls.THROTTLE_R,controls.get(FlightControls.THROTTLE_R)-0.01);

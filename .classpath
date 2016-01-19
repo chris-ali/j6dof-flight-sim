@@ -5,5 +5,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/apache-commons"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jfreechart"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jinput"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ApacheCommons"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jFreeChart"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

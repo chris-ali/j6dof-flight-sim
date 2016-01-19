@@ -321,6 +321,14 @@ public class Integrate6DOFEquations implements Runnable {
 		// Integration loop
 		try {
 			for (double t = integratorConfig[0]; t < integratorConfig[2]; t += integratorConfig[1]) {
+				// Set pause/reset from within keyboard's updateOptions method if not in analysis mode
+				if (!options.get(Options.ANALYSIS_MODE))
+					this.options  = hidKeyboard.updateOptions(options);
+				
+				// If paused and resed selected, reset initialConditions using IntegrationSetup's method 
+				if (options.get(Options.PAUSED) & options.get(Options.RESET))				
+ 					initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
+				
 				// If paused, skip the integration and update process
 				if (!options.get(Options.PAUSED)) {
 					// Run a single step of integration each step of the loop
@@ -337,16 +345,6 @@ public class Integrate6DOFEquations implements Runnable {
 					
 					// Update output log
 					logData(t);
-				}
-				
-				// Set pause/reset from within keyboard's updateOptions method if not in analysis mode
-				if (!options.get(Options.ANALYSIS_MODE))
-					this.options  = hidKeyboard.updateOptions(options);
-				
-				// If paused and resed selected, reset initialConditions using IntegrationSetup's method 
-				if (options.get(Options.PAUSED) & options.get(Options.RESET)) {				
- 					initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
- 					options.put(Options.RESET, false);
 				}
 				
 				// Pause the integration for dt*1000 milliseconds to emulate real time operation
