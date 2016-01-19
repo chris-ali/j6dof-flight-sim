@@ -125,8 +125,8 @@ public class Joystick extends SimulationController {
 					}
 					// Slider axis (Throttle)
 					if(componentIdentifier == Component.Identifier.Axis.SLIDER) {
-						controls.put(FlightControls.THROTTLE_L,-(axisValue-1)/2);
-						controls.put(FlightControls.THROTTLE_R,-(axisValue-1)/2);
+						controls.put(FlightControls.THROTTLE_1,-(axisValue-1)/2);
+						controls.put(FlightControls.THROTTLE_2,-(axisValue-1)/2);
 						continue; // Go to next component
 					}
 				}

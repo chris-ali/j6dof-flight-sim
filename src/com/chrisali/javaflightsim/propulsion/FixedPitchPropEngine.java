@@ -9,17 +9,13 @@ public class FixedPitchPropEngine extends EngineModel {
 	private double throttle;
 	private double mixture;
 	
-	public FixedPitchPropEngine(double maxBHP, double maxRPM, double propDiameter, double[] enginePosition) {
+	public FixedPitchPropEngine(double maxBHP, double maxRPM, double propDiameter, double[] enginePosition, int engineNumber) {
 		this.maxBHP 		= maxBHP;
 		this.maxRPM 		= maxRPM;
 		this.propArea 		= Math.PI*(Math.pow(propDiameter, 2))/4;
 		this.propEfficiency = 0.85;
 		this.enginePosition = enginePosition;
-		
-		if (enginePosition[1] > 0) // Determines whether the engine is on the left/right
-			this.isRightEngine = true;
-		else
-			this.isRightEngine = false;
+		this.engineNumber   = engineNumber;
 	}
 	
 	public FixedPitchPropEngine() {
@@ -28,7 +24,7 @@ public class FixedPitchPropEngine extends EngineModel {
 		this.propArea 		= Math.PI*(Math.pow(6.5, 2))/4;
 		this.propEfficiency = 0.85;
 		this.enginePosition = new double[] {0, 0, 0};
-		this.isRightEngine  = false;
+		this.engineNumber   = 1;
 	}
 	
 	// Update all states for one engine
@@ -36,13 +32,24 @@ public class FixedPitchPropEngine extends EngineModel {
 								  double[] NEDPosition,				//{N,E,D}
 								  double[] environmentParameters,	//{temp,rho,p,a}
 								  double[] windParameters) {		//{vTrue,beta,alpha}
-		// Get engine controls' position depending on if right/left engine
-		if(isRightEngine) {
-			mixture  = controls.get(FlightControls.MIXTURE_R);
-			throttle = controls.get(FlightControls.THROTTLE_R);
-		} else {
-			mixture  = controls.get(FlightControls.MIXTURE_L);
-			throttle = controls.get(FlightControls.THROTTLE_L);
+		// Assign engine controls depending on engine number specified
+		switch (engineNumber) {
+			case 1:
+				mixture  = controls.get(FlightControls.MIXTURE_1);
+				throttle = controls.get(FlightControls.THROTTLE_1);
+				break;
+			case 2:
+				mixture  = controls.get(FlightControls.MIXTURE_2);
+				throttle = controls.get(FlightControls.THROTTLE_2);
+				break;
+			case 3:
+				mixture  = controls.get(FlightControls.MIXTURE_3);
+				throttle = controls.get(FlightControls.THROTTLE_3);
+				break;
+			case 4:
+				mixture  = controls.get(FlightControls.MIXTURE_4);
+				throttle = controls.get(FlightControls.THROTTLE_4);
+				break;
 		}
 		
 		calculateThrust(NEDPosition,

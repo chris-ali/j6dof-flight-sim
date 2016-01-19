@@ -145,24 +145,24 @@ public class Keyboard extends SimulationController {
 				}
 				
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.PAGEUP.toString()) & 
-					controls.get(FlightControls.THROTTLE_L) <= FlightControls.THROTTLE_L.getMaximum() &
-					controls.get(FlightControls.THROTTLE_R) <= FlightControls.THROTTLE_R.getMaximum()) {
+					controls.get(FlightControls.THROTTLE_1) <= FlightControls.THROTTLE_1.getMaximum() &
+					controls.get(FlightControls.THROTTLE_2) <= FlightControls.THROTTLE_2.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f) {
-						controls.put(FlightControls.THROTTLE_L,controls.get(FlightControls.THROTTLE_L)+0.01);
-						controls.put(FlightControls.THROTTLE_R,controls.get(FlightControls.THROTTLE_R)+0.01);
+						controls.put(FlightControls.THROTTLE_1,controls.get(FlightControls.THROTTLE_1)+0.01);
+						controls.put(FlightControls.THROTTLE_2,controls.get(FlightControls.THROTTLE_2)+0.01);
 					}
 					
 					continue;
 				}
 					
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.PAGEDOWN.toString()) & 
-					controls.get(FlightControls.THROTTLE_L) >= FlightControls.THROTTLE_L.getMinimum() &
-					controls.get(FlightControls.THROTTLE_R) >= FlightControls.THROTTLE_R.getMinimum()) {
+					controls.get(FlightControls.THROTTLE_1) >= FlightControls.THROTTLE_1.getMinimum() &
+					controls.get(FlightControls.THROTTLE_2) >= FlightControls.THROTTLE_2.getMinimum()) {
 					
 					if(component.getPollData() == 1.0f) {
-						controls.put(FlightControls.THROTTLE_L,controls.get(FlightControls.THROTTLE_L)-0.01);
-						controls.put(FlightControls.THROTTLE_R,controls.get(FlightControls.THROTTLE_R)-0.01);
+						controls.put(FlightControls.THROTTLE_1,controls.get(FlightControls.THROTTLE_1)-0.01);
+						controls.put(FlightControls.THROTTLE_2,controls.get(FlightControls.THROTTLE_2)-0.01);
 					}
 					
 					continue;

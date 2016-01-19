@@ -291,7 +291,7 @@ public class Integrate6DOFEquations implements Runnable {
 		simOut.put(SimOuts.ELEVATOR,    controls.get(FlightControls.ELEVATOR));
 		simOut.put(SimOuts.AILERON, 	controls.get(FlightControls.AILERON));
 		simOut.put(SimOuts.RUDDER, 	 	controls.get(FlightControls.RUDDER));
-		simOut.put(SimOuts.THROTTLE_L, 	controls.get(FlightControls.THROTTLE_L));
+		simOut.put(SimOuts.THROTTLE_L, 	controls.get(FlightControls.THROTTLE_1));
 		simOut.put(SimOuts.FLAPS, 	 	controls.get(FlightControls.FLAPS));
 		simOut.put(SimOuts.ALPHA_DOT,   alphaDot);
 		simOut.put(SimOuts.MACH, 		mach);

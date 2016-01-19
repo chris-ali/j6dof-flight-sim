@@ -16,6 +16,7 @@ import com.chrisali.javaflightsim.aircraft.Aircraft;
  */
 public abstract class EngineModel extends Aircraft {
 	
+	// Propeller Engine Parameters
 	final static protected double A_P        = 1.132; 
 	final static protected double B_P        = 0.132;
 	final static protected double RHO_SSL    = 0.002377;
@@ -26,17 +27,20 @@ public abstract class EngineModel extends Aircraft {
 	protected double propDiameter;		//ft
 	protected double propArea;			//ft^2
 	protected double propEfficiency;
-
-	protected double[] engineThrust   = {0, 0, 0};	// {T_x,T_y,T_z}	    (lbf)			
-	protected double[] engineMoment;				// {M_x,M_y,M_z}        (lbf)
-	
 	protected double rpm;
 	protected double fuelFlow;
-	protected boolean isRightEngine; // If eng_y > 0, set to 1 to indicate right side, else left side (or single engine)
 	
+	// Jet Engine Parameters
+	//TODO add jet/turboprop
+	
+	// Universal Parameters
+	protected int    engineNumber;
+	protected double[] engineThrust   = {0, 0, 0};	// {T_x,T_y,T_z}	    (lbf)			
+	protected double[] engineMoment;				// {M_x,M_y,M_z}        (lbf)
+		
 	//TODO need engine model properties (etaP, advance ratio, bhp curves) for lookup tables
 	//TODO etaP needs to vary
-  	//TODO model depends on if prop/jet	
+  	
 	
 	// Moment calculation same regardless of engine type
 	protected void calculateEngMoments() {

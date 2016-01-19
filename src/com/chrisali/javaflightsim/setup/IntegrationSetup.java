@@ -52,7 +52,7 @@ public class IntegrationSetup {
 		
 		if (!verifyControlFileIntegrity(initControlFile)) {
 			System.err.println("Error in controls file! Generating default control deflections...");
-			double[] defaultControl = new double[] {0.036, 0, 0, 0.65, 0.65, 1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0};
+			double[] defaultControl = new double[] {0.036, 0, 0, 0.65, 0.65, 0.65, 0.65, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0};
 			for (int i = 0; i < defaultControl.length; i++)
 				initControl.put(FlightControls.values()[i], defaultControl[i]);
 			return initControl;

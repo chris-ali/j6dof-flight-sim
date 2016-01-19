@@ -96,8 +96,8 @@ public class Mouse extends SimulationController {
 					if(componentIdentifier == Component.Identifier.Axis.Z) {
 						if(axisValue != 0) {
 							tempThrot += axisValue;
-							controls.put(FlightControls.THROTTLE_L, tempThrot*250);
-							controls.put(FlightControls.THROTTLE_R, tempThrot*250);
+							controls.put(FlightControls.THROTTLE_1, tempThrot*250);
+							controls.put(FlightControls.THROTTLE_2, tempThrot*250);
 						}
 						continue; // Go to next component
 					}
