@@ -6,13 +6,14 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.propulsion.EngineModel;
+import com.chrisali.javaflightsim.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.utilities.integration.SaturationLimits;
 
 public class AccelAndMoments extends Aerodynamics {
 	
 	public double[] getBodyAccelerations(double[] windParameters,
 									     double[] angularRates,
-									     double[] wingDimensions,
+									     Double[] wingDimensions,
 									     double[] environmentParameters,
 									     EnumMap<FlightControls, Double> controls,
 									     double alphaDot,
@@ -34,7 +35,7 @@ public class AccelAndMoments extends Aerodynamics {
 	
 	public double[] getTotalMoments(double[] windParameters,
 								    double[] angularRates,
-								    double[] wingDimensions,
+								    Double[] wingDimensions,
 								    double[] environmentParameters,
 								    EnumMap<FlightControls, Double> controls,
 								    double alphaDot,
@@ -47,8 +48,8 @@ public class AccelAndMoments extends Aerodynamics {
 															  controls, 
 															  alphaDot));
 		
-		Vector3D acVector = new Vector3D(aerodynamicCenter);
-		Vector3D cgVector = new Vector3D(centerOfGravity);
+		Vector3D acVector = new Vector3D(IntegrationSetup.unboxDoubleArray(aerodynamicCenter));
+		Vector3D cgVector = new Vector3D(IntegrationSetup.unboxDoubleArray(centerOfGravity));
 		
 		Vector3D aeroForceCrossProd = Vector3D.crossProduct(aeroForceVector, acVector.subtract(cgVector));
 		

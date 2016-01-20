@@ -34,7 +34,8 @@ public abstract class EngineModel extends Aircraft {
 	//TODO add jet/turboprop
 	
 	// Universal Parameters
-	protected int    engineNumber;
+	protected int      engineNumber;
+	protected double[] enginePosition; 	   			// {eng_x,eng_y,eng_z}  (ft)
 	protected double[] engineThrust   = {0, 0, 0};	// {T_x,T_y,T_z}	    (lbf)			
 	protected double[] engineMoment;				// {M_x,M_y,M_z}        (lbf)
 		

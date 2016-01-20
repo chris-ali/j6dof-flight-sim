@@ -9,27 +9,28 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import com.chrisali.javaflightsim.aero.StabilityDerivatives;
+import com.chrisali.javaflightsim.aero.WingGeometry;
 
 public class Aircraft {
-	protected double[] centerOfGravity;    // {CG_x,CG_y,CG_z}
-	protected double[] aerodynamicCenter;  // {ac_x,ac_y,ac_z}
-	protected double[] enginePosition; 	   // {eng_x,eng_y,eng_z}  (ft)
-	protected double[] massProperties;     // {weight,Ix,Iy,Iz,Ixz}
-	protected double[] wingDimensions;	   // {wingSfcArea,b,c_bar}
+	protected Double[] centerOfGravity;    // {CG_x,CG_y,CG_z}
+	protected Double[] aerodynamicCenter;  // {ac_x,ac_y,ac_z}
+	protected Double[] massProperties;     // {weight,Ix,Iy,Iz,Ixz}
+	protected Double[] wingDimensions;	   // {wingSfcArea,b,c_bar}
 	
 	protected Map<StabilityDerivatives, Object> stabDerivs;
+	protected Map<WingGeometry, Double> 		wingGeom;
+	protected Map<MassProperties, Object> 		massProps;
 	
 	public static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\aircraft\\";
 	
 	// Default constructor to give default values for aircraft definition (Navion)
 	public Aircraft() { 
-		this.centerOfGravity    = new double[]{0,0,0};
-		this.aerodynamicCenter  = new double[]{0,0,0};
-		this.enginePosition		= new double[]{0,0,0};
+		this.centerOfGravity    = new Double[]{0.0,0.0,0.0};
+		this.aerodynamicCenter  = new Double[]{0.0,0.0,0.0};
 		
-		this.massProperties     = new double[]{2750/32.2,1048,3000,3050,0};
+		this.massProperties     = new Double[]{2750/32.2,1048.0,3000.0,3050.0,0.0};
 		
-		this.wingDimensions		= new double[]{184,33.4,5.7};
+		this.wingDimensions		= new Double[]{184.0,33.4,5.7};
 		
 		// Creates an EnumMap and populates it with stability derivative values (either Double or PiecewiseBicubicSplineInterpolatingFunction)
 		this.stabDerivs			= new EnumMap<StabilityDerivatives, Object>(StabilityDerivatives.class);
@@ -78,38 +79,37 @@ public class Aircraft {
 	
 	// TODO Read a text file with aircraft attributes, and assign them to EnumMap	
 
-	public Aircraft(String fileName){
-		ArrayList<String[]> readAircraftFile = readFileAndSplit(fileName);
+	public Aircraft(String aircraftName){
+		ArrayList<String[]> readAeroFile = readFileAndSplit(aircraftName, "Aero");
 		
-		for(int i = 0; i < readAircraftFile.size(); i++) {
-			for (String[] readLine : readAircraftFile) {
+		for(int i = 0; i < readAeroFile.size(); i++) {
+			for (String[] readLine : readAeroFile) {
 				if (StabilityDerivatives.values()[i].equals(readLine[0]))
 					stabDerivs.put(StabilityDerivatives.values()[i], readLine[1]);
 			}
 		}
 	}
-
 	
-	public double[] getCenterOfGravity() {return centerOfGravity;}
+	public Double[] getCenterOfGravity() {return centerOfGravity;}
 
-	public double[] getAerodynamicCenter() {return aerodynamicCenter;}
+	public Double[] getAerodynamicCenter() {return aerodynamicCenter;}
 
-	public double[] getMassProperties() {return massProperties;}
+	public Double[] getMassProperties() {return massProperties;}
 
-	public double[] getWingDimensions() {return wingDimensions;}
+	public Double[] getWingDimensions() {return wingDimensions;}
 
-	private static ArrayList<String[]> readFileAndSplit(String fileName) {
+	private static ArrayList<String[]> readFileAndSplit(String aircraftName, String fileContents) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(FILE_PATH).append(fileName).append(".txt");
+		sb.append(FILE_PATH).append(aircraftName).append("\\").append(fileContents).append(".txt");
 		ArrayList<String[]> readAndSplit = new ArrayList<>();
 		String readLine = null;
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
 			while ((readLine = br.readLine()) != null)
 				readAndSplit.add(readLine.split(" = "));
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + ".txt!");}
-		catch (IOException e) {System.err.println("Could not read: " + fileName + ".txt!");}
-		catch (NullPointerException e) {System.err.println("Bad reference to: " + fileName + ".txt!");} 
+		} catch (FileNotFoundException e) {System.err.println("Could not find: " + aircraftName + ".txt!");}
+		catch (IOException e) {System.err.println("Could not read: " + aircraftName + ".txt!");}
+		catch (NullPointerException e) {System.err.println("Bad reference to: " + aircraftName + ".txt!");} 
 		
 		return readAndSplit;
 	}

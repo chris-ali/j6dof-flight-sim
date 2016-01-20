@@ -1,0 +1,12 @@
+numEngines = 1
+
+% Engine 1 Type
+engineType = fixedPitchProp
+maxHP = 200
+maxRPM = 2700
+propDiameter = 6.5
+
+% Engine 1 Position
+eng1X = 0.0
+eng1Y = 0.0
+eng1Z = 0.0

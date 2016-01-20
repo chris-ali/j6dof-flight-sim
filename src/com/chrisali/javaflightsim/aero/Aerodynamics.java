@@ -105,7 +105,7 @@ public class Aerodynamics extends Aircraft {
 	// Calculate Body Forces
 	public double[] getBodyForces(double[] windParameters,
 								  double[] angularRates,
-								  double[] wingDimensions,
+								  Double[] wingDimensions,
 							      double[] environmentParameters,
 							      EnumMap<FlightControls, Double> controls,
 								  double alphaDot) {
@@ -126,7 +126,7 @@ public class Aerodynamics extends Aircraft {
 	// Calculate Aerodynamic Moments
 	public double[] getAeroMoments(double[] windParameters,
 								   double[] angularRates,
-								   double[] wingDimensions,
+								   Double[] wingDimensions,
 								   double[] environmentParameters,
 								   EnumMap<FlightControls, Double> controls,
 								   double alphaDot) {

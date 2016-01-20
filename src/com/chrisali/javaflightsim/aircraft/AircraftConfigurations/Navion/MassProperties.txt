@@ -1,0 +1,13 @@
+% Mass Properties
+weightFuel = 360
+weightPayload = 610 
+weightEmpty = 1780
+jx = 1048
+jy = 3000
+jz = 3500
+jxz = 0
+
+% CG Position
+cgX = 0
+cgY = 0
+cgZ = 0

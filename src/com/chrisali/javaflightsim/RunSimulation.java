@@ -15,11 +15,11 @@ public class RunSimulation {
 
 		// TODO Put settings into own class 
 		EnumMap<Options, Boolean> options = new EnumMap<Options, Boolean>(Options.class);
-		options.put(Options.ANALYSIS_MODE, false);
+		options.put(Options.ANALYSIS_MODE, true);
 		options.put(Options.PAUSED, false);
 		options.put(Options.RESET, false);
 		options.put(Options.UNLIMITED_FLIGHT, false);
-		options.put(Options.CONSOLE_DISPLAY, true);
+		options.put(Options.CONSOLE_DISPLAY, false);
 		options.put(Options.USE_JOYSTICK, false);
 		options.put(Options.USE_MOUSE, false);
 		

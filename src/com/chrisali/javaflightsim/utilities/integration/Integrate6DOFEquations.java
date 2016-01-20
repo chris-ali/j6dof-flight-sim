@@ -130,7 +130,7 @@ public class Integrate6DOFEquations implements Runnable {
 		double[] yDot = new double[12];
 		
 		double[][] dirCosMat = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([row][column])
-		double[] inertiaCoeffs = SixDOFUtilities.getInertiaCoeffs(aircraft.getMassProperties());
+		double[] inertiaCoeffs = SixDOFUtilities.getInertiaCoeffs(IntegrationSetup.unboxDoubleArray(aircraft.getMassProperties()));
 		
 		yDot[0]  = (y[11]*y[1])-(y[10]*y[2])-(gravity[2]*Math.sin(y[7]))               +linearAccelerations[0];    // u (ft/sec)
 		yDot[1]  = (y[9]* y[2])-(y[11]*y[0])+(gravity[2]*Math.sin(y[6])*Math.cos(y[7]))+linearAccelerations[1];    // v (ft/sec)

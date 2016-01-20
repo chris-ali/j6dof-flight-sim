@@ -130,4 +130,10 @@ public class IntegrationSetup {
 			unboxedArray[i] = map.values().toArray(new Double[unboxedArray.length])[i];
 		return unboxedArray;
 	}
+	public static double[] unboxDoubleArray(Double[] boxed) {
+		double[] unboxedArray = new double[boxed.length]; 
+		for (int i = 0; i < unboxedArray.length; i++)
+			unboxedArray[i] = boxed[i];
+		return unboxedArray;
+	}
 }
