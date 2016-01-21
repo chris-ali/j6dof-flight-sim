@@ -43,7 +43,7 @@ public class Integrate6DOFEquations implements Runnable {
 	
 	private double[] windParameters   		= new double[3];
 	private double[] environmentParameters  = new double[4];
-	private double[] gravity				= new double[3];
+	private double[] gravity				= Environment.getGravity();
 	
 	private double[] linearAccelerations    = new double[3];
 	private double[] totalMoments     		= new double[3];
@@ -84,7 +84,6 @@ public class Integrate6DOFEquations implements Runnable {
 		this.controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
 		this.initialConditions = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
 		this.integratorConfig  = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
-		this.gravity  		   = Environment.getGravity();
 		
 		this.options		   = options;
 		
@@ -127,10 +126,9 @@ public class Integrate6DOFEquations implements Runnable {
 	
 	// Recalculates derivatives based on newly calculated accelerations and moments
 	private double[] updateDerivatives(double[] y) {
-		double[] yDot = new double[12];
-		
-		double[][] dirCosMat = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([row][column])
-		double[] inertiaCoeffs = SixDOFUtilities.getInertiaCoeffs(IntegrationSetup.unboxDoubleArray(aircraft.getMassProperties()));
+		double[]   yDot          = new double[12];
+		double[][] dirCosMat     = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([row][column])
+		double[]   inertiaCoeffs = SixDOFUtilities.getInertiaCoeffs(IntegrationSetup.unboxDoubleArray(aircraft.getInertiaValues()));
 		
 		yDot[0]  = (y[11]*y[1])-(y[10]*y[2])-(gravity[2]*Math.sin(y[7]))               +linearAccelerations[0];    // u (ft/sec)
 		yDot[1]  = (y[9]* y[2])-(y[11]*y[0])+(gravity[2]*Math.sin(y[6])*Math.cos(y[7]))+linearAccelerations[1];    // v (ft/sec)
@@ -216,7 +214,6 @@ public class Integrate6DOFEquations implements Runnable {
 		// Update accelerations
 		this.linearAccelerations = accelAndMoments.getBodyAccelerations(windParameters,
 																	    angularRates,
-																	    aircraft.getWingDimensions(),
 																	    environmentParameters,
 																	    controls,
 																	    alphaDot,
@@ -224,7 +221,6 @@ public class Integrate6DOFEquations implements Runnable {
 		// Update moments
 		this.totalMoments = accelAndMoments.getTotalMoments(windParameters,
 													 		angularRates,
-															aircraft.getWingDimensions(),
 															environmentParameters,
 															controls,
 															alphaDot,
@@ -285,13 +281,13 @@ public class Integrate6DOFEquations implements Runnable {
 		simOut.put(SimOuts.P_DOT, 	 	sixDOFDerivatives[9]);
 		simOut.put(SimOuts.Q_DOT, 	 	sixDOFDerivatives[10]);
 		simOut.put(SimOuts.R_DOT, 	 	sixDOFDerivatives[11]);
-		simOut.put(SimOuts.THRUST_L, 	engine.getThrust()[0]);
-		simOut.put(SimOuts.RPM_L, 	 	engine.getRPM());
-		simOut.put(SimOuts.FUEL_FLOW_L, engine.getFuelFlow());
+		simOut.put(SimOuts.THRUST_1, 	engine.getThrust()[0]);
+		simOut.put(SimOuts.RPM_1, 	 	engine.getRPM());
+		simOut.put(SimOuts.FUEL_FLOW_1, engine.getFuelFlow());
 		simOut.put(SimOuts.ELEVATOR,    controls.get(FlightControls.ELEVATOR));
 		simOut.put(SimOuts.AILERON, 	controls.get(FlightControls.AILERON));
 		simOut.put(SimOuts.RUDDER, 	 	controls.get(FlightControls.RUDDER));
-		simOut.put(SimOuts.THROTTLE_L, 	controls.get(FlightControls.THROTTLE_1));
+		simOut.put(SimOuts.THROTTLE_1, 	controls.get(FlightControls.THROTTLE_1));
 		simOut.put(SimOuts.FLAPS, 	 	controls.get(FlightControls.FLAPS));
 		simOut.put(SimOuts.ALPHA_DOT,   alphaDot);
 		simOut.put(SimOuts.MACH, 		mach);

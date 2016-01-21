@@ -1,6 +1,7 @@
 package com.chrisali.javaflightsim.aircraft;
 
 public enum MassProperties {
+	TOTAL_MASS      ("totalMass"),
 	WEIGHT_FUEL     ("weightFuel"),
 	WEIGHT_PAYLOAD  ("weightPayload"),
 	WEIGHT_EMPTY    ("weightEmpty"),

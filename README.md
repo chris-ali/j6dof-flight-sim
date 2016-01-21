@@ -2,7 +2,7 @@
 JavaFlightSim - A Six Degree of Freedom (6DOF) Flight Simulator Written in Java
 Chris Ali
 
-This program was written to apply my knowledge and background in Flight Dynamics to build my Java language skills. I hope for it to run as a simple analysis tool for flight dynamics, as well as a real time simulation for pilot in the loop use. One day I'd like to tie objectives or a scoring element into the simulation to make it a game as well.
+This program was written to apply my knowledge and background in Flight Dynamics to build my Java language skills. It is capable of running as a simple analysis tool for flight dynamics, as well as a real time simulation for pilot in the loop use. One day I'd like to tie objectives or a scoring element into the simulation to make it a game as well.
 
 Until I learn OpenGL or Java3D, this program will send/receive data to/from an existing flight simulator such as FlightGear or X-Plane.
 
@@ -17,7 +17,7 @@ Until I learn OpenGL or Java3D, this program will send/receive data to/from an e
 
 -Only a simple (single) engine model is implemented for now. No engine effects (fuel burn, propeller effects) are modeled yet
 
--No pause, reset or trim methods are implemented yet.
+-No trim method is implemented yet.
 
 ##Future Ideas
 -Include different aircraft, defined from a text file, selectable from a GUI
@@ -33,7 +33,7 @@ Until I learn OpenGL or Java3D, this program will send/receive data to/from an e
 
 -In addition, the jFreeChart libraries are used to graph the simulation states after the simulation stops.
 
+-jInput is used for joystick, mouse and keyboard support
+
 ##Reference
 -The 6DOF state equations come from *Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.*
-
--

@@ -10,30 +10,28 @@ import java.util.Map;
 
 import com.chrisali.javaflightsim.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.aero.WingGeometry;
+import com.chrisali.javaflightsim.enviroment.Environment;
 
 public class Aircraft {
-	protected Double[] centerOfGravity;    // {CG_x,CG_y,CG_z}
-	protected Double[] aerodynamicCenter;  // {ac_x,ac_y,ac_z}
-	protected Double[] massProperties;     // {weight,Ix,Iy,Iz,Ixz}
-	protected Double[] wingDimensions;	   // {wingSfcArea,b,c_bar}
-	
 	protected Map<StabilityDerivatives, Object> stabDerivs;
-	protected Map<WingGeometry, Double> 		wingGeom;
-	protected Map<MassProperties, Object> 		massProps;
+	protected Map<WingGeometry, Double> 		wingGeometry;
+	protected Map<MassProperties, Double> 		massProps;
 	
 	public static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\aircraft\\";
 	
 	// Default constructor to give default values for aircraft definition (Navion)
 	public Aircraft() { 
-		this.centerOfGravity    = new Double[]{0.0,0.0,0.0};
-		this.aerodynamicCenter  = new Double[]{0.0,0.0,0.0};
-		
-		this.massProperties     = new Double[]{2750/32.2,1048.0,3000.0,3050.0,0.0};
-		
-		this.wingDimensions		= new Double[]{184.0,33.4,5.7};
-		
-		// Creates an EnumMap and populates it with stability derivative values (either Double or PiecewiseBicubicSplineInterpolatingFunction)
+		// Creates EnumMaps and populates them with: 
+		// Stability derivative values (either Double or PiecewiseBicubicSplineInterpolatingFunction)
+		// Wing geometry values (Double)
+		// Mass properties		(Double)
 		this.stabDerivs			= new EnumMap<StabilityDerivatives, Object>(StabilityDerivatives.class);
+		this.wingGeometry		= new EnumMap<WingGeometry, Double>(WingGeometry.class);
+		this.massProps			= new EnumMap<MassProperties, Double>(MassProperties.class);
+		
+		// =======================================
+		// Default stability derivatives (Navion)
+		// =======================================
 		
 		// Lift
 		stabDerivs.put(StabilityDerivatives.CL_ALPHA,     new Double(4.44));
@@ -75,28 +73,91 @@ public class Aircraft {
 		stabDerivs.put(StabilityDerivatives.CN_R,         new Double(-0.125));
 		stabDerivs.put(StabilityDerivatives.CN_D_AIL,     new Double(-0.0035));
 		stabDerivs.put(StabilityDerivatives.CN_D_RUD,     new Double(-0.072));
+		
+		// =======================================
+		// Default wing geometry (Navion)
+		// =======================================		
+		
+		// Aerodynamic center
+		wingGeometry.put(WingGeometry.AC_X,   0.0);
+		wingGeometry.put(WingGeometry.AC_Y,   0.0);
+		wingGeometry.put(WingGeometry.AC_Z,   0.0);
+		
+		// Wing dimensions
+		wingGeometry.put(WingGeometry.S_WING, 184.0);
+		wingGeometry.put(WingGeometry.B_WING, 33.4);
+		wingGeometry.put(WingGeometry.C_BAR,  5.7);
+		
+		// =======================================
+		// Default mass properties (Navion)
+		// =======================================
+		
+		// Center of Gravity
+		massProps.put(MassProperties.CG_X, 			 0.0);
+		massProps.put(MassProperties.CG_Y, 			 0.0);
+		massProps.put(MassProperties.CG_Z, 			 0.0);
+		
+		// Moments of Inertia
+		massProps.put(MassProperties.J_X,  			 1048.0);
+		massProps.put(MassProperties.J_Y,    		 3000.0);
+		massProps.put(MassProperties.J_Z,  			 3050.0);
+		massProps.put(MassProperties.J_XZ, 			 0.0);
+		
+		// Weights and Mass (lbf/slug)
+		massProps.put(MassProperties.WEIGHT_EMPTY,   1780.0);
+		massProps.put(MassProperties.WEIGHT_FUEL,    360.0);
+		massProps.put(MassProperties.WEIGHT_PAYLOAD, 610.0);
+		massProps.put(MassProperties.TOTAL_MASS, (massProps.get(MassProperties.WEIGHT_EMPTY) + 
+												  massProps.get(MassProperties.WEIGHT_FUEL)  +
+												  massProps.get(MassProperties.WEIGHT_PAYLOAD))/Environment.getGravity()[2]);
 	}
 	
 	// TODO Read a text file with aircraft attributes, and assign them to EnumMap	
 
 	public Aircraft(String aircraftName){
+		// Aerodynamics
 		ArrayList<String[]> readAeroFile = readFileAndSplit(aircraftName, "Aero");
 		
 		for(int i = 0; i < readAeroFile.size(); i++) {
 			for (String[] readLine : readAeroFile) {
 				if (StabilityDerivatives.values()[i].equals(readLine[0]))
-					stabDerivs.put(StabilityDerivatives.values()[i], readLine[1]);
+					this.stabDerivs.put(StabilityDerivatives.values()[i], Double.parseDouble(readLine[1]));
+			}
+		}
+		
+		// Mass Properties
+		ArrayList<String[]> readMassPropFile = readFileAndSplit(aircraftName, "MassProperties");
+		
+		for(int i = 0; i < readMassPropFile.size(); i++) {
+			for (String[] readLine : readMassPropFile) {
+				if (StabilityDerivatives.values()[i].equals(readLine[0]))
+					this.massProps.put(MassProperties.values()[i], Double.parseDouble(readLine[1]));
+			}
+		}
+		
+		// Wing Geometry
+		ArrayList<String[]> readWingGeomFile = readFileAndSplit(aircraftName, "WingGeometry");
+		
+		for(int i = 0; i < readWingGeomFile.size(); i++) {
+			for (String[] readLine : readWingGeomFile) {
+				if (StabilityDerivatives.values()[i].equals(readLine[0]))
+					this.wingGeometry.put(WingGeometry.values()[i], Double.parseDouble(readLine[1]));
 			}
 		}
 	}
 	
-	public Double[] getCenterOfGravity() {return centerOfGravity;}
+	public Double[] getCenterOfGravity() {return new Double[] {massProps.get(MassProperties.CG_X),
+															   massProps.get(MassProperties.CG_Y),
+															   massProps.get(MassProperties.CG_Z)};}
 
-	public Double[] getAerodynamicCenter() {return aerodynamicCenter;}
-
-	public Double[] getMassProperties() {return massProperties;}
-
-	public Double[] getWingDimensions() {return wingDimensions;}
+	public Double[] getAerodynamicCenter() {return new Double[] {wingGeometry.get(WingGeometry.AC_X),
+																 wingGeometry.get(WingGeometry.AC_Y),
+																 wingGeometry.get(WingGeometry.AC_Z)};}
+	
+	public Double[] getInertiaValues() {return new Double[] {massProps.get(MassProperties.J_X),
+														     massProps.get(MassProperties.J_Y),
+														     massProps.get(MassProperties.J_Z),
+														     massProps.get(MassProperties.J_XZ)};}
 
 	private static ArrayList<String[]> readFileAndSplit(String aircraftName, String fileContents) {
 		StringBuilder sb = new StringBuilder();

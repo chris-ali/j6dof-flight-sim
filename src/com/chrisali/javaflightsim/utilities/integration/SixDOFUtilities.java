@@ -19,20 +19,20 @@ public class SixDOFUtilities {
 		return body2NedDCM;
 	}
 	
-	public static double[] getInertiaCoeffs(double[] massProperties) { //massProperties[]{mass,Ix,Iy,Iz,Ixz}
+	public static double[] getInertiaCoeffs(double[] inertiaVals) { //massProperties[]{mass,Ix,Iy,Iz,Ixz}
 		double[] inertiaCoeffs = new double[9];
 		
-		double gamma = (massProperties[1]*massProperties[3])-(massProperties[4]*massProperties[4]);
+		double gamma = (inertiaVals[0]*inertiaVals[2])-(Math.pow(inertiaVals[3], 2));
 		
-		inertiaCoeffs[0] = (((massProperties[2]-massProperties[3])*massProperties[3])-(massProperties[4]*massProperties[4]))/gamma;
-		inertiaCoeffs[1] = (massProperties[1]-massProperties[2]+massProperties[3])*massProperties[4]/gamma;
-		inertiaCoeffs[2] = massProperties[3]/gamma;
-		inertiaCoeffs[3] = massProperties[4]/gamma;
-		inertiaCoeffs[4] = (massProperties[3]-massProperties[1])/massProperties[2];
-		inertiaCoeffs[5] = massProperties[4]/massProperties[2];
-		inertiaCoeffs[6] = 1/massProperties[2];
-		inertiaCoeffs[7] = (massProperties[1]*(massProperties[1]-massProperties[2])+(massProperties[4]*massProperties[4]))/gamma;
-		inertiaCoeffs[8] = massProperties[1]/gamma;
+		inertiaCoeffs[0] = (((inertiaVals[1]-inertiaVals[2])*inertiaVals[2])-(Math.pow(inertiaVals[3], 2)))/gamma;
+		inertiaCoeffs[1] = (inertiaVals[0]-inertiaVals[1]+inertiaVals[2])*inertiaVals[3]/gamma;
+		inertiaCoeffs[2] = inertiaVals[2]/gamma;
+		inertiaCoeffs[3] = inertiaVals[3]/gamma;
+		inertiaCoeffs[4] = (inertiaVals[2]-inertiaVals[0])/inertiaVals[1];
+		inertiaCoeffs[5] = inertiaVals[3]/inertiaVals[1];
+		inertiaCoeffs[6] = 1/inertiaVals[1];
+		inertiaCoeffs[7] = (inertiaVals[0]*(inertiaVals[0]-inertiaVals[1])+(Math.pow(inertiaVals[3], 2)))/gamma;
+		inertiaCoeffs[8] = inertiaVals[0]/gamma;
 		
 		return inertiaCoeffs;
 	}
@@ -65,7 +65,7 @@ public class SixDOFUtilities {
 	
 	public static double getAlphaDot(double[] linearVelocities, double[] sixDOFDerivatives) {
 		return ((linearVelocities[0]*sixDOFDerivatives[2])-(linearVelocities[2]*sixDOFDerivatives[0]))
-				/((linearVelocities[0]*linearVelocities[0])+(linearVelocities[2]*linearVelocities[2]));// = u*w_dot-w*u_dot/(u^2+w^2)
+				/((Math.pow(linearVelocities[0], 2)+(Math.pow(linearVelocities[2], 2))));// = u*w_dot-w*u_dot/(u^2+w^2)
 	}
 	
 	public static double getMach(double[] windParameters, double[] environmentParameters) {
