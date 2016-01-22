@@ -16,6 +16,7 @@ import com.chrisali.javaflightsim.controls.hidcontrollers.Keyboard;
 import com.chrisali.javaflightsim.controls.hidcontrollers.Mouse;
 import com.chrisali.javaflightsim.controls.hidcontrollers.SimulationController;
 import com.chrisali.javaflightsim.enviroment.Environment;
+import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.setup.Options;
@@ -34,22 +35,22 @@ import com.chrisali.javaflightsim.utilities.plotting.MakePlots;
  * The class outputs at each step using logData to generate a logsOut ArrayList of simOut EnumMaps containing simulation outputs.
  */
 public class Integrate6DOFEquations implements Runnable {
-	
-	// Data Fields
+	// 6DOF Integration Results
 	private double[] linearVelocities 		= new double[3];
 	private double[] NEDPosition      		= new double[3];
 	private double[] eulerAngles      		= new double[3];
 	private double[] angularRates     		= new double[3];
 	
-	private double[] windParameters   		= new double[3];
-	private double[] environmentParameters  = new double[4];
-	private double[] gravity				= Environment.getGravity();
+	// Environment and Wind Parameters
+	private EnumMap<EnvironmentParameters, Double> environmentParameters;
+	private double   gravity			    = Environment.getGravity();
+	private double[] windParameters   		= new double[3];	
+	private double   alphaDot 				= 0.0f;
+	private double   mach     				= 0.0f;
 	
+	// Forces and Moments
 	private double[] linearAccelerations    = new double[3];
 	private double[] totalMoments     		= new double[3];
-	
-	private double alphaDot 				= 0.0f;
-	private double mach     				= 0.0f;
 	
 	// Simulation controls (Joystick, Keyboard, etc.)
 	private EnumMap<FlightControls, Double> controls;
@@ -84,6 +85,8 @@ public class Integrate6DOFEquations implements Runnable {
 		this.controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
 		this.initialConditions = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
 		this.integratorConfig  = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
+		
+		this.environmentParameters = Environment.updateEnvironmentParams(new double[]{initialConditions[3], initialConditions[4], initialConditions[5]});
 		
 		this.options		   = options;
 		
@@ -130,9 +133,9 @@ public class Integrate6DOFEquations implements Runnable {
 		double[][] dirCosMat     = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([row][column])
 		double[]   inertiaCoeffs = SixDOFUtilities.getInertiaCoeffs(IntegrationSetup.unboxDoubleArray(aircraft.getInertiaValues()));
 		
-		yDot[0]  = (y[11]*y[1])-(y[10]*y[2])-(gravity[2]*Math.sin(y[7]))               +linearAccelerations[0];    // u (ft/sec)
-		yDot[1]  = (y[9]* y[2])-(y[11]*y[0])+(gravity[2]*Math.sin(y[6])*Math.cos(y[7]))+linearAccelerations[1];    // v (ft/sec)
-		yDot[2]  = (y[10]*y[0])-(y[9]* y[1])+(gravity[2]*Math.cos(y[6])*Math.cos(y[7]))+linearAccelerations[2];    // w (ft/sec)
+		yDot[0]  = (y[11]*y[1])-(y[10]*y[2])-(gravity*Math.sin(y[7]))               +linearAccelerations[0];    // u (ft/sec)
+		yDot[1]  = (y[9]* y[2])-(y[11]*y[0])+(gravity*Math.sin(y[6])*Math.cos(y[7]))+linearAccelerations[1];    // v (ft/sec)
+		yDot[2]  = (y[10]*y[0])-(y[9]* y[1])+(gravity*Math.cos(y[6])*Math.cos(y[7]))+linearAccelerations[2];    // w (ft/sec)
 		
 		yDot[3]  =  y[0]*dirCosMat[0][0]+y[1]*dirCosMat[0][1]+y[2]*dirCosMat[0][2];         // N (ft)
 		yDot[4]  =  y[0]*dirCosMat[1][0]+y[1]*dirCosMat[1][1]+y[2]*dirCosMat[1][2];         // E (ft)
@@ -168,7 +171,7 @@ public class Integrate6DOFEquations implements Runnable {
 		this.windParameters = SixDOFUtilities.getWindParameters(linearVelocities);
 		
 		// Update environment		
-		this.environmentParameters = Environment.getEnvironmentParams(NEDPosition);
+		this.environmentParameters = Environment.updateEnvironmentParams(NEDPosition);
 		
 		// Update controls with joystick, doublets, or mouse (later)
 		if (options.get(Options.USE_JOYSTICK) | options.get(Options.USE_MOUSE) & ! options.get(Options.ANALYSIS_MODE)) {
@@ -269,9 +272,9 @@ public class Integrate6DOFEquations implements Runnable {
 		simOut.put(SimOuts.L, 		 	totalMoments[0]);
 		simOut.put(SimOuts.M, 		 	totalMoments[1]);
 		simOut.put(SimOuts.N, 		 	totalMoments[2]);
-		simOut.put(SimOuts.AN_X, 	   (sixDOFDerivatives[0]/gravity[2]));
-		simOut.put(SimOuts.AN_Y, 	   (sixDOFDerivatives[1]/gravity[2]));
-		simOut.put(SimOuts.AN_Z, 	  ((sixDOFDerivatives[2]/gravity[2])+1.0));
+		simOut.put(SimOuts.AN_X, 	   (sixDOFDerivatives[0]/gravity));
+		simOut.put(SimOuts.AN_Y, 	   (sixDOFDerivatives[1]/gravity));
+		simOut.put(SimOuts.AN_Z, 	  ((sixDOFDerivatives[2]/gravity)+1.0));
 		simOut.put(SimOuts.NORTH_DOT,   sixDOFDerivatives[3]);
 		simOut.put(SimOuts.EAST_DOT, 	sixDOFDerivatives[4]);
 		simOut.put(SimOuts.ALT_DOT,    (sixDOFDerivatives[5]*60));

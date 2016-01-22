@@ -1,5 +1,7 @@
 package com.chrisali.javaflightsim.enviroment;
 
+import java.util.EnumMap;
+
 /*
  * This class calculates atmospheric parameters as a function of height, and the gravitational acceleration constant.
  * It uses the 1976 NASA Standard Atmosphere model, and assumes that gravity is constant in the Z direction.
@@ -7,11 +9,12 @@ package com.chrisali.javaflightsim.enviroment;
  * The following (double array) must be passed in:
  * 		NEDPosition[]{N,E,D}  (ft)
  * 
- * The class outputs the following (double arrays):
- *      environmentParameters[]{temp,rho,p,a}  (deg R, slug/ft^3, lbf/ft^2, ft/sec)
- *      gravity[]{G_x,G_y,G_z} (ft/sec^2)
+ * The class outputs the following:
+ *      EnumMap<EnvironmentParameters, Double> environmentParams  (deg R, slug/ft^3, lbf/ft^2, ft/sec)
+ *      gravity	 												  (ft/sec^2)
  */
 public class Environment {
+	private static final double RADIUS_EARTH = 3959*5280;
 	
 	private static final double R = 1716.49;
 	private static final double GAMMA = 1.4;
@@ -27,8 +30,9 @@ public class Environment {
 	private static final double ENV_CONST_TROP = 0.0000068755;
 	private static final double ENV_CONST_STRAT = -0.0000480637;
 	
-	public static double[] getEnvironmentParams(double[] NEDPosition) {
-		double temp, rho, p, a;
+	public static EnumMap<EnvironmentParameters, Double> updateEnvironmentParams(double[] NEDPosition) {
+		EnumMap<EnvironmentParameters, Double> environmentParams = new EnumMap<EnvironmentParameters, Double>(EnvironmentParameters.class); 
+		Double temp, rho, p, a, g;
 		
 		// Troposphere
 		if (NEDPosition[2] < HT_TROP) {
@@ -44,12 +48,17 @@ public class Environment {
 		}
 		
 		a = Math.sqrt(GAMMA*R*temp);     									 // (ft/sec)
-
-		return new double[] {temp,rho,p,a};
+		
+		g = GRAVITY*(RADIUS_EARTH/(RADIUS_EARTH+NEDPosition[2]));
+		
+		environmentParams.put(EnvironmentParameters.T,       temp);
+		environmentParams.put(EnvironmentParameters.P,       p);
+		environmentParams.put(EnvironmentParameters.RHO,     rho);
+		environmentParams.put(EnvironmentParameters.A,       a);
+		environmentParams.put(EnvironmentParameters.GRAVITY, g);
+		
+		return environmentParams;
 	}
 	
-	public static double[] getGravity() {
-		return new double[] {0, 0, GRAVITY};
-	}
-	
+	public static double getGravity() {return GRAVITY;}
 }

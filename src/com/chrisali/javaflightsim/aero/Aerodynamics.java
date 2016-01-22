@@ -3,6 +3,7 @@ package com.chrisali.javaflightsim.aero;
 import java.util.EnumMap;
 import com.chrisali.javaflightsim.aircraft.Aircraft;
 import com.chrisali.javaflightsim.controls.FlightControls;
+import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.utilities.integration.SixDOFUtilities;
 
 /*
@@ -16,11 +17,11 @@ import com.chrisali.javaflightsim.utilities.integration.SixDOFUtilities;
  *      windParameters[]{vTrue,alpha,beta}  								(ft/sec,rad,rad)
  * 		angularRates[]{p,q,r}		  										(rad/sec)
  * 		double alphaDot				 										(rad/sec)
- * 		environmentParameters[]{temp,rho,p,a}  								(deg R, slug/ft^3, lbf/ft^2, ft/sec)
+ * 		EnumMap<EnvironmentParameters, Double> environmentParams  			(deg R, slug/ft^3, lbf/ft^2, ft/sec)
  * 
  * The following are inherited from the Aircraft class:							
  *  	wingGeometry EnumMap<WingGeometry, Double> 							(ft^2,ft,ft) 
- * 		stabDerivs EnumMap<StabilityDerivatives, (Double)Object>		
+ * 		stabDerivs   EnumMap<StabilityDerivatives, (Double)Object>		
  * 
  * The class outputs the following (double arrays):
  *      aerodynamicMoments[] {L,M,N} 										(ft*lbf)
@@ -104,10 +105,10 @@ public class Aerodynamics extends Aircraft {
 	// Calculate Body Forces
 	public double[] getBodyForces(double[] windParameters,
 								  double[] angularRates,
-							      double[] environmentParameters,
+								  EnumMap<EnvironmentParameters, Double> environmentParameters,
 							      EnumMap<FlightControls, Double> controls,
 								  double alphaDot) {
-		double qBar = environmentParameters[1]*Math.pow(windParameters[0], 2)/2;
+		double qBar = environmentParameters.get(EnvironmentParameters.RHO)*Math.pow(windParameters[0], 2)/2;
 		
 		double[][] w2bDCM = SixDOFUtilities.wind2Body(windParameters);
 		
@@ -124,10 +125,10 @@ public class Aerodynamics extends Aircraft {
 	// Calculate Aerodynamic Moments
 	public double[] getAeroMoments(double[] windParameters,
 								   double[] angularRates,
-								   double[] environmentParameters,
+								   EnumMap<EnvironmentParameters, Double> environmentParameters,
 								   EnumMap<FlightControls, Double> controls,
 								   double alphaDot) {
-		double qBar = environmentParameters[1]*Math.pow(windParameters[0], 2)/2;
+		double qBar = environmentParameters.get(EnvironmentParameters.RHO)*Math.pow(windParameters[0], 2)/2;
 		
 		return new double[] {qBar*getCRoll(angularRates, windParameters, controls)*wingGeometry.get(WingGeometry.S_WING)*wingGeometry.get(WingGeometry.B_WING), 
 							 qBar*getCM(angularRates, windParameters, controls, alphaDot)*wingGeometry.get(WingGeometry.S_WING)*wingGeometry.get(WingGeometry.C_BAR), 

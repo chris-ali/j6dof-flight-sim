@@ -1,8 +1,9 @@
 package com.chrisali.javaflightsim.enviroment;
 
 public enum EnvironmentParameters {
+	GRAVITY		   ("gravity"),
 	T  			   ("temperature"),
-	P			   ("presssure"),
+	P			   ("pressure"),
 	RHO			   ("density"),
 	A			   ("speedOfSound"),
 	WIND_SPEED	   ("windSpeed"),

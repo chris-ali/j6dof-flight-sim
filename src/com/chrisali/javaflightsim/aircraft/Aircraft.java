@@ -13,6 +13,8 @@ import com.chrisali.javaflightsim.aero.WingGeometry;
 import com.chrisali.javaflightsim.enviroment.Environment;
 
 public class Aircraft {
+	private String name;
+	
 	protected Map<StabilityDerivatives, Object> stabDerivs;
 	protected Map<WingGeometry, Double> 		wingGeometry;
 	protected Map<MassProperties, Double> 		massProps;
@@ -20,7 +22,8 @@ public class Aircraft {
 	public static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\aircraft\\";
 	
 	// Default constructor to give default values for aircraft definition (Navion)
-	public Aircraft() { 
+	public Aircraft() {
+		this.name               = "Navion"; 
 		// Creates EnumMaps and populates them with: 
 		// Stability derivative values (either Double or PiecewiseBicubicSplineInterpolatingFunction)
 		// Wing geometry values (Double)
@@ -109,39 +112,48 @@ public class Aircraft {
 		massProps.put(MassProperties.WEIGHT_PAYLOAD, 610.0);
 		massProps.put(MassProperties.TOTAL_MASS, (massProps.get(MassProperties.WEIGHT_EMPTY) + 
 												  massProps.get(MassProperties.WEIGHT_FUEL)  +
-												  massProps.get(MassProperties.WEIGHT_PAYLOAD))/Environment.getGravity()[2]);
+												  massProps.get(MassProperties.WEIGHT_PAYLOAD))/Environment.getGravity());
 	}
 	
 	// TODO Read a text file with aircraft attributes, and assign them to EnumMap	
 
-	public Aircraft(String aircraftName){
+	public Aircraft(String aircraftName) {
+		this.name = aircraftName;
+		// Creates EnumMaps and populates them with: 
+		// Stability derivative values (either Double or PiecewiseBicubicSplineInterpolatingFunction)
+		// Wing geometry values (Double)
+		// Mass properties		(Double)
+		this.stabDerivs			= new EnumMap<StabilityDerivatives, Object>(StabilityDerivatives.class);
+		this.wingGeometry		= new EnumMap<WingGeometry, Double>(WingGeometry.class);
+		this.massProps			= new EnumMap<MassProperties, Double>(MassProperties.class);
+		
 		// Aerodynamics
 		ArrayList<String[]> readAeroFile = readFileAndSplit(aircraftName, "Aero");
 		
-		for(int i = 0; i < readAeroFile.size(); i++) {
+		for(StabilityDerivatives stabDerKey : StabilityDerivatives.values()) {
 			for (String[] readLine : readAeroFile) {
-				if (StabilityDerivatives.values()[i].equals(readLine[0]))
-					this.stabDerivs.put(StabilityDerivatives.values()[i], Double.parseDouble(readLine[1]));
+				if (stabDerKey.toString().equals(readLine[0]))
+					this.stabDerivs.put(stabDerKey, Double.parseDouble(readLine[1]));
 			}
 		}
 		
 		// Mass Properties
 		ArrayList<String[]> readMassPropFile = readFileAndSplit(aircraftName, "MassProperties");
 		
-		for(int i = 0; i < readMassPropFile.size(); i++) {
+		for(MassProperties massPropKey : MassProperties.values()) {
 			for (String[] readLine : readMassPropFile) {
-				if (StabilityDerivatives.values()[i].equals(readLine[0]))
-					this.massProps.put(MassProperties.values()[i], Double.parseDouble(readLine[1]));
+				if (massPropKey.toString().equals(readLine[0]))
+					this.massProps.put(massPropKey, Double.parseDouble(readLine[1]));
 			}
 		}
 		
 		// Wing Geometry
 		ArrayList<String[]> readWingGeomFile = readFileAndSplit(aircraftName, "WingGeometry");
 		
-		for(int i = 0; i < readWingGeomFile.size(); i++) {
+		for(WingGeometry wingGeoKey : WingGeometry.values()) {
 			for (String[] readLine : readWingGeomFile) {
-				if (StabilityDerivatives.values()[i].equals(readLine[0]))
-					this.wingGeometry.put(WingGeometry.values()[i], Double.parseDouble(readLine[1]));
+				if (wingGeoKey.toString().equals(readLine[0]))
+					this.wingGeometry.put(wingGeoKey, Double.parseDouble(readLine[1]));
 			}
 		}
 	}
@@ -161,17 +173,42 @@ public class Aircraft {
 
 	private static ArrayList<String[]> readFileAndSplit(String aircraftName, String fileContents) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(FILE_PATH).append(aircraftName).append("\\").append(fileContents).append(".txt");
+		sb.append(FILE_PATH).append("AircraftConfigurations\\").append(aircraftName).append("\\").append(fileContents).append(".txt");
 		ArrayList<String[]> readAndSplit = new ArrayList<>();
 		String readLine = null;
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
 			while ((readLine = br.readLine()) != null)
 				readAndSplit.add(readLine.split(" = "));
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + aircraftName + ".txt!");}
-		catch (IOException e) {System.err.println("Could not read: " + aircraftName + ".txt!");}
-		catch (NullPointerException e) {System.err.println("Bad reference to: " + aircraftName + ".txt!");} 
+		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileContents + ".txt!");}
+		catch (IOException e) {System.err.println("Could not read: " + fileContents + ".txt!");}
+		catch (NullPointerException e) {System.err.println("Bad reference to: " + fileContents + ".txt!");} 
 		
 		return readAndSplit;
+	}
+	// Outputs the stability derivatives, mass properties, and wing geometry of an aircraft
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("======================\n");
+		sb.append(this.name).append(" Aircraft Parameters:\n");
+		sb.append("======================\n\n");
+		
+		sb.append("Stability Derivatives\n\n");
+		
+		for (StabilityDerivatives stabDer : stabDerivs.keySet())
+			sb.append(stabDer.toString()).append(": ").append(stabDerivs.get(stabDer)).append("\n");
+		
+		sb.append("\nWing Geometry\n\n");
+		
+		for (WingGeometry wingGeo : wingGeometry.keySet())
+			sb.append(wingGeo.toString()).append(": ").append(wingGeometry.get(wingGeo)).append("\n");
+		
+		sb.append("\nMass Properties\n\n");
+		
+		for (MassProperties massProp : massProps.keySet())
+			sb.append(massProp.toString()).append(": ").append(massProps.get(massProp)).append("\n");
+		
+		return sb.toString();
 	}
 }

@@ -1,5 +1,9 @@
 package com.chrisali.javaflightsim.utilities.integration;
 
+import java.util.EnumMap;
+
+import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
+
 public class SixDOFUtilities {
 	public static double[][] body2Ned(double[] eulerAngles) {
 		double body2NedDCM[][] = new double[3][3]; //[row][column]
@@ -19,7 +23,7 @@ public class SixDOFUtilities {
 		return body2NedDCM;
 	}
 	
-	public static double[] getInertiaCoeffs(double[] inertiaVals) { //massProperties[]{mass,Ix,Iy,Iz,Ixz}
+	public static double[] getInertiaCoeffs(double[] inertiaVals) { //inertiaVals[]{Ix,Iy,Iz,Ixz}
 		double[] inertiaCoeffs = new double[9];
 		
 		double gamma = (inertiaVals[0]*inertiaVals[2])-(Math.pow(inertiaVals[3], 2));
@@ -68,8 +72,8 @@ public class SixDOFUtilities {
 				/((Math.pow(linearVelocities[0], 2)+(Math.pow(linearVelocities[2], 2))));// = u*w_dot-w*u_dot/(u^2+w^2)
 	}
 	
-	public static double getMach(double[] windParameters, double[] environmentParameters) {
-		return windParameters[0]/environmentParameters[3];
+	public static double getMach(double[] windParameters, EnumMap<EnvironmentParameters, Double> environmentParameters) {
+		return windParameters[0]/environmentParameters.get(EnvironmentParameters.A);
 	}
 
 }

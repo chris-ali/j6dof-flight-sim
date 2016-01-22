@@ -3,6 +3,7 @@ package com.chrisali.javaflightsim.propulsion;
 import java.util.EnumMap;
 
 import com.chrisali.javaflightsim.controls.FlightControls;
+import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
 
 public class FixedPitchPropEngine extends EngineModel {
 	
@@ -30,7 +31,7 @@ public class FixedPitchPropEngine extends EngineModel {
 	// Update all states for one engine
 	public void updateEngineState(EnumMap<FlightControls, Double> controls,				
 								  double[] NEDPosition,				//{N,E,D}
-								  double[] environmentParameters,	//{temp,rho,p,a}
+								  EnumMap<EnvironmentParameters, Double> environmentParameters,
 								  double[] windParameters) {		//{vTrue,beta,alpha}
 		// Assign engine controls depending on engine number specified
 		switch (engineNumber) {
@@ -65,16 +66,17 @@ public class FixedPitchPropEngine extends EngineModel {
 	
 	//TODO consider engine orientation
 	private void calculateThrust(double[] NEDPosition,			 
-			 					 double[] environmentParameters, 
+								 EnumMap<EnvironmentParameters, Double> environmentParameters, 
 								 double[] windParameters) {		 
 		// Consider static thrust case at low speeds
 		if (windParameters[0] <= 5)
-			this.engineThrust[0] = Math.pow((throttle*maxBHP*HP_2_FTLBS), 2/3)*Math.pow(2*environmentParameters[1]*propArea, 1/3);			
+			this.engineThrust[0] = Math.pow((throttle*maxBHP*HP_2_FTLBS), 2/3)*Math.pow(2*environmentParameters.get(EnvironmentParameters.RHO)*propArea, 1/3);			
 		else
-			this.engineThrust[0] = (throttle*maxBHP*HP_2_FTLBS)*((A_P*environmentParameters[1]/RHO_SSL)-B_P)*(propEfficiency/windParameters[0]);
+			this.engineThrust[0] = (throttle*maxBHP*HP_2_FTLBS)*((A_P*environmentParameters.get(EnvironmentParameters.RHO)/RHO_SSL)-B_P)*(propEfficiency/windParameters[0]);
 	}
 	
 	private void calculateFuelFlow() {this.fuelFlow = (0.9+(throttle*14.8))*mixture;} // TODO need better method of getting fuel flow
 	
 	private void calculateRPM() {this.rpm = 500+(throttle*(maxRPM-500));} 		 // TODO need better method of getting RPM
 }
+
