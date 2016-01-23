@@ -28,9 +28,6 @@ public class ControllerTest implements Runnable {
 		}
 	}
 	
-	public static void main(String[] args) {
-		Thread testJoystick = new Thread(new ControllerTest());
-		testJoystick.start();	
-	}
+	public static void main(String[] args) {new Thread(new ControllerTest()).start();}
 
 }

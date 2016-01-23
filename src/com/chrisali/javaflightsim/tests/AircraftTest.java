@@ -8,12 +8,13 @@ import com.chrisali.javaflightsim.aircraft.Aircraft;
  * of each aircraft
  */
 public class AircraftTest {
-	public static void main(String[] args) {
+	public AircraftTest(String aircraftName) {
 		System.out.println("Default Aircraft:\n");
 		System.out.println(new Aircraft().toString());
 		
-		System.out.println("Aircraft File Parsing:\n");
-		System.out.println(new Aircraft("Navion").toString());
+		System.out.println(aircraftName + " File Parsing:\n");
+		System.out.println(new Aircraft(aircraftName).toString());
 	}
-
+	
+	public static void main(String[] args) {new AircraftTest("Navion");}
 }
