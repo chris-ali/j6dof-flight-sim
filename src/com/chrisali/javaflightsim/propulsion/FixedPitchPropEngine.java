@@ -5,8 +5,7 @@ import java.util.EnumMap;
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
 
-public class FixedPitchPropEngine extends EngineModel {
-	
+public class FixedPitchPropEngine extends Engine {
 	private double throttle;
 	private double mixture;
 	
@@ -30,7 +29,6 @@ public class FixedPitchPropEngine extends EngineModel {
 	
 	// Update all states for one engine
 	public void updateEngineState(EnumMap<FlightControls, Double> controls,				
-								  double[] NEDPosition,				//{N,E,D}
 								  EnumMap<EnvironmentParameters, Double> environmentParameters,
 								  double[] windParameters) {		//{vTrue,beta,alpha}
 		// Assign engine controls depending on engine number specified
@@ -53,9 +51,7 @@ public class FixedPitchPropEngine extends EngineModel {
 				break;
 		}
 		
-		calculateThrust(NEDPosition,
-						environmentParameters,
-						windParameters);
+		calculateThrust(environmentParameters, windParameters);
 		
 		calculateEngMoments();
 		
@@ -65,8 +61,7 @@ public class FixedPitchPropEngine extends EngineModel {
 	}
 	
 	//TODO consider engine orientation
-	private void calculateThrust(double[] NEDPosition,			 
-								 EnumMap<EnvironmentParameters, Double> environmentParameters, 
+	private void calculateThrust(EnumMap<EnvironmentParameters, Double> environmentParameters, 
 								 double[] windParameters) {		 
 		// Consider static thrust case at low speeds
 		if (windParameters[0] <= 5)

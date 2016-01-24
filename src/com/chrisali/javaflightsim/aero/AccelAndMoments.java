@@ -7,7 +7,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import com.chrisali.javaflightsim.aircraft.MassProperties;
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
-import com.chrisali.javaflightsim.propulsion.EngineModel;
+import com.chrisali.javaflightsim.propulsion.Engine;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.utilities.integration.SaturationLimits;
 
@@ -18,7 +18,7 @@ public class AccelAndMoments extends Aerodynamics {
 									     EnumMap<EnvironmentParameters, Double> environmentParameters,
 									     EnumMap<FlightControls, Double> controls,
 									     double alphaDot,
-									     EngineModel engine) {
+									     Engine engine) {
 		
 		Vector3D aeroForceVector = new Vector3D(getBodyForces(windParameters, 
 															  angularRates, 
@@ -38,7 +38,7 @@ public class AccelAndMoments extends Aerodynamics {
 								    EnumMap<EnvironmentParameters, Double> environmentParameters,
 								    EnumMap<FlightControls, Double> controls,
 								    double alphaDot,
-								    EngineModel engine) {
+								    Engine engine) {
 
 		Vector3D aeroForceVector = new Vector3D(getBodyForces(windParameters, 
 															  angularRates, 

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.chrisali.javaflightsim.propulsion.*;
 
 public class AircraftBuilder {
-	private ArrayList<EngineModel> engineList = new ArrayList<>();
+	private ArrayList<Engine> engineList = new ArrayList<>();
 	private Aircraft aircraft;
 	
 	public AircraftBuilder(int numEngines) {
@@ -22,5 +22,5 @@ public class AircraftBuilder {
 	
 	public Aircraft getAircraft() {return this.aircraft;}
 	
-	public ArrayList<EngineModel> getEngineList() {return this.engineList;}
+	public ArrayList<Engine> getEngineList() {return this.engineList;}
 }

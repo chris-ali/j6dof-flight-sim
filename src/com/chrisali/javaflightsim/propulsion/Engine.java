@@ -1,8 +1,12 @@
 package com.chrisali.javaflightsim.propulsion;
 
+import java.util.EnumMap;
+
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import com.chrisali.javaflightsim.aircraft.Aircraft;
+import com.chrisali.javaflightsim.controls.FlightControls;
+import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
 
 /*
  * This class is the base abstract class for the 6DOF simulation's engine model. 
@@ -14,7 +18,7 @@ import com.chrisali.javaflightsim.aircraft.Aircraft;
  * The class outputs the following (double array):
  *      engineMoment[]{M_eng_x,M_eng_y,M_eng_z}  (deg R, slug/ft^3, lbf/ft^2, ft/sec)
  */
-public abstract class EngineModel extends Aircraft {
+public abstract class Engine extends Aircraft {
 	
 	// Propeller Engine Parameters
 	final static protected double A_P        = 1.132; 
@@ -42,6 +46,9 @@ public abstract class EngineModel extends Aircraft {
 	//TODO need engine model properties (etaP, advance ratio, bhp curves) for lookup tables
 	//TODO etaP needs to vary
   	
+	public abstract void updateEngineState(EnumMap<FlightControls, Double> controls,				
+										   EnumMap<EnvironmentParameters, Double> environmentParameters,
+										   double[] windParameters);
 	
 	// Moment calculation same regardless of engine type
 	protected void calculateEngMoments() {

@@ -204,7 +204,6 @@ public class Integrate6DOFEquations implements Runnable {
 		
 		// Update engine
 		this.engine.updateEngineState(controls, 
-									  NEDPosition, 
 									  environmentParameters, 
 									  windParameters);
 		
