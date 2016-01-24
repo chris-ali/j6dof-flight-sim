@@ -1,5 +1,6 @@
 package com.chrisali.javaflightsim.propulsion;
 
+import java.util.Arrays;
 import java.util.EnumMap;
 
 import com.chrisali.javaflightsim.controls.FlightControls;
@@ -9,7 +10,8 @@ public class FixedPitchPropEngine extends Engine {
 	private double throttle;
 	private double mixture;
 	
-	public FixedPitchPropEngine(double maxBHP, double maxRPM, double propDiameter, double[] enginePosition, int engineNumber) {
+	public FixedPitchPropEngine(String engineName, double maxBHP, double maxRPM, double propDiameter, double[] enginePosition, int engineNumber) {
+		this.engineName		= engineName;
 		this.maxBHP 		= maxBHP;
 		this.maxRPM 		= maxRPM;
 		this.propArea 		= Math.PI*(Math.pow(propDiameter, 2))/4;
@@ -19,6 +21,7 @@ public class FixedPitchPropEngine extends Engine {
 	}
 	
 	public FixedPitchPropEngine() {
+		this.engineName		= "Lycoming IO-360";
 		this.maxBHP 		= 200;
 		this.maxRPM 		= 2700;
 		this.propArea 		= Math.PI*(Math.pow(6.5, 2))/4;
@@ -60,12 +63,24 @@ public class FixedPitchPropEngine extends Engine {
 		calculateRPM();
 	}
 	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("Engine: ").append(engineName).append(" (# ").append(Integer.toString(engineNumber)).append(")")
+		  .append("\nMax BHP: ").append(maxBHP)
+		  .append("\nMax RPM: ").append(maxRPM)
+		  .append("\nProp Diameter [ft]: ").append(propDiameter)
+		  .append("\nEngine Position [ft]: ").append(Arrays.toString(enginePosition));
+		
+		return sb.toString();
+	}
+	
 	//TODO consider engine orientation
 	private void calculateThrust(EnumMap<EnvironmentParameters, Double> environmentParameters, 
 								 double[] windParameters) {		 
 		// Consider static thrust case at low speeds
-		if (windParameters[0] <= 5)
-			this.engineThrust[0] = Math.pow((throttle*maxBHP*HP_2_FTLBS), 2/3)*Math.pow(2*environmentParameters.get(EnvironmentParameters.RHO)*propArea, 1/3);			
+		if (windParameters[0] <= 65)
+			this.engineThrust[0] = Math.pow((throttle*maxBHP*HP_2_FTLBS), 0.6667)*Math.pow((2*environmentParameters.get(EnvironmentParameters.RHO)*propArea), 0.3333);			
 		else
 			this.engineThrust[0] = (throttle*maxBHP*HP_2_FTLBS)*((A_P*environmentParameters.get(EnvironmentParameters.RHO)/RHO_SSL)-B_P)*(propEfficiency/windParameters[0]);
 	}

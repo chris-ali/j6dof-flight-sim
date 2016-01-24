@@ -13,7 +13,12 @@ public class AircraftBuilder {
 		
 		if (numEngines > 0 & numEngines < 3) {	
 			for (int i = 0; i == numEngines; i++)
-				this.engineList.add(new FixedPitchPropEngine(200, 2700, 6.5, new double[] {0.0, 0.0, 0.0}, i+1));
+				this.engineList.add(new FixedPitchPropEngine("Lycoming IO-360", 
+															 200, 
+															 2700, 
+															 6.5, 
+															 new double[] {0.0, 0.0, 0.0}, 
+															 i+1));
 		} else {
 			System.err.println("Invalid number of engines! Defaulting to single engine...");
 			this.engineList.add(new FixedPitchPropEngine());

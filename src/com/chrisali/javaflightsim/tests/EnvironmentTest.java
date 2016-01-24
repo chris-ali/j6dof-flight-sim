@@ -59,7 +59,6 @@ public class EnvironmentTest extends ApplicationFrame {
 		}
 		
 		// Add series data to XYSeriesCollections
-		
 		tSeries.addSeries(tData);
 		pSeries.addSeries(pData);
 		rhoSeries.addSeries(rhoData);

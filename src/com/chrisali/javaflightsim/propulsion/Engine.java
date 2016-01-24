@@ -38,6 +38,7 @@ public abstract class Engine extends Aircraft {
 	//TODO add jet/turboprop
 	
 	// Universal Parameters
+	protected String   engineName;
 	protected int      engineNumber;
 	protected double[] enginePosition; 	   			// {eng_x,eng_y,eng_z}  (ft)
 	protected double[] engineThrust   = {0, 0, 0};	// {T_x,T_y,T_z}	    (lbf)			
@@ -65,4 +66,6 @@ public abstract class Engine extends Aircraft {
 	public double getRPM() {return rpm;}
 	
 	public double getFuelFlow() {return fuelFlow;}
+	
+	public String getEngineName() {return engineName;}
 }
