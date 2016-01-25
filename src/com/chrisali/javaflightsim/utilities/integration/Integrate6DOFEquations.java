@@ -18,20 +18,19 @@ import com.chrisali.javaflightsim.controls.hidcontrollers.Mouse;
 import com.chrisali.javaflightsim.controls.hidcontrollers.SimulationController;
 import com.chrisali.javaflightsim.enviroment.Environment;
 import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
+import com.chrisali.javaflightsim.propulsion.Engine;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.setup.Options;
 import com.chrisali.javaflightsim.utilities.plotting.MakePlots;
 
 /*
- * This class integrates all 12 6DOF equations numerically to obtain the aircraft states.
+ * This class integrates all 12 6DOF  (plus 2 lat/lon) equations numerically to obtain the aircraft states.
  * The Apache Commons' Classical Runge-Kutta is used to integrate over a period of time defined in the integratorConfig double array. 
  *  
  * In order to formulate the first order ODE, the following (double arrays) must be passed in:
- * 		integratorConfig[]{0,dt,dt}    (sec)
- * 		initialConditions[]{initU,initV,initW,initN,initE,initD,initPhi,initTheta,initPsi,initP,initQ,initR}
- *		Aircraft aircraftIn
- *      FixedPitchPropEngine engineIn
+ *		Aircraft aircraft
+ *      FixedPitchPropEngine engine
  * 
  * The class outputs at each step using logData to generate a logsOut ArrayList of simOut EnumMaps containing simulation outputs.
  */
@@ -59,15 +58,15 @@ public class Integrate6DOFEquations implements Runnable {
 	private Keyboard hidKeyboard;
 	
 	// Integrator Fields
-	private double[] sixDOFDerivatives		= new double[12];
-	private double[] y					    = new double[12];
-	private double[] initialConditions      = new double[12]; 
+	private double[] sixDOFDerivatives		= new double[14];
+	private double[] y					    = new double[14];
+	private double[] initialConditions      = new double[14]; 
 	private double[] integratorConfig		= new double[3];
 	private ClassicalRungeKuttaIntegrator integrator;
 	
 	// Aircraft Properties
 	private Aircraft aircraft  				= new Aircraft();
-	private FixedPitchPropEngine engine 	= new FixedPitchPropEngine();
+	private Engine engine 					= new FixedPitchPropEngine();
 	private AccelAndMoments accelAndMoments = new AccelAndMoments();
 	
 	// Output Logging
@@ -116,7 +115,7 @@ public class Integrate6DOFEquations implements Runnable {
 		updateDataMembers(initialConditions, integratorConfig[0]);
 	}
 	
-	// Creates the 12 state derivatives integrator uses to numerically integrate
+	// Creates the 14 state derivatives integrator uses to numerically integrate
 	private class SixDOFEquations implements FirstOrderDifferentialEquations {		
 		private SixDOFEquations() {}
 
@@ -125,14 +124,15 @@ public class Integrate6DOFEquations implements Runnable {
 				yDot[i] = sixDOFDerivatives[i];
 		}
 
-		public int getDimension() {return 12;}
+		public int getDimension() {return 14;}
 	}
 	
 	// Recalculates derivatives based on newly calculated accelerations and moments
 	private double[] updateDerivatives(double[] y) {
-		double[]   yDot          = new double[12];
+		double[]   yDot          = new double[14];
 		double[][] dirCosMat     = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([row][column])
 		double[]   inertiaCoeffs = SixDOFUtilities.getInertiaCoeffs(IntegrationSetup.unboxDoubleArray(aircraft.getInertiaValues()));
+		double[]   ned2LLA       = SixDOFUtilities.ned2LLA(y);
 		
 		yDot[0]  = (y[11]*y[1])-(y[10]*y[2])-(gravity*Math.sin(y[7]))               +linearAccelerations[0];    // u (ft/sec)
 		yDot[1]  = (y[9]* y[2])-(y[11]*y[0])+(gravity*Math.sin(y[6])*Math.cos(y[7]))+linearAccelerations[1];    // v (ft/sec)
@@ -149,6 +149,9 @@ public class Integrate6DOFEquations implements Runnable {
 		yDot[9]  = ((inertiaCoeffs[1]*y[9]*y[10]) - (inertiaCoeffs[0]*y[10])*y[11]) + (inertiaCoeffs[2]*totalMoments[0])+(inertiaCoeffs[3]*totalMoments[2]);     // p (rad/sec)
 		yDot[10] =  (inertiaCoeffs[4]*y[9]*y[11]) - (inertiaCoeffs[5]*((y[9]*y[9])-(y[11]*y[11])))                      +(inertiaCoeffs[6]*totalMoments[1]);     // q (rad/sec)
 		yDot[11] = ((inertiaCoeffs[7]*y[9]*y[10]) - (inertiaCoeffs[1]*y[10]*y[11])) + (inertiaCoeffs[3]*totalMoments[0])+(inertiaCoeffs[8]*totalMoments[2]);     // r (rad/sec)
+		
+		yDot[12] = yDot[3]*ned2LLA[0]; // Latitude  (rad)
+		yDot[13] = yDot[4]*ned2LLA[1]; // Longitude (rad)
 		
 		return yDot;
 	}
@@ -251,6 +254,8 @@ public class Integrate6DOFEquations implements Runnable {
 		
 		// Assign EnumMap with data members from integration
 		simOut.put(SimOuts.TIME, 		t);
+		
+		//6DOF States
 		simOut.put(SimOuts.U, 		 	linearVelocities[0]);
 		simOut.put(SimOuts.V, 		 	linearVelocities[1]);
 		simOut.put(SimOuts.W, 		 	linearVelocities[2]);
@@ -263,18 +268,36 @@ public class Integrate6DOFEquations implements Runnable {
 		simOut.put(SimOuts.P, 		 	angularRates[0]);
 		simOut.put(SimOuts.Q, 		 	angularRates[1]);
 		simOut.put(SimOuts.R, 		 	angularRates[2]);
+		
+		// Earth Position/Velocity
+		simOut.put(SimOuts.LAT, 		y[12]);
+		simOut.put(SimOuts.LAT_DOT, 	sixDOFDerivatives[12]);
+		simOut.put(SimOuts.LON, 		y[13]);
+		simOut.put(SimOuts.LON_DOT,		sixDOFDerivatives[13]);
+		
+		// Wind Parameters
 		simOut.put(SimOuts.TAS, 		windParameters[0]);
 		simOut.put(SimOuts.BETA, 		windParameters[1]);
 		simOut.put(SimOuts.ALPHA, 	 	windParameters[2]);
+		
+		simOut.put(SimOuts.ALPHA_DOT,   alphaDot);
+		simOut.put(SimOuts.MACH, 		mach);
+		
+		// Accelerations
 		simOut.put(SimOuts.A_X, 		linearAccelerations[0]);
 		simOut.put(SimOuts.A_Y, 		linearAccelerations[1]);
 		simOut.put(SimOuts.A_Z, 		linearAccelerations[2]);
-		simOut.put(SimOuts.L, 		 	totalMoments[0]);
-		simOut.put(SimOuts.M, 		 	totalMoments[1]);
-		simOut.put(SimOuts.N, 		 	totalMoments[2]);
+		
 		simOut.put(SimOuts.AN_X, 	   (sixDOFDerivatives[0]/gravity));
 		simOut.put(SimOuts.AN_Y, 	   (sixDOFDerivatives[1]/gravity));
 		simOut.put(SimOuts.AN_Z, 	  ((sixDOFDerivatives[2]/gravity)+1.0));
+		
+		// Moments
+		simOut.put(SimOuts.L, 		 	totalMoments[0]);
+		simOut.put(SimOuts.M, 		 	totalMoments[1]);
+		simOut.put(SimOuts.N, 		 	totalMoments[2]);
+		
+		// 6DOF Derivatives
 		simOut.put(SimOuts.NORTH_DOT,   sixDOFDerivatives[3]);
 		simOut.put(SimOuts.EAST_DOT, 	sixDOFDerivatives[4]);
 		simOut.put(SimOuts.ALT_DOT,    (sixDOFDerivatives[5]*60));
@@ -284,16 +307,21 @@ public class Integrate6DOFEquations implements Runnable {
 		simOut.put(SimOuts.P_DOT, 	 	sixDOFDerivatives[9]);
 		simOut.put(SimOuts.Q_DOT, 	 	sixDOFDerivatives[10]);
 		simOut.put(SimOuts.R_DOT, 	 	sixDOFDerivatives[11]);
+		
+		// Engine 1
 		simOut.put(SimOuts.THRUST_1, 	engine.getThrust()[0]);
 		simOut.put(SimOuts.RPM_1, 	 	engine.getRPM());
 		simOut.put(SimOuts.FUEL_FLOW_1, engine.getFuelFlow());
+		
+		// Controls
 		simOut.put(SimOuts.ELEVATOR,    controls.get(FlightControls.ELEVATOR));
 		simOut.put(SimOuts.AILERON, 	controls.get(FlightControls.AILERON));
 		simOut.put(SimOuts.RUDDER, 	 	controls.get(FlightControls.RUDDER));
 		simOut.put(SimOuts.THROTTLE_1, 	controls.get(FlightControls.THROTTLE_1));
+		simOut.put(SimOuts.THROTTLE_2, 	controls.get(FlightControls.THROTTLE_2));
+		simOut.put(SimOuts.THROTTLE_3, 	controls.get(FlightControls.THROTTLE_3));
+		simOut.put(SimOuts.THROTTLE_4, 	controls.get(FlightControls.THROTTLE_4));
 		simOut.put(SimOuts.FLAPS, 	 	controls.get(FlightControls.FLAPS));
-		simOut.put(SimOuts.ALPHA_DOT,   alphaDot);
-		simOut.put(SimOuts.MACH, 		mach);
 		
 		// Removes the first entry in logsOut to keep a maximum of 100 sec of flight data in UNLIMITED_FLIGHT
 		if (options.contains(Options.UNLIMITED_FLIGHT) & t >= 100)

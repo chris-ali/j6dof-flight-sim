@@ -10,3 +10,5 @@ initPsi = 0.785
 initP = 0
 initQ = 0
 initR = 0
+initLat = 0
+initLon = 0

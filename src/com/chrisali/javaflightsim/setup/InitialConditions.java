@@ -12,7 +12,9 @@ public enum InitialConditions {
 	INITPSI   ("initPsi"),
 	INITP 	  ("initP"),
 	INITQ 	  ("initQ"),
-	INITR 	  ("initR");
+	INITR 	  ("initR"),
+	INITLAT   ("initLat"),
+	INITLON   ("initLon");
 	
 	private final String initialCondition;
 	
