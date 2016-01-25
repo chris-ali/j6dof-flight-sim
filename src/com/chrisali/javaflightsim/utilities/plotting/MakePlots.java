@@ -1,6 +1,6 @@
 package com.chrisali.javaflightsim.utilities.plotting;
 
-import java.util.EnumMap;
+import java.util.EnumSet;
 
 import com.chrisali.javaflightsim.setup.Options;
 import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
@@ -20,7 +20,7 @@ public class MakePlots implements Runnable {
 	
 	public MakePlots(Integrate6DOFEquations integration, 
 					 String[] simPlotCategories,
-					 EnumMap<Options, Boolean> options) {
+					 EnumSet<Options> options) {
 		this.integration 	   = integration;
 		this.simPlotCategories = simPlotCategories;
 	}

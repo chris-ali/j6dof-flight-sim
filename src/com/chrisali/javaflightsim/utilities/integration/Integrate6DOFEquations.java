@@ -2,6 +2,7 @@ package com.chrisali.javaflightsim.utilities.integration;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
 
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
@@ -74,11 +75,11 @@ public class Integrate6DOFEquations implements Runnable {
 	private EnumMap<SimOuts, Double> simOut;
 	
 	// Options
-	private EnumMap<Options, Boolean> options;
+	private EnumSet<Options> options;
 	
 	public Integrate6DOFEquations(Aircraft aircraft, 
 								  FixedPitchPropEngine engine,
-								  EnumMap<Options, Boolean> options) {
+								  EnumSet<Options> runOptions) {
 		this.aircraft 		   = aircraft;
 		this.engine   		   = engine;
 		
@@ -88,24 +89,24 @@ public class Integrate6DOFEquations implements Runnable {
 		
 		this.environmentParameters = Environment.updateEnvironmentParams(new double[]{initialConditions[3], initialConditions[4], initialConditions[5]});
 		
-		this.options		   = options;
+		this.options		   = runOptions;
 		
 		// If USE_JOYSTICK/USE_MOUSE enabled, use joystick/mouse if ANALYSIS_MODE not enabled
-		if (options.get(Options.USE_JOYSTICK) & !options.get(Options.USE_MOUSE) & !options.get(Options.ANALYSIS_MODE))
+		if (options.contains(Options.USE_JOYSTICK) & !options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE))
 			this.hidController = new Joystick(controls);
-		else if (options.get(Options.USE_MOUSE) & !options.get(Options.ANALYSIS_MODE))
+		else if (options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE))
 			this.hidController = new Mouse(controls);
 		else
 			this.hidController = null;
 		
 		// If ANALYSIS_MODE not enabled use keyboard
-		if (!options.get(Options.ANALYSIS_MODE))
+		if (!options.contains(Options.ANALYSIS_MODE))
 			this.hidKeyboard = new Keyboard(controls);
 		else
 			this.hidKeyboard = null;
 		
 		// Lets simulation run forever when UNLIMITED_FLIGHT and ANALYSIS_MODE are true/false, respectively
-		if(options.get(Options.UNLIMITED_FLIGHT) & !options.get(Options.ANALYSIS_MODE))
+		if(options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.ANALYSIS_MODE))
 			integratorConfig[2] = Double.POSITIVE_INFINITY;
 		
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
@@ -174,10 +175,10 @@ public class Integrate6DOFEquations implements Runnable {
 		this.environmentParameters = Environment.updateEnvironmentParams(NEDPosition);
 		
 		// Update controls with joystick, doublets, or mouse (later)
-		if (options.get(Options.USE_JOYSTICK) | options.get(Options.USE_MOUSE) & ! options.get(Options.ANALYSIS_MODE)) {
+		if (options.contains(Options.USE_JOYSTICK) | options.contains(Options.USE_MOUSE) & ! options.contains(Options.ANALYSIS_MODE)) {
 			this.controls = hidController.updateFlightControls(controls);
 			this.controls = hidKeyboard.updateFlightControls(controls);
-		} else if (!options.get(Options.USE_JOYSTICK) & options.get(Options.ANALYSIS_MODE)) {	
+		} else if (!options.contains(Options.USE_JOYSTICK) & options.contains(Options.ANALYSIS_MODE)) {	
 			// Update controls with an aileron doublet
 			this.controls = FlightControlsUtilities.makeDoublet(controls, 
 																t, 
@@ -295,14 +296,14 @@ public class Integrate6DOFEquations implements Runnable {
 		simOut.put(SimOuts.MACH, 		mach);
 		
 		// Removes the first entry in logsOut to keep a maximum of 100 sec of flight data in UNLIMITED_FLIGHT
-		if (options.get(Options.UNLIMITED_FLIGHT) & t >= 100)
+		if (options.contains(Options.UNLIMITED_FLIGHT) & t >= 100)
 			logsOut.remove(0);
 			
 		// Add output step to logging arrayList
 		logsOut.add(simOut);
 		
 		// Prints to console (if desired)
-		if (options.get(Options.CONSOLE_DISPLAY)) {
+		if (options.contains(Options.CONSOLE_DISPLAY)) {
 			for (Map.Entry<SimOuts, Double> out : simOut.entrySet())
 				System.out.printf("%9.2f ", out.getValue());
 			System.out.println("\n");
@@ -320,15 +321,15 @@ public class Integrate6DOFEquations implements Runnable {
 		try {
 			for (double t = integratorConfig[0]; t < integratorConfig[2]; t += integratorConfig[1]) {
 				// Set pause/reset from within keyboard's updateOptions method if not in analysis mode
-				if (!options.get(Options.ANALYSIS_MODE))
+				if (!options.contains(Options.ANALYSIS_MODE))
 					this.options  = hidKeyboard.updateOptions(options);
 				
 				// If paused and resed selected, reset initialConditions using IntegrationSetup's method 
-				if (options.get(Options.PAUSED) & options.get(Options.RESET))				
+				if (options.contains(Options.PAUSED) & options.contains(Options.RESET))				
  					initialConditions = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
 				
 				// If paused, skip the integration and update process
-				if (!options.get(Options.PAUSED)) {
+				if (!options.contains(Options.PAUSED)) {
 					// Run a single step of integration each step of the loop
 					y = integrator.singleStep(new SixDOFEquations(), 	  // derivatives
 											  t, 		  				  // start time
@@ -347,12 +348,12 @@ public class Integrate6DOFEquations implements Runnable {
 				
 				// Pause the integration for dt*1000 milliseconds to emulate real time operation
 				// if ANALYSIS_MODE is false
-				if (!options.get(Options.ANALYSIS_MODE))
+				if (!options.contains(Options.ANALYSIS_MODE))
 					Thread.sleep((long)(integratorConfig[1]*1000));
 			}
 			
 			// If in analysis mode and not in unlimited flight, generate simulation plots
-			if (options.get(Options.ANALYSIS_MODE) & !options.get(Options.UNLIMITED_FLIGHT)) {
+			if (options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.UNLIMITED_FLIGHT)) {
 				new Thread(new MakePlots(this, 
 						 				 new String[] {"Controls", "Instruments", "Position", "Rates", "Miscellaneous"},
 						 				 options)).start();

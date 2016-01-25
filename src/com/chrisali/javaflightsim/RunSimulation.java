@@ -1,6 +1,6 @@
 package com.chrisali.javaflightsim;
 
-import java.util.EnumMap;
+import java.util.EnumSet;
 
 import com.chrisali.javaflightsim.aircraft.Aircraft;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
@@ -14,18 +14,16 @@ public class RunSimulation {
 		// TODO gather all initial conditions/controls from trim routine
 
 		// TODO Put settings into own class 
-		EnumMap<Options, Boolean> options = new EnumMap<Options, Boolean>(Options.class);
-		options.put(Options.ANALYSIS_MODE, true);
-		options.put(Options.PAUSED, false);
-		options.put(Options.RESET, false);
-		options.put(Options.UNLIMITED_FLIGHT, false);
-		options.put(Options.CONSOLE_DISPLAY, false);
-		options.put(Options.USE_JOYSTICK, false);
-		options.put(Options.USE_MOUSE, false);
+		EnumSet<Options> runOptions = EnumSet.noneOf(Options.class);
+		runOptions.add(Options.ANALYSIS_MODE);
+//		runOptions.add(Options.UNLIMITED_FLIGHT);
+//		runOptions.add(Options.CONSOLE_DISPLAY);
+//		runOptions.add(Options.USE_JOYSTICK);
+//		runOptions.add(Options.USE_MOUSE);
 		
 		// Create simulation thread using default aircraft, and start it
 		new Thread(new Integrate6DOFEquations(new Aircraft(), 			   // Default to Navion
 											  new FixedPitchPropEngine(),  // Default to Lycoming IO-360
-											  options)).start();
+											  runOptions)).start();
 	}
 }

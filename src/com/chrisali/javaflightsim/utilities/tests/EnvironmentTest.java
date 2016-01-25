@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.tests;
+package com.chrisali.javaflightsim.utilities.tests;
 
 import java.util.EnumMap;
 import java.util.Map;

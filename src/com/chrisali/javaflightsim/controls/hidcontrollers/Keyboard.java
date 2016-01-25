@@ -2,6 +2,7 @@ package com.chrisali.javaflightsim.controls.hidcontrollers;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.EnumSet;
 
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.setup.Options;
@@ -48,7 +49,7 @@ public class Keyboard extends SimulationController {
 		
 	}
 	
-	public EnumMap<Options, Boolean> updateOptions(EnumMap<Options, Boolean> options) {
+	public EnumSet<Options> updateOptions(EnumSet<Options> options) {
 		// Iterate through all controllers connected
 		for (Controller controller : controllerList) {
 			// Poll controller for data; if disconnected, break out of componentIdentification loop
@@ -61,12 +62,12 @@ public class Keyboard extends SimulationController {
 				
 				// When simulation paused, can be reset once per pause with "R" key
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.P.toString())) {
-					if(component.getPollData() == 1.0f & !options.get(Options.PAUSED) & !pPressed) {
-						options.put(Options.PAUSED, true);
+					if(component.getPollData() == 1.0f & !options.contains(Options.PAUSED) & !pPressed) {
+						options.add(Options.PAUSED);
 						System.err.println("Simulation Paused!");
 						this.pPressed = true;
-					} else if(component.getPollData() == 1.0f & options.get(Options.PAUSED) & !pPressed) {
-						options.put(Options.PAUSED, false);
+					} else if(component.getPollData() == 1.0f & options.contains(Options.PAUSED) & !pPressed) {
+						options.remove(Options.PAUSED);
 						this.wasReset = false;
 						this.pPressed = true;
 					} else if(component.getPollData() == 0.0f & pPressed) {
@@ -77,14 +78,14 @@ public class Keyboard extends SimulationController {
 				}
 				
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.R.toString())) {
-					if(component.getPollData() == 1.0f & options.get(Options.PAUSED) & !options.get(Options.RESET) &
+					if(component.getPollData() == 1.0f & options.contains(Options.PAUSED) & !options.contains(Options.RESET) &
 					   !rPressed & !wasReset) {
-						options.put(Options.RESET, true);
+						options.add(Options.RESET);
 						System.err.println("Simulation Reset!");
 						this.wasReset = true;
 						this.rPressed = true;
 					} else if (component.getPollData() == 0.0f & rPressed) {
-						options.put(Options.RESET, false);
+						options.remove(Options.RESET);
 						this.rPressed = false;
 					}
 					
