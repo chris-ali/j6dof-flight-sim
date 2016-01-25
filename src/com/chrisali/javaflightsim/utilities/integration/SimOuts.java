@@ -31,6 +31,10 @@ public enum SimOuts {
 	ALPHA,
 	ALPHA_DOT,
 	MACH,
+	LAT,
+	LAT_DOT,
+	LON,
+	LON_DOT,
 	A_X,
 	AN_X,
 	A_Y,
@@ -60,5 +64,5 @@ public enum SimOuts {
 	THROTTLE_3,
 	THROTTLE_4,
 	GEAR,
-	FLAPS
+	FLAPS;
 }

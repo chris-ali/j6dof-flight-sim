@@ -59,6 +59,24 @@ public class SixDOFUtilities {
 		return wind2BodyDCM;
 	}
 	
+	public static double[] ned2LLA(double[] y) {
+		double[] ned2LLA = new double[2]; // Conversion factors for latitude (lambda), longitude (phi) and altitude (h)
+		
+		// WGS84 Parameters
+		double rEarth = 6378137; // Earth's radius [m]
+		double e = 0.08181919; // Earth's eccentricity (e)
+		
+		double eSqSinSq = Math.pow(e, 2.0)*Math.pow(Math.sin(y[4]),2.0); //(e^2)sin^2(phi)
+		
+		double meridianRadiusCurvature = (rEarth*(1-Math.pow(e, 2.0)))/(Math.pow((1-eSqSinSq), 1.50));
+		double verticalRadiusCurvature = rEarth/Math.sqrt(1-eSqSinSq);
+		
+		ned2LLA[0] = 1/(meridianRadiusCurvature+y[5]); 				    // phi_dot/N_dot
+		ned2LLA[1] = 1/((verticalRadiusCurvature+y[5]*Math.cos(y[4]))); // lambda_dot/E_dot
+		
+		return ned2LLA;		
+	}
+	
 	public static double[] getWindParameters(double[] linearVelocities) {
 		double vTrue = Math.sqrt(Math.pow(linearVelocities[0],2) + Math.pow(linearVelocities[1],2) + Math.pow(linearVelocities[2],2));
 		double beta = Math.asin(linearVelocities[1]/vTrue);
