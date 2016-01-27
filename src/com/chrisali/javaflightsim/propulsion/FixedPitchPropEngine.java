@@ -10,16 +10,6 @@ public class FixedPitchPropEngine extends Engine {
 	private double throttle;
 	private double mixture;
 	
-	public FixedPitchPropEngine(String engineName, double maxBHP, double maxRPM, double propDiameter, double[] enginePosition, int engineNumber) {
-		this.engineName		= engineName;
-		this.maxBHP 		= maxBHP;
-		this.maxRPM 		= maxRPM;
-		this.propArea 		= Math.PI*(Math.pow(propDiameter, 2))/4;
-		this.propEfficiency = 0.85;
-		this.enginePosition = enginePosition;
-		this.engineNumber   = engineNumber;
-	}
-	
 	public FixedPitchPropEngine() {
 		this.engineName		= "Lycoming IO-360";
 		this.maxBHP 		= 200;
@@ -30,6 +20,16 @@ public class FixedPitchPropEngine extends Engine {
 		this.engineNumber   = 1;
 	}
 	
+	public FixedPitchPropEngine(String engineName, double maxBHP, double maxRPM, double propDiameter, double[] enginePosition, int engineNumber) {
+		this.engineName		= engineName;
+		this.maxBHP 		= maxBHP;
+		this.maxRPM 		= maxRPM;
+		this.propArea 		= Math.PI*(Math.pow(propDiameter, 2))/4;
+		this.propEfficiency = 0.85;
+		this.enginePosition = enginePosition;
+		this.engineNumber   = engineNumber;
+	}
+		
 	// Update all states for one engine
 	public void updateEngineState(EnumMap<FlightControls, Double> controls,				
 								  EnumMap<EnvironmentParameters, Double> environmentParameters,
@@ -62,19 +62,7 @@ public class FixedPitchPropEngine extends Engine {
 		
 		calculateRPM();
 	}
-	
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("Engine: ").append(engineName).append(" (# ").append(Integer.toString(engineNumber)).append(")")
-		  .append("\nMax BHP: ").append(maxBHP)
-		  .append("\nMax RPM: ").append(maxRPM)
-		  .append("\nProp Diameter [ft]: ").append(propDiameter)
-		  .append("\nEngine Position [ft]: ").append(Arrays.toString(enginePosition));
-		
-		return sb.toString();
-	}
-	
+
 	//TODO consider engine orientation
 	private void calculateThrust(EnumMap<EnvironmentParameters, Double> environmentParameters, 
 								 double[] windParameters) {		 
@@ -88,5 +76,18 @@ public class FixedPitchPropEngine extends Engine {
 	private void calculateFuelFlow() {this.fuelFlow = (0.9+(throttle*14.8))*mixture;} // TODO need better method of getting fuel flow
 	
 	private void calculateRPM() {this.rpm = 500+(throttle*(maxRPM-500));} 		 // TODO need better method of getting RPM
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("Engine: ").append(engineName).append(" (# ").append(Integer.toString(engineNumber)).append(")")
+		  .append("\nMax BHP: ").append(maxBHP)
+		  .append("\nMax RPM: ").append(maxRPM)
+		  .append("\nProp Diameter [ft]: ").append(propDiameter)
+		  .append("\nEngine Position [ft]: ").append(Arrays.toString(enginePosition));
+		
+		return sb.toString();
+	}
 }
 

@@ -1,10 +1,10 @@
 package com.chrisali.javaflightsim.propulsion;
 
+import java.util.Arrays;
 import java.util.EnumMap;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-import com.chrisali.javaflightsim.aircraft.Aircraft;
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
 
@@ -18,7 +18,7 @@ import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
  * The class outputs the following (double array):
  *      engineMoment[]{M_eng_x,M_eng_y,M_eng_z}  (deg R, slug/ft^3, lbf/ft^2, ft/sec)
  */
-public abstract class Engine extends Aircraft {
+public abstract class Engine {
 	
 	// Propeller Engine Parameters
 	final static protected double A_P        = 1.132; 
@@ -41,6 +41,7 @@ public abstract class Engine extends Aircraft {
 	protected String   engineName;
 	protected int      engineNumber;
 	protected double[] enginePosition; 	   			// {eng_x,eng_y,eng_z}  (ft)
+	
 	protected double[] engineThrust   = {0, 0, 0};	// {T_x,T_y,T_z}	    (lbf)			
 	protected double[] engineMoment;				// {M_x,M_y,M_z}        (lbf)
 		
@@ -54,7 +55,7 @@ public abstract class Engine extends Aircraft {
 	// Moment calculation same regardless of engine type
 	protected void calculateEngMoments() {
 		Vector3D forceVector = new Vector3D(engineThrust);
-		Vector3D armVector = new Vector3D(enginePosition);
+		Vector3D armVector   = new Vector3D(enginePosition);
 		
 		this.engineMoment = Vector3D.crossProduct(forceVector, armVector).toArray();
 	}
@@ -68,4 +69,35 @@ public abstract class Engine extends Aircraft {
 	public double getFuelFlow() {return fuelFlow;}
 	
 	public String getEngineName() {return engineName;}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((engineName == null) ? 0 : engineName.hashCode());
+		result = prime * result + engineNumber;
+		result = prime * result + Arrays.hashCode(enginePosition);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Engine other = (Engine) obj;
+		if (engineName == null) {
+			if (other.engineName != null)
+				return false;
+		} else if (!engineName.equals(other.engineName))
+			return false;
+		if (engineNumber != other.engineNumber)
+			return false;
+		if (!Arrays.equals(enginePosition, other.enginePosition))
+			return false;
+		return true;
+	}
 }

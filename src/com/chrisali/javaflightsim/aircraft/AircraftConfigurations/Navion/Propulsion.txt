@@ -1,12 +1,13 @@
 numEngines = 1
 
-% Engine 1 Type
-engineType = fixedPitchProp
-maxHP = 200
-maxRPM = 2700
-propDiameter = 6.5
+% Engine 1 Properties
+engineName_1 = Lycoming IO-360
+engineType_1 = fixedPitchProp
+maxBHP_1 = 200
+maxRPM_1 = 2700
+propDiameter_1 = 6.5
 
 % Engine 1 Position
-eng1X = 0.0
-eng1Y = 0.0
-eng1Z = 0.0
+engX_1 = 0.0
+engY_1 = 0.0
+engZ_1 = 0.0

@@ -1,9 +1,5 @@
 package com.chrisali.javaflightsim.aircraft;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
@@ -18,8 +14,6 @@ public class Aircraft {
 	protected Map<StabilityDerivatives, Object> stabDerivs;
 	protected Map<WingGeometry, Double> 		wingGeometry;
 	protected Map<MassProperties, Double> 		massProps;
-	
-	public static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\aircraft\\";
 	
 	// Default constructor to give default values for aircraft definition (Navion)
 	public Aircraft() {
@@ -115,8 +109,6 @@ public class Aircraft {
 												  massProps.get(MassProperties.WEIGHT_PAYLOAD))/Environment.getGravity());
 	}
 	
-	// TODO Read a text file with aircraft attributes, and assign them to EnumMap	
-
 	public Aircraft(String aircraftName) {
 		this.name = aircraftName;
 		// Creates EnumMaps and populates them with: 
@@ -128,7 +120,7 @@ public class Aircraft {
 		this.massProps			= new EnumMap<MassProperties, Double>(MassProperties.class);
 		
 		// Aerodynamics
-		ArrayList<String[]> readAeroFile = readFileAndSplit(aircraftName, "Aero");
+		ArrayList<String[]> readAeroFile = AircraftBuilder.readFileAndSplit(aircraftName, "Aero");
 		
 		for(StabilityDerivatives stabDerKey : StabilityDerivatives.values()) {
 			for (String[] readLine : readAeroFile) {
@@ -138,7 +130,7 @@ public class Aircraft {
 		}
 		
 		// Mass Properties
-		ArrayList<String[]> readMassPropFile = readFileAndSplit(aircraftName, "MassProperties");
+		ArrayList<String[]> readMassPropFile = AircraftBuilder.readFileAndSplit(aircraftName, "MassProperties");
 		
 		for(MassProperties massPropKey : MassProperties.values()) {
 			for (String[] readLine : readMassPropFile) {
@@ -148,7 +140,7 @@ public class Aircraft {
 		}
 		
 		// Wing Geometry
-		ArrayList<String[]> readWingGeomFile = readFileAndSplit(aircraftName, "WingGeometry");
+		ArrayList<String[]> readWingGeomFile = AircraftBuilder.readFileAndSplit(aircraftName, "WingGeometry");
 		
 		for(WingGeometry wingGeoKey : WingGeometry.values()) {
 			for (String[] readLine : readWingGeomFile) {
@@ -171,21 +163,6 @@ public class Aircraft {
 														     massProps.get(MassProperties.J_Z),
 														     massProps.get(MassProperties.J_XZ)};}
 
-	private static ArrayList<String[]> readFileAndSplit(String aircraftName, String fileContents) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(FILE_PATH).append("AircraftConfigurations\\").append(aircraftName).append("\\").append(fileContents).append(".txt");
-		ArrayList<String[]> readAndSplit = new ArrayList<>();
-		String readLine = null;
-		
-		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
-			while ((readLine = br.readLine()) != null)
-				readAndSplit.add(readLine.split(" = "));
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileContents + ".txt!");}
-		catch (IOException e) {System.err.println("Could not read: " + fileContents + ".txt!");}
-		catch (NullPointerException e) {System.err.println("Bad reference to: " + fileContents + ".txt!");} 
-		
-		return readAndSplit;
-	}
 	// Outputs the stability derivatives, mass properties, and wing geometry of an aircraft
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
