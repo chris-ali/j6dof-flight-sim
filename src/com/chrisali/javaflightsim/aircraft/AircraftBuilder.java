@@ -16,7 +16,7 @@ public class AircraftBuilder {
 	private Set<Engine> engineList = new HashSet<>();
 	private Aircraft aircraft;
 	
-	protected static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\aircraft\\AircraftConfigurations\\";
+	private static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\aircraft\\AircraftConfigurations\\";
 		
 	public AircraftBuilder() {
 		this.aircraft = new Aircraft();
@@ -32,8 +32,8 @@ public class AircraftBuilder {
 		// String[] ArrayList
 		int numEngines = Integer.parseInt(readPropulsionFile.get(0)[1]);
 		
-		if (numEngines >= 1 & numEngines <= 4) {	
-			for (int i = 1; i == numEngines; i++) {
+		if (numEngines > 0 & numEngines < 5) {	
+			for (int i = 1; i <= numEngines; i++) {
 				String   engineName     = "Lycoming IO-360";
 				double   maxBHP         = 200;
 				double   maxRPM         = 2700;
@@ -91,4 +91,6 @@ public class AircraftBuilder {
 	public Aircraft getAircraft() {return this.aircraft;}
 	
 	public Set<Engine> getEngineList() {return this.engineList;}
+	
+	public static String getFilePath() {return FILE_PATH;}
 }

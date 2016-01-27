@@ -14,16 +14,18 @@ public class FixedPitchPropEngine extends Engine {
 		this.engineName		= "Lycoming IO-360";
 		this.maxBHP 		= 200;
 		this.maxRPM 		= 2700;
-		this.propArea 		= Math.PI*(Math.pow(6.5, 2))/4;
+		this.propDiameter   = 6.5;
+		this.propArea 		= Math.PI*(Math.pow(propDiameter, 2))/4;
 		this.propEfficiency = 0.85;
 		this.enginePosition = new double[] {0, 0, 0};
 		this.engineNumber   = 1;
 	}
 	
-	public FixedPitchPropEngine(String engineName, double maxBHP, double maxRPM, double propDiameter, double[] enginePosition, int engineNumber) {
+	public FixedPitchPropEngine(String engineName, double maxBHP, double maxRPM, double propDiam, double[] enginePosition, int engineNumber) {
 		this.engineName		= engineName;
 		this.maxBHP 		= maxBHP;
 		this.maxRPM 		= maxRPM;
+		this.propDiameter   = propDiam;
 		this.propArea 		= Math.PI*(Math.pow(propDiameter, 2))/4;
 		this.propEfficiency = 0.85;
 		this.enginePosition = enginePosition;
