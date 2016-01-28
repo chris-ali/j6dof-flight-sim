@@ -10,10 +10,8 @@ public class SimulationTest {
 	public static void main(String[] args) {
 		EnumSet<Options> runOptions = EnumSet.of(Options.ANALYSIS_MODE);
 		
-		//new Thread(new Integrate6DOFEquations(new AircraftBuilder(), runOptions)).start(); // Default to Navion with Lycoming IO-360
-		
-		new Thread(new Integrate6DOFEquations(new AircraftBuilder("Navion"), runOptions)).start(); // Custom Navion with Lycoming IO-360
-		
-		new Thread(new Integrate6DOFEquations(new AircraftBuilder("TwinNavion"), runOptions)).start(); // Twin Navion with 2 Lycoming IO-360
+		//new Thread(new Integrate6DOFEquations(new AircraftBuilder(), runOptions)).start(); 			// Default to Navion with Lycoming IO-360
+		new Thread(new Integrate6DOFEquations(new AircraftBuilder("Navion"), runOptions)).start(); 		// Custom Navion with Lycoming IO-360
+		new Thread(new Integrate6DOFEquations(new AircraftBuilder("TwinNavion"), runOptions)).start();  // Twin Navion with 2 Lycoming IO-360
 	}
 }
