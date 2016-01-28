@@ -24,6 +24,33 @@ public class FlightControlsUtilities {
 		return controls;
 	}
 	
+	// Creates a series of doublets (aileron, rudder and then elevator) using the makeDoublet methods
+	public static EnumMap<FlightControls, Double> doubletSeries(EnumMap<FlightControls, Double> controls, double t) {
+		// Update controls with an aileron doublet
+		controls = FlightControlsUtilities.makeDoublet(controls, 
+													   t, 
+													   10, 
+													   0.5, 
+													   0.035, 
+													   FlightControls.AILERON);
+		// Update controls with a rudder doublet
+		controls = FlightControlsUtilities.makeDoublet(controls, 
+													   t, 
+													   13, 
+													   0.5, 
+													   0.035, 
+													   FlightControls.RUDDER);
+		// Update controls with an elevator doublet
+		controls = FlightControlsUtilities.makeDoublet(controls, 
+													   t, 
+													   50, 
+													   0.5, 
+													   0.035, 
+													   FlightControls.ELEVATOR);
+		return controls;
+	}
+	
+	
 	// Limit control inputs to sensible deflection values
 	public static EnumMap<FlightControls, Double> limitControls(EnumMap<FlightControls, Double> controls) {
 		// Loop through enum list; if value in EnumMap controls is greater/less than max/min specified in FlightControls enum, 

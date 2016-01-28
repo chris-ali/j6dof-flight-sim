@@ -70,6 +70,8 @@ public abstract class Engine {
 	
 	public String getEngineName() {return engineName;}
 	
+	public int getEngineNumber() {return engineNumber;}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -1,6 +1,7 @@
 package com.chrisali.javaflightsim.aero;
 
 import java.util.EnumMap;
+import java.util.Set;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
@@ -18,16 +19,18 @@ public class AccelAndMoments extends Aerodynamics {
 									     EnumMap<EnvironmentParameters, Double> environmentParameters,
 									     EnumMap<FlightControls, Double> controls,
 									     double alphaDot,
-									     Engine engine) {
+									     Set<Engine> engineList) {
 		
 		Vector3D aeroForceVector = new Vector3D(getBodyForces(windParameters, 
 															  angularRates, 
 															  environmentParameters, 
 															  controls, 
 															  alphaDot));
-		
-		Vector3D engineForce = new Vector3D(engine.getThrust());
-		
+		// Create a vector of engine force, iterate through engineList and add the thrust of each engine in list
+		Vector3D engineForce = new Vector3D(0, 0, 0);
+		for (Engine engine : engineList)
+			engineForce = engineForce.add(new Vector3D(engine.getThrust()));
+
 		double[] tempLinearAccel = aeroForceVector.add(engineForce).scalarMultiply(1/massProps.get(MassProperties.TOTAL_MASS)).toArray(); 
 		
 		return SaturationLimits.limitLinearAccelerations(tempLinearAccel);
@@ -38,7 +41,7 @@ public class AccelAndMoments extends Aerodynamics {
 								    EnumMap<EnvironmentParameters, Double> environmentParameters,
 								    EnumMap<FlightControls, Double> controls,
 								    double alphaDot,
-								    Engine engine) {
+								    Set<Engine> engineList) {
 
 		Vector3D aeroForceVector = new Vector3D(getBodyForces(windParameters, 
 															  angularRates, 
@@ -58,7 +61,10 @@ public class AccelAndMoments extends Aerodynamics {
 																controls, 
 																alphaDot)); 
 		
-		Vector3D engineMoment = new Vector3D(engine.getEngineMoment());
+		// Create a vector of engine moment, iterate through engineList and add the moment of each engine in list
+		Vector3D engineMoment = new Vector3D(0, 0, 0);
+		for (Engine engine : engineList)
+			engineMoment = engineMoment.add(new Vector3D(engine.getEngineMoment()));
 		
 		double[] tempTotalMoments = aeroMomentVector.add(engineMoment).add(aeroForceCrossProd).toArray();
 		

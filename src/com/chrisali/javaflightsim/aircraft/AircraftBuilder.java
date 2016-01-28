@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -13,7 +13,7 @@ import com.chrisali.javaflightsim.propulsion.Engine;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 
 public class AircraftBuilder {
-	private Set<Engine> engineList = new HashSet<>();
+	private Set<Engine> engineList = new LinkedHashSet<>();
 	private Aircraft aircraft;
 	
 	private static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\aircraft\\AircraftConfigurations\\";

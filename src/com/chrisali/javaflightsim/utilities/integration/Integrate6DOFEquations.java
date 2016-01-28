@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
 import com.chrisali.javaflightsim.aero.AccelAndMoments;
 import com.chrisali.javaflightsim.aircraft.Aircraft;
+import com.chrisali.javaflightsim.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.controls.FlightControlsUtilities;
 import com.chrisali.javaflightsim.controls.hidcontrollers.Joystick;
@@ -19,7 +21,6 @@ import com.chrisali.javaflightsim.controls.hidcontrollers.SimulationController;
 import com.chrisali.javaflightsim.enviroment.Environment;
 import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.propulsion.Engine;
-import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.setup.Options;
 import com.chrisali.javaflightsim.utilities.plotting.MakePlots;
@@ -65,8 +66,8 @@ public class Integrate6DOFEquations implements Runnable {
 	private ClassicalRungeKuttaIntegrator integrator;
 	
 	// Aircraft Properties
-	private Aircraft aircraft  				= new Aircraft();
-	private Engine engine 					= new FixedPitchPropEngine();
+	private Aircraft aircraft;
+	private Set<Engine> engineList;
 	private AccelAndMoments accelAndMoments = new AccelAndMoments();
 	
 	// Output Logging
@@ -76,22 +77,18 @@ public class Integrate6DOFEquations implements Runnable {
 	// Options
 	private EnumSet<Options> options;
 	
-	public Integrate6DOFEquations(Aircraft aircraft, 
-								  FixedPitchPropEngine engine,
+	public Integrate6DOFEquations(AircraftBuilder builtAircraft,
 								  EnumSet<Options> runOptions) {
-		this.aircraft 		   = aircraft;
-		this.engine   		   = engine;
+		this.aircraft 		   = builtAircraft.getAircraft();
+		this.engineList   	   = builtAircraft.getEngineList();
+		this.options		   = runOptions;
 		
 		this.controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
 		this.initialConditions = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
 		this.integratorConfig  = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
-		
-		this.environmentParameters = Environment.updateEnvironmentParams(new double[]{initialConditions[3], initialConditions[4], initialConditions[5]});
-		
-		this.options		   = runOptions;
-		
+
 		// If USE_JOYSTICK/USE_MOUSE enabled, use joystick/mouse if ANALYSIS_MODE not enabled
-		if (options.contains(Options.USE_JOYSTICK) & !options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE))
+		if (options.contains(Options.USE_JOYSTICK) & !options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE))
 			this.hidController = new Joystick(controls);
 		else if (options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE))
 			this.hidController = new Mouse(controls);
@@ -104,9 +101,9 @@ public class Integrate6DOFEquations implements Runnable {
 		else
 			this.hidKeyboard = null;
 		
-		// Lets simulation run forever when UNLIMITED_FLIGHT and ANALYSIS_MODE are true/false, respectively
-		if(options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.ANALYSIS_MODE))
-			integratorConfig[2] = Double.POSITIVE_INFINITY;
+		// Lets simulation run forever when UNLIMITED_FLIGHT enabled, and ANALYSIS_MODE and TRIM_MODE are disabled
+		if(options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE))
+			this.integratorConfig[2] = Double.POSITIVE_INFINITY;
 		
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
 		this.integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[1]);
@@ -115,7 +112,7 @@ public class Integrate6DOFEquations implements Runnable {
 		updateDataMembers(initialConditions, integratorConfig[0]);
 	}
 	
-	// Creates the 14 state derivatives integrator uses to numerically integrate
+	// Creates the 14 (12 6DOF + 2 lat/lon) state derivatives integrator uses to numerically integrate
 	private class SixDOFEquations implements FirstOrderDifferentialEquations {		
 		private SixDOFEquations() {}
 
@@ -177,37 +174,17 @@ public class Integrate6DOFEquations implements Runnable {
 		// Update environment		
 		this.environmentParameters = Environment.updateEnvironmentParams(NEDPosition);
 		
-		// Update controls with joystick, doublets, or mouse (later)
-		if (options.contains(Options.USE_JOYSTICK) | options.contains(Options.USE_MOUSE) & ! options.contains(Options.ANALYSIS_MODE)) {
+		// Update controls with joystick, doublets, or mouse (later); if in analysis mode, create a series of doublets (aileron, rudder and then elevator)
+		if (options.contains(Options.USE_JOYSTICK) | options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE)) {
 			this.controls = hidController.updateFlightControls(controls);
 			this.controls = hidKeyboard.updateFlightControls(controls);
-		} else if (!options.contains(Options.USE_JOYSTICK) & options.contains(Options.ANALYSIS_MODE)) {	
-			// Update controls with an aileron doublet
-			this.controls = FlightControlsUtilities.makeDoublet(controls, 
-																t, 
-																10, 
-																0.5, 
-																0.035, 
-																FlightControls.AILERON);
-			// Update controls with a rudder doublet
-			this.controls = FlightControlsUtilities.makeDoublet(controls, 
-																t, 
-																13, 
-																0.5, 
-																0.035, 
-																FlightControls.RUDDER);
-			
-			// Update controls with an elevator doublet
-			this.controls = FlightControlsUtilities.makeDoublet(controls, 
-																t, 
-																50, 
-																0.5, 
-																0.035, 
-																FlightControls.ELEVATOR);
+		} else if (!options.contains(Options.USE_JOYSTICK) & options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE)) {	
+			this.controls = FlightControlsUtilities.doubletSeries(controls, t);
 		}
 		
-		// Update engine
-		this.engine.updateEngineState(controls, 
+		// Update all engines in engine list
+		for(Engine engine : this.engineList)
+			 engine.updateEngineState(controls, 
 									  environmentParameters, 
 									  windParameters);
 		
@@ -223,14 +200,14 @@ public class Integrate6DOFEquations implements Runnable {
 																	    environmentParameters,
 																	    controls,
 																	    alphaDot,
-																	    engine);
+																	    engineList);
 		// Update moments
 		this.totalMoments = accelAndMoments.getTotalMoments(windParameters,
 													 		angularRates,
 															environmentParameters,
 															controls,
 															alphaDot,
-															engine);
+															engineList);
 				
 		// Recalculates derivatives for next step
 		this.sixDOFDerivatives = updateDerivatives(new double[] {linearVelocities[0],
@@ -308,10 +285,14 @@ public class Integrate6DOFEquations implements Runnable {
 		simOut.put(SimOuts.Q_DOT, 	 	sixDOFDerivatives[10]);
 		simOut.put(SimOuts.R_DOT, 	 	sixDOFDerivatives[11]);
 		
-		// Engine 1
-		simOut.put(SimOuts.THRUST_1, 	engine.getThrust()[0]);
-		simOut.put(SimOuts.RPM_1, 	 	engine.getRPM());
-		simOut.put(SimOuts.FUEL_FLOW_1, engine.getFuelFlow());
+		// Engine(s)
+		for (Engine engine : engineList) {
+			if (engine.getEngineNumber() == 1) {
+				simOut.put(SimOuts.THRUST_1, 	engine.getThrust()[0]);
+				simOut.put(SimOuts.RPM_1, 	 	engine.getRPM());
+				simOut.put(SimOuts.FUEL_FLOW_1, engine.getFuelFlow());
+			}
+		}
 		
 		// Controls
 		simOut.put(SimOuts.ELEVATOR,    controls.get(FlightControls.ELEVATOR));
@@ -381,7 +362,7 @@ public class Integrate6DOFEquations implements Runnable {
 			}
 			
 			// If in analysis mode and not in unlimited flight, generate simulation plots
-			if (options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.UNLIMITED_FLIGHT)) {
+			if (options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.TRIM_MODE)) {
 				new Thread(new MakePlots(this, 
 						 				 new String[] {"Controls", "Instruments", "Position", "Rates", "Miscellaneous"},
 						 				 options)).start();
