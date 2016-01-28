@@ -36,13 +36,13 @@ public class SimulationPlots extends ApplicationFrame {
 	private static final long serialVersionUID = 1L;
 	
 	// Creates plots for variables monitored in the logsOut ArrayList
-	public SimulationPlots(ArrayList<EnumMap<SimOuts, Double>> logsOut, String applicationTitle) {
-		super(applicationTitle);
+	public SimulationPlots(ArrayList<EnumMap<SimOuts, Double>> logsOut, String windowTitle, String aircraftName) {
+		super(aircraftName + " " + windowTitle);
 		
 		PlotUtilities.makePlotLists(logsOut);
 		
 		// Select from methods below to create a chart panels to populate AWT window 
-		switch (applicationTitle) {
+		switch (windowTitle) {
 			case "Rates":
 				ChartPanel ratePlotPanel = new ChartPanel(makeRatesPlots(PlotUtilities.getPlotLists()));
 				ratePlotPanel.setPreferredSize(new java.awt.Dimension(1000, 950));

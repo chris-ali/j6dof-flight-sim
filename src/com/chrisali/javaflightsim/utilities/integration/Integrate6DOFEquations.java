@@ -365,7 +365,8 @@ public class Integrate6DOFEquations implements Runnable {
 			if (options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.TRIM_MODE)) {
 				new Thread(new MakePlots(this, 
 						 				 new String[] {"Controls", "Instruments", "Position", "Rates", "Miscellaneous"},
-						 				 options)).start();
+						 				 options,
+						 				 aircraft)).start();
 			}
 		} catch (InterruptedException e) {System.err.println("Warning! Simulation interrupted!");}
 	}

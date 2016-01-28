@@ -162,6 +162,8 @@ public class Aircraft {
 														     massProps.get(MassProperties.J_Y),
 														     massProps.get(MassProperties.J_Z),
 														     massProps.get(MassProperties.J_XZ)};}
+	
+	public String getName() {return name;}
 
 	// Outputs the stability derivatives, mass properties, and wing geometry of an aircraft
 	public String toString() {
