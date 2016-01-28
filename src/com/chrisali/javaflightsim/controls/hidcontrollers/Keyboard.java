@@ -109,6 +109,7 @@ public class Keyboard extends SimulationController {
 			for (Component component : controller.getComponents()) {
 				Identifier componentIdentifier = component.getIdentifier();
 				
+				// Elevator (Pitch) Down
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.UP.toString()) & 
 					controls.get(FlightControls.ELEVATOR) <= FlightControls.ELEVATOR.getMaximum()) {
 					
@@ -118,6 +119,7 @@ public class Keyboard extends SimulationController {
 					continue;
 				}
 				
+				// Elevator (Pitch) Up
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.DOWN.toString()) & 
 					controls.get(FlightControls.ELEVATOR) >= FlightControls.ELEVATOR.getMinimum()) {
 					
@@ -127,6 +129,7 @@ public class Keyboard extends SimulationController {
 					continue;
 				}
 				
+				// Left Aileron
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.LEFT.toString()) & 
 					controls.get(FlightControls.AILERON) >= FlightControls.AILERON.getMinimum()) {
 					
@@ -136,6 +139,7 @@ public class Keyboard extends SimulationController {
 					continue;
 				}
 				
+				// Right Aileron
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.RIGHT.toString()) & 
 					controls.get(FlightControls.AILERON) <= FlightControls.AILERON.getMaximum()) {
 					
@@ -145,30 +149,62 @@ public class Keyboard extends SimulationController {
 					continue;
 				}
 				
+				// Increase Throttle
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.PAGEUP.toString()) & 
 					controls.get(FlightControls.THROTTLE_1) <= FlightControls.THROTTLE_1.getMaximum() &
-					controls.get(FlightControls.THROTTLE_2) <= FlightControls.THROTTLE_2.getMaximum()) {
+					controls.get(FlightControls.THROTTLE_2) <= FlightControls.THROTTLE_2.getMaximum() &
+					controls.get(FlightControls.THROTTLE_3) <= FlightControls.THROTTLE_3.getMaximum() &
+					controls.get(FlightControls.THROTTLE_4) <= FlightControls.THROTTLE_4.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f) {
 						controls.put(FlightControls.THROTTLE_1,controls.get(FlightControls.THROTTLE_1)+0.01);
 						controls.put(FlightControls.THROTTLE_2,controls.get(FlightControls.THROTTLE_2)+0.01);
+						controls.put(FlightControls.THROTTLE_3,controls.get(FlightControls.THROTTLE_3)+0.01);
+						controls.put(FlightControls.THROTTLE_4,controls.get(FlightControls.THROTTLE_4)+0.01);
 					}
 					
 					continue;
 				}
-					
+				
+				// Decrease Throttle
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.PAGEDOWN.toString()) & 
 					controls.get(FlightControls.THROTTLE_1) >= FlightControls.THROTTLE_1.getMinimum() &
-					controls.get(FlightControls.THROTTLE_2) >= FlightControls.THROTTLE_2.getMinimum()) {
+					controls.get(FlightControls.THROTTLE_2) >= FlightControls.THROTTLE_2.getMinimum() &
+					controls.get(FlightControls.THROTTLE_3) >= FlightControls.THROTTLE_3.getMinimum() &
+					controls.get(FlightControls.THROTTLE_4) >= FlightControls.THROTTLE_4.getMinimum()) {
 					
 					if(component.getPollData() == 1.0f) {
 						controls.put(FlightControls.THROTTLE_1,controls.get(FlightControls.THROTTLE_1)-0.01);
 						controls.put(FlightControls.THROTTLE_2,controls.get(FlightControls.THROTTLE_2)-0.01);
+						controls.put(FlightControls.THROTTLE_3,controls.get(FlightControls.THROTTLE_3)-0.01);
+						controls.put(FlightControls.THROTTLE_4,controls.get(FlightControls.THROTTLE_4)-0.01);
 					}
 					
 					continue;
-				}	
-			}	
+				}
+				
+				
+				// Flaps Down
+				if (componentIdentifier.getName().matches(Component.Identifier.Key.F7.toString()) & 
+					controls.get(FlightControls.FLAPS) <= FlightControls.FLAPS.getMaximum()) {
+					
+					if(component.getPollData() == 1.0f)
+						controls.put(FlightControls.FLAPS,controls.get(FlightControls.FLAPS)+0.005);
+					
+					continue;
+				}
+				
+				// Flaps Up
+				if (componentIdentifier.getName().matches(Component.Identifier.Key.F6.toString()) & 
+						controls.get(FlightControls.FLAPS) >= FlightControls.FLAPS.getMinimum()) {
+						
+					if(component.getPollData() == 1.0f)
+						controls.put(FlightControls.FLAPS,controls.get(FlightControls.FLAPS)-0.005);
+					
+					continue;
+				}
+
+			}
 		}
 		return controls;
 	}
