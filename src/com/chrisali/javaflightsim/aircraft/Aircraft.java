@@ -122,10 +122,15 @@ public class Aircraft {
 		// Aerodynamics
 		ArrayList<String[]> readAeroFile = AircraftBuilder.readFileAndSplit(aircraftName, "Aero");
 		
+		// Override constant stability derivative values with the keyword "lookup" in Aero.txt; need to then 
+		// supply text file with lookup table and break points
 		for(StabilityDerivatives stabDerKey : StabilityDerivatives.values()) {
 			for (String[] readLine : readAeroFile) {
 				if (stabDerKey.toString().equals(readLine[0]))
-					this.stabDerivs.put(stabDerKey, Double.parseDouble(readLine[1]));
+					if (readLine[1].toLowerCase().equals("lookup"))
+						this.stabDerivs.put(stabDerKey, AircraftBuilder.createLookupTable(this.name, readLine[0]));
+					else
+						this.stabDerivs.put(stabDerKey, Double.parseDouble(readLine[1]));
 			}
 		}
 		
