@@ -1,5 +1,8 @@
 package com.chrisali.javaflightsim.utilities.integration;
 
+/**
+ * This Enum is used with {@link Integrate6DOFEquations} to define the EnumMap returned in {@link Integrate6DOFEquations#getSimOut()}
+ */
 public enum SimOuts {
 	TIME,
 	U,

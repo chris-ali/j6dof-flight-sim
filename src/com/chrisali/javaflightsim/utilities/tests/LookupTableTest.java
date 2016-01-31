@@ -20,7 +20,5 @@ public class LookupTableTest {
 		}
 	}
 
-	public static void main(String[] args) {new LookupTableTest("LookupNavion");
-	}
-
+	public static void main(String[] args) {new LookupTableTest("LookupNavion");}
 }

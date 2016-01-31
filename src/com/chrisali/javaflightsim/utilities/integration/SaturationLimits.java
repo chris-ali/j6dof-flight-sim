@@ -1,7 +1,14 @@
 package com.chrisali.javaflightsim.utilities.integration;
 
+/**
+ * This class provides methods to limit the results calculated in {@link Integrate6DOFEquations} to prevent large or non-physical values of the 6DOF states from affecting the simulation elsewhere  
+ */
 public class SaturationLimits {
 	
+	/**
+	 * Binds pitch and bank angles between +/- Pi, and heading between 0 and 2*Pi. In addition, pitch is prevented from reaching +/- Pi/2, as this would cause a singularity in the calculation of heading in {@link Integrate6DOFEquations}
+	 * @return eulerAngles
+	 */
 	public static double[] piBounding(double[] eulerAngles) {
 		double phi   = eulerAngles[0];
 		double theta = eulerAngles[1];
@@ -21,6 +28,10 @@ public class SaturationLimits {
 		return new double[] {phi,theta,Math.abs(psi)}; // Return only positive values of psi between 0 and 2*pi
 	}
 	
+	/**
+	 *  Limits u, v and w velocities; u is restricted to 0.5-1000 ft/sec, while v and w are restricted to -1000-1000 ft/sec
+	 *  @return linearVelocities
+	 */
 	public static double[] limitLinearVelocities(double[] linearVelocities) {
 		double u = linearVelocities[0];
 		double v = linearVelocities[1];
@@ -44,6 +55,10 @@ public class SaturationLimits {
 		return new double[] {u,v,w};
 	}
 	
+	/**
+	 *  Limits angular rates for p, q and r to -10-10 rad/sec
+	 *  @return angularRates
+	 */
 	public static double[] limitAngularRates(double[] angularRates) {
 		double p = angularRates[0];
 		double q = angularRates[1];
@@ -67,6 +82,10 @@ public class SaturationLimits {
 		return new double[] {p,q,r};
 	}
 	
+	/**
+	 *  Limits accelerations in all directions to -1000-1000 ft/sec^2
+	 *  @return linearAccelerations
+	 */
 	public static double[] limitLinearAccelerations(double[] linearAccelerations) {
 		double a_x = linearAccelerations[0];
 		double a_y = linearAccelerations[1];
@@ -90,6 +109,10 @@ public class SaturationLimits {
 		return new double[] {a_x,a_y,a_z};
 	}
 	
+	/**
+	 *  Limits moments in all directions to -100000-100000 lb*ft
+	 *  @return linearMoments
+	 */
 	public static double[] limitTotalMoments(double[] totalMoments) {
 		double m_x = totalMoments[0];
 		double m_y = totalMoments[1];
@@ -113,6 +136,10 @@ public class SaturationLimits {
 		return new double[] {m_x,m_y,m_z};
 	}
 	
+	/**
+	 *  Limits true airspeed to 0.5-1000 ft/sec, beta to -Pi/4-Pi/4 and alpha to -Pi/16-Pi/16 
+	 *  @return windParameters
+	 */
 	public static double[] limitWindParameters(double[] windParameters) {
 		double vTrue = windParameters[0];
 		double beta  = windParameters[1];

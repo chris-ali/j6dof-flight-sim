@@ -2,9 +2,21 @@ package com.chrisali.javaflightsim.utilities.integration;
 
 import java.util.EnumMap;
 
+import com.chrisali.javaflightsim.aircraft.Aircraft;
 import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
 
+/**
+ * This class contains methods to do coordinate axes transformations from Body to NED and from Wind to Body. It also calculates Geodetic coordinates from NED position, Mach number, 
+ * alphadot, wind parameters (true airspeed, beta and alpha), and Inertia parameters used in {@link Integrate6DOFEquations} to calculate derivatives
+ * 
+ * @see Source: <i>Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
+ */
 public class SixDOFUtilities {
+	
+	/**
+	 * Calculates the direction cosine matrix needed to convert from body to NED coordinate axes 
+	 * @see <i>Source Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
+	 */
 	public static double[][] body2Ned(double[] eulerAngles) {
 		double body2NedDCM[][] = new double[3][3]; //[row][column]
 		
@@ -23,6 +35,11 @@ public class SixDOFUtilities {
 		return body2NedDCM;
 	}
 	
+	/**
+	 *  Calculates the inertia coefficients used in the calculation of p, q and r dot in {@link Integrate6DOFEquations}
+	 *  @see Aircraft
+	 *  @see <i>Source Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
+	 */
 	public static double[] getInertiaCoeffs(double[] inertiaVals) { //inertiaVals[]{Ix,Iy,Iz,Ixz}
 		double[] inertiaCoeffs = new double[9];
 		
@@ -41,6 +58,10 @@ public class SixDOFUtilities {
 		return inertiaCoeffs;
 	}
 	
+	/**
+	 * Calculates the direction cosine matrix needed to convert from wind to body coordinate axes 
+	 * @see <i>Source Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
+	 */
 	public static double[][] wind2Body(double[] windParameters) {
 		double wind2BodyDCM[][] = new double[3][3]; //[row][column]
 		
@@ -59,6 +80,10 @@ public class SixDOFUtilities {
 		return wind2BodyDCM;
 	}
 	
+	/**
+	 * Calculates the conversion factors needed to convert between lat/lon dot and N/E dot 
+	 * @see Source: <i>G. Cai et al., Unmanned Rotorcraft Systems</i>
+	 */
 	public static double[] ned2LLA(double[] y) {
 		double[] ned2LLA = new double[2]; // Conversion factors for latitude (lambda), longitude (phi) and altitude (h)
 		
@@ -77,6 +102,10 @@ public class SixDOFUtilities {
 		return ned2LLA;		
 	}
 	
+	/**
+	 * Calculates true airspeed, angle of sideslip and angle of attack 
+	 * @see <i>Source Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
+	 */
 	public static double[] getWindParameters(double[] linearVelocities) {
 		double vTrue = Math.sqrt(Math.pow(linearVelocities[0],2) + Math.pow(linearVelocities[1],2) + Math.pow(linearVelocities[2],2));
 		double beta = Math.asin(linearVelocities[1]/vTrue);
@@ -85,11 +114,19 @@ public class SixDOFUtilities {
 		return SaturationLimits.limitWindParameters(new double[] {vTrue,beta,alpha});
 	}
 	
+	/**
+	 * Calculates rate of change of angle of attack with respect to time 
+	 * @see <i>Source: R. Hall and S. Anstee, Trim Calculation Methods for a Dynamical Model of the REMUS 100 Autonomous Underwater Vehicle </i>
+	 */
 	public static double getAlphaDot(double[] linearVelocities, double[] sixDOFDerivatives) {
 		return ((linearVelocities[0]*sixDOFDerivatives[2])-(linearVelocities[2]*sixDOFDerivatives[0]))
 				/((Math.pow(linearVelocities[0], 2)+(Math.pow(linearVelocities[2], 2))));// = u*w_dot-w*u_dot/(u^2+w^2)
 	}
 	
+	/**
+	 * Calculates Mach number
+	 * @see <i>Source Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
+	 */
 	public static double getMach(double[] windParameters, EnumMap<EnvironmentParameters, Double> environmentParameters) {
 		return windParameters[0]/environmentParameters.get(EnvironmentParameters.A);
 	}

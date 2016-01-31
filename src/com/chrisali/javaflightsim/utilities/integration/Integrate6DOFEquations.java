@@ -25,15 +25,24 @@ import com.chrisali.javaflightsim.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.setup.Options;
 import com.chrisali.javaflightsim.utilities.plotting.MakePlots;
 
-/*
- * This class integrates all 12 6DOF  (plus 2 lat/lon) equations numerically to obtain the aircraft states.
- * The Apache Commons' Classical Runge-Kutta is used to integrate over a period of time defined in the integratorConfig double array. 
- *  
- * In order to formulate the first order ODE, the following (double arrays) must be passed in:
- *		Aircraft aircraft
- *      FixedPitchPropEngine engine
+/**
+ * This class integrates all 12 6DOF (plus 2 latitude/longitude) equations numerically to obtain the aircraft's states.
+ * The {@link ClassicalRungeKuttaIntegrator} is used to integrate over a period of time defined in {@link Integrate6DOFEquations#integratorConfig}.
+ * It uses threading to delay the integration to emulate running at a real-time rate. The class outputs at each step using {@link Integrate6DOFEquations#logData(double)} to 
+ * generate a {@link Integrate6DOFEquations#logsOut} ArrayList of {@link Integrate6DOFEquations#simOut} EnumMaps containing simulation outputs.
+ * These can be obtained using the proper getters for {@link Integrate6DOFEquations#logsOut} and {@link Integrate6DOFEquations#simOut}. Options are passed into the class to
+ * allow the user to choose between various run-time options 
  * 
- * The class outputs at each step using logData to generate a logsOut ArrayList of simOut EnumMaps containing simulation outputs.
+ * @param  AircraftBuilder builtAircraft
+ * @param  EnumSet runOptions
+ *      
+ * @return EnumMap simOut
+ * @return ArrayList logsOut
+ *      
+ * @see FirstOrderDifferentialEquations 
+ * @see ClassicalRungeKuttaIntegrator
+ * @see AircraftBuilder
+ * @see Options
  */
 public class Integrate6DOFEquations implements Runnable {
 	// 6DOF Integration Results
@@ -59,11 +68,11 @@ public class Integrate6DOFEquations implements Runnable {
 	private Keyboard hidKeyboard;
 	
 	// Integrator Fields
+	private ClassicalRungeKuttaIntegrator integrator;
 	private double[] sixDOFDerivatives		= new double[14];
 	private double[] y					    = new double[14];
 	private double[] initialConditions      = new double[14]; 
 	private double[] integratorConfig		= new double[3];
-	private ClassicalRungeKuttaIntegrator integrator;
 	
 	// Aircraft Properties
 	private Aircraft aircraft;
@@ -112,7 +121,13 @@ public class Integrate6DOFEquations implements Runnable {
 		updateDataMembers(initialConditions, integratorConfig[0]);
 	}
 	
-	// Creates the 14 (12 6DOF + 2 lat/lon) state derivatives integrator uses to numerically integrate
+	/**
+	 * Creates the 14 (12 6DOF + 2 lat/lon) state derivatives that {@link Integrate6DOFEquations#integrator} uses to numerically integrate. It loops through {@link Integrate6DOFEquations#sixDOFDerivatives} to
+	 * assign values to yDot[], which is used in the single step {@link Integrate6DOFEquations#integrator} in {@link Integrate6DOFEquations#run()}
+	 * @see FirstOrderDifferentialEquations 
+	 * @see Integrate6DOFEquations
+	 * @see ClassicalRungeKuttaIntegrator
+	 */
 	private class SixDOFEquations implements FirstOrderDifferentialEquations {		
 		private SixDOFEquations() {}
 
@@ -124,7 +139,12 @@ public class Integrate6DOFEquations implements Runnable {
 		public int getDimension() {return 14;}
 	}
 	
-	// Recalculates derivatives based on newly calculated accelerations and moments
+	/**
+	 * Recalculates the 14 (12 6DOF + 2 lat/lon) state derivatives based on the newly calculated accelerations and moments accomplished in {@link Integrate6DOFEquations#updateDataMembers(double[], double)}.
+	 * The equations are calculated with the help of methods in {@link SixDOFUtilities} to convert coordinate frames and calculate inertia parameters
+	 * @return ydot[]
+	 * @see Source: <i>Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
+	 */
 	private double[] updateDerivatives(double[] y) {
 		double[]   yDot          = new double[14];
 		double[][] dirCosMat     = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([row][column])
@@ -153,7 +173,10 @@ public class Integrate6DOFEquations implements Runnable {
 		return yDot;
 	}
 	
-	// Runs helper methods to update data members in functions
+	/**
+	 *  Runs various helper methods to update data members in {@link Integrate6DOFEquations}. It updates the 6DOF states, environment parameters, controls, engine state, and finally 
+	 *  calculates accelerations and moments to be used in {@link Integrate6DOFEquations#updateDerivatives(double[])} 
+	 */
 	private void updateDataMembers(double[] y, double t) {
 		// Assign indices in yTemp array to 6DOF state arrays
 		for (int i=0; i<linearVelocities.length; i++) {
@@ -224,7 +247,10 @@ public class Integrate6DOFEquations implements Runnable {
 																 angularRates[2]});
 	}
 	
-	// After each step adds data to a logging arrayList for plotting and outputs to the console (if desired)
+	/**
+	 *  Adds simulation data to the ArrayList {@link Integrate6DOFEquations#logsOut} after each successful step of integration for plotting and outputs to the console, if set in {@link Integrate6DOFEquations#options}. 
+	 *  The data calculated in each step of integration is available in the EnumMap {@link Integrate6DOFEquations#simOut} 
+	 */
 	private void logData(double t) {
 		// Make a new EnumMap
 		simOut = new EnumMap<SimOuts, Double>(SimOuts.class);
