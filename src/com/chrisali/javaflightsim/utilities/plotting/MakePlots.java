@@ -6,15 +6,15 @@ import com.chrisali.javaflightsim.aircraft.Aircraft;
 import com.chrisali.javaflightsim.setup.Options;
 import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 
-/*
- * This class implements threading to generate plot windows of simulation states. It loops through a String array
- * and creates a SimulationPlots objects using the data from the logsOut EnumMap list in Integrate6DOFEquations  
+/**
+ * This class is the runner class to plot data from the simulation in AWT windows. It implements threading to accomplish this, 
+ * looping through the {@link MakePlots#simPlotCategories} array to create {@link SimulationPlots} objects using the data 
+ * from {@link Integrate6DOFEquations#getLogsOut()}. 
  * 
- * The following must be passed in:
- * String[] simPlotCetegories
- * Integrate6DOFEquations integration
- * EnumMap<Options, Boolean> options
- * Aircraft aircraft
+ * @param String simPlotCetegories
+ * @param Integrate6DOFEquations integration
+ * @param EnumMap options
+ * @param Aircraft aircraft
  */
 public class MakePlots implements Runnable {
 	private String[] simPlotCategories;

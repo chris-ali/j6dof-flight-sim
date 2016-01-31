@@ -12,10 +12,18 @@ import org.jfree.ui.RefineryUtilities;
 
 import com.chrisali.javaflightsim.utilities.integration.SimOuts;
 
+/**
+ * Contains methods to create plots from simulation data. {@link MakePlots} and {@link SimulationPlots} call on methods from this class to generate the plot objects on AWT windows
+ */
 public class PlotUtilities {
 	private static EnumMap<PlotType, XYPlot> plotLists = new EnumMap<PlotType, XYPlot>(PlotType.class);
-	
-	static void makePlotLists(ArrayList<EnumMap<SimOuts, Double>> logsOut) {
+
+	/**
+	 * Populates the {@link PlotUtilities#plotLists} EnumMap with XYPlot objects created from the logsOut ArrayList that is passed in. 
+	 * It first creates {@link XYSeries} objects with data from logsOut, adds those series to {@link XYSeriesCollection}, adds those 
+	 * series collections to {@link XYPlot} objects, and finally puts the XYPlot objects into {@link PlotUtilities#plotLists}
+	 */
+	protected static void makePlotLists(ArrayList<EnumMap<SimOuts, Double>> logsOut) {
 		
 		// Create XY series for each set of data
 		
@@ -296,11 +304,19 @@ public class PlotUtilities {
 		plotLists.put(PlotType.MACH, machPlot);
 	}
 	
-	public static EnumMap<PlotType, XYPlot> getPlotLists() {return plotLists;}
-	
-	static void generatePlotWindows(SimulationPlots simPlots) {
+	/**
+	 * Used to fit the {@link SimulationPlots} objects to AWT windows, and then make those windows visible to the user 
+	 */
+	protected static void generatePlotWindows(SimulationPlots simPlots) {
 		simPlots.pack();
 		RefineryUtilities.centerFrameOnScreen(simPlots);
 		simPlots.setVisible(true);
 	}
+	
+	/** 
+	 * Returns an EnumMap of {@link XYPlot} objects
+	 * @see SimulationPlots
+	 * @see PlotUtilities
+	 */
+	public static EnumMap<PlotType, XYPlot> getPlotLists() {return plotLists;}
 }

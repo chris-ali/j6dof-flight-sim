@@ -13,23 +13,10 @@ import org.jfree.ui.ApplicationFrame;
 
 import com.chrisali.javaflightsim.utilities.integration.SimOuts;
 
-/*
- * This class allows the user to specify from a group of various types of plot groups by using the 
- * applicationTitle String variable in the constructor:
- * 
- * Rates :	Subplot 1: (p, q, r) vs. Time
- * 			Subplot 2: (u, v, w) vs. Time
- * 			Subplot 3: (an_x, an_y, an_z) vs, Time
- * 
- * Position : North vs. East (ft)
- * 
- * Instrumentation : 	Subplot 1: (phi, theta) vs. Time
- * 						Subplot 2: TAS vs. Time
- * 						Subplot 3: psi vs. Time
- * 						Subplot 4: Altitude vs. Time
- * 						Subplot 5: Vertical Speed vs. Time
- * 
- * Miscellaneous : 		Subplot 1: (alpha, beta) vs. Time
+/**
+ * This object contains a {@link CombinedDomainXYPlot} object, consisting of group of {@link XYPlot} objects. It generates a plot windwow in AWT using {@link PlotUtilities#generatePlotWindows(SimulationPlots)}.   
+ * an AWT window with a plot. The plot window displayed depends on the windowTitle String argument passed in. 
+ * @see MakePlots
  */
 public class SimulationPlots extends ApplicationFrame {
 
@@ -72,11 +59,12 @@ public class SimulationPlots extends ApplicationFrame {
 				System.err.println("Invalid plot type selected!");
 				break;
 		}
-		
 		PlotUtilities.generatePlotWindows(this);
 	}
 	
-	// Plots associated with rates and accelerations
+	/**
+	 *  Generates a {@link JFreeChart} object associated with rates and accelerations (Angular Rates, Linear Velocities and Linear Accelerations) on a {@link CombinedDomainXYPlot}.
+	 */
 	private JFreeChart makeRatesPlots(EnumMap<PlotType, XYPlot> plotLists) {
 		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
 		
@@ -92,7 +80,9 @@ public class SimulationPlots extends ApplicationFrame {
 					          true);
 	}
 	
-	// North vs East plot of aircraft position
+	/**
+	 *  Generates a {@link JFreeChart} object associated with aircraft position (North vs East) on a {@link CombinedDomainXYPlot}.
+	 */
 	private JFreeChart makePositionPlot(EnumMap<PlotType, XYPlot> plotLists) {
 		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("East [ft]"));
 		
@@ -107,7 +97,9 @@ public class SimulationPlots extends ApplicationFrame {
 					          true);
 	}
 	
-	// Plots associated with typical aircraft instrumentation
+	/**
+	 *  Generates a {@link JFreeChart} object associated with instrumentation data (Pitch, Roll, Airspeed, Heading, Altitude and Vertical Speed) on a {@link CombinedDomainXYPlot}.
+	 */
 	private JFreeChart makeInstrumentPlots(EnumMap<PlotType, XYPlot> plotLists) {
 		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
 		
@@ -126,7 +118,9 @@ public class SimulationPlots extends ApplicationFrame {
 					          true);
 	}
 	
-	// Miscellaneous plots such as alpha, beta
+	/**
+	 *  Generates a {@link JFreeChart} object associated with miscellaneous air data (Alpha, Beta, Alphadot and Mach) on a {@link CombinedDomainXYPlot}.
+	 */
 	private JFreeChart makeMiscPlots(EnumMap<PlotType, XYPlot> plotLists) {
 		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
 		
@@ -143,7 +137,9 @@ public class SimulationPlots extends ApplicationFrame {
 					          true);
 	}
 	
-	// Plots associated with typical aircraft instrumentation
+	/**
+	 *  Generates a {@link JFreeChart} object associated with aircraft controls (Elevator, Aileron, Rudder, Throttle, Flaps) on a {@link CombinedDomainXYPlot}.
+	 */
 	private JFreeChart makeControlsPlots(EnumMap<PlotType, XYPlot> plotLists) {
 		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
 		
@@ -161,5 +157,4 @@ public class SimulationPlots extends ApplicationFrame {
 					          simulationPlot, 
 					          true);
 	}
-	
 }
