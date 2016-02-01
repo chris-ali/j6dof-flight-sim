@@ -91,7 +91,7 @@ public class AircraftBuilder {
 		return readAndSplit;
 	}
 	
-	public static PiecewiseBicubicSplineInterpolatingFunction createLookupTable(String aircraftName, String fileName) {
+	protected static PiecewiseBicubicSplineInterpolatingFunction createLookupTable(String aircraftName, String fileName) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(FILE_PATH).append(aircraftName).append("\\LookupTables\\").append(fileName).append(".txt");
 		

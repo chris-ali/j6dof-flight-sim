@@ -1,31 +1,32 @@
 package com.chrisali.javaflightsim.aero;
 
 import java.util.EnumMap;
+
+import org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolatingFunction;
+
 import com.chrisali.javaflightsim.aircraft.Aircraft;
+import com.chrisali.javaflightsim.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.utilities.integration.SixDOFUtilities;
 
-/*
- * This class calculates aerodynamic forces and moments in the stability frame. The aerodynamic forces are then converted to the 
- * body frame to calculate linear accelerations. All stability derivatives are assumed to be constant for now.
+/**
+ * This class calculates aerodynamic forces and moments in the stability coordinate frame. The aerodynamic forces are then converted to the 
+ * body frame to calculate accelerations and moments in {@link AccelAndMoments}. Depending on the stability derivatives specified upon aircraft creation
+ * in {@link AircraftBuilder} the stability derivatives can be either a constant double or interpolated linearly using a lookup table
  * 
- * TODO Make lookup tables for alpha/beta derivatives 
- *  
- * The following must be passed in:
- * 		controls EnumMap<FlightControls, Double>                            
- *      windParameters[]{vTrue,alpha,beta}  								(ft/sec,rad,rad)
- * 		angularRates[]{p,q,r}		  										(rad/sec)
- * 		double alphaDot				 										(rad/sec)
- * 		EnumMap<EnvironmentParameters, Double> environmentParams  			(deg R, slug/ft^3, lbf/ft^2, ft/sec)
+ * @param EnumMap controls                            
+ * @param windParameters 								
+ * @param angularRates
+ * @param double alphaDot
+ * @param EnumMap environmentParams
  * 
- * The following are inherited from the Aircraft class:							
- *  	wingGeometry EnumMap<WingGeometry, Double> 							(ft^2,ft,ft) 
- * 		stabDerivs   EnumMap<StabilityDerivatives, (Double)Object>		
+ * @return aerodynamicMoments (ft*lbf)
+ * @return aerodynamicForces  (lbf)
  * 
- * The class outputs the following (double arrays):
- *      aerodynamicMoments[] {L,M,N} 										(ft*lbf)
- *      aerodynamicForces[]  {-D,Y,-L}										(lbf)	
+ * @see Aircraft
+ * @see StabilityDerivatives
+ * @see PiecewiseBicubicSplineInterpolatingFunction
  */
 public class Aerodynamics extends Aircraft {
 	
@@ -100,6 +101,25 @@ public class Aerodynamics extends Aircraft {
 			   (Double)stabDerivs.get(StabilityDerivatives.CN_R)*angularRates[2]*helixAngle+
 			   (Double)stabDerivs.get(StabilityDerivatives.CN_D_AIL)*controls.get(FlightControls.AILERON)+
 			   (Double)stabDerivs.get(StabilityDerivatives.CN_D_RUD)*controls.get(FlightControls.RUDDER);	
+	}
+	
+	// Gets the type of value contained in the specified key of the stability derivatives EnumMap, interpolate it if its type is PiecewiseBicubicSplineInterpolatingFunction  
+	public Double calculateInterpStabDer(double[] windParameters,
+			 							  EnumMap<FlightControls, Double> controls,
+			 							  StabilityDerivatives stabDer) {
+		Double interpStabDer;
+		PiecewiseBicubicSplineInterpolatingFunction pbsif;
+		
+		// If object is of type Double, return that value, otherwise create an interpolating function and
+		// get the interpolated Double value 
+		if (stabDerivs.get(stabDer).getClass().getName().equals("java.lang.Double"))
+			interpStabDer = (Double)stabDerivs.get(stabDer);
+		else {
+			pbsif = (PiecewiseBicubicSplineInterpolatingFunction)stabDerivs.get(stabDer);
+			interpStabDer = pbsif.value(windParameters[2], controls.get(FlightControls.FLAPS));
+		}
+		
+		return interpStabDer;
 	}
 	
 	// Calculate Body Forces
