@@ -119,11 +119,12 @@ public class AircraftBuilder {
 			double[]   breakPointAOA  = new double[splitArray.length-1];
 			double[][] lookUpValues   = new double[splitArray.length-1][splitArray[1].length-1];
 			
+			// Convert the flap and alpha breakpoints to radians (for now; assuming lookup data will come to program in degrees)
 			for (int i=0; i<breakPointFlap.length; i++)
-				breakPointFlap[i] = splitArray[0][i];
+				breakPointFlap[i] = Math.toRadians(splitArray[0][i]);
 				
 			for (int i=1; i<=breakPointAOA.length; i++)
-				breakPointAOA[i-1] = splitArray[i][0];
+				breakPointAOA[i-1] = Math.toRadians(splitArray[i][0]);
 					
 			for (int i=1; i<=lookUpValues.length; i++) {
 				for (int j=1; j<=lookUpValues[0].length; j++)

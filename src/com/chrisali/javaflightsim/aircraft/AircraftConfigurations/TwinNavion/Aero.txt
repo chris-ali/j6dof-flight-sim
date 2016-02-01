@@ -16,7 +16,7 @@ CY_d_rud = 0.157
 CD_alpha = 0.33
 CD_0 = 0.025
 CD_d_elev = 0.001
-CD_d_flaps = 0.02
+CD_d_flap = 0.02
 CD_d_gear = 0.09
 
 %CL - Roll
@@ -28,11 +28,11 @@ Croll_d_rud = 0.107
 
 %CM
 CM_alpha = -0.683
-CM_0 = -0.923
+CM_0 = 0.02
 CM_q = -9.96
 CM_alpha_dot = -4.36
 CM_d_elev = -0.923
-CM_d_flaps = -0.050
+CM_d_flap = -0.050
 
 %CN
 CN_beta = 0.071

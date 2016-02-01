@@ -17,11 +17,9 @@ public class LookupTableTest {
 	
 	public LookupTableTest(String aircraftName) {								 
 		this.ab = new AircraftBuilder("LookupNavion");
-		this.aero = new Aerodynamics();
+		this.aero = new Aerodynamics(ab.getAircraft());
 		double clAlpha = 0.0;
-		
-		System.out.println(ab.getAircraft().getStabilityDerivative(StabilityDerivatives.CD_ALPHA).getClass().getName());
-		
+
 		for (int j=0; j<dFlap.length; j++) {
 			controls.put(FlightControls.FLAPS, Math.toRadians(dFlap[j]));
 			

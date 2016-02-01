@@ -27,52 +27,57 @@ import com.chrisali.javaflightsim.utilities.integration.SixDOFUtilities;
  * @see Aircraft
  * @see StabilityDerivatives
  * @see PiecewiseBicubicSplineInterpolatingFunction
+ * @see Source: Source: <i>Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
  */
-public class Aerodynamics extends Aircraft {
+public class Aerodynamics {
+	
+	private Aircraft aircraft;
+	
+	public Aerodynamics(Aircraft aircraft) {this.aircraft = aircraft;}
 	
 	// Calculate CL
 	private double getCL(double[] angularRates,
 						 double[] windParameters,
 						 EnumMap<FlightControls, Double> controls,
 						 double alphaDot) {
-		double rotaryTerm = wingGeometry.get(WingGeometry.C_BAR)/(2*windParameters[0]);
+		double rotaryTerm = aircraft.getWingGeometry(WingGeometry.C_BAR)/(2*windParameters[0]);
 		
-		return (Double)stabDerivs.get(StabilityDerivatives.CL_ALPHA)*windParameters[2]+
-			   (Double)stabDerivs.get(StabilityDerivatives.CL_0)+	
-			   (Double)stabDerivs.get(StabilityDerivatives.CL_Q)*angularRates[1]*rotaryTerm+
-			   (Double)stabDerivs.get(StabilityDerivatives.CL_ALPHA_DOT)*alphaDot*rotaryTerm+
-			   (Double)stabDerivs.get(StabilityDerivatives.CL_D_ELEV)*controls.get(FlightControls.ELEVATOR)+	
-			   (Double)stabDerivs.get(StabilityDerivatives.CL_D_FLAP)*controls.get(FlightControls.FLAPS);		
+		return (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_ALPHA)*windParameters[2]+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_0)+	
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_Q)*angularRates[1]*rotaryTerm+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_ALPHA_DOT)*alphaDot*rotaryTerm+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_D_ELEV)*controls.get(FlightControls.ELEVATOR)+	
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_D_FLAP)*controls.get(FlightControls.FLAPS);		
 	}
 	
 	// Calculate CY
 	private double getCY(double[] windParameters,
 						 EnumMap<FlightControls, Double> controls) {
-		return (Double)stabDerivs.get(StabilityDerivatives.CY_BETA)*windParameters[1]+
-			   (Double)stabDerivs.get(StabilityDerivatives.CY_D_RUD)*controls.get(FlightControls.RUDDER);	
+		return (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CY_BETA)*windParameters[1]+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CY_D_RUD)*controls.get(FlightControls.RUDDER);	
 	}
 	
 	// Calculate CD
 	private double getCD(double[] windParameters,
 						 EnumMap<FlightControls, Double> controls) {
-		return (Double)stabDerivs.get(StabilityDerivatives.CD_ALPHA)*Math.abs(windParameters[2])+ // Need absolute value to prevent negative drag at negative alpha
-			   (Double)stabDerivs.get(StabilityDerivatives.CD_0)+
-			   (Double)stabDerivs.get(StabilityDerivatives.CD_D_FLAP)*controls.get(FlightControls.FLAPS)+
-			   (Double)stabDerivs.get(StabilityDerivatives.CD_D_ELEV)*controls.get(FlightControls.ELEVATOR)+
-			   (Double)stabDerivs.get(StabilityDerivatives.CD_D_GEAR)*controls.get(FlightControls.GEAR);		
+		return (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_ALPHA)*Math.abs(windParameters[2])+ // Need absolute value to prevent negative drag at negative alpha
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_0)+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_FLAP)*controls.get(FlightControls.FLAPS)+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_ELEV)*controls.get(FlightControls.ELEVATOR)+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_GEAR)*controls.get(FlightControls.GEAR);		
 	}
 	
 	// Calculate CRoll
 	private double getCRoll(double[] angularRates,
 					  	    double[] windParameters,
 					  	    EnumMap<FlightControls, Double> controls) {
-		double helixAngle = wingGeometry.get(WingGeometry.B_WING)/(2*windParameters[0]);
+		double helixAngle = aircraft.getWingGeometry(WingGeometry.B_WING)/(2*windParameters[0]);
 		
-		return (Double)stabDerivs.get(StabilityDerivatives.CROLL_BETA)*windParameters[1]+
-			   (Double)stabDerivs.get(StabilityDerivatives.CROLL_P)*angularRates[0]*helixAngle+
-			   (Double)stabDerivs.get(StabilityDerivatives.CROLL_R)*angularRates[2]*helixAngle+
-			   (Double)stabDerivs.get(StabilityDerivatives.CROLL_D_AIL)*controls.get(FlightControls.AILERON)+
-			   (Double)stabDerivs.get(StabilityDerivatives.CROLL_D_RUD)*controls.get(FlightControls.RUDDER);
+		return (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CROLL_BETA)*windParameters[1]+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CROLL_P)*angularRates[0]*helixAngle+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CROLL_R)*angularRates[2]*helixAngle+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CROLL_D_AIL)*controls.get(FlightControls.AILERON)+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CROLL_D_RUD)*controls.get(FlightControls.RUDDER);
 	}
 	
 	// Calculate CM
@@ -80,27 +85,27 @@ public class Aerodynamics extends Aircraft {
 						 double[] windParameters,
 						 EnumMap<FlightControls, Double> controls,
 						 double alphaDot) {
-		double rotaryTerm = wingGeometry.get(WingGeometry.C_BAR)/(2*windParameters[0]);
+		double rotaryTerm = aircraft.getWingGeometry(WingGeometry.C_BAR)/(2*windParameters[0]);
 		
-		return (Double)stabDerivs.get(StabilityDerivatives.CM_ALPHA)*windParameters[2]+
-			   (Double)stabDerivs.get(StabilityDerivatives.CM_0)+
-			   (Double)stabDerivs.get(StabilityDerivatives.CM_Q)*angularRates[1]*rotaryTerm+
-			   (Double)stabDerivs.get(StabilityDerivatives.CM_ALPHA_DOT)*alphaDot*rotaryTerm+
-			   (Double)stabDerivs.get(StabilityDerivatives.CM_D_ELEV)*controls.get(FlightControls.ELEVATOR)+
-			   (Double)stabDerivs.get(StabilityDerivatives.CM_D_FLAP)*controls.get(FlightControls.FLAPS);
+		return (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CM_ALPHA)*windParameters[2]+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CM_0)+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CM_Q)*angularRates[1]*rotaryTerm+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CM_ALPHA_DOT)*alphaDot*rotaryTerm+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_ELEV)*controls.get(FlightControls.ELEVATOR)+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_FLAP)*controls.get(FlightControls.FLAPS);
 	}
 	
 	// Calculate CN
 	private double getCN(double[] angularRates,
 						 double[] windParameters,
 						 EnumMap<FlightControls, Double> controls) {
-		double helixAngle = wingGeometry.get(WingGeometry.B_WING)/(2*windParameters[0]);
+		double helixAngle = aircraft.getWingGeometry(WingGeometry.B_WING)/(2*windParameters[0]);
 		
-		return (Double)stabDerivs.get(StabilityDerivatives.CN_BETA)*windParameters[1]+
-			   (Double)stabDerivs.get(StabilityDerivatives.CN_P)*angularRates[0]*helixAngle+
-			   (Double)stabDerivs.get(StabilityDerivatives.CN_R)*angularRates[2]*helixAngle+
-			   (Double)stabDerivs.get(StabilityDerivatives.CN_D_AIL)*controls.get(FlightControls.AILERON)+
-			   (Double)stabDerivs.get(StabilityDerivatives.CN_D_RUD)*controls.get(FlightControls.RUDDER);	
+		return (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CN_BETA)*windParameters[1]+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CN_P)*angularRates[0]*helixAngle+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CN_R)*angularRates[2]*helixAngle+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CN_D_AIL)*controls.get(FlightControls.AILERON)+
+			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CN_D_RUD)*controls.get(FlightControls.RUDDER);	
 	}
 	
 	// Gets the type of value contained in the specified key of the stability derivatives EnumMap, interpolate it if its type is PiecewiseBicubicSplineInterpolatingFunction  
@@ -112,10 +117,10 @@ public class Aerodynamics extends Aircraft {
 		
 		// If object is of type Double, return that value, otherwise create an interpolating function and
 		// get the interpolated Double value 
-		if (stabDerivs.get(stabDer).getClass().getName().equals("java.lang.Double"))
-			interpStabDer = (Double)stabDerivs.get(stabDer);
+		if (aircraft.getStabilityDerivative(stabDer).getClass().getName().equals("java.lang.Double"))
+			interpStabDer = (Double)aircraft.getStabilityDerivative(stabDer);
 		else {
-			pbsif = (PiecewiseBicubicSplineInterpolatingFunction)stabDerivs.get(stabDer);
+			pbsif = (PiecewiseBicubicSplineInterpolatingFunction)aircraft.getStabilityDerivative(stabDer);
 			interpStabDer = pbsif.value(windParameters[2], controls.get(FlightControls.FLAPS));
 		}
 		
@@ -133,9 +138,9 @@ public class Aerodynamics extends Aircraft {
 		double[][] w2bDCM = SixDOFUtilities.wind2Body(windParameters);
 		
 		// Negative L and D to switch body directions and position in array swapped
-		double[] aeroForces = {-qBar*getCD(windParameters, controls)*wingGeometry.get(WingGeometry.S_WING),
-				   			    qBar*getCY(windParameters, controls)*wingGeometry.get(WingGeometry.S_WING),
-							   -qBar*getCL(angularRates, windParameters, controls, alphaDot)*wingGeometry.get(WingGeometry.S_WING)};
+		double[] aeroForces = {-qBar*getCD(windParameters, controls)*aircraft.getWingGeometry(WingGeometry.S_WING),
+				   			    qBar*getCY(windParameters, controls)*aircraft.getWingGeometry(WingGeometry.S_WING),
+							   -qBar*getCL(angularRates, windParameters, controls, alphaDot)*aircraft.getWingGeometry(WingGeometry.S_WING)};
 		
 		return new double[] {aeroForces[0]*w2bDCM[0][0]+aeroForces[1]*w2bDCM[0][1]+aeroForces[2]*w2bDCM[0][2],
 							 aeroForces[0]*w2bDCM[1][0]+aeroForces[1]*w2bDCM[1][1]+aeroForces[2]*w2bDCM[1][2],
@@ -150,8 +155,8 @@ public class Aerodynamics extends Aircraft {
 								   double alphaDot) {
 		double qBar = environmentParameters.get(EnvironmentParameters.RHO)*Math.pow(windParameters[0], 2)/2;
 		
-		return new double[] {qBar*getCRoll(angularRates, windParameters, controls)*wingGeometry.get(WingGeometry.S_WING)*wingGeometry.get(WingGeometry.B_WING), 
-							 qBar*getCM(angularRates, windParameters, controls, alphaDot)*wingGeometry.get(WingGeometry.S_WING)*wingGeometry.get(WingGeometry.C_BAR), 
-						 	 qBar*getCN(angularRates, windParameters, controls)*wingGeometry.get(WingGeometry.S_WING)*wingGeometry.get(WingGeometry.B_WING)};					
+		return new double[] {qBar*getCRoll(angularRates, windParameters, controls)*aircraft.getWingGeometry(WingGeometry.S_WING)*aircraft.getWingGeometry(WingGeometry.B_WING), 
+							 qBar*getCM(angularRates, windParameters, controls, alphaDot)*aircraft.getWingGeometry(WingGeometry.S_WING)*aircraft.getWingGeometry(WingGeometry.C_BAR), 
+						 	 qBar*getCN(angularRates, windParameters, controls)*aircraft.getWingGeometry(WingGeometry.S_WING)*aircraft.getWingGeometry(WingGeometry.B_WING)};					
 	}
 }

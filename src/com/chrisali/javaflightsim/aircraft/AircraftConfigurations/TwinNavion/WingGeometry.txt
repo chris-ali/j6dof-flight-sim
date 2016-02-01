@@ -1,5 +1,5 @@
 % Wing Geometry
-s_wing = 184
+s_wing = 184.0
 b_wing = 33.4
 c_bar = 5.7
 

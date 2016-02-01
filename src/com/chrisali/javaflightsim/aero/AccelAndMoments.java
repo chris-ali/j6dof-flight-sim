@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
+import com.chrisali.javaflightsim.aircraft.Aircraft;
 import com.chrisali.javaflightsim.aircraft.MassProperties;
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
@@ -12,26 +13,31 @@ import com.chrisali.javaflightsim.propulsion.Engine;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.utilities.integration.SaturationLimits;
 
-public class AccelAndMoments extends Aerodynamics {
+public class AccelAndMoments {
+	
+	private Aerodynamics aero;
+	
+	public AccelAndMoments(Aircraft aircraft) {this.aero = new Aerodynamics(aircraft);}
 	
 	public double[] getBodyAccelerations(double[] windParameters,
 									     double[] angularRates,
 									     EnumMap<EnvironmentParameters, Double> environmentParameters,
 									     EnumMap<FlightControls, Double> controls,
 									     double alphaDot,
-									     Set<Engine> engineList) {
+									     Set<Engine> engineList,
+									     Aircraft aircraft) {
 		
-		Vector3D aeroForceVector = new Vector3D(getBodyForces(windParameters, 
-															  angularRates, 
-															  environmentParameters, 
-															  controls, 
-															  alphaDot));
+		Vector3D aeroForceVector = new Vector3D(aero.getBodyForces(windParameters, 
+																   angularRates, 
+																   environmentParameters, 
+																   controls, 
+																   alphaDot));
 		// Create a vector of engine force, iterate through engineList and add the thrust of each engine in list
 		Vector3D engineForce = new Vector3D(0, 0, 0);
 		for (Engine engine : engineList)
 			engineForce = engineForce.add(new Vector3D(engine.getThrust()));
 
-		double[] tempLinearAccel = aeroForceVector.add(engineForce).scalarMultiply(1/massProps.get(MassProperties.TOTAL_MASS)).toArray(); 
+		double[] tempLinearAccel = aeroForceVector.add(engineForce).scalarMultiply(1/aircraft.getMassProperty(MassProperties.TOTAL_MASS)).toArray(); 
 		
 		return SaturationLimits.limitLinearAccelerations(tempLinearAccel);
 	}
@@ -41,25 +47,26 @@ public class AccelAndMoments extends Aerodynamics {
 								    EnumMap<EnvironmentParameters, Double> environmentParameters,
 								    EnumMap<FlightControls, Double> controls,
 								    double alphaDot,
-								    Set<Engine> engineList) {
+								    Set<Engine> engineList,
+								    Aircraft aircraft) {
 
-		Vector3D aeroForceVector = new Vector3D(getBodyForces(windParameters, 
-															  angularRates, 
-															  environmentParameters, 
-															  controls, 
-															  alphaDot));
+		Vector3D aeroForceVector = new Vector3D(aero.getBodyForces(windParameters, 
+																   angularRates, 
+																   environmentParameters, 
+																   controls, 
+																   alphaDot));
 		
 		// Apache Commons vector methods only accept primitive double[] arrays
-		Vector3D acVector = new Vector3D(IntegrationSetup.unboxDoubleArray(getAerodynamicCenter()));
-		Vector3D cgVector = new Vector3D(IntegrationSetup.unboxDoubleArray(getCenterOfGravity()));
+		Vector3D acVector = new Vector3D(IntegrationSetup.unboxDoubleArray(aircraft.getAerodynamicCenter()));
+		Vector3D cgVector = new Vector3D(IntegrationSetup.unboxDoubleArray(aircraft.getCenterOfGravity()));
 		
 		Vector3D aeroForceCrossProd = Vector3D.crossProduct(aeroForceVector, acVector.subtract(cgVector));
 		
-		Vector3D aeroMomentVector = new Vector3D(getAeroMoments(windParameters, 
-																angularRates, 
-																environmentParameters, 
-																controls, 
-																alphaDot)); 
+		Vector3D aeroMomentVector = new Vector3D(aero.getAeroMoments(windParameters, 
+																	 angularRates, 
+																	 environmentParameters, 
+																	 controls, 
+																	 alphaDot)); 
 		
 		// Create a vector of engine moment, iterate through engineList and add the moment of each engine in list
 		Vector3D engineMoment = new Vector3D(0, 0, 0);

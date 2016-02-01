@@ -143,6 +143,10 @@ public class Aircraft {
 					this.massProps.put(massPropKey, Double.parseDouble(readLine[1]));
 			}
 		}
+		// Sum up empty, fuel and payload weights divided by gravity to get total mass
+		massProps.put(MassProperties.TOTAL_MASS, (massProps.get(MassProperties.WEIGHT_EMPTY) + 
+												  massProps.get(MassProperties.WEIGHT_FUEL)  +
+												  massProps.get(MassProperties.WEIGHT_PAYLOAD))/Environment.getGravity());
 		
 		// Wing Geometry
 		ArrayList<String[]> readWingGeomFile = AircraftBuilder.readFileAndSplit(aircraftName, "WingGeometry");
@@ -169,6 +173,10 @@ public class Aircraft {
 														     massProps.get(MassProperties.J_XZ)};}
 	
 	public Object getStabilityDerivative(StabilityDerivatives stabDir) {return stabDerivs.get(stabDir);}
+	
+	public Double getWingGeometry(WingGeometry wingGeom) {return wingGeometry.get(wingGeom);}
+	
+	public Double getMassProperty(MassProperties massProp) {return massProps.get(massProp);}
 	
 	public String getName() {return name;}
 

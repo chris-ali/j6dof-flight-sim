@@ -1,9 +1,9 @@
 package com.chrisali.javaflightsim.aero;
 
 public enum WingGeometry {
-	C_BAR  ("weightFuel"),
-	S_WING ("weightPayload"),
-	B_WING ("weightEmpty"),
+	C_BAR  ("c_bar"),
+	S_WING ("s_wing"),
+	B_WING ("b_wing"),
 	AC_X   ("acX"),
 	AC_Y   ("acY"),
 	AC_Z   ("acZ");

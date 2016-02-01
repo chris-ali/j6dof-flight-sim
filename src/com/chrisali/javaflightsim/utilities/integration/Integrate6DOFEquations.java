@@ -77,7 +77,7 @@ public class Integrate6DOFEquations implements Runnable {
 	// Aircraft Properties
 	private Aircraft aircraft;
 	private Set<Engine> engineList;
-	private AccelAndMoments accelAndMoments = new AccelAndMoments();
+	private AccelAndMoments accelAndMoments;
 	
 	// Output Logging
 	private ArrayList<EnumMap<SimOuts, Double>> logsOut = new ArrayList<>();
@@ -90,6 +90,7 @@ public class Integrate6DOFEquations implements Runnable {
 								  EnumSet<Options> runOptions) {
 		this.aircraft 		   = builtAircraft.getAircraft();
 		this.engineList   	   = builtAircraft.getEngineList();
+		this.accelAndMoments   = new AccelAndMoments(aircraft);
 		this.options		   = runOptions;
 		
 		this.controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
@@ -223,14 +224,16 @@ public class Integrate6DOFEquations implements Runnable {
 																	    environmentParameters,
 																	    controls,
 																	    alphaDot,
-																	    engineList);
+																	    engineList,
+																	    aircraft);
 		// Update moments
 		this.totalMoments = accelAndMoments.getTotalMoments(windParameters,
 													 		angularRates,
 															environmentParameters,
 															controls,
 															alphaDot,
-															engineList);
+															engineList,
+															aircraft);
 				
 		// Recalculates derivatives for next step
 		this.sixDOFDerivatives = updateDerivatives(new double[] {linearVelocities[0],
