@@ -47,7 +47,7 @@ public class Aerodynamics {
 						 double alphaDot) {
 		double rotaryTerm = aircraft.getWingGeometry(WingGeometry.C_BAR)/(2*windParameters[0]);
 		
-		return (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_ALPHA)*windParameters[2]+
+		return calculateInterpStabDer(windParameters, controls, StabilityDerivatives.CL_ALPHA)*windParameters[2]+
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_0)+	
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_Q)*angularRates[1]*rotaryTerm+
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_ALPHA_DOT)*alphaDot*rotaryTerm+
@@ -77,7 +77,7 @@ public class Aerodynamics {
 	 */
 	private double getCD(double[] windParameters,
 						 EnumMap<FlightControls, Double> controls) {
-		return (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_ALPHA)*Math.abs(windParameters[2])+ // Need absolute value to prevent negative drag at negative alpha
+		return calculateInterpStabDer(windParameters, controls, StabilityDerivatives.CD_ALPHA)*Math.abs(windParameters[2])+ // Need absolute value to prevent negative drag at negative alpha
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_0)+
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_FLAP)*controls.get(FlightControls.FLAPS)+
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_ELEV)*controls.get(FlightControls.ELEVATOR)+
@@ -119,7 +119,7 @@ public class Aerodynamics {
 						 double alphaDot) {
 		double rotaryTerm = aircraft.getWingGeometry(WingGeometry.C_BAR)/(2*windParameters[0]);
 		
-		return (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CM_ALPHA)*windParameters[2]+
+		return calculateInterpStabDer(windParameters, controls, StabilityDerivatives.CM_ALPHA)*windParameters[2]+
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CM_0)+
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CM_Q)*angularRates[1]*rotaryTerm+
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CM_ALPHA_DOT)*alphaDot*rotaryTerm+

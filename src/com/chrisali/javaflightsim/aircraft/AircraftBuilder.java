@@ -115,23 +115,23 @@ public class AircraftBuilder {
 			Double[][]splitArray = readAndSplit.toArray(new Double[readAndSplit.size()][readAndSplit.get(1).length]);
 			
 			// Break up 2D array into 2x arrays for lookup breakpoints, and 1 smaller 2D array of lookup values
-			double[]   breakPointFlap = new double[splitArray[0].length];
-			double[]   breakPointAOA  = new double[splitArray.length-1];
-			double[][] lookUpValues   = new double[splitArray.length-1][splitArray[1].length-1];
+			double[]   breakPointFlap  = new double[splitArray[0].length];
+			double[]   breakPointAngle = new double[splitArray.length-1];
+			double[][] lookUpValues    = new double[splitArray.length-1][splitArray[1].length-1];
 			
 			// Convert the flap and alpha breakpoints to radians (for now; assuming lookup data will come to program in degrees)
 			for (int i=0; i<breakPointFlap.length; i++)
 				breakPointFlap[i] = Math.toRadians(splitArray[0][i]);
 				
-			for (int i=1; i<=breakPointAOA.length; i++)
-				breakPointAOA[i-1] = Math.toRadians(splitArray[i][0]);
+			for (int i=1; i<=breakPointAngle.length; i++)
+				breakPointAngle[i-1] = Math.toRadians(splitArray[i][0]);
 					
 			for (int i=1; i<=lookUpValues.length; i++) {
 				for (int j=1; j<=lookUpValues[0].length; j++)
 					lookUpValues[i-1][j-1] = splitArray[i][j];
 			}
 									
-			pbsi = new PiecewiseBicubicSplineInterpolatingFunction(breakPointAOA, breakPointFlap, lookUpValues);									 
+			pbsi = new PiecewiseBicubicSplineInterpolatingFunction(breakPointAngle, breakPointFlap, lookUpValues);									 
 			
 		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + ".txt!");}
 		catch (IOException e) {System.err.println("Could not read: " + fileName + ".txt!");}

@@ -27,7 +27,7 @@ Croll_d_ail = -0.134
 Croll_d_rud = 0.107
 
 %CM
-CM_alpha = -0.683
+CM_alpha = lookup
 CM_0 = 0.02
 CM_q = -9.96
 CM_alpha_dot = -4.36

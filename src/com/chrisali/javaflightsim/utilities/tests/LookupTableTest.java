@@ -10,7 +10,7 @@ import com.chrisali.javaflightsim.setup.IntegrationSetup;
 
 public class LookupTableTest {
 	private EnumMap<FlightControls, Double> controls = IntegrationSetup.gatherInitialControls("InitialControls");
-	private double[] alpha = new double[] {-2, 0, 2, 4, 6, 8, 10, 12, 14, 16};
+	private double[] alpha = new double[] {-14, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 14, 16};
 	private double[] dFlap = new double[] {0, 10, 20, 30, 40};
 	AircraftBuilder ab;
 	private Aerodynamics aero;
@@ -24,7 +24,7 @@ public class LookupTableTest {
 			controls.put(FlightControls.FLAPS, Math.toRadians(dFlap[j]));
 			
 			for (double aoa=alpha[0]; aoa<=alpha[alpha.length-1]; aoa+=1) {
-				clAlpha = aero.calculateInterpStabDer(new double[] {0.0, 0.0, Math.toRadians(aoa)}, controls, StabilityDerivatives.CL_ALPHA);
+				clAlpha = aero.calculateInterpStabDer(new double[] {0.0, 0.0, Math.toRadians(aoa)}, controls, StabilityDerivatives.CM_ALPHA);
 				
 				System.out.printf("Flaps: %2.0f | Alpha: %2.1f | CL_Alpha: %4.3f%n", dFlap[j], aoa, clAlpha);
 				System.out.println("-----------------------------------------");

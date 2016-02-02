@@ -18,11 +18,11 @@ public class RunSimulation {
 //		runOptions.add(Options.TRIM_MODE);
 //		runOptions.add(Options.UNLIMITED_FLIGHT);
 		runOptions.add(Options.CONSOLE_DISPLAY);
-//		runOptions.add(Options.USE_JOYSTICK);
+		runOptions.add(Options.USE_JOYSTICK);
 //		runOptions.add(Options.USE_MOUSE);
 		
 		// Create simulation thread using default aircraft, and start it
-		new Thread(new Integrate6DOFEquations(new AircraftBuilder("Navion"), 			   // Default to Navion with Lycoming IO-360
+		new Thread(new Integrate6DOFEquations(new AircraftBuilder("LookupNavion"), 			   // Default to Navion with Lycoming IO-360
 											  runOptions)).start();
 	}
 }

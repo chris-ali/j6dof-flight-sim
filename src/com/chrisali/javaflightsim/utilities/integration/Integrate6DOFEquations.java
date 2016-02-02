@@ -352,7 +352,13 @@ public class Integrate6DOFEquations implements Runnable {
 		if (options.contains(Options.CONSOLE_DISPLAY)) {
 			for (Map.Entry<SimOuts, Double> out : simOut.entrySet())
 				System.out.printf("%9.2f ", out.getValue());
-			System.out.println("\n");
+			
+			System.out.println();
+			
+			for (Map.Entry<SimOuts, Double> out : simOut.entrySet())
+				System.out.printf("%9s ", out.getKey().toString());
+				
+			System.out.println("");
 		}
 	}
 	
