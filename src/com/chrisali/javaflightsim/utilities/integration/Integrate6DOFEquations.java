@@ -24,6 +24,7 @@ import com.chrisali.javaflightsim.propulsion.Engine;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.setup.Options;
 import com.chrisali.javaflightsim.utilities.plotting.MakePlots;
+import com.chrisali.javaflightsim.utilities.plotting.SimulationPlots;
 
 /**
  * This class integrates all 12 6DOF (plus 2 latitude/longitude) equations numerically to obtain the aircraft's states.
@@ -86,6 +87,13 @@ public class Integrate6DOFEquations implements Runnable {
 	// Options
 	private EnumSet<Options> options;
 	
+	/**
+	 * Creates the {@link Integrate6DOFEquations} object with an {@link AircraftBuilder object} and a list of run-time options defined
+	 * in the {@link Options} EnumSet
+	 * 
+	 * @param builtAircraft
+	 * @param runOptions
+	 */
 	public Integrate6DOFEquations(AircraftBuilder builtAircraft,
 								  EnumSet<Options> runOptions) {
 		this.aircraft 		   = builtAircraft.getAircraft();
@@ -219,7 +227,7 @@ public class Integrate6DOFEquations implements Runnable {
 		this.mach = SixDOFUtilities.getMach(windParameters, environmentParameters);
 		
 		// Update accelerations
-		this.linearAccelerations = accelAndMoments.getBodyAccelerations(windParameters,
+		this.linearAccelerations = accelAndMoments.getLinearAccelerations(windParameters,
 																	    angularRates,
 																	    environmentParameters,
 																	    controls,
@@ -251,8 +259,8 @@ public class Integrate6DOFEquations implements Runnable {
 	}
 	
 	/**
-	 *  Adds simulation data to the ArrayList {@link Integrate6DOFEquations#logsOut} after each successful step of integration for plotting and outputs to the console, if set in {@link Integrate6DOFEquations#options}. 
-	 *  The data calculated in each step of integration is available in the EnumMap {@link Integrate6DOFEquations#simOut} 
+	 *  Adds simulation data to the ArrayList {@link Integrate6DOFEquations#getLogsOut()} after each successful step of integration for plotting and outputs to the console, if set in {@link Integrate6DOFEquations#options}. 
+	 *  The data calculated in each step of integration is available in the EnumMap {@link Integrate6DOFEquations#getSimOut()} 
 	 */
 	private void logData(double t) {
 		// Make a new EnumMap
@@ -348,11 +356,29 @@ public class Integrate6DOFEquations implements Runnable {
 		}
 	}
 	
+	/**
+	 * Returns an ArrayList of {@link Integrate6DOFEquations#getSimOut()} objects; acts as a logging method, which can be used to plot simulation data
+	 * or output it to a file
+	 * 
+	 * @return logsOut
+	 * 
+	 * @see SimulationPlots
+	 */
 	public ArrayList<EnumMap<SimOuts, Double>> getLogsOut() {return logsOut;}
 	
+	/**
+	 * Returns an EnumMap of data for a single step of integration accomplished in {@link Integrate6DOFEquations#accelAndMoments#logData(double)}	
+	 * 
+	 * @return simOut
+	 */
 	public EnumMap<SimOuts, Double> getSimOut() {return simOut;}
 	
-	// Runs integration loop
+	/**
+	 * Runs {@link Integrate6DOFEquations} integration loop by calling the {@link ClassicalRungeKuttaIntegrator#singleStep(FirstOrderDifferentialEquations, double, double[], double)}
+	 * method on each iteration of the loop as long as {@link Options#PAUSED} isn't enabled 
+	 * 
+	 * @see java.lang.Runnable#run()
+	 */
 	@Override
 	public void run() {
 		// Integration loop

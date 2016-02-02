@@ -140,8 +140,6 @@ public class AircraftBuilder {
 		return pbsi;
 	}
 	
-	
-	
 	public Aircraft getAircraft() {return this.aircraft;}
 	
 	public Set<Engine> getEngineList() {return this.engineList;}

@@ -4,18 +4,36 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
 
+import org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolatingFunction;
+
+import com.chrisali.javaflightsim.aero.AccelAndMoments;
+import com.chrisali.javaflightsim.aero.Aerodynamics;
 import com.chrisali.javaflightsim.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.aero.WingGeometry;
 import com.chrisali.javaflightsim.enviroment.Environment;
+import com.chrisali.javaflightsim.propulsion.Engine;
+import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.utilities.integration.SixDOFUtilities;
 
+/**
+ * Aircraft object which consists of {@link StabilityDerivatives} and {@link WingGeometry} to define its aerodynamic properties,
+ * and {@link MassProperties} to define its mass and inertia. Used {@link AircraftBuilder} to create a package with a set of {@link Engine}s 
+ * to be used in {@link Integrate6DOFEquations} to create a flight simulation. Stability derivatives (1/rad) can be either Double values 
+ * or {@link PiecewiseBicubicSplineInterpolatingFunction} 
+ */
 public class Aircraft {
 	private String name;
 	
-	protected Map<StabilityDerivatives, Object> stabDerivs;
-	protected Map<WingGeometry, Double> 		wingGeometry;
-	protected Map<MassProperties, Double> 		massProps;
+	private Map<StabilityDerivatives, Object> stabDerivs;
+	private Map<WingGeometry, Double> 		  wingGeometry;
+	private Map<MassProperties, Double> 	  massProps;
 	
-	// Default constructor to give default values for aircraft definition (Navion)
+	/**
+	 *  Default constructor that gives default values to stability derivatives, wing geometry and mass properties.
+	 *   It uses the Ryan Navion as a baseline. 
+	 *   
+	 *   @see https://en.wikipedia.org/wiki/Ryan_Navion
+	 */
 	public Aircraft() {
 		this.name               = "Navion"; 
 		// Creates EnumMaps and populates them with: 
@@ -109,6 +127,24 @@ public class Aircraft {
 												  massProps.get(MassProperties.WEIGHT_PAYLOAD))/Environment.getGravity());
 	}
 	
+	/**
+	 * Custom aircraft constructor. It uses files located in <p><br><code>.\src\com\chrisali\javaflightsim\aircraft\AircraftConfigurations\</code></br></p>
+	 * to define the stability derivatives, mass properties and wing geometry. These files are: 
+	 * <p><br><code>Aero.txt</code></br> 
+	 * <br><code>StabilityDerivaticves.txt</code></br>
+	 * <br><code>WingGeometry.txt</code></br>
+	 * <br><code>MassProperties.txt</code></br></p>
+	 * 
+	 * These files must be in a folder, whose name matches the aircraftName passed into this constructor.
+	 * 
+	 * <p>The constructor also allows for custom look up tables ({@link PiecewiseBicubicSplineInterpolatingFunction}) to be used to better define
+	 * the aerodynamics of the aircraft by using {@link AircraftBuilder#createLookupTable(String, String)}. </p>
+	 * 
+	 * Look up tables are defined as text files, and must be located in a subfolder of the desired aircraft's folder, with the folder name "LookupTables." 
+	 * The title of a lookup table text file must match the string value of the {@link StabilityDerivatives} Enum that the user wishes to represent as a lookup table 
+	 * 
+	 * @param aircraftName
+	 */
 	public Aircraft(String aircraftName) {
 		this.name = aircraftName;
 		// Creates EnumMaps and populates them with: 
@@ -159,28 +195,75 @@ public class Aircraft {
 		}
 	}
 	
+	/**
+	 * Creates a double array of {@link MassProperties#CG_X}, {@link MassProperties#CG_Y} and {@link MassProperties#CG_Z}
+	 *  used in {@link AccelAndMoments}, which needs a vector of these values
+	 * 
+	 * @return centerOfGravity
+	 */
 	public Double[] getCenterOfGravity() {return new Double[] {massProps.get(MassProperties.CG_X),
 															   massProps.get(MassProperties.CG_Y),
 															   massProps.get(MassProperties.CG_Z)};}
-
+	
+	/**
+	 * Creates a double array of {@link WingGeometry#AC_X}, {@link WingGeometry#AC_Y} and {@link WingGeometry#AC_Z}
+	 *  used in {@link AccelAndMoments#getTotalMoments(double[], double[], EnumMap, EnumMap, double, java.util.Set, Aircraft)}, 
+	 *  which needs a vector of these values
+	 * 
+	 * @return centerOfGravity
+	 */
 	public Double[] getAerodynamicCenter() {return new Double[] {wingGeometry.get(WingGeometry.AC_X),
 																 wingGeometry.get(WingGeometry.AC_Y),
 																 wingGeometry.get(WingGeometry.AC_Z)};}
 	
+	/**
+	 * Creates a double array of {@link MassProperties#J_X}, {@link MassProperties#J_Y}, {@link MassProperties#J_Z} and {@link MassProperties#J_XZ}
+	 *  used in {@link SixDOFUtilities#getInertiaCoeffs(double[])}, which needs an array of these values
+	 * 
+	 * @return centerOfGravity
+	 */
 	public Double[] getInertiaValues() {return new Double[] {massProps.get(MassProperties.J_X),
 														     massProps.get(MassProperties.J_Y),
 														     massProps.get(MassProperties.J_Z),
 														     massProps.get(MassProperties.J_XZ)};}
 	
+	/**
+	 * Returns the value held by the {@link StabilityDerivatives} key in the stabDerivs EnumMap. {@link Aerodynamics} uses this in conjunction with 
+	 * {@link Aerodynamics#calculateInterpStabDer(double[], EnumMap, StabilityDerivatives)} to interpolate the stability derivative value if a
+	 * {@link PiecewiseBicubicSplineInterpolatingFunction} object is detected, or simply return a double value
+	 * 
+	 * @param stabDir
+	 * @return stabilityDerivative
+	 */
 	public Object getStabilityDerivative(StabilityDerivatives stabDir) {return stabDerivs.get(stabDir);}
 	
+	/**
+	 * Returns the value held by the {@link WingGeometry} key in the wingGeometry EnumMap
+	 * 
+	 * @param wingGeom
+	 * @return wingGeometry
+	 */
 	public Double getWingGeometry(WingGeometry wingGeom) {return wingGeometry.get(wingGeom);}
 	
+	/**
+	 * Returns the value held by the {@link MassProperties} key in the massProps EnumMap
+	 * 
+	 * @param massProp
+	 * @return wingGeometry
+	 */
 	public Double getMassProperty(MassProperties massProp) {return massProps.get(massProp);}
 	
+	/**
+	 * Gets the name of the aircraft
+	 * 
+	 * @return name
+	 */
 	public String getName() {return name;}
 
-	// Outputs the stability derivatives, mass properties, and wing geometry of an aircraft
+	/**
+	 *  Outputs the stability derivatives, mass properties, and wing geometry of an aircraft
+	 * @see java.lang.Object#toString()
+	 */
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		

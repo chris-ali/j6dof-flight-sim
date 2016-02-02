@@ -1,5 +1,9 @@
 package com.chrisali.javaflightsim.aircraft;
 
+/**
+ * Provides Enum values to define the parameters that make up the mass properties of an {@link Aircraft}. 
+ * The String field is used to parse the MassProperties.txt file of an aircraft in the constructor
+ */
 public enum MassProperties {
 	TOTAL_MASS      ("totalMass"),
 	WEIGHT_FUEL     ("weightFuel"),

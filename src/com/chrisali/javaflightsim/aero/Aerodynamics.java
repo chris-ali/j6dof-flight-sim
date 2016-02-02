@@ -20,10 +20,7 @@ import com.chrisali.javaflightsim.utilities.integration.SixDOFUtilities;
  * @param angularRates
  * @param double alphaDot
  * @param EnumMap environmentParams
- * 
- * @return aerodynamicMoments (ft*lbf)
- * @return aerodynamicForces  (lbf)
- * 
+ *  
  * @see Aircraft
  * @see StabilityDerivatives
  * @see PiecewiseBicubicSplineInterpolatingFunction
@@ -35,7 +32,15 @@ public class Aerodynamics {
 	
 	public Aerodynamics(Aircraft aircraft) {this.aircraft = aircraft;}
 	
-	// Calculate CL
+	/**
+	 *  Calculates the aircraft's total lift coefficient (CL)
+	 *   
+	 * @param angularRates
+	 * @param windParameters
+	 * @param controls
+	 * @param alphaDot
+	 * @return CL
+	 */
 	private double getCL(double[] angularRates,
 						 double[] windParameters,
 						 EnumMap<FlightControls, Double> controls,
@@ -50,14 +55,26 @@ public class Aerodynamics {
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_D_FLAP)*controls.get(FlightControls.FLAPS);		
 	}
 	
-	// Calculate CY
+	/**
+	 * Calculates the aircraft's total side force coefficient (CY)
+	 * 
+	 * @param windParameters
+	 * @param controls
+	 * @return CY
+	 */
 	private double getCY(double[] windParameters,
 						 EnumMap<FlightControls, Double> controls) {
 		return (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CY_BETA)*windParameters[1]+
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CY_D_RUD)*controls.get(FlightControls.RUDDER);	
 	}
 	
-	// Calculate CD
+	/**
+	 * Calculates the aircraft's total drag coefficient (CD)
+	 * 
+	 * @param windParameters
+	 * @param controls
+	 * @return CD
+	 */
 	private double getCD(double[] windParameters,
 						 EnumMap<FlightControls, Double> controls) {
 		return (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_ALPHA)*Math.abs(windParameters[2])+ // Need absolute value to prevent negative drag at negative alpha
@@ -67,7 +84,14 @@ public class Aerodynamics {
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_GEAR)*controls.get(FlightControls.GEAR);		
 	}
 	
-	// Calculate CRoll
+	/**
+	 * Calculates the aircraft's total roll moment coefficient (Cl)
+	 * 
+	 * @param angularRates
+	 * @param windParameters
+	 * @param controls
+	 * @return Croll
+	 */
 	private double getCRoll(double[] angularRates,
 					  	    double[] windParameters,
 					  	    EnumMap<FlightControls, Double> controls) {
@@ -80,7 +104,15 @@ public class Aerodynamics {
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CROLL_D_RUD)*controls.get(FlightControls.RUDDER);
 	}
 	
-	// Calculate CM
+	/**
+	 * Calculates the aircraft's total pitch moment coefficient (CM)
+	 * 
+	 * @param angularRates
+	 * @param windParameters
+	 * @param controls
+	 * @param alphaDot
+	 * @return
+	 */
 	private double getCM(double[] angularRates,
 						 double[] windParameters,
 						 EnumMap<FlightControls, Double> controls,
@@ -95,7 +127,14 @@ public class Aerodynamics {
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_FLAP)*controls.get(FlightControls.FLAPS);
 	}
 	
-	// Calculate CN
+	/**
+	 * Calculates the aircraft's total yaw moment coefficient (CN) 
+	 * 
+	 * @param angularRates
+	 * @param windParameters
+	 * @param controls
+	 * @return CN
+	 */
 	private double getCN(double[] angularRates,
 						 double[] windParameters,
 						 EnumMap<FlightControls, Double> controls) {
@@ -108,10 +147,19 @@ public class Aerodynamics {
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CN_D_RUD)*controls.get(FlightControls.RUDDER);	
 	}
 	
-	// Gets the type of value contained in the specified key of the stability derivatives EnumMap, interpolate it if its type is PiecewiseBicubicSplineInterpolatingFunction  
+	/**
+	 * Gets the type of value contained in the specified key of the {@link StabilityDerivatives} EnumMap, 
+	 * interpolate it if its type is {@link PiecewiseBicubicSplineInterpolatingFunction}, or simply return it
+	 * if its type is Double 
+	 *  
+	 * @param windParameters
+	 * @param controls
+	 * @param stabDer
+	 * @return interpStabDer
+	 */
 	public Double calculateInterpStabDer(double[] windParameters,
-			 							  EnumMap<FlightControls, Double> controls,
-			 							  StabilityDerivatives stabDer) {
+			 							 EnumMap<FlightControls, Double> controls,
+			 							 StabilityDerivatives stabDer) {
 		Double interpStabDer;
 		PiecewiseBicubicSplineInterpolatingFunction pbsif;
 		
@@ -127,7 +175,17 @@ public class Aerodynamics {
 		return interpStabDer;
 	}
 	
-	// Calculate Body Forces
+	/**
+	 * Calculates aerodynamic forces experienced by the aircraft, converted from the wind frame to the body
+	 * frame by using {@link SixDOFUtilities#wind2Body(double[])}
+	 * 
+	 * @param windParameters
+	 * @param angularRates
+	 * @param environmentParameters
+	 * @param controls
+	 * @param alphaDot
+	 * @return bodyForces
+	 */
 	public double[] getBodyForces(double[] windParameters,
 								  double[] angularRates,
 								  EnumMap<EnvironmentParameters, Double> environmentParameters,
@@ -147,7 +205,16 @@ public class Aerodynamics {
 							 aeroForces[0]*w2bDCM[2][0]+aeroForces[1]*w2bDCM[2][1]+aeroForces[2]*w2bDCM[2][2]};
 	}
 	
-	// Calculate Aerodynamic Moments
+	/**
+	 * Calculates aerodynamic moments experienced by the aircraft
+	 * 
+	 * @param windParameters
+	 * @param angularRates
+	 * @param environmentParameters
+	 * @param controls
+	 * @param alphaDot
+	 * @return aerodynamicMoments
+	 */
 	public double[] getAeroMoments(double[] windParameters,
 								   double[] angularRates,
 								   EnumMap<EnvironmentParameters, Double> environmentParameters,

@@ -1,5 +1,14 @@
 package com.chrisali.javaflightsim.aero;
 
+import com.chrisali.javaflightsim.aircraft.Aircraft;
+
+/**
+ * Provides Enum values to define stability derivatives that make up the aerodynamics of an {@link Aircraft}. 
+ * The String field is used to parse the Aero.txt file of an Aircraft object in the constructor. 
+ * These values should be units of (1/rad)
+ * 
+ *   @see Aerodynamics 
+ */
 public enum StabilityDerivatives {
 	// Lift Derivatives
 	CL_ALPHA ("CL_alpha"),

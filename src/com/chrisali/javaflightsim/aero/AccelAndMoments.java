@@ -11,21 +11,49 @@ import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.propulsion.Engine;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
+import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.utilities.integration.SaturationLimits;
 
+/**
+ * Calculates total accelerations and moments experienced by the aircraft in the simulation. The constructor creates an
+ * {@link Aerodynamics} object to calculate aerodynamic forces and moments, which are then added to other various forces 
+ * (ground reaction, wind, engine, etc) to yield accelerations and moments used by {@link Integrate6DOFEquations} in its 
+ * numerical integration
+ * @see Source: <i>Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
+ */
 public class AccelAndMoments {
 	
 	private Aerodynamics aero;
 	
+	/**
+	 * Creates an object whose purpose is to calculate total accelerations and moments. It uses the {@link Aircraft} argument 
+	 * to create an {@link Aerodynamics} object which calculates aerodynamic forces and moments associated with the Aircraft
+	 * object passed in
+	 *  
+	 * @param aircraft
+	 */
 	public AccelAndMoments(Aircraft aircraft) {this.aero = new Aerodynamics(aircraft);}
 	
-	public double[] getBodyAccelerations(double[] windParameters,
-									     double[] angularRates,
-									     EnumMap<EnvironmentParameters, Double> environmentParameters,
-									     EnumMap<FlightControls, Double> controls,
-									     double alphaDot,
-									     Set<Engine> engineList,
-									     Aircraft aircraft) {
+	
+	/**
+	 * Calculates the total linear acceleration experienced by the aircraft (ft/sec^2)
+	 * 
+	 * @param windParameters
+	 * @param angularRates
+	 * @param environmentParameters
+	 * @param controls
+	 * @param alphaDot
+	 * @param engineList
+	 * @param aircraft
+	 * @return linearAccelerations
+	 */
+	public double[] getLinearAccelerations(double[] windParameters,
+									       double[] angularRates,
+									       EnumMap<EnvironmentParameters, Double> environmentParameters,
+									       EnumMap<FlightControls, Double> controls,
+									       double alphaDot,
+									       Set<Engine> engineList,
+									       Aircraft aircraft) {
 		
 		Vector3D aeroForceVector = new Vector3D(aero.getBodyForces(windParameters, 
 																   angularRates, 
@@ -42,6 +70,18 @@ public class AccelAndMoments {
 		return SaturationLimits.limitLinearAccelerations(tempLinearAccel);
 	}
 	
+	/**
+	 * Calculates the total moment experienced by the aircraft (lb ft)
+	 * 
+	 * @param windParameters
+	 * @param angularRates
+	 * @param environmentParameters
+	 * @param controls
+	 * @param alphaDot
+	 * @param engineList
+	 * @param aircraft
+	 * @return totalMoments
+	 */
 	public double[] getTotalMoments(double[] windParameters,
 								    double[] angularRates,
 								    EnumMap<EnvironmentParameters, Double> environmentParameters,
