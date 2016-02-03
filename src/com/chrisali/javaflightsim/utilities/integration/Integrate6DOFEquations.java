@@ -157,7 +157,7 @@ public class Integrate6DOFEquations implements Runnable {
 	private double[] updateDerivatives(double[] y) {
 		double[]   yDot          = new double[14];
 		double[][] dirCosMat     = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([row][column])
-		double[]   inertiaCoeffs = SixDOFUtilities.getInertiaCoeffs(IntegrationSetup.unboxDoubleArray(aircraft.getInertiaValues()));
+		double[]   inertiaCoeffs = SixDOFUtilities.calculateInertiaCoeffs(IntegrationSetup.unboxDoubleArray(aircraft.getInertiaValues()));
 		double[]   ned2LLA       = SixDOFUtilities.ned2LLA(y);
 		
 		yDot[0]  = (y[11]*y[1])-(y[10]*y[2])-(gravity*Math.sin(y[7]))               +linearAccelerations[0];    // u (ft/sec)
@@ -201,7 +201,7 @@ public class Integrate6DOFEquations implements Runnable {
 		this.angularRates     = SaturationLimits.limitAngularRates(angularRates);
 		
 		// Update wind parameters
-		this.windParameters = SixDOFUtilities.getWindParameters(linearVelocities);
+		this.windParameters = SixDOFUtilities.calculateWindParameters(linearVelocities);
 		
 		// Update environment		
 		this.environmentParameters = Environment.updateEnvironmentParams(NEDPosition);
@@ -216,32 +216,30 @@ public class Integrate6DOFEquations implements Runnable {
 		
 		// Update all engines in engine list
 		for(Engine engine : this.engineList)
-			 engine.updateEngineState(controls, 
-									  environmentParameters, 
-									  windParameters);
+			 engine.updateEngineState(controls, environmentParameters, windParameters);
 		
 		// Update alphaDot
-		this.alphaDot = SixDOFUtilities.getAlphaDot(linearVelocities, sixDOFDerivatives);
+		this.alphaDot = SixDOFUtilities.calculateAlphaDot(linearVelocities, sixDOFDerivatives);
 		
 		// Update mach
-		this.mach = SixDOFUtilities.getMach(windParameters, environmentParameters);
+		this.mach = SixDOFUtilities.calculateMach(windParameters, environmentParameters);
 		
 		// Update accelerations
-		this.linearAccelerations = accelAndMoments.getLinearAccelerations(windParameters,
-																	    angularRates,
-																	    environmentParameters,
-																	    controls,
-																	    alphaDot,
-																	    engineList,
-																	    aircraft);
+		this.linearAccelerations = accelAndMoments.calculateLinearAccelerations(windParameters,
+																			    angularRates,
+																			    environmentParameters,
+																			    controls,
+																			    alphaDot,
+																			    engineList,
+																			    aircraft);
 		// Update moments
-		this.totalMoments = accelAndMoments.getTotalMoments(windParameters,
-													 		angularRates,
-															environmentParameters,
-															controls,
-															alphaDot,
-															engineList,
-															aircraft);
+		this.totalMoments = accelAndMoments.calculateTotalMoments(windParameters,
+															 	  angularRates,
+																  environmentParameters,
+																  controls,
+																  alphaDot,
+																  engineList,
+																  aircraft);
 				
 		// Recalculates derivatives for next step
 		this.sixDOFDerivatives = updateDerivatives(new double[] {linearVelocities[0],

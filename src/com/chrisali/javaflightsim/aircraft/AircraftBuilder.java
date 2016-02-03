@@ -12,20 +12,36 @@ import java.util.Set;
 
 import org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolatingFunction;
 
+import com.chrisali.javaflightsim.aero.Aerodynamics;
 import com.chrisali.javaflightsim.propulsion.Engine;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
+import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 
+/**
+ * Wrapper class to build a complete aircraft with a "body" ({@link Aircraft}) and a LinkedHashSet of {@link Engine}(s). This object is used by {@link Integrate6DOFEquations}
+ * in the simulation of the aircraft. 
+ */
 public class AircraftBuilder {
 	private Set<Engine> engineList = new LinkedHashSet<>();
 	private Aircraft aircraft;
 	
 	private static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\aircraft\\AircraftConfigurations\\";
-		
+	
+	/**
+	 *  Default AircraftBuilder constructor, using the default constructors of {@link Aircraft} and {@link FixedPitchPropEngine}
+	 *  to create a generic Navion aircraft with one Lycoming IO-360 engine
+	 */
 	public AircraftBuilder() {
 		this.aircraft = new Aircraft();
 		this.engineList.add(new FixedPitchPropEngine());
 	}
 	
+	/**
+	 * Custom AircraftBuilder constructor that uses a set of text files in a folder with a name matching the aircraftName argument. This folder is located in
+	 * <br><code>.\src\com\chrisali\javaflightsim\aircraft\AircraftConfigurations\</code></br>
+	 * An example of the proper file structure and syntax can be seen in the sample aircraft (LookupNavion, Navion and TwinNavion) within this folder.  
+	 * @param aircraftName
+	 */
 	public AircraftBuilder(String aircraftName) {
 		this.aircraft = new Aircraft(aircraftName);
 		
@@ -75,6 +91,18 @@ public class AircraftBuilder {
 		}
 	}
 	
+	/**
+	 * Splits a text file of the name "fileContents".txt located in the folder: 
+	 *  <br><code>.\src\com\chrisali\javaflightsim\aircraft\AircraftConfigurations\"aircraftName"</code></br>
+	 *  whose general syntax on each line is:
+	 *  <br><code>*parameter name* = *double value*</code></br>
+	 *  into an ArrayList of string arrays resembling:
+	 *  <br><code>{*parameter name*,*double value*}</code></br>
+	 *  
+	 * @param aircraftName
+	 * @param fileContents
+	 * @return An ArrayList of String arrays of length 2  
+	 */
 	protected static ArrayList<String[]> readFileAndSplit(String aircraftName, String fileContents) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(FILE_PATH).append(aircraftName).append("\\").append(fileContents).append(".txt");
@@ -91,6 +119,17 @@ public class AircraftBuilder {
 		return readAndSplit;
 	}
 	
+	/**
+	 * Parses a text file located in:
+	 * <br><code>.\src\com\chrisali\javaflightsim\aircraft\AircraftConfigurations\"aircraftName"\LookupTables</code></br>
+	 * for text files with the title "fileName".txt. This text file contains a table of values separated by the regular expression ",\t", 
+	 * where the first row contains control position breakpoints, the first column contains angle (of attack/sideslip) breakpoints, and 
+	 * the rest contains lookup values. It generates a {@link PiecewiseBicubicSplineInterpolatingFunction} from this data, which is used
+	 * in @{@link Aircraft} and later in {@link Aerodynamics} to calculate aerodynamic forces and moments for the simulation 
+	 * @param aircraftName
+	 * @param fileName
+	 * @return Lookup table of the type PiecewiseBicubicSplineInterpolatingFunction
+	 */
 	protected static PiecewiseBicubicSplineInterpolatingFunction createLookupTable(String aircraftName, String fileName) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(FILE_PATH).append(aircraftName).append("\\LookupTables\\").append(fileName).append(".txt");
@@ -144,5 +183,8 @@ public class AircraftBuilder {
 	
 	public Set<Engine> getEngineList() {return this.engineList;}
 	
+	/**
+	 * @return File path where all aircraft template files and folders are located
+	 */
 	public static String getFilePath() {return FILE_PATH;}
 }

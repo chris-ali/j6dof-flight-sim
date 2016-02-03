@@ -47,19 +47,19 @@ public class AccelAndMoments {
 	 * @param aircraft
 	 * @return linearAccelerations
 	 */
-	public double[] getLinearAccelerations(double[] windParameters,
-									       double[] angularRates,
-									       EnumMap<EnvironmentParameters, Double> environmentParameters,
-									       EnumMap<FlightControls, Double> controls,
-									       double alphaDot,
-									       Set<Engine> engineList,
-									       Aircraft aircraft) {
+	public double[] calculateLinearAccelerations(double[] windParameters,
+										         double[] angularRates,
+										         EnumMap<EnvironmentParameters, Double> environmentParameters,
+										         EnumMap<FlightControls, Double> controls,
+										         double alphaDot,
+										         Set<Engine> engineList,
+										         Aircraft aircraft) {
 		
-		Vector3D aeroForceVector = new Vector3D(aero.getBodyForces(windParameters, 
-																   angularRates, 
-																   environmentParameters, 
-																   controls, 
-																   alphaDot));
+		Vector3D aeroForceVector = new Vector3D(aero.calculateBodyForces(windParameters, 
+																	     angularRates, 
+																	     environmentParameters, 
+																	     controls, 
+																	     alphaDot));
 		// Create a vector of engine force, iterate through engineList and add the thrust of each engine in list
 		Vector3D engineForce = new Vector3D(0, 0, 0);
 		for (Engine engine : engineList)
@@ -82,19 +82,19 @@ public class AccelAndMoments {
 	 * @param aircraft
 	 * @return totalMoments
 	 */
-	public double[] getTotalMoments(double[] windParameters,
-								    double[] angularRates,
-								    EnumMap<EnvironmentParameters, Double> environmentParameters,
-								    EnumMap<FlightControls, Double> controls,
-								    double alphaDot,
-								    Set<Engine> engineList,
-								    Aircraft aircraft) {
+	public double[] calculateTotalMoments(double[] windParameters,
+										  double[] angularRates,
+										  EnumMap<EnvironmentParameters, Double> environmentParameters,
+										  EnumMap<FlightControls, Double> controls,
+										  double alphaDot,
+										  Set<Engine> engineList,
+										  Aircraft aircraft) {
 
-		Vector3D aeroForceVector = new Vector3D(aero.getBodyForces(windParameters, 
-																   angularRates, 
-																   environmentParameters, 
-																   controls, 
-																   alphaDot));
+		Vector3D aeroForceVector = new Vector3D(aero.calculateBodyForces(windParameters, 
+																	     angularRates, 
+																	     environmentParameters, 
+																	     controls, 
+																	     alphaDot));
 		
 		// Apache Commons vector methods only accept primitive double[] arrays
 		Vector3D acVector = new Vector3D(IntegrationSetup.unboxDoubleArray(aircraft.getAerodynamicCenter()));
@@ -102,11 +102,11 @@ public class AccelAndMoments {
 		
 		Vector3D aeroForceCrossProd = Vector3D.crossProduct(aeroForceVector, acVector.subtract(cgVector));
 		
-		Vector3D aeroMomentVector = new Vector3D(aero.getAeroMoments(windParameters, 
-																	 angularRates, 
-																	 environmentParameters, 
-																	 controls, 
-																	 alphaDot)); 
+		Vector3D aeroMomentVector = new Vector3D(aero.calculateAeroMoments(windParameters, 
+																		   angularRates, 
+																		   environmentParameters, 
+																		   controls, 
+																		   alphaDot)); 
 		
 		// Create a vector of engine moment, iterate through engineList and add the moment of each engine in list
 		Vector3D engineMoment = new Vector3D(0, 0, 0);

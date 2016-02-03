@@ -40,7 +40,7 @@ public class SixDOFUtilities {
 	 *  @see Aircraft
 	 *  @see <i>Source Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
 	 */
-	public static double[] getInertiaCoeffs(double[] inertiaVals) { //inertiaVals[]{Ix,Iy,Iz,Ixz}
+	public static double[] calculateInertiaCoeffs(double[] inertiaVals) { //inertiaVals[]{Ix,Iy,Iz,Ixz}
 		double[] inertiaCoeffs = new double[9];
 		
 		double gamma = (inertiaVals[0]*inertiaVals[2])-(Math.pow(inertiaVals[3], 2));
@@ -106,7 +106,7 @@ public class SixDOFUtilities {
 	 * Calculates true airspeed, angle of sideslip and angle of attack 
 	 * @see <i>Source Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
 	 */
-	public static double[] getWindParameters(double[] linearVelocities) {
+	public static double[] calculateWindParameters(double[] linearVelocities) {
 		double vTrue = Math.sqrt(Math.pow(linearVelocities[0],2) + Math.pow(linearVelocities[1],2) + Math.pow(linearVelocities[2],2));
 		double beta = Math.asin(linearVelocities[1]/vTrue);
 		double alpha = Math.atan(linearVelocities[2]/linearVelocities[0]);
@@ -118,7 +118,7 @@ public class SixDOFUtilities {
 	 * Calculates rate of change of angle of attack with respect to time 
 	 * @see <i>Source: R. Hall and S. Anstee, Trim Calculation Methods for a Dynamical Model of the REMUS 100 Autonomous Underwater Vehicle </i>
 	 */
-	public static double getAlphaDot(double[] linearVelocities, double[] sixDOFDerivatives) {
+	public static double calculateAlphaDot(double[] linearVelocities, double[] sixDOFDerivatives) {
 		return ((linearVelocities[0]*sixDOFDerivatives[2])-(linearVelocities[2]*sixDOFDerivatives[0]))
 				/((Math.pow(linearVelocities[0], 2)+(Math.pow(linearVelocities[2], 2))));// = u*w_dot-w*u_dot/(u^2+w^2)
 	}
@@ -127,7 +127,7 @@ public class SixDOFUtilities {
 	 * Calculates Mach number
 	 * @see <i>Source Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
 	 */
-	public static double getMach(double[] windParameters, EnumMap<EnvironmentParameters, Double> environmentParameters) {
+	public static double calculateMach(double[] windParameters, EnumMap<EnvironmentParameters, Double> environmentParameters) {
 		return windParameters[0]/environmentParameters.get(EnvironmentParameters.A);
 	}
 

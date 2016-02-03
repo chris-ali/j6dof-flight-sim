@@ -207,7 +207,7 @@ public class Aircraft {
 	
 	/**
 	 * Creates a double array of {@link WingGeometry#AC_X}, {@link WingGeometry#AC_Y} and {@link WingGeometry#AC_Z}
-	 *  used in {@link AccelAndMoments#getTotalMoments(double[], double[], EnumMap, EnumMap, double, java.util.Set, Aircraft)}, 
+	 *  used in {@link AccelAndMoments#calculateTotalMoments(double[], double[], EnumMap, EnumMap, double, java.util.Set, Aircraft)}, 
 	 *  which needs a vector of these values
 	 * 
 	 * @return centerOfGravity
@@ -218,7 +218,7 @@ public class Aircraft {
 	
 	/**
 	 * Creates a double array of {@link MassProperties#J_X}, {@link MassProperties#J_Y}, {@link MassProperties#J_Z} and {@link MassProperties#J_XZ}
-	 *  used in {@link SixDOFUtilities#getInertiaCoeffs(double[])}, which needs an array of these values
+	 *  used in {@link SixDOFUtilities#calculateInertiaCoeffs(double[])}, which needs an array of these values
 	 * 
 	 * @return centerOfGravity
 	 */
