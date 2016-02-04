@@ -5,15 +5,18 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolatingFunction;
 
 import com.chrisali.javaflightsim.aero.Aerodynamics;
 import com.chrisali.javaflightsim.propulsion.Engine;
+import com.chrisali.javaflightsim.propulsion.EngineParameters;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 
@@ -53,35 +56,26 @@ public class AircraftBuilder {
 		
 		if (numEngines > 0 & numEngines < 5) {	
 			for (int i = 1; i <= numEngines; i++) {
-				String   engineName     = "Lycoming IO-360";
-				double   maxBHP         = 200;
-				double   maxRPM         = 2700;
-				double   propDiameter   = 6.5; 
-				double[] enginePosition = new double[]{0.0, 0.0, 0.0};
+				Map<EngineParameters, String> engineParams = new EnumMap<EngineParameters, String>(EngineParameters.class);
 				
-				// Iterate through propulsion file, assign engine parameters from 
-				// lines that match the engine number (engX_1, maxBHP_2, etc) 
+				// Iterate through propulsion file, assign engine parameters to EnumMap from 
+				// lines of readPropulsionFile that match the engine number (engX_1, maxBHP_2, etc)
+				// using .startsWith to get the parameter (engX) and .endsWith to get the strapping (1)
 				for (String[] line : readPropulsionFile) {
-					if (line[0].endsWith(String.valueOf(i)) & line[0].startsWith("engineName"))
-						engineName = line[1];
-					if (line[0].endsWith(String.valueOf(i)) & line[0].startsWith("maxBHP"))
-						maxBHP = Double.parseDouble(line[1]);
-					if (line[0].endsWith(String.valueOf(i)) & line[0].startsWith("maxRPM"))
-						maxRPM = Double.parseDouble(line[1]);
-					if (line[0].endsWith(String.valueOf(i)) & line[0].startsWith("propDiameter"))
-						propDiameter = Double.parseDouble(line[1]);
-					if (line[0].endsWith(String.valueOf(i)) & line[0].startsWith("engX"))
-						enginePosition[0] = Double.parseDouble(line[1]);
-					if (line[0].endsWith(String.valueOf(i)) & line[0].startsWith("engY"))
-						enginePosition[1] = Double.parseDouble(line[1]);
-					if (line[0].endsWith(String.valueOf(i)) & line[0].startsWith("engZ"))
-						enginePosition[2] = Double.parseDouble(line[1]);
+					for (EngineParameters engineParam : EngineParameters.values()) {
+						if (line[0].endsWith(String.valueOf(i)) & line[0].startsWith(engineParam.toString()))
+							engineParams.put(engineParam, line[1]);
+					}
 				}
-								
-				this.engineList.add(new FixedPitchPropEngine(engineName, 
-															 maxBHP, 
-															 maxRPM, 
-															 propDiameter, 
+				
+				double[] enginePosition = new double[]{Double.parseDouble(engineParams.get(EngineParameters.POS_X)), 
+													   Double.parseDouble(engineParams.get(EngineParameters.POS_Y)), 
+													   Double.parseDouble(engineParams.get(EngineParameters.POS_Z))};
+				
+				this.engineList.add(new FixedPitchPropEngine(					engineParams.get(EngineParameters.NAME), 
+															 Double.parseDouble(engineParams.get(EngineParameters.MAX_BHP)), 
+															 Double.parseDouble(engineParams.get(EngineParameters.MAX_RPM)), 
+															 Double.parseDouble(engineParams.get(EngineParameters.PROP_DIAMETER)), 
 															 enginePosition, 
 															 i));
 			}

@@ -41,7 +41,7 @@ public class AircraftBuilderTest {
 	}
 
 	public static void main(String[] args) {
-		new AircraftBuilderTest();
+		//new AircraftBuilderTest();
 		new AircraftBuilderTest("Navion");
 		new AircraftBuilderTest("TwinNavion");
 	}

@@ -290,7 +290,7 @@ public class Integrate6DOFEquations implements Runnable {
 		// Wind Parameters
 		simOut.put(SimOuts.TAS, 		windParameters[0]);
 		simOut.put(SimOuts.BETA, 		windParameters[1]);
-		simOut.put(SimOuts.ALPHA, 	 	windParameters[2]);
+		simOut.put(SimOuts.ALPHA, 	 	windParameters[2]*-1);
 		
 		simOut.put(SimOuts.ALPHA_DOT,   alphaDot);
 		simOut.put(SimOuts.MACH, 		mach);
