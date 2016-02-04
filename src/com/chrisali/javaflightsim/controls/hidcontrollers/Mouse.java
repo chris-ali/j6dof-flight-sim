@@ -10,6 +10,15 @@ import net.java.games.input.Component.Identifier;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
+/**
+ * The Mouse object uses JInput to integrate mouse functionality into the simulation as a joystick substitute.
+ * It works by generating an ArrayList of mice connected to the computer, polling each one's active components 
+ * (buttons, axes), using the polled data to calculate control deflections, and assigning these to each respective key 
+ * in the controls EnumMap. These deflections are limited by the constants defined in {@link FlightControls}. Ailerons 
+ * and Elevator are controlled by horizontal and vertical mouse movement, respectively, and all throttles are controlled 
+ * by the mouse wheel.
+ * @see SimulationController
+ */
 public class Mouse extends SimulationController {
 	
 	// Since mouse axes are measured relative to the stopped position, these fields store the control deflection, 
@@ -18,8 +27,10 @@ public class Mouse extends SimulationController {
 	private double tempAil   = 0.0;
 	private double tempThrot = 0.0;
 
-	// Constructor for Joystick class creates list of controllers using
-	// searchForControllers()
+	/**
+	 *  Constructor for Joystick class; creates list of controllers using searchForControllers()
+	 * @param controls
+	 */
 	public Mouse(EnumMap<FlightControls, Double> controls) {
 		this.controllerList = new ArrayList<>();
 
@@ -30,7 +41,10 @@ public class Mouse extends SimulationController {
 
 		searchForControllers();
 	}
-
+	
+	/**
+	 * Search for and add controllers of type Controller.Type.KEYBOARD to controllerList
+	 */
 	@Override
 	protected void searchForControllers() {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
@@ -48,8 +62,11 @@ public class Mouse extends SimulationController {
 
 	}
 	
-	// Get button, mouse wheel and axis values from mouse, and return a Double array for updateFlightControls
-	// in SimulationController class
+	/**
+	 *  Get button, mouse wheel and axis values from mouse, and return an EnumMap for updateFlightControls()
+	 *  in {@link SimulationController)
+	 *  @return flightControls EnumMap
+	 */
 	@Override
 	protected EnumMap<FlightControls, Double> calculateControllerValues(EnumMap<FlightControls, Double> controls) {
 		// Iterate through all controllers connected

@@ -1,5 +1,14 @@
 package com.chrisali.javaflightsim.controls;
 
+import com.chrisali.javaflightsim.controls.hidcontrollers.SimulationController;
+import com.chrisali.javaflightsim.setup.IntegrationSetup;
+import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
+
+/**
+ * Enum that provides the keys for the controls EnumMap in {@link Integrate6DOFEquations}. Also used to parse 
+ * InitialControls text file in {@link IntegrationSetup} class. Minima and maxima are also defined in this class 
+ * as constants to be used in HID controller classes that implement {@link SimulationController}
+ */
 public enum FlightControls {
 	ELEVATOR    ("elevator", 		Math.toRadians(-25), Math.toRadians(15)), // "Minimum" is up elevator
 	AILERON		("aileron",  		Math.toRadians(-15), Math.toRadians(15)), // "Minimum" is left aileron up

@@ -13,14 +13,12 @@ Until I learn OpenGL or Java3D, this program will send/receive data to/from an e
 
 -No ground reaction model has been included yet, so landing is not possible. 
 
--All aircraft stability derivatives are constants for now, so no stall modeling has been implemented.
-
--Only a simple (single) engine model is implemented for now. No engine effects (fuel burn, propeller effects) are modeled yet
+-Only a simple propeller engine model is implemented for now. No engine effects (fuel burn, propeller effects) are modeled yet
 
 -No trim method is implemented yet.
 
 ##Future Ideas
--Include different aircraft, defined from a text file, selectable from a GUI
+-Include different aircraft, selectable from a GUI
 
 -Selectable starting locations (in air or on ground)
 

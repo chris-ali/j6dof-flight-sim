@@ -11,24 +11,22 @@ import net.java.games.input.Component.POV;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
-/*
+/**
  * The Joystick object uses JInput to integrate joystick functionality into the simulation.
  * It works by generating an ArrayList of joysticks, gamepads and steering wheels connected
  * to the computer, polling each one's active components (buttons, axes, POV hat), using 
  * the polled data to calculate control deflections, and assigning these to each respective key 
  * in the controls EnumMap. These deflections are limited by the constants defined in the 
- * FlightControls enum. Aileron and Elevator trim are handled by the POV hat switch, and left
- * and right throttle are handled by the throttle slider.
- * 
- * The following must be passed in upon creation:
- * EnumMap<FlightControls, Double> controls
- * 
- * The following is returned from the object's updateFlightControls method:
- * EnumMap<FlightControls, Double> controls
+ * {@link FlightControls}. Aileron and Elevator trim are handled by the POV hat switch, and all
+ * throttles are controlled by the throttle slider.
+ * @see SimulationController
  */
 public class Joystick extends SimulationController {
 	
-	// Constructor for Joystick class creates list of controllers using searchForControllers()
+	/**
+	 *  Constructor for Joystick class creates list of controllers using searchForControllers()
+	 * @param controls
+	 */
 	public Joystick(EnumMap<FlightControls, Double> controls) {
 		this.controllerList = new ArrayList<>();
 		
@@ -39,9 +37,11 @@ public class Joystick extends SimulationController {
 		
 		searchForControllers();
 	}
-
-	// Search for and add controllers of type Controller.Type.STICK or Controller.Type.GAMEPAD
-	// to controllerList
+	
+	/**
+	 * Search for and add controllers of type Controller.Type.STICK or Controller.Type.GAMEPAD
+	 * to controllerList
+	 */ 
 	@Override
 	protected void searchForControllers() {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
@@ -58,8 +58,10 @@ public class Joystick extends SimulationController {
 		}
 	}
 
-	// Get button, POV and axis values from joystick(s), and return an EnumMap for updateFlightControls
-	// in SimulationController class
+	/**
+	 *  Get button, POV and axis values from joystick(s), and return an EnumMap for updateFlightControls 
+	 *  in SimulationController class
+	 */
 	@Override
 	protected EnumMap<FlightControls, Double> calculateControllerValues(EnumMap<FlightControls, Double> controls) {
 		// Iterate through all controllers connected
@@ -132,9 +134,6 @@ public class Joystick extends SimulationController {
 				}
 			}
 		}
-		
 		return controls;
 	}
-	
-	
 }

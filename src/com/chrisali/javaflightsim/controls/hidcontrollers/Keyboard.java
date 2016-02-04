@@ -5,6 +5,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 
 import com.chrisali.javaflightsim.controls.FlightControls;
+import com.chrisali.javaflightsim.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.setup.Options;
 
 import net.java.games.input.Component;
@@ -12,6 +13,17 @@ import net.java.games.input.Component.Identifier;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
+/**
+ * The Keyboard object uses JInput to integrate keyboard functionality into the simulation.
+ * It works by generating an ArrayList of keyboards connected to the computer, 
+ * polling each one's active buttons, using the polled data to calculate control deflections, 
+ * and assigning these to each respective key in the controls EnumMap and options EnumSet. 
+ * Up/Down and Left/Right control the elevator and ailerons, respectively, and all throttles are 
+ * controlled by Page Up/Down. The simulation can be toggled paused by pressing P, and while paused
+ * the simulation can be reset to initial conditions defined by 
+ * {@link IntegrationSetup#gatherInitialConditions(String)} by pressing R
+ * @see SimulationController
+ */
 public class Keyboard extends SimulationController {
 	// Keep track if button is pressed, so events occur only once if button held down 
 	private boolean pPressed = false;
@@ -19,8 +31,10 @@ public class Keyboard extends SimulationController {
 	// Keep track of reset, so that it can only be run once per pause
 	private boolean wasReset = false;
 	
-	// Constructor for Keyboard class creates list of controllers using
-	// searchForControllers()
+	/**
+	 *  Constructor for Keyboard class; creates list of controllers using searchForControllers()
+	 * @param controls
+	 */
 	public Keyboard(EnumMap<FlightControls, Double> controls) {
 		this.controllerList = new ArrayList<>();
 
@@ -32,6 +46,9 @@ public class Keyboard extends SimulationController {
 		searchForControllers();
 	}
 	
+	/**
+	 * Search for and add controllers of type Controller.Type.KEYBOARD to controllerList
+	 */
 	@Override
 	protected void searchForControllers() {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
@@ -49,6 +66,14 @@ public class Keyboard extends SimulationController {
 		
 	}
 	
+	/**
+	 * Updates the EnumSet options, which controls the operation of the simulation; P pauses the simulation
+	 * and R resets it back to the initial conditions defined by {@link IntegrationSetup#gatherInitialConditions(String)}
+	 * in InitialConditions.txt
+	 * 
+	 * @param options
+	 * @return EnumSet options
+	 */
 	public EnumSet<Options> updateOptions(EnumSet<Options> options) {
 		// Iterate through all controllers connected
 		for (Controller controller : controllerList) {
@@ -96,7 +121,11 @@ public class Keyboard extends SimulationController {
 		
 		return options;
 	}
-
+	
+	/**
+	 *  Get button  values from keyboard, and return an EnumMap for updateFlightControls in {@link SimulationController)
+	 *  @return flightControls EnumMap
+	 */
 	@Override
 	protected EnumMap<FlightControls, Double> calculateControllerValues(EnumMap<FlightControls, Double> controls) {
 		// Iterate through all controllers connected
