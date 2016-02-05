@@ -2,16 +2,9 @@ package com.chrisali.javaflightsim.enviroment;
 
 import java.util.EnumMap;
 
-/*
+/**
  * This class calculates atmospheric parameters as a function of height, and the gravitational acceleration constant.
  * It uses the 1976 NASA Standard Atmosphere model, and assumes that gravity is constant in the Z direction.
- *  
- * The following (double array) must be passed in:
- * 		NEDPosition[]{N,E,D}  (ft)
- * 
- * The class outputs the following:
- *      EnumMap<EnvironmentParameters, Double> environmentParams  (deg R, slug/ft^3, lbf/ft^2, ft/sec)
- *      gravity	 												  (ft/sec^2)
  */
 public class Environment {
 	private static final double RADIUS_EARTH = 3959*5280;
@@ -30,6 +23,13 @@ public class Environment {
 	private static final double ENV_CONST_TROP = 0.0000068755;
 	private static final double ENV_CONST_STRAT = -0.0000480637;
 	
+	/**
+	 * Calculates the temperature (R), presssure (lb/ft^2), density (slug/ft^3), speed of sound (ft/sec) and gravity (ft/sec^2)
+	 * for a given height above Earth and then places that data into an EnumMap with {@link EnvironmentParameters} as the keys 
+	 * 
+	 * @param NEDPosition
+	 * @return EnumMap of environment parameters
+	 */
 	public static EnumMap<EnvironmentParameters, Double> updateEnvironmentParams(double[] NEDPosition) {
 		EnumMap<EnvironmentParameters, Double> environmentParams = new EnumMap<EnvironmentParameters, Double>(EnvironmentParameters.class); 
 		Double temp, rho, p, a, g;
@@ -60,5 +60,8 @@ public class Environment {
 		return environmentParams;
 	}
 	
+	/**
+	 * @return Gravity (ft/sec^2) as a double array vector
+	 */
 	public static double getGravity() {return GRAVITY;}
 }

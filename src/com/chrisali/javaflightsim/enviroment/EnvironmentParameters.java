@@ -1,5 +1,8 @@
 package com.chrisali.javaflightsim.enviroment;
 
+/**
+ * Used in {@link Environment} as the key to the environmentParameters EnumMap
+ */
 public enum EnvironmentParameters {
 	GRAVITY		   ("gravity"),
 	T  			   ("temperature"),
