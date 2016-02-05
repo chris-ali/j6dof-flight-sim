@@ -164,7 +164,7 @@ public class Aircraft {
 			for (String[] readLine : readAeroFile) {
 				if (stabDerKey.toString().equals(readLine[0]))
 					if (readLine[1].toLowerCase().equals("lookup"))
-						this.stabDerivs.put(stabDerKey, AircraftBuilder.createLookupTable(this.name, readLine[0]));
+						this.stabDerivs.put(stabDerKey, AircraftBuilder.createLookupTable(this, readLine[0]));
 					else
 						this.stabDerivs.put(stabDerKey, Double.parseDouble(readLine[1]));
 			}
@@ -232,10 +232,10 @@ public class Aircraft {
 	 * {@link Aerodynamics#calculateInterpStabDer(double[], EnumMap, StabilityDerivatives)} to interpolate the stability derivative value if a
 	 * {@link PiecewiseBicubicSplineInterpolatingFunction} object is detected, or simply return a double value
 	 * 
-	 * @param stabDir
+	 * @param stabDer
 	 * @return stabilityDerivative
 	 */
-	public Object getStabilityDerivative(StabilityDerivatives stabDir) {return stabDerivs.get(stabDir);}
+	public Object getStabilityDerivative(StabilityDerivatives stabDer) {return stabDerivs.get(stabDer);}
 	
 	/**
 	 * Returns the value held by the {@link WingGeometry} key in the wingGeometry EnumMap
