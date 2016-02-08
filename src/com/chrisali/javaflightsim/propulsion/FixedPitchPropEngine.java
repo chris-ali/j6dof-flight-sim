@@ -5,11 +5,18 @@ import java.util.EnumMap;
 
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
+import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 
+/**
+ * Simple piston engine model with a fixed pitch propeller
+ */
 public class FixedPitchPropEngine extends Engine {
 	private double throttle;
 	private double mixture;
 	
+	/**
+	 * Default constructor, generating a Lycoming IO-360 representation
+	 */
 	public FixedPitchPropEngine() {
 		this.engineName		= "Lycoming IO-360";
 		this.maxBHP 		= 200;
@@ -21,6 +28,16 @@ public class FixedPitchPropEngine extends Engine {
 		this.engineNumber   = 1;
 	}
 	
+	/**
+	 * Creates a custom {@link FixedPitchPropEngine}; uses a 
+	 * 
+	 * @param engineName
+	 * @param maxBHP
+	 * @param maxRPM
+	 * @param propDiam
+	 * @param enginePosition
+	 * @param engineNumber
+	 */
 	public FixedPitchPropEngine(String engineName, double maxBHP, double maxRPM, double propDiam, double[] enginePosition, int engineNumber) {
 		this.engineName		= engineName;
 		this.maxBHP 		= maxBHP;
@@ -33,6 +50,9 @@ public class FixedPitchPropEngine extends Engine {
 	}
 		
 	// Update all states for one engine
+	/**
+	 * Updates all fields of engine; called by {@link Integrate6DOFEquations}
+	 */
 	public void updateEngineState(EnumMap<FlightControls, Double> controls,				
 								  EnumMap<EnvironmentParameters, Double> environmentParameters,
 								  double[] windParameters) {		//{vTrue,beta,alpha}
@@ -66,6 +86,14 @@ public class FixedPitchPropEngine extends Engine {
 	}
 
 	//TODO consider engine orientation
+	/**
+	 * Calculates thrust of the engine
+	 * 
+	 * @param environmentParameters
+	 * @param windParameters
+	 * 
+	 * @return Double array vector of engine force (lbf)
+	 */
 	private void calculateThrust(EnumMap<EnvironmentParameters, Double> environmentParameters, 
 								 double[] windParameters) {		 
 		// Consider static thrust case at low speeds
@@ -75,8 +103,14 @@ public class FixedPitchPropEngine extends Engine {
 			this.engineThrust[0] = (throttle*maxBHP*HP_2_FTLBS)*((A_P*environmentParameters.get(EnvironmentParameters.RHO)/RHO_SSL)-B_P)*(propEfficiency/windParameters[0]);
 	}
 	
+	/**
+	 * Simple calculation of fuel flow of the engine
+	 */
 	private void calculateFuelFlow() {this.fuelFlow = (0.9+(throttle*14.8))*mixture;} // TODO need better method of getting fuel flow
 	
+	/**
+	 * Simple calculation of engine RPM
+	 */
 	private void calculateRPM() {this.rpm = 500+(throttle*(maxRPM-500));} 		 // TODO need better method of getting RPM
 	
 	@Override
