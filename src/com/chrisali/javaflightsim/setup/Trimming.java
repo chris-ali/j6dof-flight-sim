@@ -40,7 +40,7 @@ public class Trimming {
 			writeNextInitialControls(new EnumMap<FlightControls, Double>(FlightControls.class));
 			
 			Integrate6DOFEquations runSim = new Integrate6DOFEquations(ab,EnumSet.of(Options.TRIM_MODE));
-			
+
 			EnumMap<InitialConditions, Double> nextInitialConditions = new EnumMap<InitialConditions, Double>(InitialConditions.class);
 			nextInitialConditions.put(InitialConditions.INITU,     	runSim.getSimOut().get(SimOuts.U));
 			nextInitialConditions.put(InitialConditions.INITV, 	  	runSim.getSimOut().get(SimOuts.V));
@@ -50,7 +50,7 @@ public class Trimming {
 			nextInitialConditions.put(InitialConditions.INITP, 	  	runSim.getSimOut().get(SimOuts.P));
 			nextInitialConditions.put(InitialConditions.INITQ, 	  	runSim.getSimOut().get(SimOuts.Q));
 			nextInitialConditions.put(InitialConditions.INITR, 	  	runSim.getSimOut().get(SimOuts.R));
-			
+
 			EnumMap<FlightControls, Double> nextInitialControls = new EnumMap<FlightControls, Double>(FlightControls.class);
 			nextInitialControls.put(FlightControls.ELEVATOR,   runSim.getSimOut().get(SimOuts.ELEVATOR));
 			nextInitialControls.put(FlightControls.AILERON,    runSim.getSimOut().get(SimOuts.AILERON));
@@ -59,9 +59,9 @@ public class Trimming {
 			nextInitialControls.put(FlightControls.THROTTLE_2, runSim.getSimOut().get(SimOuts.THROTTLE_1));
 			nextInitialControls.put(FlightControls.THROTTLE_3, runSim.getSimOut().get(SimOuts.THROTTLE_1));
 			nextInitialControls.put(FlightControls.THROTTLE_4, runSim.getSimOut().get(SimOuts.THROTTLE_1));
-			
+
 			jacobian = MatrixUtils.createRealMatrix(new double[nextInitialConditions.size()][nextInitialConditions.size()]); 
-			
+
 			// Create "nextStepInitial*" text files for next step of trimming
 			writeNextInitialConditions(nextInitialConditions);
 			writeNextInitialControls(nextInitialControls);
