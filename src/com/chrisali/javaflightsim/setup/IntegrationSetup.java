@@ -8,9 +8,14 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 
 import com.chrisali.javaflightsim.controls.FlightControls;
+import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 
+/**
+ * Class containing methods to parse setup files to generate EnumMaps used as initial conditions,
+ * initial controls, and configuration for {@link Integrate6DOFEquations}
+ */
 public class IntegrationSetup {
-	private static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\setup\\simconfig\\";
+	protected static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\setup\\simconfig\\";
 	
 	public static EnumMap<InitialConditions, Double> gatherInitialConditions(String fileName) {
 		ArrayList<String[]> initConditionsFile = readFileAndSplit(fileName);
@@ -63,6 +68,17 @@ public class IntegrationSetup {
 		}
 	}
 	
+	/**
+	 * Splits a text file of the name "fileName".txt located in the folder: 
+	 *  <br><code>.\src\com\chrisali\javaflightsim\setup\SimConfig\"</code></br>
+	 *  whose general syntax on each line is:
+	 *  <br><code>*parameter name* = *double value*</code></br>
+	 *  into an ArrayList of string arrays resembling:
+	 *  <br><code>{*parameter name*,*double value*}</code></br>
+	 *  
+	 * @param fileName
+	 * @return An ArrayList of String arrays of length 2  
+	 */
 	private static ArrayList<String[]> readFileAndSplit(String fileName) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(FILE_PATH).append(fileName).append(".txt");
@@ -79,8 +95,12 @@ public class IntegrationSetup {
 		return readAndSplit;
 	}
 	
-	// Check parsed file to ensure that length and content match enum map langth and key content
-	
+	/**
+	 * Checks parsed InitialControls text file to ensure that read file length and content 
+	 * match {@link FlightControls} enum length and key content
+	 * @param initControlFile
+	 * @return
+	 */
 	private static boolean verifyControlFileIntegrity(ArrayList<String[]> initControlFile) {
 		// If lengths are not equal, don't bother checking integrity; return false
 		if (FlightControls.values().length == initControlFile.size()) {
@@ -95,6 +115,12 @@ public class IntegrationSetup {
 		return true;
 	}
 	
+	/**
+	 * Checks parsed InitialConditions text file to ensure that read file length and content 
+	 * match {@link InitialConditions} enum length and key content
+	 * @param initConditionsFile
+	 * @return
+	 */
 	private static boolean verifyICFileIntegrity(ArrayList<String[]> initConditionsFile) {
 		// If lengths are not equal, don't bother checking integrity; return false
 		if (InitialConditions.values().length == initConditionsFile.size()) {
@@ -109,6 +135,12 @@ public class IntegrationSetup {
 		return true;
 	}
 	
+	/**
+	 * Checks parsed IntegratorConfig text file to ensure that read file length and content 
+	 * match {@link IntegratorConfig} enum length and key content
+	 * @param intConfigFile
+	 * @return
+	 */
 	private static boolean verifyIntConfigFileIntegrity(ArrayList<String[]> intConfigFile) {
 		// If lengths are not equal, don't bother checking integrity; return false
 		if (IntegratorConfig.values().length == intConfigFile.size()) {
@@ -123,13 +155,25 @@ public class IntegrationSetup {
 		return true;
 	}
 	
-	// Unboxes Double[] array to double[]; integrator needs primitive arrays, necessitating this method
+	/**
+	 * Unboxes Double[] array into a double[] array; {@link Integrate6DOFEquations} needs primitive arrays, 
+	 * necessitating this method
+	 * @param map
+	 * @return Unboxed double[] array
+	 */
 	public static double[] unboxDoubleArray(EnumMap<?, Double> map) {
 		double[] unboxedArray = new double[map.values().size()]; 
 		for (int i = 0; i < unboxedArray.length; i++)
 			unboxedArray[i] = map.values().toArray(new Double[unboxedArray.length])[i];
 		return unboxedArray;
 	}
+	
+	/**
+	 * Unboxes Double[] array into a double[] array; {@link Integrate6DOFEquations} needs primitive arrays, 
+	 * necessitating this method
+	 * @param boxed
+	 * @return Unboxed double[] array
+	 */
 	public static double[] unboxDoubleArray(Double[] boxed) {
 		double[] unboxedArray = new double[boxed.length]; 
 		for (int i = 0; i < unboxedArray.length; i++)

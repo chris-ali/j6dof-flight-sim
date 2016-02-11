@@ -102,8 +102,15 @@ public class Integrate6DOFEquations implements Runnable {
 		this.options		   = runOptions;
 		
 		this.controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
-		this.initialConditions = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
-		this.integratorConfig  = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
+		
+		// If TRIM_MODE enabled, use the initial conditions/controls from the trim method
+		if (options.contains(Options.TRIM_MODE)) {
+			this.initialConditions = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("nextStepInitialConditions"));
+			this.integratorConfig  = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("nextStepIntegratorConfig"));
+		} else {
+			this.initialConditions = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
+			this.integratorConfig  = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
+		}
 
 		// If USE_JOYSTICK/USE_MOUSE enabled, use joystick/mouse if ANALYSIS_MODE not enabled
 		if (options.contains(Options.USE_JOYSTICK) & !options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE))
