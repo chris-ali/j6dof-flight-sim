@@ -1,0 +1,487 @@
+/*
+ * Copyright (c) 2012, Gerrit Grunwald
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ * The names of its contributors may not be used to endorse or promote
+ * products derived from this software without specific prior written
+ * permission.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package com.chrisali.javaflightsim.instrumentpanel.gauges;
+
+import eu.hansolo.steelseries.gauges.AbstractGauge;
+import eu.hansolo.steelseries.gauges.AbstractRadial;
+import eu.hansolo.steelseries.tools.Section;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.LinearGradientPaint;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.Transparency;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import org.pushingpixels.trident.Timeline;
+import org.pushingpixels.trident.ease.Spline;
+
+
+public final class Inclinometer extends AbstractRadial {
+
+	private static final long serialVersionUID = 1L;
+
+    private double visibleValue = 90;
+    private int stepValue = 0;
+    private boolean decimalVisible = false;
+    private final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.0");
+    private double angleStep;
+    private Font font = new Font("Verdana", 0, 18);
+    private final Point2D CENTER = new Point2D.Double();
+    // Images used to combine layers for background and foreground
+    private BufferedImage bImage;
+    private BufferedImage fImage;
+    private BufferedImage stepPointerImage;
+    private BufferedImage disabledImage;
+    private Timeline timeline = new Timeline(this);
+    private final Spline EASE = new Spline(0.5f);
+    private long easingDuration = 250;
+    private final FontRenderContext RENDER_CONTEXT = new FontRenderContext(null, true, true);
+    private TextLayout textLayout;
+    private final Rectangle2D TEXT_BOUNDARY = new Rectangle2D.Double();
+
+    public Inclinometer() {
+        super();
+        setMinValue(-360);
+        setMaxValue(360);
+        calcAngleStep();
+        init(getInnerBounds().width, getInnerBounds().height);
+    }
+
+    @Override
+    public AbstractGauge init(final int WIDTH, final int HEIGHT) {
+        final int GAUGE_WIDTH = isFrameVisible() ? WIDTH : getGaugeBounds().width;
+        final int GAUGE_HEIGHT = isFrameVisible() ? HEIGHT : getGaugeBounds().height;
+
+        if (isFrameVisible()) {
+            setFramelessOffset(0, 0);
+        } else {
+            setFramelessOffset(getGaugeBounds().width * 0.0841121495, getGaugeBounds().width * 0.0841121495);
+        }
+
+        if (GAUGE_WIDTH <= 1 || GAUGE_HEIGHT <= 1) {
+            return this;
+        }
+
+        // Create Background Image
+        if (bImage != null) {
+            bImage.flush();
+        }
+        bImage = UTIL.createImage(GAUGE_WIDTH, GAUGE_WIDTH, java.awt.Transparency.TRANSLUCENT);
+
+        // Create Foreground Image
+        if (fImage != null) {
+            fImage.flush();
+        }
+        fImage = UTIL.createImage(GAUGE_WIDTH, GAUGE_WIDTH, java.awt.Transparency.TRANSLUCENT);
+
+        if (isFrameVisible()) {
+            switch (getFrameType()) {
+                case ROUND:
+                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
+                    break;
+                case SQUARE:
+                    FRAME_FACTORY.createLinearFrame(GAUGE_WIDTH, GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
+                    break;
+                default:
+                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
+                    break;
+            }
+        }
+
+        if (isBackgroundVisible()) {
+            create_BACKGROUND_Image(GAUGE_WIDTH, "", "", bImage);
+        }
+
+        create_TICKMARKS_Image(GAUGE_WIDTH, 0, 0, 0, 0, 0, 0, 0, true, true, null, bImage);
+        
+        create_TITLE_Image(WIDTH, getTitle(), getUnitString(), bImage);
+
+        if (stepPointerImage != null) {
+            stepPointerImage.flush();
+        }
+        stepPointerImage = create_STEPPOINTER_Image(GAUGE_WIDTH);
+
+        if (isForegroundVisible()) {
+            switch (getFrameType()) {
+                case SQUARE:
+                    FOREGROUND_FACTORY.createLinearForeground(GAUGE_WIDTH, GAUGE_WIDTH, false, bImage);
+                    break;
+
+                case ROUND:
+
+                default:
+                    FOREGROUND_FACTORY.createRadialForeground(GAUGE_WIDTH, false, getForegroundType(), fImage);
+                    break;
+            }
+        }
+
+        if (disabledImage != null) {
+            disabledImage.flush();
+        }
+        disabledImage = create_DISABLED_Image(GAUGE_WIDTH);
+
+        font = new java.awt.Font("Verdana", 0, (int) (0.10 * getWidth()));
+
+        return this;
+    }
+
+    @Override
+    protected void paintComponent(java.awt.Graphics g) {
+        if (!isInitialized()) {
+            return;
+        }
+
+        final java.awt.Graphics2D G2 = (java.awt.Graphics2D) g.create();
+
+        G2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+        G2.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING, java.awt.RenderingHints.VALUE_RENDER_QUALITY);
+        G2.setRenderingHint(java.awt.RenderingHints.KEY_STROKE_CONTROL, java.awt.RenderingHints.VALUE_STROKE_NORMALIZE);
+        G2.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING, java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+        // Translate the coordinate system related to insets
+        G2.translate(-getFramelessOffset().getX(), -getFramelessOffset().getY());
+
+        CENTER.setLocation(getGaugeBounds().getCenterX(), getGaugeBounds().getCenterX());
+
+        final AffineTransform OLD_TRANSFORM = G2.getTransform();
+
+        // Draw combined background image
+        G2.drawImage(bImage, 0, 0, null);
+
+        // Draw text if textorientation is fixed
+        G2.translate(getFramelessOffset().getX(), getFramelessOffset().getY());
+        G2.setColor(super.getBackgroundColor().LABEL_COLOR);
+        if (decimalVisible) {
+            G2.setFont(font.deriveFont(0.10f * getInnerBounds().width));
+        } else {
+            G2.setFont(font.deriveFont(0.15f * getInnerBounds().width));
+        }
+
+        textLayout = new TextLayout(DECIMAL_FORMAT.format(visibleValue), G2.getFont(), RENDER_CONTEXT);
+        TEXT_BOUNDARY.setFrame(textLayout.getBounds());
+        G2.drawString(DECIMAL_FORMAT.format(visibleValue), (int) ((getInnerBounds().width - TEXT_BOUNDARY.getWidth()) / 2.0), (int) ((getInnerBounds().width - TEXT_BOUNDARY.getHeight()) / 2.0) + textLayout.getAscent() - textLayout.getDescent());
+        G2.translate(-getFramelessOffset().getX(), -getFramelessOffset().getY());
+
+        // Draw StepPointer
+        G2.rotate(Math.toRadians(stepValue), CENTER.getX(), CENTER.getY());
+        G2.drawImage(stepPointerImage, 0, 0, null);
+
+        G2.setTransform(OLD_TRANSFORM);
+
+        // Draw combined foreground image
+        G2.drawImage(fImage, 0, 0, null);
+
+        if (!isEnabled()) {
+            G2.drawImage(disabledImage, 0, 0, null);
+        }
+
+        // Translate the coordinate system back to original
+        G2.translate(-getInnerBounds().x, -getInnerBounds().y);
+
+        G2.dispose();
+    }
+
+    /**
+     * Sets the current level value in degrees (0 - 360)
+     * @param VALUE
+     */
+    @Override
+    public void setValue(final double VALUE) {
+        if (isEnabled()) {
+            super.setValue(VALUE);
+
+            this.stepValue = 2 * ((int) (Math.abs(VALUE) * 10) % 10);
+            if (stepValue > 10)
+                stepValue -= 20;
+
+            this.visibleValue = VALUE;
+
+            fireStateChanged();
+            repaint();
+        }
+    }
+
+    @Override
+    public void setValueAnimated(double value) {
+        if (isEnabled()) {
+            // Needle should always take the shortest way to it's new position
+            if (360 - value + getValue() < value - getValue()) {
+                value = 360 - value;
+            }
+
+            if (timeline.getState() == Timeline.TimelineState.PLAYING_FORWARD || timeline.getState() == Timeline.TimelineState.PLAYING_REVERSE) {
+                timeline.abort();
+            }
+            timeline = new Timeline(this);
+            timeline.addPropertyToInterpolate("value", getValue(), value);
+            timeline.setEase(EASE);
+
+            timeline.setDuration(easingDuration);
+            timeline.play();
+        }
+    }
+
+    @Override
+    public double getMinValue() {
+        return -360.0;
+    }
+
+    @Override
+    public double getMaxValue() {
+        return 360.0;
+    }
+
+    /**
+     * Returns true if decimals will be shown on the degree value
+     * @return true if decimals will be shown on the degree value
+     */
+    public boolean isDecimalVisible() {
+        return this.decimalVisible;
+    }
+
+    /**
+     * Enables / disables the visibility of the decimals on the degree value
+     * @param DECIMAL_VISIBLE
+     */
+    public void setDecimalVisible(final boolean DECIMAL_VISIBLE) {
+        if (DECIMAL_VISIBLE) {
+            DECIMAL_FORMAT.applyPattern("0.0");
+        } else {
+            DECIMAL_FORMAT.applyPattern("0");
+        }
+        this.decimalVisible = DECIMAL_VISIBLE;
+        repaint();
+    }
+
+    public long getEasingDuration() {
+        return this.easingDuration;
+    }
+
+    public void setEasingDuration(final long EASING_DURATION) {
+        this.easingDuration = EASING_DURATION;
+    }
+
+    private void calcAngleStep() {
+        angleStep = (4.0 * Math.PI) / (getMaxValue() - getMinValue());
+    }
+
+    @Override
+    public Point2D getCenter() {
+        return new java.awt.geom.Point2D.Double(bImage.getWidth() / 2.0 + getInnerBounds().x, bImage.getHeight() / 2.0 + getInnerBounds().y);
+    }
+
+    @Override
+    public Rectangle2D getBounds2D() {
+        return new java.awt.geom.Rectangle2D.Double(bImage.getMinX(), bImage.getMinY(), bImage.getWidth(), bImage.getHeight());
+    }
+
+    @Override
+    public Rectangle getLcdBounds() {
+        return new Rectangle();
+    }
+
+    private BufferedImage create_TICKMARKS_Image(final int WIDTH, final double FREE_AREA_ANGLE,
+                                                                final double OFFSET, final double MIN_VALUE,
+                                                                final double MAX_VALUE, final double ANGLE_STEP,
+                                                                final int TICK_LABEL_PERIOD,
+                                                                final int SCALE_DIVIDER_POWER, final boolean DRAW_TICKS,
+                                                                final boolean DRAW_TICK_LABELS,
+                                                                ArrayList<Section> tickmarkSections,
+                                                                BufferedImage image) {
+        if (WIDTH <= 0) {
+            return null;
+        }
+        if (image == null) {
+            image = UTIL.createImage(WIDTH, (int) (1.0 * WIDTH), Transparency.TRANSLUCENT);
+        }
+        final Graphics2D G2 = image.createGraphics();
+        G2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        G2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        G2.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+        G2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        G2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        G2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
+        G2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        final int IMAGE_WIDTH = image.getWidth();
+        final int IMAGE_HEIGHT = image.getHeight();
+
+        final Font STD_FONT = new Font("Verdana", 0, (int) (0.075 * WIDTH));
+        final BasicStroke THICK_STROKE = new BasicStroke(4.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL);
+        final int TEXT_DISTANCE = (int) (0.08 * WIDTH);
+        final int MIN_LENGTH = (int) (0.0133333333 * WIDTH);
+        final int MAX_LENGTH = (int) (0.04 * WIDTH);
+
+        // Create the ticks itself
+        final float RADIUS = IMAGE_WIDTH * 0.38f;
+        final Point2D GAUGE_CENTER = new Point2D.Double(IMAGE_WIDTH / 2.0f, IMAGE_HEIGHT / 2.0f);
+
+        // Draw ticks
+        Point2D innerPoint;
+        Point2D outerPoint;
+        Point2D textPoint = null;
+        Line2D tick;
+        int counter = 0;
+
+        G2.setFont(STD_FONT);
+
+        double sinValue = 0;
+        double cosValue = 0;
+
+        final double STEP = (2.0 * Math.PI) / (360.0);
+
+        for (double alpha = (2.0 * Math.PI); alpha >= STEP; alpha -= STEP) {
+            sinValue = Math.sin(alpha);
+            cosValue = Math.cos(alpha);
+            textPoint = new Point2D.Double(GAUGE_CENTER.getX() + (RADIUS - TEXT_DISTANCE) * sinValue, GAUGE_CENTER.getY() + (RADIUS - TEXT_DISTANCE) * cosValue);
+            innerPoint = new Point2D.Double(GAUGE_CENTER.getX() + (RADIUS - MIN_LENGTH) * sinValue, GAUGE_CENTER.getY() + (RADIUS - MIN_LENGTH) * cosValue);
+            outerPoint = new Point2D.Double(GAUGE_CENTER.getX() + RADIUS * sinValue, GAUGE_CENTER.getY() + RADIUS * cosValue);
+            G2.setColor(super.getBackgroundColor().LABEL_COLOR);
+
+            // Different tickmark every 45 units plus text
+            if (counter == 90 || counter == 270 || counter == 70 || counter == 290) {
+                G2.setColor(super.getBackgroundColor().LABEL_COLOR);
+                G2.setStroke(THICK_STROKE);
+                innerPoint = new Point2D.Double(GAUGE_CENTER.getX() + (RADIUS - MAX_LENGTH) * sinValue, GAUGE_CENTER.getY() + (RADIUS - MAX_LENGTH) * cosValue);
+                outerPoint = new Point2D.Double(GAUGE_CENTER.getX() + RADIUS * sinValue, GAUGE_CENTER.getY() + RADIUS * cosValue);
+
+                // Draw ticks
+                tick = new Line2D.Double(innerPoint.getX(), innerPoint.getY(), outerPoint.getX(), outerPoint.getY());
+                G2.draw(tick);
+            }
+            else if (counter == 50) {
+            	// Draw outer text
+                textPoint = new Point2D.Double(GAUGE_CENTER.getX() + (RADIUS - 0.25*TEXT_DISTANCE) * sinValue, GAUGE_CENTER.getY() + (RADIUS - 0.25*TEXT_DISTANCE) * cosValue);
+                G2.setFont(STD_FONT);
+
+                G2.fill(UTIL.rotateTextAroundCenter(G2, "L", (int) textPoint.getX(), (int) textPoint.getY(), 0));
+            }
+            else if (counter == 310) {
+            	// Draw outer text
+                textPoint = new Point2D.Double(GAUGE_CENTER.getX() + (RADIUS - 0.25*TEXT_DISTANCE) * sinValue, GAUGE_CENTER.getY() + (RADIUS - 0.25*TEXT_DISTANCE) * cosValue);
+                G2.setFont(STD_FONT);
+
+                G2.fill(UTIL.rotateTextAroundCenter(G2, "R", (int) textPoint.getX(), (int) textPoint.getY(), 0));
+            }
+
+            counter++;
+
+        }
+
+        G2.dispose();
+
+        return image;
+    }
+
+    private BufferedImage create_STEPPOINTER_Image(final int WIDTH) {
+        if (WIDTH <= 0) {
+            return null;
+        }
+
+        final BufferedImage IMAGE = UTIL.createImage(WIDTH, WIDTH, Transparency.TRANSLUCENT);
+        final Graphics2D G2 = IMAGE.createGraphics();
+        G2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        G2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        G2.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+        G2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        G2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        G2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
+        G2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        final int IMAGE_WIDTH = IMAGE.getWidth();
+        final int IMAGE_HEIGHT = IMAGE.getHeight();
+
+        final GeneralPath POINTER_SMALL_LEFT = new GeneralPath();
+        POINTER_SMALL_LEFT.setWindingRule(Path2D.WIND_EVEN_ODD);
+        POINTER_SMALL_LEFT.moveTo(IMAGE_WIDTH * 0.2850467289719626, IMAGE_HEIGHT * 0.514018691588785);
+        POINTER_SMALL_LEFT.lineTo(IMAGE_WIDTH * 0.2102803738317757, IMAGE_HEIGHT * 0.5);
+        POINTER_SMALL_LEFT.lineTo(IMAGE_WIDTH * 0.2850467289719626, IMAGE_HEIGHT * 0.48130841121495327);
+        POINTER_SMALL_LEFT.curveTo(IMAGE_WIDTH * 0.2850467289719626, IMAGE_HEIGHT * 0.48130841121495327, IMAGE_WIDTH * 0.2803738317757009, IMAGE_HEIGHT * 0.49065420560747663, IMAGE_WIDTH * 0.2803738317757009, IMAGE_HEIGHT * 0.4953271028037383);
+        POINTER_SMALL_LEFT.curveTo(IMAGE_WIDTH * 0.2803738317757009, IMAGE_HEIGHT * 0.5046728971962616, IMAGE_WIDTH * 0.2850467289719626, IMAGE_HEIGHT * 0.514018691588785, IMAGE_WIDTH * 0.2850467289719626, IMAGE_HEIGHT * 0.514018691588785);
+        POINTER_SMALL_LEFT.closePath();
+        final Point2D POINTER_SMALL_LEFT_START = new Point2D.Double(POINTER_SMALL_LEFT.getBounds2D().getMinX(), 0);
+        final Point2D POINTER_SMALL_LEFT_STOP = new Point2D.Double(POINTER_SMALL_LEFT.getBounds2D().getMaxX(), 0);
+        final float[] POINTER_SMALL_FRACTIONS = {
+            0.0f,
+            0.3f,
+            0.59f,
+            1.0f
+        };
+        final Color[] POINTER_SMALL_COLORS = {
+            UTIL.setAlpha(getPointerColor().DARK, 180),
+            UTIL.setAlpha(getPointerColor().LIGHT, 180),
+            UTIL.setAlpha(getPointerColor().LIGHT, 180),
+            UTIL.setAlpha(getPointerColor().DARK, 180)
+        };
+        final LinearGradientPaint POINTER_SMALL_LEFT_GRADIENT = new LinearGradientPaint(POINTER_SMALL_LEFT_START, POINTER_SMALL_LEFT_STOP, POINTER_SMALL_FRACTIONS, POINTER_SMALL_COLORS);
+        G2.setPaint(POINTER_SMALL_LEFT_GRADIENT);
+        G2.fill(POINTER_SMALL_LEFT);
+        final Color STROKE_COLOR_POINTER_SMALL = UTIL.setAlpha(getPointerColor().LIGHT, 128);
+        G2.setColor(STROKE_COLOR_POINTER_SMALL);
+        G2.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+        G2.draw(POINTER_SMALL_LEFT);
+
+        final GeneralPath POINTER_SMALL_RIGHT = new GeneralPath();
+        POINTER_SMALL_RIGHT.setWindingRule(Path2D.WIND_EVEN_ODD);
+        POINTER_SMALL_RIGHT.moveTo(IMAGE_WIDTH * 0.7149532710280374, IMAGE_HEIGHT * 0.514018691588785);
+        POINTER_SMALL_RIGHT.lineTo(IMAGE_WIDTH * 0.7897196261682243, IMAGE_HEIGHT * 0.5);
+        POINTER_SMALL_RIGHT.lineTo(IMAGE_WIDTH * 0.7149532710280374, IMAGE_HEIGHT * 0.48130841121495327);
+        POINTER_SMALL_RIGHT.curveTo(IMAGE_WIDTH * 0.7149532710280374, IMAGE_HEIGHT * 0.48130841121495327, IMAGE_WIDTH * 0.719626168224299, IMAGE_HEIGHT * 0.49065420560747663, IMAGE_WIDTH * 0.719626168224299, IMAGE_HEIGHT * 0.4953271028037383);
+        POINTER_SMALL_RIGHT.curveTo(IMAGE_WIDTH * 0.719626168224299, IMAGE_HEIGHT * 0.5046728971962616, IMAGE_WIDTH * 0.7149532710280374, IMAGE_HEIGHT * 0.514018691588785, IMAGE_WIDTH * 0.7149532710280374, IMAGE_HEIGHT * 0.514018691588785);
+        POINTER_SMALL_RIGHT.closePath();
+        final Point2D POINTER_SMALL_RIGHT_START = new Point2D.Double(POINTER_SMALL_RIGHT.getBounds2D().getMaxX(), 0);
+        final Point2D POINTER_SMALL_RIGHT_STOP = new Point2D.Double(POINTER_SMALL_RIGHT.getBounds2D().getMinX(), 0);
+
+        final LinearGradientPaint POINTER_SMALL_RIGHT_GRADIENT = new LinearGradientPaint(POINTER_SMALL_RIGHT_START, POINTER_SMALL_RIGHT_STOP, POINTER_SMALL_FRACTIONS, POINTER_SMALL_COLORS);
+        G2.setPaint(POINTER_SMALL_RIGHT_GRADIENT);
+        G2.fill(POINTER_SMALL_RIGHT);
+        G2.setColor(STROKE_COLOR_POINTER_SMALL);
+        G2.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
+        G2.draw(POINTER_SMALL_RIGHT);
+
+        G2.dispose();
+
+        return IMAGE;
+    }
+
+    @Override
+    public String toString() {
+        return "Turn Coordinator";
+    }
+}
