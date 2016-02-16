@@ -86,6 +86,7 @@ public class Integrate6DOFEquations implements Runnable {
 	
 	// Options
 	private EnumSet<Options> options;
+	private boolean running;
 	
 	/**
 	 * Creates the {@link Integrate6DOFEquations} object with an {@link AircraftBuilder object} and a list of run-time options defined
@@ -385,6 +386,13 @@ public class Integrate6DOFEquations implements Runnable {
 	public EnumMap<SimOuts, Double> getSimOut() {return simOut;}
 	
 	/**
+	 * Lets other objects know if {@link Integrate6DOFEquations#run()} is currently running
+	 * 
+	 * @return Running status of integration
+	 */
+	public boolean isRunning() {return running;}
+	
+	/**
 	 * Runs {@link Integrate6DOFEquations} integration loop by calling the {@link ClassicalRungeKuttaIntegrator#singleStep(FirstOrderDifferentialEquations, double, double[], double)}
 	 * method on each iteration of the loop as long as {@link Options#PAUSED} isn't enabled 
 	 * 
@@ -394,6 +402,8 @@ public class Integrate6DOFEquations implements Runnable {
 	public void run() {
 		// Integration loop
 		try {
+			running = true;
+			
 			for (double t = integratorConfig[0]; t < integratorConfig[2]; t += integratorConfig[1]) {
 				// Set pause/reset from within keyboard's updateOptions method if not in analysis mode
 				if (!options.contains(Options.ANALYSIS_MODE))
@@ -426,6 +436,8 @@ public class Integrate6DOFEquations implements Runnable {
 				if (!options.contains(Options.ANALYSIS_MODE))
 					Thread.sleep((long)(integratorConfig[1]*1000));
 			}
+			
+			running = false;
 			
 			// If in analysis mode and not in unlimited flight, generate simulation plots
 			if (options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.TRIM_MODE)) {

@@ -2,8 +2,6 @@ package com.chrisali.javaflightsim.instrumentpanel.panel;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -18,7 +16,6 @@ import com.chrisali.javaflightsim.instrumentpanel.gauges.DirectionalGyro;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.Inclinometer;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.TurnCoordinator;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.VerticalSpeed;
-import com.chrisali.javaflightsim.utilities.integration.SimOuts;
 
 public class InstrumentPanel extends JFrame implements FlightDataListener {
 
@@ -146,7 +143,6 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		
 		add(inlinometer, gc);
 		
-		
 		setSize(900, 660);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setVisible(true);
@@ -165,5 +161,7 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		
 		inlinometer.setValueAnimated(flightData.getFlightData().get(FlightDataType.TURN_RATE));
 		turnCoordinator.setValueAnimated(flightData.getFlightData().get(FlightDataType.TURN_COORD));
+		
+		System.out.println(flightData);
 	}
 }

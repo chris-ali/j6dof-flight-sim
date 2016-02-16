@@ -1,4 +1,5 @@
 package com.chrisali.javaflightsim.instrumentpanel;
+
 import java.util.EnumSet;
 
 import javax.swing.SwingUtilities;
@@ -10,21 +11,23 @@ import com.chrisali.javaflightsim.setup.Options;
 import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 
 public class RunInstrumentPanel {
-	
+
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {runApp();}
 		});
-		
-		new Thread(new Integrate6DOFEquations(new AircraftBuilder(), EnumSet.of(Options.CONSOLE_DISPLAY))).start();
 	}
-	
+
 	private static void runApp() {
-		FlightData flightData = new FlightData();
+		Integrate6DOFEquations runSim = new Integrate6DOFEquations(new AircraftBuilder(),
+																   EnumSet.of(Options.UNLIMITED_FLIGHT));
+		FlightData flightData = new FlightData(runSim);
+
+		new Thread(runSim).start();
+		new Thread(flightData).start();
 		
 		InstrumentPanel panel = new InstrumentPanel(flightData);
-		
-		
+		flightData.setFlightDataListener(panel);
 	}
 }

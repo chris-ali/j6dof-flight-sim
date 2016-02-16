@@ -1,15 +1,31 @@
 package com.chrisali.javaflightsim.instrumentpanel.flightdata;
 
 import java.util.EnumMap;
+import java.util.Map;
 
 import com.chrisali.javaflightsim.instrumentpanel.panel.FlightDataListener;
+import com.chrisali.javaflightsim.instrumentpanel.panel.InstrumentPanel;
+import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.utilities.integration.SimOuts;
 
-public class FlightData {
+/**
+ *	Model class that interacts with {@link InstrumentPanel} and {@link Integrate6DOFEquations} to pass flight data from the simulation
+ *	to the instrument panel. Uses threading to 
+ */
+public class FlightData implements Runnable {
 	private static final double FT_S_TO_KTS = 1/1.68;
 	
 	private FlightDataListener dataListener;
 	private EnumMap<FlightDataType, Double> flightData = new EnumMap<FlightDataType, Double>(FlightDataType.class);
+	Integrate6DOFEquations runSim;
+	
+	/**
+	 * Creates an instance of {@link FlightData} with a reference to {@link Integrate6DOFEquations} so
+	 * that the thread in this class knows when the simulation is running
+	 * 
+	 * @param runSim
+	 */
+	public FlightData(Integrate6DOFEquations runSim) {this.runSim = runSim;}
 	
 	public EnumMap<FlightDataType, Double> getFlightData() {return flightData;}
 	
@@ -34,8 +50,41 @@ public class FlightData {
 		fireDataArrived();
 	}
 	
+	public void setFlightDataListener(FlightDataListener dataListener) {
+		this.dataListener = dataListener;
+	}
+	
+	/**
+	 * Lets the view ({@link InstrumentPanel}) know that data has arrived from the {@link Integrate6DOFEquations} thread
+	 * so that it can update its display
+	 */
 	private void fireDataArrived() {
 		if(dataListener != null)
 			dataListener.onFlightDataReceived();
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		for (Map.Entry<FlightDataType, Double> entry : flightData.entrySet()) {
+			 sb.append(entry.getKey().toString()).append(": ").append(entry.getValue())
+			   .append(" ").append(entry.getKey().getUnit()).append("\n");
+		}
+		sb.append("\n");
+		
+		return sb.toString();
+	}
+
+	@Override
+	public void run() {
+		try {
+			while (runSim.isRunning()) {
+				Thread.sleep(150);
+				
+				if(runSim.getSimOut() != null)
+					updateData(runSim.getSimOut());
+			}
+		} catch (InterruptedException e) {System.err.println("Thread interrupted!");}
 	}
 }
