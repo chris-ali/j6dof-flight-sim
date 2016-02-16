@@ -10,7 +10,7 @@ import com.chrisali.javaflightsim.utilities.integration.SimOuts;
 
 /**
  *	Model class that interacts with {@link InstrumentPanel} and {@link Integrate6DOFEquations} to pass flight data from the simulation
- *	to the instrument panel. Uses threading to 
+ *	to the instrument panel. Uses threading to obtain data from the simulation at a reasonable rate
  */
 public class FlightData implements Runnable {
 	private static final double FT_S_TO_KTS = 1/1.68;
@@ -50,6 +50,12 @@ public class FlightData implements Runnable {
 		fireDataArrived();
 	}
 	
+	/**
+	 * Initializes dataListener so that {@link InstrumentPanel} (which implements {@link FlightDataListener}) can listen
+	 * to {@link FlightData} 
+	 * 
+	 * @param dataListener
+	 */
 	public void setFlightDataListener(FlightDataListener dataListener) {
 		this.dataListener = dataListener;
 	}

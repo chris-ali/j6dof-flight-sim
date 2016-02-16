@@ -89,8 +89,8 @@ public final class Altimeter extends AbstractRadial {
         super();
         init(getInnerBounds().width, getInnerBounds().height);
         setMinValue(0);
-        setMaxValue(10);
-        calcAngleStep();
+		setMaxValue(10);
+		calcAngleStep();
         setLcdColor(LcdColor.BLACK_LCD);
         setLcdVisible(true);
         setTitle("ALT");
@@ -275,19 +275,16 @@ public final class Altimeter extends AbstractRadial {
         }
 
         // Draw the 10000ft pointer
-        //final double ANGLE10000FT = ((value10000 - getMinValue()) * angleStep10000ft);
         G2.rotate(((value10000 - getMinValue()) * angleStep10000ft), CENTER.getX(), CENTER.getY());
         G2.drawImage(pointer10000FtImage, 0, 0, null);
         G2.setTransform(OLD_TRANSFORM);
 
         // Draw the 1000ft pointer
-        //final double ANGLE1000FT = ((value1000 - getMinValue()) * angleStep1000ft);
         G2.rotate(((value1000 - getMinValue()) * angleStep1000ft), CENTER.getX(), CENTER.getY());
         G2.drawImage(pointer1000FtImage, 0, 0, null);
         G2.setTransform(OLD_TRANSFORM);
 
         // Draw the 100ft pointer
-        //final double ANGLE100FT = ((value100 - getMinValue()) * angleStep100ft);
         G2.rotate(((value100 - getMinValue()) * angleStep100ft), CENTER.getX(), CENTER.getY());
         G2.drawImage(pointer100FtImage, 0, 0, null);
         G2.setTransform(OLD_TRANSFORM);

@@ -79,9 +79,10 @@ public final class Inclinometer extends AbstractRadial {
 
     public Inclinometer() {
         super();
-        setMinValue(-360);
-        setMaxValue(360);
+        setMinValue(0);
+        setMaxValue(10);
         calcAngleStep();
+        setEnabled(true);
         init(getInnerBounds().width, getInnerBounds().height);
     }
 

@@ -188,7 +188,6 @@ public final class AirspeedIndicator extends AbstractRadial {
         }
 
         // Draw the tickmarks
-        G2.rotate(-rotationAngle, CENTER.getX(), CENTER.getY());
         G2.drawImage(tickmarksImage, 0, 0, null);
         G2.setTransform(OLD_TRANSFORM);
 
@@ -265,7 +264,7 @@ public final class AirspeedIndicator extends AbstractRadial {
 
     @Override
     public void setValue(final double VALUE) {
-        rotationAngle = (2.0 * Math.PI / 10.0) * (VALUE % 10);
+        rotationAngle = (2.0 * Math.PI / 243) * VALUE;
         fireStateChanged();
         this.oldValue = VALUE;
         if (isValueCoupled()) {
@@ -294,7 +293,7 @@ public final class AirspeedIndicator extends AbstractRadial {
 
     @Override
     public double getMaxValue() {
-        return 200;
+        return 10;
     }
 
     @Override

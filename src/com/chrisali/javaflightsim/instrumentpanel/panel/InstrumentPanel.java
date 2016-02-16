@@ -52,8 +52,7 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		
 		altimeter = new Altimeter();
 		altimeter.init(300, 300);
-		altimeter.setMaxValue(1E6);
-		altimeter.setUnitString("Calib. to 20000 ft");
+		altimeter.setUnitString("");
 		altimeter.setTitle(altimeter.toString());
 		altimeter.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
 		
@@ -94,7 +93,7 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		
 		airspeedIndicator = new AirspeedIndicator();
 		airspeedIndicator.init(300, 300);
-		airspeedIndicator.setMaxValue(200);
+		airspeedIndicator.setMaxValue(10);
 		airspeedIndicator.setUnitString("Knots");
 		airspeedIndicator.setTitle(airspeedIndicator.toString());
 		airspeedIndicator.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
@@ -125,8 +124,8 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		
 		turnCoordinator = new TurnCoordinator();
 		turnCoordinator.init(300, 300);
-		
-		add(turnCoordinator, gc);
+				
+		//add(turnCoordinator, gc);
 		
 		gc.anchor = GridBagConstraints.SOUTHWEST;
 		gc.gridx = 4;
@@ -150,14 +149,16 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 
 	@Override
 	public void onFlightDataReceived() {
-		artificalHorizon.setPitchAnimated(flightData.getFlightData().get(FlightDataType.PITCH));
-		artificalHorizon.setRollAnimated(flightData.getFlightData().get(FlightDataType.ROLL));
+		artificalHorizon.setPitch(flightData.getFlightData().get(FlightDataType.PITCH)*-1);
+		artificalHorizon.setRoll(flightData.getFlightData().get(FlightDataType.ROLL));
 		
-		altimeter.setValueAnimated(flightData.getFlightData().get(FlightDataType.ALTITUDE));
+		altimeter.setValue(flightData.getFlightData().get(FlightDataType.ALTITUDE));
 		
-		directionalGyro.setValueAnimated(flightData.getFlightData().get(FlightDataType.HEADING));
+		airspeedIndicator.setValue(flightData.getFlightData().get(FlightDataType.IAS));
 		
-		verticalSpeed.setValueAnimated(flightData.getFlightData().get(FlightDataType.VERT_SPEED));
+		directionalGyro.setValue(flightData.getFlightData().get(FlightDataType.HEADING));
+		
+		verticalSpeed.setValue(flightData.getFlightData().get(FlightDataType.VERT_SPEED));
 		
 		inlinometer.setValueAnimated(flightData.getFlightData().get(FlightDataType.TURN_RATE));
 		turnCoordinator.setValueAnimated(flightData.getFlightData().get(FlightDataType.TURN_COORD));

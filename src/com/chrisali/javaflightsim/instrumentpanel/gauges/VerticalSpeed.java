@@ -80,8 +80,8 @@ public class VerticalSpeed extends AbstractRadial {
 
     public VerticalSpeed() {
         super();
-        setMinValue(-3000);
-        setMaxValue(3000);
+        setMinValue(0);
+        setMaxValue(10);
         setPointerType(PointerType.TYPE13);
         setLcdColor(LcdColor.BLACK_LCD);
         setValueCoupled(false);
@@ -263,7 +263,7 @@ public class VerticalSpeed extends AbstractRadial {
         }
 
         // Draw the pointer
-        G2.rotate(getValue() * angleStep - Math.PI/2, CENTER.getX()-3, CENTER.getY()-9);
+        G2.rotate(visibleValue * angleStep - Math.PI/2, CENTER.getX()-3, CENTER.getY()-9);
         G2.drawImage(pointerImage, 0, 0, null);
 
         // Draw combined foreground image
@@ -274,7 +274,7 @@ public class VerticalSpeed extends AbstractRadial {
         }
 
         // Translate the coordinate system back to original
-        //G2.translate(-getInnerBounds().x, -getInnerBounds().y);
+        G2.translate(-getInnerBounds().x, -getInnerBounds().y);
 
         G2.dispose();
     }
@@ -282,23 +282,8 @@ public class VerticalSpeed extends AbstractRadial {
     @Override
     public void setValue(final double VALUE) {
         if (isEnabled()) {
-            super.setValue((VALUE % 360));
-
-            if ((VALUE % 360) == 0) {
-                this.visibleValue = 90;
-            }
-
-            if ((VALUE % 360) > 0 && (VALUE % 360) <= 180) {
-                this.visibleValue = ((VALUE % 360));
-            }
-
-            if ((VALUE % 360) > 180 && (VALUE % 360) <= 360) {
-                this.visibleValue = (360 - (VALUE % 360));
-            }
-
-            if (isValueCoupled()) {
-                setLcdValue(visibleValue);
-            }
+        	setLcdValue(VALUE);   	
+        	this.visibleValue = VALUE;
 
             fireStateChanged();
             repaint(getInnerBounds());
@@ -322,12 +307,12 @@ public class VerticalSpeed extends AbstractRadial {
 
     @Override
     public double getMinValue() {
-        return -3000.0;
+        return 0.0;
     }
 
     @Override
     public double getMaxValue() {
-        return 3000.0;
+        return 10.0;
     }
 
     public long getEasingDuration() {
@@ -342,7 +327,7 @@ public class VerticalSpeed extends AbstractRadial {
      * Converts gauge value from ft/min to rotation in radians
      */
     private void calcAngleStep() {
-        angleStep = (2.0 * Math.PI) / (360.0*getMaxValue());
+        angleStep = (2.0 * Math.PI) / (360*getMaxValue());
     }
 
     @Override
