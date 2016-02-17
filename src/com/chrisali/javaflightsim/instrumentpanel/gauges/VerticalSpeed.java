@@ -39,8 +39,9 @@ import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
-import java.awt.geom.Ellipse2D;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -51,9 +52,8 @@ import org.pushingpixels.trident.ease.Spline;
 
 import eu.hansolo.steelseries.gauges.AbstractGauge;
 import eu.hansolo.steelseries.gauges.AbstractRadial;
+import eu.hansolo.steelseries.tools.FrameDesign;
 import eu.hansolo.steelseries.tools.LcdColor;
-import eu.hansolo.steelseries.tools.PointerType;
-import eu.hansolo.steelseries.tools.PostPosition;
 import eu.hansolo.steelseries.tools.Section;
 
 public class VerticalSpeed extends AbstractRadial {
@@ -67,22 +67,17 @@ public class VerticalSpeed extends AbstractRadial {
     private BufferedImage pointerImage;
     private BufferedImage disabledImage;
     private Timeline timeline = new Timeline(this);
-    private final Spline EASE = new Spline(0.5f);
-    private long easingDuration = 250;
     private final FontRenderContext RENDER_CONTEXT = new FontRenderContext(null, true, true);
     private TextLayout unitLayout;
     private final Rectangle2D UNIT_BOUNDARY = new Rectangle2D.Double();
     private TextLayout valueLayout;
     private final Rectangle2D VALUE_BOUNDARY = new Rectangle2D.Double();
     private final Rectangle2D LCD = new Rectangle2D.Double();
-    private TextLayout infoLayout;
-    private final Rectangle2D INFO_BOUNDARY = new Rectangle2D.Double();
 
     public VerticalSpeed() {
         super();
         setMinValue(0);
         setMaxValue(10);
-        setPointerType(PointerType.TYPE13);
         setLcdColor(LcdColor.BLACK_LCD);
         setValueCoupled(false);
         setLcdDecimals(0);
@@ -135,13 +130,13 @@ public class VerticalSpeed extends AbstractRadial {
         if (isFrameVisible()) {
             switch (getFrameType()) {
                 case ROUND:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
+                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
                     break;
                 case SQUARE:
                     FRAME_FACTORY.createLinearFrame(GAUGE_WIDTH, GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
                     break;
                 default:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
+                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
                     break;
             }
         }
@@ -151,11 +146,6 @@ public class VerticalSpeed extends AbstractRadial {
         }
 
         create_TITLE_Image(GAUGE_WIDTH, getTitle(), getUnitString(), bImage);
-
-        // Create sections if not empty
-        if (!getSections().isEmpty()) {
-            createSections(bImage);
-        }
 
         create_TICKMARKS_Image(GAUGE_WIDTH, 0, 0, 0, 0, 0, 0, 0, true, true, null, bImage);
         
@@ -167,9 +157,7 @@ public class VerticalSpeed extends AbstractRadial {
         if (pointerImage != null) {
             pointerImage.flush();
         }
-        pointerImage = create_POINTER_Image(GAUGE_WIDTH, getPointerType());
-
-        createPostsImage(GAUGE_WIDTH, fImage, PostPosition.CENTER);
+        pointerImage = create_POINTER_Image(GAUGE_WIDTH);
 
         if (isForegroundVisible()) {
             switch (getFrameType()) {
@@ -209,7 +197,7 @@ public class VerticalSpeed extends AbstractRadial {
         // Translate the coordinate system related to insets
         G2.translate(getFramelessOffset().getX(), getFramelessOffset().getY());
 
-        CENTER.setLocation(getGaugeBounds().getCenterX(), getGaugeBounds().getCenterX());
+        CENTER.setLocation(getGaugeBounds().getCenterX() - getInsets().left, getGaugeBounds().getCenterX() - getInsets().right);
 
         // Draw combined background image
         G2.drawImage(bImage, 0, 0, null);
@@ -222,7 +210,9 @@ public class VerticalSpeed extends AbstractRadial {
                 G2.setColor(getLcdColor().TEXT_COLOR);
             }
             G2.setFont(getLcdUnitFont());
+            
             final double UNIT_STRING_WIDTH;
+            
             if (isLcdUnitStringVisible()) {
                 unitLayout = new TextLayout(getLcdUnitString(), G2.getFont(), RENDER_CONTEXT);
                 UNIT_BOUNDARY.setFrame(unitLayout.getBounds());
@@ -232,38 +222,14 @@ public class VerticalSpeed extends AbstractRadial {
                 UNIT_STRING_WIDTH = 0;
             }
             G2.setFont(getLcdValueFont());
-            switch (getModel().getNumberSystem()) {
-                case HEX:
-                    valueLayout = new TextLayout(Integer.toHexString((int) getLcdValue()).toUpperCase(), G2.getFont(), RENDER_CONTEXT);
-                    VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
-                    G2.drawString(Integer.toHexString((int) getLcdValue()).toUpperCase(), (int) (LCD.getX() + (LCD.getWidth() - UNIT_STRING_WIDTH - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (int) (LCD.getY() + LCD.getHeight() * 0.76f));
-                    break;
-
-                case OCT:
-                    valueLayout = new TextLayout(Integer.toOctalString((int) getLcdValue()), G2.getFont(), RENDER_CONTEXT);
-                    VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
-                    G2.drawString(Integer.toOctalString((int) getLcdValue()), (int) (LCD.getX() + (LCD.getWidth() - UNIT_STRING_WIDTH - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (int) (LCD.getY() + LCD.getHeight() * 0.76f));
-                    break;
-
-                case DEC:
-
-                default:
-                    valueLayout = new TextLayout(formatLcdValue(getLcdValue()), G2.getFont(), RENDER_CONTEXT);
-                    VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
-                    G2.drawString(formatLcdValue(getLcdValue()), (int) (LCD.getX() + (LCD.getWidth() - UNIT_STRING_WIDTH - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (int) (LCD.getY() + LCD.getHeight() * 0.76f));
-                    break;
-            }
-            // Draw lcd info string
-            if (!getLcdInfoString().isEmpty()) {
-                G2.setFont(getLcdInfoFont());
-                infoLayout = new TextLayout(getLcdInfoString(), G2.getFont(), RENDER_CONTEXT);
-                INFO_BOUNDARY.setFrame(infoLayout.getBounds());
-                G2.drawString(getLcdInfoString(), LCD.getBounds().x + 5, LCD.getBounds().y + (int) INFO_BOUNDARY.getHeight() + 5);
-            }
+            
+            valueLayout = new TextLayout(formatLcdValue(getLcdValue()), G2.getFont(), RENDER_CONTEXT);
+            VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
+            G2.drawString(formatLcdValue(getLcdValue()), (int) (LCD.getX() + (LCD.getWidth() - UNIT_STRING_WIDTH - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (int) (LCD.getY() + LCD.getHeight() * 0.76f));
         }
 
         // Draw the pointer
-        G2.rotate(visibleValue * angleStep - Math.PI/2, CENTER.getX()-3, CENTER.getY()-9);
+        G2.rotate(visibleValue * angleStep - Math.PI/2, CENTER.getX(), CENTER.getY());
         G2.drawImage(pointerImage, 0, 0, null);
 
         // Draw combined foreground image
@@ -298,9 +264,9 @@ public class VerticalSpeed extends AbstractRadial {
             }
             timeline = new Timeline(this);
             timeline.addPropertyToInterpolate("value", getValue(), value);
-            timeline.setEase(EASE);
+            timeline.setEase(new Spline(0.5f));
 
-            timeline.setDuration(easingDuration);
+            timeline.setDuration(250);
             timeline.play();
         }
     }
@@ -313,14 +279,6 @@ public class VerticalSpeed extends AbstractRadial {
     @Override
     public double getMaxValue() {
         return 10.0;
-    }
-
-    public long getEasingDuration() {
-        return this.easingDuration;
-    }
-
-    public void setEasingDuration(final long EASING_DURATION) {
-        this.easingDuration = EASING_DURATION;
     }
     
     /**
@@ -372,51 +330,6 @@ public class VerticalSpeed extends AbstractRadial {
         return LCD.getBounds();
     }
 
-    private void createSections(final BufferedImage IMAGE) {
-        final double ORIGIN_CORRECTION;
-        final double ANGLE_STEP;
-        final double OUTER_RADIUS;
-        final double INNER_RADIUS;
-        final double FREE_AREA_OUTER_RADIUS;
-        final double FREE_AREA_INNER_RADIUS;
-        final Ellipse2D INNER;
-
-        if (bImage != null) {
-            ORIGIN_CORRECTION = 90.0;
-            ANGLE_STEP = 1.0;
-            OUTER_RADIUS = bImage.getWidth() * 0.38f;
-            INNER_RADIUS = bImage.getWidth() * 0.38f - bImage.getWidth() * 0.04f;
-            FREE_AREA_OUTER_RADIUS = bImage.getWidth() / 2.0 - OUTER_RADIUS;
-            FREE_AREA_INNER_RADIUS = bImage.getWidth() / 2.0 - INNER_RADIUS;
-            INNER = new Ellipse2D.Double(bImage.getMinX() + FREE_AREA_INNER_RADIUS, bImage.getMinY() + FREE_AREA_INNER_RADIUS, 2 * INNER_RADIUS, 2 * INNER_RADIUS);
-
-            for (Section section : getSections()) {
-                final double ANGLE_START = ORIGIN_CORRECTION - (section.getStart() * ANGLE_STEP) + (getMinValue() * ANGLE_STEP);
-                final double ANGLE_EXTEND = -(section.getStop() - section.getStart()) * ANGLE_STEP;
-
-                final java.awt.geom.Arc2D OUTER_ARC = new java.awt.geom.Arc2D.Double(java.awt.geom.Arc2D.PIE);
-                OUTER_ARC.setFrame(bImage.getMinX() + FREE_AREA_OUTER_RADIUS, bImage.getMinY() + FREE_AREA_OUTER_RADIUS, 2 * OUTER_RADIUS, 2 * OUTER_RADIUS);
-                OUTER_ARC.setAngleStart(ANGLE_START);
-                OUTER_ARC.setAngleExtent(ANGLE_EXTEND);
-                final java.awt.geom.Area SECTION = new java.awt.geom.Area(OUTER_ARC);
-
-                SECTION.subtract(new java.awt.geom.Area(INNER));
-
-                section.setSectionArea(SECTION);
-            }
-
-            if (isSectionsVisible() && IMAGE != null) {
-                final Graphics2D G2 = IMAGE.createGraphics();
-                G2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                for (Section section : getSections()) {
-                    G2.setColor(section.getColor());
-                    G2.fill(section.getSectionArea());
-                }
-                G2.dispose();
-            }
-        }
-    }
-
     protected BufferedImage create_TICKMARKS_Image(final int WIDTH, final double FREE_AREA_ANGLE,
                                                                   final double OFFSET, final double MIN_VALUE,
                                                                   final double MAX_VALUE, final double ANGLE_STEP,
@@ -459,10 +372,6 @@ public class VerticalSpeed extends AbstractRadial {
         final Point2D OUTER_POINT = new Point2D.Double(0, 0);
         final Point2D TEXT_POINT = new Point2D.Double(0, 0);
         final Line2D TICK_LINE = new Line2D.Double(0, 0, 1, 1);
-        final Ellipse2D TICK_CIRCLE = new Ellipse2D.Double(0, 0, 1, 1);
-
-        final int MINOR_DIAMETER = (int) (0.0186915888 * WIDTH);
-        final int MAJOR_DIAMETER = (int) (0.03 * WIDTH);
 
         int counter = 0;
         float valueCounter = 90;
@@ -487,22 +396,9 @@ public class VerticalSpeed extends AbstractRadial {
                 G2.setStroke(THIN_STROKE);
                 INNER_POINT.setLocation(GAUGE_CENTER.getX() + (RADIUS - MED_LENGTH) * sinValue, GAUGE_CENTER.getY() + (RADIUS - MED_LENGTH) * cosValue);
                 OUTER_POINT.setLocation(GAUGE_CENTER.getX() + RADIUS * sinValue, GAUGE_CENTER.getY() + RADIUS * cosValue);
-
-                // Draw ticks
-                switch (getMinorTickmarkType()) {
-                    case LINE:
-                        TICK_LINE.setLine(INNER_POINT, OUTER_POINT);
-                        G2.draw(TICK_LINE);
-                        break;
-                    case CIRCLE:
-                        TICK_CIRCLE.setFrame(OUTER_POINT.getX() - MINOR_DIAMETER / 2.0, OUTER_POINT.getY() - MINOR_DIAMETER / 2.0, MINOR_DIAMETER, MINOR_DIAMETER);
-                        G2.fill(TICK_CIRCLE);
-                        break;
-                    default:
-                        TICK_LINE.setLine(INNER_POINT, OUTER_POINT);
-                        G2.draw(TICK_LINE);
-                        break;
-                }
+                
+                TICK_LINE.setLine(INNER_POINT, OUTER_POINT);
+                G2.draw(TICK_LINE);        
             }
 
             // Different tickmark every 45 units plus text
@@ -519,22 +415,9 @@ public class VerticalSpeed extends AbstractRadial {
                 G2.fill(UTIL.rotateTextAroundCenter(G2, String.valueOf((int) valueCounter/3), (int) TEXT_POINT.getX(), (int) TEXT_POINT.getY(), 0));
 
                 counter = 0;
-
-                // Draw ticks
-                switch (getMajorTickmarkType()) {
-                    case LINE:
-                        TICK_LINE.setLine(INNER_POINT, OUTER_POINT);
-                        G2.draw(TICK_LINE);
-                        break;
-                    case CIRCLE:
-                        TICK_CIRCLE.setFrame(OUTER_POINT.getX() - MAJOR_DIAMETER / 2.0, OUTER_POINT.getY() - MAJOR_DIAMETER / 2.0, MAJOR_DIAMETER, MAJOR_DIAMETER);
-                        G2.fill(TICK_CIRCLE);
-                        break;
-                    default:
-                        TICK_LINE.setLine(INNER_POINT, OUTER_POINT);
-                        G2.draw(TICK_LINE);
-                        break;
-                }
+                
+                TICK_LINE.setLine(INNER_POINT, OUTER_POINT);
+                G2.draw(TICK_LINE);
             }
 
             counter++;
@@ -555,9 +438,69 @@ public class VerticalSpeed extends AbstractRadial {
 
         return image;
     }
+    
+    @Override
+    protected BufferedImage create_POINTER_Image(final int WIDTH) {
+        if (WIDTH <= 0) {
+            return null;
+        }
+
+        final BufferedImage IMAGE = UTIL.createImage(WIDTH, (int) (1.0 * WIDTH), Transparency.TRANSLUCENT);
+        final Graphics2D G2 = IMAGE.createGraphics();
+        G2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        G2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        G2.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+        G2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
+        final int IMAGE_WIDTH = IMAGE.getWidth();
+        final int IMAGE_HEIGHT = IMAGE.getHeight();
+
+        final GeneralPath POINTER = new GeneralPath();
+        POINTER.setWindingRule(Path2D.WIND_EVEN_ODD);
+        POINTER.moveTo(IMAGE_WIDTH * 0.5186915887850467, IMAGE_HEIGHT * 0.4719626168224299);
+        POINTER.curveTo(IMAGE_WIDTH * 0.514018691588785, IMAGE_HEIGHT * 0.4719626168224299, IMAGE_WIDTH * 0.5093457943925234, IMAGE_HEIGHT * 0.4672897196261682, IMAGE_WIDTH * 0.5093457943925234, IMAGE_HEIGHT * 0.4672897196261682);
+        POINTER.lineTo(IMAGE_WIDTH * 0.5093457943925234, IMAGE_HEIGHT * 0.20093457943925233);
+        POINTER.lineTo(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.16822429906542055);
+        POINTER.lineTo(IMAGE_WIDTH * 0.49065420560747663, IMAGE_HEIGHT * 0.20093457943925233);
+        POINTER.lineTo(IMAGE_WIDTH * 0.49065420560747663, IMAGE_HEIGHT * 0.4672897196261682);
+        POINTER.curveTo(IMAGE_WIDTH * 0.49065420560747663, IMAGE_HEIGHT * 0.4672897196261682, IMAGE_WIDTH * 0.48130841121495327, IMAGE_HEIGHT * 0.4719626168224299, IMAGE_WIDTH * 0.48130841121495327, IMAGE_HEIGHT * 0.4719626168224299);
+        POINTER.curveTo(IMAGE_WIDTH * 0.4719626168224299, IMAGE_HEIGHT * 0.48130841121495327, IMAGE_WIDTH * 0.4672897196261682, IMAGE_HEIGHT * 0.49065420560747663, IMAGE_WIDTH * 0.4672897196261682, IMAGE_HEIGHT * 0.5);
+        POINTER.curveTo(IMAGE_WIDTH * 0.4672897196261682, IMAGE_HEIGHT * 0.514018691588785, IMAGE_WIDTH * 0.4766355140186916, IMAGE_HEIGHT * 0.5280373831775701, IMAGE_WIDTH * 0.49065420560747663, IMAGE_HEIGHT * 0.5327102803738317);
+        POINTER.curveTo(IMAGE_WIDTH * 0.49065420560747663, IMAGE_HEIGHT * 0.5327102803738317, IMAGE_WIDTH * 0.49065420560747663, IMAGE_HEIGHT * 0.5794392523364486, IMAGE_WIDTH * 0.49065420560747663, IMAGE_HEIGHT * 0.5887850467289719);
+        POINTER.curveTo(IMAGE_WIDTH * 0.48598130841121495, IMAGE_HEIGHT * 0.5934579439252337, IMAGE_WIDTH * 0.48130841121495327, IMAGE_HEIGHT * 0.5981308411214953, IMAGE_WIDTH * 0.48130841121495327, IMAGE_HEIGHT * 0.6074766355140186);
+        POINTER.curveTo(IMAGE_WIDTH * 0.48130841121495327, IMAGE_HEIGHT * 0.616822429906542, IMAGE_WIDTH * 0.49065420560747663, IMAGE_HEIGHT * 0.6261682242990654, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.6261682242990654);
+        POINTER.curveTo(IMAGE_WIDTH * 0.5093457943925234, IMAGE_HEIGHT * 0.6261682242990654, IMAGE_WIDTH * 0.5186915887850467, IMAGE_HEIGHT * 0.616822429906542, IMAGE_WIDTH * 0.5186915887850467, IMAGE_HEIGHT * 0.6074766355140186);
+        POINTER.curveTo(IMAGE_WIDTH * 0.5186915887850467, IMAGE_HEIGHT * 0.5981308411214953, IMAGE_WIDTH * 0.514018691588785, IMAGE_HEIGHT * 0.5934579439252337, IMAGE_WIDTH * 0.5046728971962616, IMAGE_HEIGHT * 0.5887850467289719);
+        POINTER.curveTo(IMAGE_WIDTH * 0.5046728971962616, IMAGE_HEIGHT * 0.5794392523364486, IMAGE_WIDTH * 0.5046728971962616, IMAGE_HEIGHT * 0.5327102803738317, IMAGE_WIDTH * 0.5093457943925234, IMAGE_HEIGHT * 0.5327102803738317);
+        POINTER.curveTo(IMAGE_WIDTH * 0.5233644859813084, IMAGE_HEIGHT * 0.5280373831775701, IMAGE_WIDTH * 0.5327102803738317, IMAGE_HEIGHT * 0.514018691588785, IMAGE_WIDTH * 0.5327102803738317, IMAGE_HEIGHT * 0.5);
+        POINTER.curveTo(IMAGE_WIDTH * 0.5327102803738317, IMAGE_HEIGHT * 0.49065420560747663, IMAGE_WIDTH * 0.5280373831775701, IMAGE_HEIGHT * 0.48130841121495327, IMAGE_WIDTH * 0.5186915887850467, IMAGE_HEIGHT * 0.4719626168224299);
+        POINTER.closePath();
+        final Point2D POINTER_START = new Point2D.Double(0, POINTER.getBounds2D().getMinY());
+        final Point2D POINTER_STOP = new Point2D.Double(0, POINTER.getBounds2D().getMaxY());
+        final float[] POINTER_FRACTIONS = {
+            0.0f,
+            0.31f,
+            0.3101f,
+            0.32f,
+            1.0f
+        };
+        final Color[] POINTER_COLORS = {
+            new Color(255, 255, 255, 255),
+            new Color(255, 255, 255, 255),
+            new Color(32, 32, 32, 255),
+            new Color(32, 32, 32, 255),
+            new Color(32, 32, 32, 255)
+        };
+        final LinearGradientPaint POINTER_GRADIENT = new LinearGradientPaint(POINTER_START, POINTER_STOP, POINTER_FRACTIONS, POINTER_COLORS);
+        G2.setPaint(POINTER_GRADIENT);
+        G2.fill(POINTER);
+
+        G2.dispose();
+
+        return IMAGE;
+    }
 
     @Override
     public String toString() {
-        return "Vertical Speed";
+        return "VERTICAL SPEED";
     }
 }

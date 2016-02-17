@@ -51,7 +51,6 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		gc.fill = GridBagConstraints.BOTH;
 		
 		altimeter = new Altimeter();
-		altimeter.init(300, 300);
 		altimeter.setUnitString("");
 		altimeter.setTitle(altimeter.toString());
 		altimeter.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
@@ -66,7 +65,6 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		gc.fill = GridBagConstraints.BOTH;
 		
 		artificalHorizon = new ArtificialHorizon();
-		artificalHorizon.init(300, 300);
 		artificalHorizon.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
 		
 		add(artificalHorizon, gc);
@@ -79,7 +77,8 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		gc.fill = GridBagConstraints.BOTH;
 		
 		directionalGyro = new DirectionalGyro();
-		directionalGyro.init(300, 300);
+		directionalGyro.setUnitString("");
+		directionalGyro.setTitle(directionalGyro.toString());
 		directionalGyro.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
 		
 		add(directionalGyro, gc);
@@ -92,9 +91,7 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		gc.fill = GridBagConstraints.BOTH;
 		
 		airspeedIndicator = new AirspeedIndicator();
-		airspeedIndicator.init(300, 300);
-		airspeedIndicator.setMaxValue(10);
-		airspeedIndicator.setUnitString("Knots");
+		airspeedIndicator.setUnitString("KNOTS");
 		airspeedIndicator.setTitle(airspeedIndicator.toString());
 		airspeedIndicator.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
 		
@@ -108,8 +105,7 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		gc.fill = GridBagConstraints.BOTH;
 		
 		verticalSpeed = new VerticalSpeed();
-		verticalSpeed.init(300, 300);
-		verticalSpeed.setUnitString("x100 ft/min");
+		verticalSpeed.setUnitString("x100 FT/MIN");
 		verticalSpeed.setTitle(verticalSpeed.toString());
 		verticalSpeed.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
 		
@@ -123,7 +119,6 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		gc.fill = GridBagConstraints.BOTH;
 		
 		turnCoordinator = new TurnCoordinator();
-		turnCoordinator.init(300, 300);
 				
 		//add(turnCoordinator, gc);
 		
@@ -135,21 +130,20 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		gc.fill = GridBagConstraints.BOTH;
 		
 		inlinometer = new Inclinometer();
-		inlinometer.init(300, 300);
-		inlinometer.setUnitString("No Pitch Information");
+		inlinometer.setUnitString("");
 		inlinometer.setTitle(inlinometer.toString());
 		inlinometer.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
 		
 		add(inlinometer, gc);
 		
-		setSize(900, 660);
+		setSize(900, 620);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setVisible(true);
 	}
 
 	@Override
 	public void onFlightDataReceived() {
-		artificalHorizon.setPitch(flightData.getFlightData().get(FlightDataType.PITCH)*-1);
+		artificalHorizon.setPitch(flightData.getFlightData().get(FlightDataType.PITCH));
 		artificalHorizon.setRoll(flightData.getFlightData().get(FlightDataType.ROLL));
 		
 		altimeter.setValue(flightData.getFlightData().get(FlightDataType.ALTITUDE));
@@ -162,7 +156,5 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		
 		inlinometer.setValueAnimated(flightData.getFlightData().get(FlightDataType.TURN_RATE));
 		turnCoordinator.setValueAnimated(flightData.getFlightData().get(FlightDataType.TURN_COORD));
-		
-		System.out.println(flightData);
 	}
 }

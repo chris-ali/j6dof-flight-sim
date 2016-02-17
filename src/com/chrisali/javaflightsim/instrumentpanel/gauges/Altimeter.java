@@ -27,11 +27,6 @@
  */
 package com.chrisali.javaflightsim.instrumentpanel.gauges;
 
-import eu.hansolo.steelseries.gauges.AbstractGauge;
-import eu.hansolo.steelseries.gauges.AbstractRadial;
-import eu.hansolo.steelseries.tools.LcdColor;
-import eu.hansolo.steelseries.tools.PostPosition;
-import eu.hansolo.steelseries.tools.Section;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -51,8 +46,15 @@ import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+
 import org.pushingpixels.trident.Timeline;
 import org.pushingpixels.trident.ease.Spline;
+
+import eu.hansolo.steelseries.gauges.AbstractGauge;
+import eu.hansolo.steelseries.gauges.AbstractRadial;
+import eu.hansolo.steelseries.tools.FrameDesign;
+import eu.hansolo.steelseries.tools.LcdColor;
+import eu.hansolo.steelseries.tools.Section;
 
 public final class Altimeter extends AbstractRadial {
 
@@ -140,13 +142,13 @@ public final class Altimeter extends AbstractRadial {
         if (isFrameVisible()) {
             switch (getFrameType()) {
                 case ROUND:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
+                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
                     break;
                 case SQUARE:
                     FRAME_FACTORY.createLinearFrame(GAUGE_WIDTH, GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
                     break;
                 default:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
+                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
                     break;
             }
         }
@@ -179,9 +181,6 @@ public final class Altimeter extends AbstractRadial {
         }
         pointer10000FtImage = create_10000FT_POINTER_Image(GAUGE_WIDTH);
 
-
-        createPostsImage(GAUGE_WIDTH, fImage, PostPosition.CENTER);
-
         if (isForegroundVisible()) {
             switch (getFrameType()) {
                 case SQUARE:
@@ -212,7 +211,7 @@ public final class Altimeter extends AbstractRadial {
 
         final Graphics2D G2 = (Graphics2D) g.create();
 
-        CENTER.setLocation(getGaugeBounds().getCenterX(), getGaugeBounds().getCenterX());
+        CENTER.setLocation(getGaugeBounds().getCenterX() - getInsets().left, getGaugeBounds().getCenterY() - getInsets().top);
 
         G2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         G2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -429,7 +428,8 @@ public final class Altimeter extends AbstractRadial {
         Point2D textPoint = null;
         Line2D tick;
         int counter = 0;
-        int tickCounter = 0;
+        @SuppressWarnings("unused")
+		int tickCounter = 0;
 
         G2.setFont(STD_FONT);
 
@@ -653,6 +653,6 @@ public final class Altimeter extends AbstractRadial {
 
     @Override
     public String toString() {
-        return "Altimeter";
+        return "ALTITUDE";
     }
 }

@@ -28,9 +28,6 @@
 
 package com.chrisali.javaflightsim.instrumentpanel.gauges;
 
-import eu.hansolo.steelseries.gauges.AbstractGauge;
-import eu.hansolo.steelseries.gauges.AbstractRadial;
-import eu.hansolo.steelseries.tools.Section;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -50,8 +47,14 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+
 import org.pushingpixels.trident.Timeline;
 import org.pushingpixels.trident.ease.Spline;
+
+import eu.hansolo.steelseries.gauges.AbstractGauge;
+import eu.hansolo.steelseries.gauges.AbstractRadial;
+import eu.hansolo.steelseries.tools.FrameDesign;
+import eu.hansolo.steelseries.tools.Section;
 
 
 public final class Inclinometer extends AbstractRadial {
@@ -59,7 +62,6 @@ public final class Inclinometer extends AbstractRadial {
 	private static final long serialVersionUID = 1L;
 
     private double visibleValue = 90;
-    private int stepValue = 0;
     private boolean decimalVisible = false;
     private final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.0");
     private double angleStep;
@@ -68,21 +70,20 @@ public final class Inclinometer extends AbstractRadial {
     // Images used to combine layers for background and foreground
     private BufferedImage bImage;
     private BufferedImage fImage;
-    private BufferedImage stepPointerImage;
+    private BufferedImage pointerImage;
     private BufferedImage disabledImage;
     private Timeline timeline = new Timeline(this);
-    private final Spline EASE = new Spline(0.5f);
-    private long easingDuration = 250;
     private final FontRenderContext RENDER_CONTEXT = new FontRenderContext(null, true, true);
     private TextLayout textLayout;
     private final Rectangle2D TEXT_BOUNDARY = new Rectangle2D.Double();
 
     public Inclinometer() {
         super();
-        setMinValue(0);
+        setMinValue(-10);
         setMaxValue(10);
         calcAngleStep();
         setEnabled(true);
+        setDecimalVisible(false);
         init(getInnerBounds().width, getInnerBounds().height);
     }
 
@@ -116,13 +117,13 @@ public final class Inclinometer extends AbstractRadial {
         if (isFrameVisible()) {
             switch (getFrameType()) {
                 case ROUND:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
+                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
                     break;
                 case SQUARE:
                     FRAME_FACTORY.createLinearFrame(GAUGE_WIDTH, GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
                     break;
                 default:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
+                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
                     break;
             }
         }
@@ -135,10 +136,10 @@ public final class Inclinometer extends AbstractRadial {
         
         create_TITLE_Image(WIDTH, getTitle(), getUnitString(), bImage);
 
-        if (stepPointerImage != null) {
-            stepPointerImage.flush();
+        if (pointerImage != null) {
+            pointerImage.flush();
         }
-        stepPointerImage = create_STEPPOINTER_Image(GAUGE_WIDTH);
+        pointerImage = create_STEPPOINTER_Image(GAUGE_WIDTH);
 
         if (isForegroundVisible()) {
             switch (getFrameType()) {
@@ -178,7 +179,7 @@ public final class Inclinometer extends AbstractRadial {
         G2.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING, java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
         // Translate the coordinate system related to insets
-        G2.translate(-getFramelessOffset().getX(), -getFramelessOffset().getY());
+        G2.translate(getFramelessOffset().getX()+7, getFramelessOffset().getY()+7);
 
         CENTER.setLocation(getGaugeBounds().getCenterX(), getGaugeBounds().getCenterX());
 
@@ -201,9 +202,9 @@ public final class Inclinometer extends AbstractRadial {
         G2.drawString(DECIMAL_FORMAT.format(visibleValue), (int) ((getInnerBounds().width - TEXT_BOUNDARY.getWidth()) / 2.0), (int) ((getInnerBounds().width - TEXT_BOUNDARY.getHeight()) / 2.0) + textLayout.getAscent() - textLayout.getDescent());
         G2.translate(-getFramelessOffset().getX(), -getFramelessOffset().getY());
 
-        // Draw StepPointer
-        G2.rotate(Math.toRadians(stepValue), CENTER.getX(), CENTER.getY());
-        G2.drawImage(stepPointerImage, 0, 0, null);
+        // Draw Pointer
+        G2.rotate(Math.toRadians(visibleValue*angleStep), CENTER.getX(), CENTER.getY());
+        G2.drawImage(pointerImage, 0, 0, null);
 
         G2.setTransform(OLD_TRANSFORM);
 
@@ -221,18 +222,14 @@ public final class Inclinometer extends AbstractRadial {
     }
 
     /**
-     * Sets the current level value in degrees (0 - 360)
+     * Sets the current inclinometer value 
      * @param VALUE
      */
     @Override
     public void setValue(final double VALUE) {
         if (isEnabled()) {
             super.setValue(VALUE);
-
-            this.stepValue = 2 * ((int) (Math.abs(VALUE) * 10) % 10);
-            if (stepValue > 10)
-                stepValue -= 20;
-
+            
             this.visibleValue = VALUE;
 
             fireStateChanged();
@@ -243,31 +240,26 @@ public final class Inclinometer extends AbstractRadial {
     @Override
     public void setValueAnimated(double value) {
         if (isEnabled()) {
-            // Needle should always take the shortest way to it's new position
-            if (360 - value + getValue() < value - getValue()) {
-                value = 360 - value;
-            }
-
             if (timeline.getState() == Timeline.TimelineState.PLAYING_FORWARD || timeline.getState() == Timeline.TimelineState.PLAYING_REVERSE) {
                 timeline.abort();
             }
             timeline = new Timeline(this);
             timeline.addPropertyToInterpolate("value", getValue(), value);
-            timeline.setEase(EASE);
+            timeline.setEase(new Spline(0.5f));
 
-            timeline.setDuration(easingDuration);
+            timeline.setDuration(500);
             timeline.play();
         }
     }
 
     @Override
     public double getMinValue() {
-        return -360.0;
+        return -10.0;
     }
 
     @Override
     public double getMaxValue() {
-        return 360.0;
+        return 10.0;
     }
 
     /**
@@ -292,16 +284,8 @@ public final class Inclinometer extends AbstractRadial {
         repaint();
     }
 
-    public long getEasingDuration() {
-        return this.easingDuration;
-    }
-
-    public void setEasingDuration(final long EASING_DURATION) {
-        this.easingDuration = EASING_DURATION;
-    }
-
     private void calcAngleStep() {
-        angleStep = (4.0 * Math.PI) / (getMaxValue() - getMinValue());
+        angleStep = (45.0 * Math.PI) / (getMaxValue() - getMinValue());
     }
 
     @Override
@@ -345,6 +329,8 @@ public final class Inclinometer extends AbstractRadial {
         final int IMAGE_HEIGHT = image.getHeight();
 
         final Font STD_FONT = new Font("Verdana", 0, (int) (0.075 * WIDTH));
+        final Font SMALL_FONT = new Font("Verdana", 0, (int) (0.045 * WIDTH));
+        
         final BasicStroke THICK_STROKE = new BasicStroke(4.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL);
         final int TEXT_DISTANCE = (int) (0.08 * WIDTH);
         final int MIN_LENGTH = (int) (0.0133333333 * WIDTH);
@@ -376,7 +362,6 @@ public final class Inclinometer extends AbstractRadial {
             outerPoint = new Point2D.Double(GAUGE_CENTER.getX() + RADIUS * sinValue, GAUGE_CENTER.getY() + RADIUS * cosValue);
             G2.setColor(super.getBackgroundColor().LABEL_COLOR);
 
-            // Different tickmark every 45 units plus text
             if (counter == 90 || counter == 270 || counter == 70 || counter == 290) {
                 G2.setColor(super.getBackgroundColor().LABEL_COLOR);
                 G2.setStroke(THICK_STROKE);
@@ -401,6 +386,18 @@ public final class Inclinometer extends AbstractRadial {
 
                 G2.fill(UTIL.rotateTextAroundCenter(G2, "R", (int) textPoint.getX(), (int) textPoint.getY(), 0));
             }
+            else if (counter == 359) {
+            	// Draw outer text
+                textPoint = new Point2D.Double(GAUGE_CENTER.getX() + (RADIUS - 0.25*TEXT_DISTANCE) * sinValue, GAUGE_CENTER.getY() + (RADIUS - TEXT_DISTANCE) * cosValue);
+                G2.setFont(SMALL_FONT);
+
+                G2.fill(UTIL.rotateTextAroundCenter(G2, "NO PITCH", (int) textPoint.getX(), (int) textPoint.getY(), 0));
+                
+                textPoint = new Point2D.Double(GAUGE_CENTER.getX() + (RADIUS - 0.25*TEXT_DISTANCE) * sinValue, GAUGE_CENTER.getY() + (RADIUS - 0.25*TEXT_DISTANCE) * cosValue);
+                G2.setFont(SMALL_FONT);
+
+                G2.fill(UTIL.rotateTextAroundCenter(G2, "INFORMATION", (int) textPoint.getX(), (int) textPoint.getY(), 0));
+            }
 
             counter++;
 
@@ -418,6 +415,9 @@ public final class Inclinometer extends AbstractRadial {
 
         final BufferedImage IMAGE = UTIL.createImage(WIDTH, WIDTH, Transparency.TRANSLUCENT);
         final Graphics2D G2 = IMAGE.createGraphics();
+        final int IMAGE_WIDTH = IMAGE.getWidth();
+        final int IMAGE_HEIGHT = IMAGE.getHeight();
+        
         G2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         G2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         G2.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
@@ -425,56 +425,61 @@ public final class Inclinometer extends AbstractRadial {
         G2.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
         G2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
         G2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        final int IMAGE_WIDTH = IMAGE.getWidth();
-        final int IMAGE_HEIGHT = IMAGE.getHeight();
-
-        final GeneralPath POINTER_SMALL_LEFT = new GeneralPath();
-        POINTER_SMALL_LEFT.setWindingRule(Path2D.WIND_EVEN_ODD);
-        POINTER_SMALL_LEFT.moveTo(IMAGE_WIDTH * 0.2850467289719626, IMAGE_HEIGHT * 0.514018691588785);
-        POINTER_SMALL_LEFT.lineTo(IMAGE_WIDTH * 0.2102803738317757, IMAGE_HEIGHT * 0.5);
-        POINTER_SMALL_LEFT.lineTo(IMAGE_WIDTH * 0.2850467289719626, IMAGE_HEIGHT * 0.48130841121495327);
-        POINTER_SMALL_LEFT.curveTo(IMAGE_WIDTH * 0.2850467289719626, IMAGE_HEIGHT * 0.48130841121495327, IMAGE_WIDTH * 0.2803738317757009, IMAGE_HEIGHT * 0.49065420560747663, IMAGE_WIDTH * 0.2803738317757009, IMAGE_HEIGHT * 0.4953271028037383);
-        POINTER_SMALL_LEFT.curveTo(IMAGE_WIDTH * 0.2803738317757009, IMAGE_HEIGHT * 0.5046728971962616, IMAGE_WIDTH * 0.2850467289719626, IMAGE_HEIGHT * 0.514018691588785, IMAGE_WIDTH * 0.2850467289719626, IMAGE_HEIGHT * 0.514018691588785);
-        POINTER_SMALL_LEFT.closePath();
-        final Point2D POINTER_SMALL_LEFT_START = new Point2D.Double(POINTER_SMALL_LEFT.getBounds2D().getMinX(), 0);
-        final Point2D POINTER_SMALL_LEFT_STOP = new Point2D.Double(POINTER_SMALL_LEFT.getBounds2D().getMaxX(), 0);
+        
+        final GeneralPath POINTER_SMALL = new GeneralPath();
+        POINTER_SMALL.setWindingRule(Path2D.WIND_EVEN_ODD);
+        
+        POINTER_SMALL.moveTo(IMAGE_WIDTH * 0.18, IMAGE_HEIGHT * 0.51);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.82, IMAGE_HEIGHT * 0.51);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.82, IMAGE_HEIGHT * 0.49);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.18, IMAGE_HEIGHT * 0.49);
+        POINTER_SMALL.closePath();
+        
+        POINTER_SMALL.moveTo(IMAGE_WIDTH * 0.495, IMAGE_HEIGHT * 0.42);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.505, IMAGE_HEIGHT * 0.42);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.505, IMAGE_HEIGHT * 0.49);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.495, IMAGE_HEIGHT * 0.49);
+        POINTER_SMALL.closePath();
+        
+        POINTER_SMALL.moveTo(IMAGE_WIDTH * 0.40, IMAGE_HEIGHT * 0.53);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.47, IMAGE_HEIGHT * 0.53);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.47, IMAGE_HEIGHT * 0.54);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.40, IMAGE_HEIGHT * 0.54);
+        POINTER_SMALL.closePath();
+        
+        POINTER_SMALL.moveTo(IMAGE_WIDTH * 0.53, IMAGE_HEIGHT * 0.53);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.60, IMAGE_HEIGHT * 0.53);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.60, IMAGE_HEIGHT * 0.54);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.53, IMAGE_HEIGHT * 0.54);
+        POINTER_SMALL.closePath();
+        
+        POINTER_SMALL.moveTo(IMAGE_WIDTH * 0.47, IMAGE_HEIGHT * 0.51);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.53, IMAGE_HEIGHT * 0.51);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.53, IMAGE_HEIGHT * 0.56);
+        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.47, IMAGE_HEIGHT * 0.56);
+        POINTER_SMALL.closePath();
+                
+        final Point2D POINTER_SMALL_START = new Point2D.Double(POINTER_SMALL.getBounds2D().getMinX(), 0);
+        final Point2D POINTER_SMALL_STOP = new Point2D.Double(POINTER_SMALL.getBounds2D().getMaxX(), 0);
         final float[] POINTER_SMALL_FRACTIONS = {
             0.0f,
             0.3f,
             0.59f,
             1.0f
         };
+        
         final Color[] POINTER_SMALL_COLORS = {
-            UTIL.setAlpha(getPointerColor().DARK, 180),
-            UTIL.setAlpha(getPointerColor().LIGHT, 180),
-            UTIL.setAlpha(getPointerColor().LIGHT, 180),
-            UTIL.setAlpha(getPointerColor().DARK, 180)
+            UTIL.setAlpha(getLabelColor(), 220),
+            UTIL.setAlpha(getLabelColor(), 220),
+            UTIL.setAlpha(getLabelColor(), 220),
+            UTIL.setAlpha(getLabelColor(), 220)
         };
-        final LinearGradientPaint POINTER_SMALL_LEFT_GRADIENT = new LinearGradientPaint(POINTER_SMALL_LEFT_START, POINTER_SMALL_LEFT_STOP, POINTER_SMALL_FRACTIONS, POINTER_SMALL_COLORS);
+        final LinearGradientPaint POINTER_SMALL_LEFT_GRADIENT = new LinearGradientPaint(POINTER_SMALL_START, POINTER_SMALL_STOP, POINTER_SMALL_FRACTIONS, POINTER_SMALL_COLORS);
         G2.setPaint(POINTER_SMALL_LEFT_GRADIENT);
-        G2.fill(POINTER_SMALL_LEFT);
-        final Color STROKE_COLOR_POINTER_SMALL = UTIL.setAlpha(getPointerColor().LIGHT, 128);
-        G2.setColor(STROKE_COLOR_POINTER_SMALL);
+        G2.fill(POINTER_SMALL);
+        G2.setColor(getBackgroundColor().LABEL_COLOR);
         G2.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
-        G2.draw(POINTER_SMALL_LEFT);
-
-        final GeneralPath POINTER_SMALL_RIGHT = new GeneralPath();
-        POINTER_SMALL_RIGHT.setWindingRule(Path2D.WIND_EVEN_ODD);
-        POINTER_SMALL_RIGHT.moveTo(IMAGE_WIDTH * 0.7149532710280374, IMAGE_HEIGHT * 0.514018691588785);
-        POINTER_SMALL_RIGHT.lineTo(IMAGE_WIDTH * 0.7897196261682243, IMAGE_HEIGHT * 0.5);
-        POINTER_SMALL_RIGHT.lineTo(IMAGE_WIDTH * 0.7149532710280374, IMAGE_HEIGHT * 0.48130841121495327);
-        POINTER_SMALL_RIGHT.curveTo(IMAGE_WIDTH * 0.7149532710280374, IMAGE_HEIGHT * 0.48130841121495327, IMAGE_WIDTH * 0.719626168224299, IMAGE_HEIGHT * 0.49065420560747663, IMAGE_WIDTH * 0.719626168224299, IMAGE_HEIGHT * 0.4953271028037383);
-        POINTER_SMALL_RIGHT.curveTo(IMAGE_WIDTH * 0.719626168224299, IMAGE_HEIGHT * 0.5046728971962616, IMAGE_WIDTH * 0.7149532710280374, IMAGE_HEIGHT * 0.514018691588785, IMAGE_WIDTH * 0.7149532710280374, IMAGE_HEIGHT * 0.514018691588785);
-        POINTER_SMALL_RIGHT.closePath();
-        final Point2D POINTER_SMALL_RIGHT_START = new Point2D.Double(POINTER_SMALL_RIGHT.getBounds2D().getMaxX(), 0);
-        final Point2D POINTER_SMALL_RIGHT_STOP = new Point2D.Double(POINTER_SMALL_RIGHT.getBounds2D().getMinX(), 0);
-
-        final LinearGradientPaint POINTER_SMALL_RIGHT_GRADIENT = new LinearGradientPaint(POINTER_SMALL_RIGHT_START, POINTER_SMALL_RIGHT_STOP, POINTER_SMALL_FRACTIONS, POINTER_SMALL_COLORS);
-        G2.setPaint(POINTER_SMALL_RIGHT_GRADIENT);
-        G2.fill(POINTER_SMALL_RIGHT);
-        G2.setColor(STROKE_COLOR_POINTER_SMALL);
-        G2.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
-        G2.draw(POINTER_SMALL_RIGHT);
+        G2.draw(POINTER_SMALL);
 
         G2.dispose();
 
@@ -483,6 +488,6 @@ public final class Inclinometer extends AbstractRadial {
 
     @Override
     public String toString() {
-        return "Turn Coordinator";
+        return "TURN COORDINATOR";
     }
 }

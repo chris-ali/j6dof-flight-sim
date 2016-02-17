@@ -51,6 +51,7 @@ import org.pushingpixels.trident.ease.Spline;
 
 import eu.hansolo.steelseries.gauges.AbstractGauge;
 import eu.hansolo.steelseries.gauges.AbstractRadial;
+import eu.hansolo.steelseries.tools.FrameDesign;
 import eu.hansolo.steelseries.tools.LcdColor;
 import eu.hansolo.steelseries.tools.Util;
 
@@ -76,11 +77,7 @@ public final class AirspeedIndicator extends AbstractRadial {
     private double unitStringWidth;
     private TextLayout valueLayout;
     private final Rectangle2D VALUE_BOUNDARY = new Rectangle2D.Double();
-    private TextLayout infoLayout;
-    private final Rectangle2D INFO_BOUNDARY = new Rectangle2D.Double();
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Constructor">
     public AirspeedIndicator() {
         super();
         oldValue = 0;
@@ -88,11 +85,9 @@ public final class AirspeedIndicator extends AbstractRadial {
         CENTER = new Point2D.Double();
         timeline = new Timeline(this);
         init(getInnerBounds().width, getInnerBounds().height);
-        setLcdVisible(true);
+        setLcdVisible(false);
     }
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Initialization">
     @Override
     public final AbstractGauge init(int WIDTH, int HEIGHT) {
         if (WIDTH <= 1 || HEIGHT <= 1) {
@@ -118,7 +113,7 @@ public final class AirspeedIndicator extends AbstractRadial {
         if (frameImage != null) {
             frameImage.flush();
         }
-        frameImage = create_FRAME_Image(WIDTH);
+        frameImage = FRAME_FACTORY.createRadialFrame(WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), backgroundImage);
 
         if (backgroundImage != null) {
             backgroundImage.flush();
@@ -230,13 +225,6 @@ public final class AirspeedIndicator extends AbstractRadial {
                     VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
                     G2.drawString(formatLcdValue(getLcdValue()), (int) (LCD.getX() + (LCD.getWidth() - unitStringWidth - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (int) (LCD.getY() + lcdImage.getHeight() * 0.76));
                     break;
-            }
-            // Draw lcd info string
-            if (!getLcdInfoString().isEmpty()) {
-                G2.setFont(getLcdInfoFont());
-                infoLayout = new TextLayout(getLcdInfoString(), G2.getFont(), RENDER_CONTEXT);
-                INFO_BOUNDARY.setFrame(infoLayout.getBounds());
-                G2.drawString(getLcdInfoString(), LCD.getBounds().x + 5, LCD.getBounds().y + (int) INFO_BOUNDARY.getHeight() + 5);
             }
         }
         
@@ -483,8 +471,8 @@ public final class AirspeedIndicator extends AbstractRadial {
         final Color[] POINTER_COLORS = {
             new Color(255, 255, 255, 255),
             new Color(255, 255, 255, 255),
-            new Color(255, 255, 255, 255),
-            new Color(200, 200, 200, 255),
+            new Color(32, 32, 32, 255),
+            new Color(32, 32, 32, 255),
             new Color(32, 32, 32, 255)
         };
         final LinearGradientPaint POINTER_GRADIENT = new LinearGradientPaint(POINTER_START, POINTER_STOP, POINTER_FRACTIONS, POINTER_COLORS);
@@ -498,6 +486,6 @@ public final class AirspeedIndicator extends AbstractRadial {
 
     @Override
     public String toString() {
-        return "Airspeed";
+        return "AIRSPEED";
     }
 }

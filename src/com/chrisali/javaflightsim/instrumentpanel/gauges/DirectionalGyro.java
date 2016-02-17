@@ -29,6 +29,8 @@ package com.chrisali.javaflightsim.instrumentpanel.gauges;
 
 import eu.hansolo.steelseries.gauges.AbstractGauge;
 import eu.hansolo.steelseries.gauges.AbstractRadial;
+import eu.hansolo.steelseries.tools.FrameDesign;
+
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -53,7 +55,7 @@ import org.pushingpixels.trident.ease.Spline;
 public class DirectionalGyro extends AbstractRadial {
 
 	private static final long serialVersionUID = 1L;
-	// <editor-fold defaultstate="collapsed" desc="Variable declaration">
+
     private boolean rotateTickmarks;
     private double value;
     private double rotationAngle;
@@ -65,9 +67,7 @@ public class DirectionalGyro extends AbstractRadial {
     private BufferedImage foregroundImage;
     private BufferedImage disabledImage;
     private Timeline timeline;
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Constructor">
     public DirectionalGyro() {
         super();
         rotateTickmarks = true;
@@ -78,9 +78,7 @@ public class DirectionalGyro extends AbstractRadial {
         init(getInnerBounds().width, getInnerBounds().height);
         setLcdVisible(true);
     }
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Initialization">
     @Override
     public final AbstractGauge init(int WIDTH, int HEIGHT) {
         final int GAUGE_WIDTH = isFrameVisible() ? WIDTH : getGaugeBounds().width;
@@ -99,7 +97,7 @@ public class DirectionalGyro extends AbstractRadial {
         if (frameImage != null) {
             frameImage.flush();
         }
-        frameImage = create_FRAME_Image(GAUGE_WIDTH);
+        frameImage = FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), backgroundImage);
 
         if (backgroundImage != null) {
             backgroundImage.flush();
@@ -110,6 +108,8 @@ public class DirectionalGyro extends AbstractRadial {
             tickmarksImage.flush();
         }
         tickmarksImage = create_TICKMARKS_Image(GAUGE_WIDTH);
+        
+        create_TITLE_Image(WIDTH, getTitle(), getUnitString(), backgroundImage);
 
         if (planeImage != null) {
             planeImage.flush();
@@ -119,18 +119,8 @@ public class DirectionalGyro extends AbstractRadial {
         if (foregroundImage != null) {
             foregroundImage.flush();
         }
-        switch (getFrameType()) {
-            case SQUARE:
-                foregroundImage = FOREGROUND_FACTORY.createLinearForeground(GAUGE_WIDTH, GAUGE_WIDTH, false);
-                break;
-
-            case ROUND:
-
-            default:
-                foregroundImage = FOREGROUND_FACTORY.createRadialForeground(GAUGE_WIDTH, false, getForegroundType());
-                break;
-        }
-
+        foregroundImage = FOREGROUND_FACTORY.createRadialForeground(GAUGE_WIDTH, false, getForegroundType());
+   
         if (disabledImage != null) {
             disabledImage.flush();
         }
@@ -138,9 +128,7 @@ public class DirectionalGyro extends AbstractRadial {
 
         return this;
     }
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Visualization">
     @Override
     protected void paintComponent(Graphics g) {
         if (!isInitialized()) {
@@ -149,7 +137,7 @@ public class DirectionalGyro extends AbstractRadial {
 
         final Graphics2D G2 = (Graphics2D) g.create();
 
-        CENTER.setLocation(getGaugeBounds().getCenterX(), getGaugeBounds().getCenterY());
+        CENTER.setLocation(getGaugeBounds().getCenterX() - getInsets().left, getGaugeBounds().getCenterX() - getInsets().right);
 
         G2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         G2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -295,7 +283,7 @@ public class DirectionalGyro extends AbstractRadial {
         final Font NUMBER_FONT = new Font("Arial", Font.PLAIN, (int) (0.073f * IMAGE_WIDTH));
         final Font CHAR_FONT = new Font("Arial", Font.PLAIN, (int) (0.075f * IMAGE_WIDTH));
         final float TEXT_DISTANCE = 0.1f * IMAGE_WIDTH;
-        final float MIN_LENGTH = 0.039f * IMAGE_WIDTH;
+        final float MIN_LENGTH = 0.02f * IMAGE_WIDTH;
         final float MED_LENGTH = 0.04f * IMAGE_WIDTH;
 
         // Create the watch itself
@@ -516,6 +504,6 @@ public class DirectionalGyro extends AbstractRadial {
 
     @Override
     public String toString() {
-        return "AirCompass";
+        return "HEADING";
     }
 }

@@ -29,6 +29,7 @@ package com.chrisali.javaflightsim.instrumentpanel.gauges;
 
 import eu.hansolo.steelseries.gauges.AbstractGauge;
 import eu.hansolo.steelseries.gauges.AbstractRadial;
+import eu.hansolo.steelseries.tools.FrameDesign;
 import eu.hansolo.steelseries.tools.FrameType;
 import java.awt.BasicStroke;
 import java.awt.image.BufferedImage;
@@ -55,7 +56,7 @@ import org.pushingpixels.trident.ease.Spline;
 public class ArtificialHorizon extends AbstractRadial {
 
 	private static final long serialVersionUID = 1L;
-	// <editor-fold defaultstate="collapsed" desc="Variable declaration">
+
     private double roll;
     private double oldRoll;
     private double pitch;
@@ -75,9 +76,7 @@ public class ArtificialHorizon extends AbstractRadial {
     private final Ellipse2D CLIP = new Ellipse2D.Double();
     private Timeline timelineRoll = new Timeline(this);
     private Timeline timelinePitch = new Timeline(this);
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Constructor">
     public ArtificialHorizon() {
         super();
         customColors = false;
@@ -87,9 +86,7 @@ public class ArtificialHorizon extends AbstractRadial {
         pitch = 0;
         roll = 0;
     }
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Initialization">
     @Override
     public final AbstractGauge init(final int WIDTH, final int HEIGHT) {
         final int GAUGE_WIDTH = isFrameVisible() ? WIDTH : getGaugeBounds().width;
@@ -123,17 +120,7 @@ public class ArtificialHorizon extends AbstractRadial {
         fImage = UTIL.createImage(GAUGE_WIDTH, GAUGE_WIDTH, java.awt.Transparency.TRANSLUCENT);
 
         if (isFrameVisible()) {
-            switch (getFrameType()) {
-                case ROUND:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
-                    break;
-                case SQUARE:
-                    FRAME_FACTORY.createLinearFrame(GAUGE_WIDTH, GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
-                    break;
-                default:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
-                    break;
-            }
+        	FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
         }
 
         if (horizonImage != null) {
@@ -149,17 +136,7 @@ public class ArtificialHorizon extends AbstractRadial {
         horizonForegroundImage = create_HORIZON_FOREGROUND_Image(GAUGE_WIDTH);
 
         if (isForegroundVisible()) {
-            switch (getFrameType()) {
-                case SQUARE:
-                    FOREGROUND_FACTORY.createLinearForeground(GAUGE_WIDTH, GAUGE_WIDTH, false, fImage);
-                    break;
-
-                case ROUND:
-
-                default:
-                    FOREGROUND_FACTORY.createRadialForeground(GAUGE_WIDTH, false, getForegroundType(), fImage);
-                    break;
-            }
+        	FOREGROUND_FACTORY.createRadialForeground(GAUGE_WIDTH, false, getForegroundType(), fImage);
         }
 
         if (disabledImage != null) {
@@ -169,9 +146,7 @@ public class ArtificialHorizon extends AbstractRadial {
 
         return this;
     }
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Visualization">
     @Override
     protected void paintComponent(java.awt.Graphics g) {
         if (!isInitialized()) {
@@ -224,19 +199,17 @@ public class ArtificialHorizon extends AbstractRadial {
 
         G2.dispose();
     }
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Getters and Setters">
     /**
-     * Returns the value of the roll axis (0 - 360¬∞)
-     * @return the value of the roll axis (0 - 360¬∞)
+     * Returns the value of the roll axis (0 - 360 deg)
+     * @return the value of the roll axis (0 - 360 deg)
      */
     public double getRoll() {
         return this.roll;
     }
 
     /**
-     * Sets the value of the roll axis (0 - 360¬∞)
+     * Sets the value of the roll axis (0 - 360 deg)
      * @param ROLL
      */
     public void setRoll(final double ROLL) {
@@ -382,9 +355,7 @@ public class ArtificialHorizon extends AbstractRadial {
     public Rectangle getLcdBounds() {
         return new Rectangle();
     }
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Image related">
     private BufferedImage create_HORIZON_Image(final int WIDTH) {
         if (WIDTH <= 0) {
             return UTIL.createImage(1, 1, Transparency.TRANSLUCENT);
@@ -503,7 +474,6 @@ public class ArtificialHorizon extends AbstractRadial {
         final Point2D LOCAL_CENTER = new Point2D.Double(IMAGE_WIDTH / 2.0, IMAGE_HEIGHT / 2.0);
 
         G2.setFont(new Font("Verdana", Font.PLAIN, (int) (IMAGE_WIDTH * 0.035)));
-        //final java.awt.geom.Point2D TEXT_POS = new java.awt.geom.Point2D.Double(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.08878504672897196 + IMAGE_WIDTH * 0.035 / 3);
 
         final Line2D SCALE_MARK_SMALL = new Line2D.Double(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.08878504672897196, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.0937850467);
         final Line2D SCALE_MARK = new Line2D.Double(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.08878504672897196, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.1037850467);
@@ -517,7 +487,6 @@ public class ArtificialHorizon extends AbstractRadial {
         G2.rotate(-Math.PI / 2, LOCAL_CENTER.getX(), LOCAL_CENTER.getY());
         for (int angle = -90; angle <= 90; angle += STEP) {
             if (angle % 45 == 0 || angle == 0) {
-                //G2.fill(UTIL.rotateTextAroundCenter(G2, Integer.toString(angle), (int) TEXT_POS.getX(), (int) TEXT_POS.getY(), 0));
                 G2.setColor(getPointerColor().MEDIUM);
                 G2.setStroke(BIG_STROKE);
                 G2.draw(SCALE_MARK_BIG);
@@ -595,7 +564,6 @@ public class ArtificialHorizon extends AbstractRadial {
 
         return IMAGE;
     }
-    // </editor-fold>
 
     @Override
     public String toString() {
