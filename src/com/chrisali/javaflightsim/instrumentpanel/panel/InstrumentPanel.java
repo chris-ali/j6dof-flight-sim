@@ -16,7 +16,13 @@ import com.chrisali.javaflightsim.instrumentpanel.gauges.DirectionalGyro;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.Inclinometer;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.TurnCoordinator;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.VerticalSpeed;
+import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 
+/**
+ *	Simple Swing GUI of an aircraft instrument panel with custom gauges implementing Gerrit Grunwald's SteelSeries
+ *  gauge framework. Instruments are arranged in a typical "six-pack" layout common in general aviation aircraft, and
+ *  make use of flight data gathered by {@link FlightData} from {@link Integrate6DOFEquations}
+ */
 public class InstrumentPanel extends JFrame implements FlightDataListener {
 
 	private static final long serialVersionUID = -3900476226233156470L;
@@ -31,6 +37,12 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 
 	private FlightData flightData;
 	
+	/**
+	 * Creates a simple instrument panel with a {@link FlightDataListener} to set the gauge values from
+	 * flight data received by the simulation in {@link FlightData}
+	 * 
+	 * @param flightData
+	 */
 	public InstrumentPanel(FlightData flightData) {
 		super("Panel");
 		
@@ -141,6 +153,10 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		setVisible(true);
 	}
 
+	/**
+	 * When the instrument panel receives the event that data was received, use the values stored
+	 * in {@link FlightData}'s EnumMap flightData to set gauge values
+	 */
 	@Override
 	public void onFlightDataReceived() {
 		artificalHorizon.setPitch(flightData.getFlightData().get(FlightDataType.PITCH));
