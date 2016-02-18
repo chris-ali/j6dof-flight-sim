@@ -84,8 +84,6 @@ public final class Altimeter extends AbstractRadial {
     private double unitStringWidth;
     private TextLayout valueLayout;
     private final Rectangle2D VALUE_BOUNDARY = new Rectangle2D.Double();
-    private TextLayout infoLayout;
-    private final Rectangle2D INFO_BOUNDARY = new Rectangle2D.Double();
 
     public Altimeter() {
         super();
@@ -95,8 +93,6 @@ public final class Altimeter extends AbstractRadial {
 		calcAngleStep();
         setLcdColor(LcdColor.BLACK_LCD);
         setLcdVisible(true);
-        setTitle("ALT");
-        setUnitString("ft");
     }
 
     @Override
@@ -119,14 +115,6 @@ public final class Altimeter extends AbstractRadial {
             setLcdValueFont(getModel().getStandardBaseFont().deriveFont(0.625f * GAUGE_WIDTH * 0.10f));
         }
 
-        if (isCustomLcdUnitFontEnabled()) {
-            setLcdUnitFont(getCustomLcdUnitFont().deriveFont(0.25f * GAUGE_WIDTH * 0.10f));
-        } else {
-            setLcdUnitFont(getModel().getStandardBaseFont().deriveFont(0.25f * GAUGE_WIDTH * 0.10f));
-        }
-
-        setLcdInfoFont(getModel().getStandardInfoFont().deriveFont(0.15f * GAUGE_WIDTH * 0.10f));
-
         // Create Background Image
         if (bImage != null) {
             bImage.flush();
@@ -140,17 +128,7 @@ public final class Altimeter extends AbstractRadial {
         fImage = UTIL.createImage(GAUGE_WIDTH, GAUGE_WIDTH, Transparency.TRANSLUCENT);
 
         if (isFrameVisible()) {
-            switch (getFrameType()) {
-                case ROUND:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
-                    break;
-                case SQUARE:
-                    FRAME_FACTORY.createLinearFrame(GAUGE_WIDTH, GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
-                    break;
-                default:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
-                    break;
-            }
+    		FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);       	
         }
 
         if (isBackgroundVisible()) {
@@ -182,17 +160,7 @@ public final class Altimeter extends AbstractRadial {
         pointer10000FtImage = create_10000FT_POINTER_Image(GAUGE_WIDTH);
 
         if (isForegroundVisible()) {
-            switch (getFrameType()) {
-                case SQUARE:
-                    FOREGROUND_FACTORY.createLinearForeground(GAUGE_WIDTH, GAUGE_WIDTH, false, bImage);
-                    break;
-
-                case ROUND:
-
-                default:
-                    FOREGROUND_FACTORY.createRadialForeground(GAUGE_WIDTH, false, getForegroundType(), fImage);
-                    break;
-            }
+        	FOREGROUND_FACTORY.createRadialForeground(GAUGE_WIDTH, false, getForegroundType(), fImage);
         }
 
         if (disabledImage != null) {
@@ -243,34 +211,10 @@ public final class Altimeter extends AbstractRadial {
                 unitStringWidth = 0;
             }
             G2.setFont(getLcdValueFont());
-            switch (getModel().getNumberSystem()) {
-                case HEX:
-                    valueLayout = new TextLayout(Integer.toHexString((int) getLcdValue()).toUpperCase(), G2.getFont(), RENDER_CONTEXT);
-                    VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
-                    G2.drawString(Integer.toHexString((int) getLcdValue()).toUpperCase(), (float) (LCD.getX() + (LCD.getWidth() - unitStringWidth - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (float) (LCD.getY() + LCD.getHeight() * 0.76));
-                    break;
-
-                case OCT:
-                    valueLayout = new TextLayout(Integer.toOctalString((int) getLcdValue()), G2.getFont(), RENDER_CONTEXT);
-                    VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
-                    G2.drawString(Integer.toOctalString((int) getLcdValue()), (float) (LCD.getX() + (LCD.getWidth() - unitStringWidth - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (float) (LCD.getY() + LCD.getHeight() * 0.76));
-                    break;
-
-                case DEC:
-
-                default:
-                    valueLayout = new TextLayout(formatLcdValue(getLcdValue()), G2.getFont(), RENDER_CONTEXT);
-                    VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
-                    G2.drawString(formatLcdValue(getLcdValue()), (float) (LCD.getX() + (LCD.getWidth() - unitStringWidth - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (float) (LCD.getY() + LCD.getHeight() * 0.76));
-                    break;
-            }
-            // Draw lcd info string
-            if (!getLcdInfoString().isEmpty()) {
-                G2.setFont(getLcdInfoFont());
-                infoLayout = new TextLayout(getLcdInfoString(), G2.getFont(), RENDER_CONTEXT);
-                INFO_BOUNDARY.setFrame(infoLayout.getBounds());
-                G2.drawString(getLcdInfoString(), LCD.getBounds().x + 5f, LCD.getBounds().y + (float) INFO_BOUNDARY.getHeight() + 5f);
-            }
+            
+            valueLayout = new TextLayout(formatLcdValue(getLcdValue()), G2.getFont(), RENDER_CONTEXT);
+            VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
+            G2.drawString(formatLcdValue(getLcdValue()), (float) (LCD.getX() + (LCD.getWidth() - unitStringWidth - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (float) (LCD.getY() + LCD.getHeight() * 0.76));
         }
 
         // Draw the 10000ft pointer
@@ -532,9 +476,9 @@ public final class Altimeter extends AbstractRadial {
         final Point2D POINTER100FT_STOP = new Point2D.Double(0, POINTER100FT.getBounds2D().getMaxY());
         final float[] POINTER100FT_FRACTIONS = {
             0.0f,
-            0.31f,
-            0.3101f,
-            0.32f,
+            0.59f,
+            0.5901f,
+            0.60f,
             1.0f
         };
         final Color[] POINTER100FT_COLORS = {

@@ -58,10 +58,10 @@ import eu.hansolo.steelseries.tools.Util;
 public final class AirspeedIndicator extends AbstractRadial {
 
 	private static final long serialVersionUID = 1L;
-	// <editor-fold defaultstate="collapsed" desc="Variable declarations">
-    private double oldValue;
-    private double rotationAngle;
-    private final Point2D CENTER;
+
+    private double oldValue = 0;
+    private double rotationAngle = 0;
+    private final Point2D CENTER = new Point2D.Double();
     private BufferedImage frameImage;
     private BufferedImage backgroundImage;
     private BufferedImage lcdImage;
@@ -69,7 +69,7 @@ public final class AirspeedIndicator extends AbstractRadial {
     private BufferedImage pointerImage;
     private BufferedImage foregroundImage;
     private BufferedImage disabledImage;
-    private Timeline timeline;
+    private Timeline timeline = new Timeline(this);
     private final Rectangle2D LCD = new Rectangle2D.Double();
     private final FontRenderContext RENDER_CONTEXT = new FontRenderContext(null, true, true);
     private TextLayout unitLayout;
@@ -80,10 +80,6 @@ public final class AirspeedIndicator extends AbstractRadial {
 
     public AirspeedIndicator() {
         super();
-        oldValue = 0;
-        rotationAngle = 0;
-        CENTER = new Point2D.Double();
-        timeline = new Timeline(this);
         init(getInnerBounds().width, getInnerBounds().height);
         setLcdVisible(false);
     }
@@ -205,27 +201,10 @@ public final class AirspeedIndicator extends AbstractRadial {
                 unitStringWidth = 0;
             }
             G2.setFont(getLcdValueFont());
-            switch (getModel().getNumberSystem()) {
-                case HEX:
-                    valueLayout = new TextLayout(Integer.toHexString((int) getLcdValue()).toUpperCase(), G2.getFont(), RENDER_CONTEXT);
-                    VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
-                    G2.drawString(Integer.toHexString((int) getLcdValue()).toUpperCase(), (int) (LCD.getX() + (LCD.getWidth() - unitStringWidth - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (int) (LCD.getY() + lcdImage.getHeight() * 0.76));
-                    break;
-
-                case OCT:
-                    valueLayout = new TextLayout(Integer.toOctalString((int) getLcdValue()), G2.getFont(), RENDER_CONTEXT);
-                    VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
-                    G2.drawString(Integer.toOctalString((int) getLcdValue()), (int) (LCD.getX() + (LCD.getWidth() - unitStringWidth - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (int) (LCD.getY() + lcdImage.getHeight() * 0.76));
-                    break;
-
-                case DEC:
-
-                default:
-                    valueLayout = new TextLayout(formatLcdValue(getLcdValue()), G2.getFont(), RENDER_CONTEXT);
-                    VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
-                    G2.drawString(formatLcdValue(getLcdValue()), (int) (LCD.getX() + (LCD.getWidth() - unitStringWidth - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (int) (LCD.getY() + lcdImage.getHeight() * 0.76));
-                    break;
-            }
+            
+            valueLayout = new TextLayout(formatLcdValue(getLcdValue()), G2.getFont(), RENDER_CONTEXT);
+            VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
+            G2.drawString(formatLcdValue(getLcdValue()), (int) (LCD.getX() + (LCD.getWidth() - unitStringWidth - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (int) (LCD.getY() + lcdImage.getHeight() * 0.76));
         }
         
         // Draw pointer
@@ -252,12 +231,14 @@ public final class AirspeedIndicator extends AbstractRadial {
 
     @Override
     public void setValue(final double VALUE) {
-        rotationAngle = (2.0 * Math.PI / 243) * VALUE;
+    	if (VALUE <= 200) {
+	        rotationAngle = (2.0 * Math.PI / 243) * VALUE;
+	        this.oldValue = VALUE;
+	        if (isValueCoupled()) {
+	            setLcdValue(VALUE);
+	        }
+    	}
         fireStateChanged();
-        this.oldValue = VALUE;
-        if (isValueCoupled()) {
-            setLcdValue(VALUE);
-        }
         repaint(getInnerBounds());
     }
 
@@ -270,7 +251,7 @@ public final class AirspeedIndicator extends AbstractRadial {
         timeline.addPropertyToInterpolate("value", this.oldValue, VALUE);
         timeline.setEase(new Spline(0.5f));
 
-        timeline.setDuration(1500);
+        timeline.setDuration(1000);
         timeline.play();
     }
 
@@ -463,9 +444,9 @@ public final class AirspeedIndicator extends AbstractRadial {
         final Point2D POINTER_STOP = new Point2D.Double(0, POINTER.getBounds2D().getMaxY());
         final float[] POINTER_FRACTIONS = {
             0.0f,
-            0.31f,
-            0.3101f,
-            0.32f,
+            0.59f,
+            0.5901f,
+            0.60f,
             1.0f
         };
         final Color[] POINTER_COLORS = {

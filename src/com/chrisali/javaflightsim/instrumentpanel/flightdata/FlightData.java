@@ -39,7 +39,7 @@ public class FlightData implements Runnable {
 		flightData.put(FlightDataType.ALTITUDE, simOut.get(SimOuts.ALT));
 		
 		flightData.put(FlightDataType.ROLL, Math.toDegrees(simOut.get(SimOuts.PHI)));
-		flightData.put(FlightDataType.PITCH, Math.toDegrees(simOut.get(SimOuts.THETA))*-1);
+		flightData.put(FlightDataType.PITCH, Math.toDegrees(simOut.get(SimOuts.THETA)));
 		
 		
 		flightData.put(FlightDataType.HEADING, Math.toDegrees(simOut.get(SimOuts.PSI)));

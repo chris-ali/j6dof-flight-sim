@@ -61,7 +61,7 @@ public final class Inclinometer extends AbstractRadial {
 
 	private static final long serialVersionUID = 1L;
 
-    private double visibleValue = 90;
+    private double turnRateValue = 90;
     private boolean decimalVisible = false;
     private final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.0");
     private double angleStep;
@@ -115,17 +115,7 @@ public final class Inclinometer extends AbstractRadial {
         fImage = UTIL.createImage(GAUGE_WIDTH, GAUGE_WIDTH, java.awt.Transparency.TRANSLUCENT);
 
         if (isFrameVisible()) {
-            switch (getFrameType()) {
-                case ROUND:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
-                    break;
-                case SQUARE:
-                    FRAME_FACTORY.createLinearFrame(GAUGE_WIDTH, GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
-                    break;
-                default:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
-                    break;
-            }
+        	FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
         }
 
         if (isBackgroundVisible()) {
@@ -139,20 +129,10 @@ public final class Inclinometer extends AbstractRadial {
         if (pointerImage != null) {
             pointerImage.flush();
         }
-        pointerImage = create_STEPPOINTER_Image(GAUGE_WIDTH);
+        pointerImage = create_POINTER_Image(GAUGE_WIDTH);
 
         if (isForegroundVisible()) {
-            switch (getFrameType()) {
-                case SQUARE:
-                    FOREGROUND_FACTORY.createLinearForeground(GAUGE_WIDTH, GAUGE_WIDTH, false, bImage);
-                    break;
-
-                case ROUND:
-
-                default:
-                    FOREGROUND_FACTORY.createRadialForeground(GAUGE_WIDTH, false, getForegroundType(), fImage);
-                    break;
-            }
+        	FOREGROUND_FACTORY.createRadialForeground(GAUGE_WIDTH, false, getForegroundType(), fImage);
         }
 
         if (disabledImage != null) {
@@ -181,7 +161,7 @@ public final class Inclinometer extends AbstractRadial {
         // Translate the coordinate system related to insets
         G2.translate(getFramelessOffset().getX()+7, getFramelessOffset().getY()+7);
 
-        CENTER.setLocation(getGaugeBounds().getCenterX(), getGaugeBounds().getCenterX());
+        CENTER.setLocation(getGaugeBounds().getCenterX() - getInsets().left, getGaugeBounds().getCenterY() - getInsets().top);
 
         final AffineTransform OLD_TRANSFORM = G2.getTransform();
 
@@ -197,13 +177,13 @@ public final class Inclinometer extends AbstractRadial {
             G2.setFont(font.deriveFont(0.15f * getInnerBounds().width));
         }
 
-        textLayout = new TextLayout(DECIMAL_FORMAT.format(visibleValue), G2.getFont(), RENDER_CONTEXT);
+        textLayout = new TextLayout(DECIMAL_FORMAT.format(turnRateValue), G2.getFont(), RENDER_CONTEXT);
         TEXT_BOUNDARY.setFrame(textLayout.getBounds());
-        G2.drawString(DECIMAL_FORMAT.format(visibleValue), (int) ((getInnerBounds().width - TEXT_BOUNDARY.getWidth()) / 2.0), (int) ((getInnerBounds().width - TEXT_BOUNDARY.getHeight()) / 2.0) + textLayout.getAscent() - textLayout.getDescent());
+        G2.drawString(DECIMAL_FORMAT.format(turnRateValue), (int) ((getInnerBounds().width - TEXT_BOUNDARY.getWidth()) / 2.0), (int) ((getInnerBounds().width - TEXT_BOUNDARY.getHeight()) / 2.0) + textLayout.getAscent() - textLayout.getDescent());
         G2.translate(-getFramelessOffset().getX(), -getFramelessOffset().getY());
 
         // Draw Pointer
-        G2.rotate(Math.toRadians(visibleValue*angleStep), CENTER.getX(), CENTER.getY());
+        G2.rotate(Math.toRadians(turnRateValue*angleStep), CENTER.getX(), CENTER.getY());
         G2.drawImage(pointerImage, 0, 0, null);
 
         G2.setTransform(OLD_TRANSFORM);
@@ -228,10 +208,10 @@ public final class Inclinometer extends AbstractRadial {
     @Override
     public void setValue(final double VALUE) {
         if (isEnabled()) {
-            super.setValue(VALUE);
-            
-            this.visibleValue = VALUE;
-
+        	if (Math.abs(VALUE) <= 30) {
+        		super.setValue(VALUE);
+        		this.turnRateValue = VALUE;
+        	}
             fireStateChanged();
             repaint();
         }
@@ -247,7 +227,7 @@ public final class Inclinometer extends AbstractRadial {
             timeline.addPropertyToInterpolate("value", getValue(), value);
             timeline.setEase(new Spline(0.5f));
 
-            timeline.setDuration(500);
+            timeline.setDuration(250);
             timeline.play();
         }
     }
@@ -407,8 +387,9 @@ public final class Inclinometer extends AbstractRadial {
 
         return image;
     }
-
-    private BufferedImage create_STEPPOINTER_Image(final int WIDTH) {
+    
+    @Override
+    protected BufferedImage create_POINTER_Image(final int WIDTH) {
         if (WIDTH <= 0) {
             return null;
         }
@@ -426,60 +407,60 @@ public final class Inclinometer extends AbstractRadial {
         G2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
         G2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         
-        final GeneralPath POINTER_SMALL = new GeneralPath();
-        POINTER_SMALL.setWindingRule(Path2D.WIND_EVEN_ODD);
+        final GeneralPath POINTER = new GeneralPath();
+        POINTER.setWindingRule(Path2D.WIND_EVEN_ODD);
         
-        POINTER_SMALL.moveTo(IMAGE_WIDTH * 0.18, IMAGE_HEIGHT * 0.51);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.82, IMAGE_HEIGHT * 0.51);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.82, IMAGE_HEIGHT * 0.49);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.18, IMAGE_HEIGHT * 0.49);
-        POINTER_SMALL.closePath();
+        POINTER.moveTo(IMAGE_WIDTH * 0.18, IMAGE_HEIGHT * 0.51);
+        POINTER.lineTo(IMAGE_WIDTH * 0.82, IMAGE_HEIGHT * 0.51);
+        POINTER.lineTo(IMAGE_WIDTH * 0.82, IMAGE_HEIGHT * 0.49);
+        POINTER.lineTo(IMAGE_WIDTH * 0.18, IMAGE_HEIGHT * 0.49);
+        POINTER.closePath();
         
-        POINTER_SMALL.moveTo(IMAGE_WIDTH * 0.495, IMAGE_HEIGHT * 0.42);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.505, IMAGE_HEIGHT * 0.42);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.505, IMAGE_HEIGHT * 0.49);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.495, IMAGE_HEIGHT * 0.49);
-        POINTER_SMALL.closePath();
+        POINTER.moveTo(IMAGE_WIDTH * 0.495, IMAGE_HEIGHT * 0.42);
+        POINTER.lineTo(IMAGE_WIDTH * 0.505, IMAGE_HEIGHT * 0.42);
+        POINTER.lineTo(IMAGE_WIDTH * 0.505, IMAGE_HEIGHT * 0.49);
+        POINTER.lineTo(IMAGE_WIDTH * 0.495, IMAGE_HEIGHT * 0.49);
+        POINTER.closePath();
         
-        POINTER_SMALL.moveTo(IMAGE_WIDTH * 0.40, IMAGE_HEIGHT * 0.53);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.47, IMAGE_HEIGHT * 0.53);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.47, IMAGE_HEIGHT * 0.54);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.40, IMAGE_HEIGHT * 0.54);
-        POINTER_SMALL.closePath();
+        POINTER.moveTo(IMAGE_WIDTH * 0.40, IMAGE_HEIGHT * 0.53);
+        POINTER.lineTo(IMAGE_WIDTH * 0.47, IMAGE_HEIGHT * 0.53);
+        POINTER.lineTo(IMAGE_WIDTH * 0.47, IMAGE_HEIGHT * 0.54);
+        POINTER.lineTo(IMAGE_WIDTH * 0.40, IMAGE_HEIGHT * 0.54);
+        POINTER.closePath();
         
-        POINTER_SMALL.moveTo(IMAGE_WIDTH * 0.53, IMAGE_HEIGHT * 0.53);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.60, IMAGE_HEIGHT * 0.53);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.60, IMAGE_HEIGHT * 0.54);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.53, IMAGE_HEIGHT * 0.54);
-        POINTER_SMALL.closePath();
+        POINTER.moveTo(IMAGE_WIDTH * 0.53, IMAGE_HEIGHT * 0.53);
+        POINTER.lineTo(IMAGE_WIDTH * 0.60, IMAGE_HEIGHT * 0.53);
+        POINTER.lineTo(IMAGE_WIDTH * 0.60, IMAGE_HEIGHT * 0.54);
+        POINTER.lineTo(IMAGE_WIDTH * 0.53, IMAGE_HEIGHT * 0.54);
+        POINTER.closePath();
         
-        POINTER_SMALL.moveTo(IMAGE_WIDTH * 0.47, IMAGE_HEIGHT * 0.51);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.53, IMAGE_HEIGHT * 0.51);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.53, IMAGE_HEIGHT * 0.56);
-        POINTER_SMALL.lineTo(IMAGE_WIDTH * 0.47, IMAGE_HEIGHT * 0.56);
-        POINTER_SMALL.closePath();
+        POINTER.moveTo(IMAGE_WIDTH * 0.47, IMAGE_HEIGHT * 0.51);
+        POINTER.lineTo(IMAGE_WIDTH * 0.53, IMAGE_HEIGHT * 0.51);
+        POINTER.lineTo(IMAGE_WIDTH * 0.53, IMAGE_HEIGHT * 0.56);
+        POINTER.lineTo(IMAGE_WIDTH * 0.47, IMAGE_HEIGHT * 0.56);
+        POINTER.closePath();
                 
-        final Point2D POINTER_SMALL_START = new Point2D.Double(POINTER_SMALL.getBounds2D().getMinX(), 0);
-        final Point2D POINTER_SMALL_STOP = new Point2D.Double(POINTER_SMALL.getBounds2D().getMaxX(), 0);
-        final float[] POINTER_SMALL_FRACTIONS = {
+        final Point2D POINTER_START = new Point2D.Double(POINTER.getBounds2D().getMinX(), 0);
+        final Point2D POINTER_STOP = new Point2D.Double(POINTER.getBounds2D().getMaxX(), 0);
+        final float[] POINTER_FRACTIONS = {
             0.0f,
             0.3f,
             0.59f,
             1.0f
         };
         
-        final Color[] POINTER_SMALL_COLORS = {
-            UTIL.setAlpha(getLabelColor(), 220),
-            UTIL.setAlpha(getLabelColor(), 220),
-            UTIL.setAlpha(getLabelColor(), 220),
-            UTIL.setAlpha(getLabelColor(), 220)
+        final Color[] POINTER_COLORS = {
+            UTIL.setAlpha(getLabelColor(), 240),
+            UTIL.setAlpha(getLabelColor(), 240),
+            UTIL.setAlpha(getLabelColor(), 240),
+            UTIL.setAlpha(getLabelColor(), 240)
         };
-        final LinearGradientPaint POINTER_SMALL_LEFT_GRADIENT = new LinearGradientPaint(POINTER_SMALL_START, POINTER_SMALL_STOP, POINTER_SMALL_FRACTIONS, POINTER_SMALL_COLORS);
-        G2.setPaint(POINTER_SMALL_LEFT_GRADIENT);
-        G2.fill(POINTER_SMALL);
+        final LinearGradientPaint POINTER_LEFT_GRADIENT = new LinearGradientPaint(POINTER_START, POINTER_STOP, POINTER_FRACTIONS, POINTER_COLORS);
+        G2.setPaint(POINTER_LEFT_GRADIENT);
+        G2.fill(POINTER);
         G2.setColor(getBackgroundColor().LABEL_COLOR);
         G2.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER));
-        G2.draw(POINTER_SMALL);
+        G2.draw(POINTER);
 
         G2.dispose();
 

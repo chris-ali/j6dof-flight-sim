@@ -57,9 +57,9 @@ public class ArtificialHorizon extends AbstractRadial {
 
 	private static final long serialVersionUID = 1L;
 
-    private double roll;
+    private double roll = 0;
     private double oldRoll;
-    private double pitch;
+    private double pitch = 0;
     private double oldPitch;
     private double pitchPixel;
     private boolean upsidedown = false;
@@ -69,7 +69,7 @@ public class ArtificialHorizon extends AbstractRadial {
     private BufferedImage fImage;
     private BufferedImage horizonImage;
     private BufferedImage horizonForegroundImage;
-    private boolean customColors;
+    private boolean customColors = false;
     private Color customSkyColor;
     private Color customGroundColor;
     private BufferedImage disabledImage;
@@ -79,12 +79,9 @@ public class ArtificialHorizon extends AbstractRadial {
 
     public ArtificialHorizon() {
         super();
-        customColors = false;
         customSkyColor = new Color(127, 213, 240, 255);
         customGroundColor = new Color(60, 68, 57, 255);
         init(getInnerBounds().width, getInnerBounds().height);
-        pitch = 0;
-        roll = 0;
     }
 
     @Override
@@ -155,7 +152,7 @@ public class ArtificialHorizon extends AbstractRadial {
 
         final java.awt.Graphics2D G2 = (java.awt.Graphics2D) g.create();
 
-        CENTER.setLocation(getGaugeBounds().getCenterX(), getGaugeBounds().getCenterX());
+        CENTER.setLocation(getGaugeBounds().getCenterX() - getInsets().left, getGaugeBounds().getCenterY() - getInsets().top);
 
         G2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
         G2.setRenderingHint(java.awt.RenderingHints.KEY_RENDERING, java.awt.RenderingHints.VALUE_RENDER_QUALITY);
@@ -227,7 +224,7 @@ public class ArtificialHorizon extends AbstractRadial {
             timelineRoll = new Timeline(this);
             timelineRoll.addPropertyToInterpolate("roll", this.oldRoll, ROLL);
             timelineRoll.setEase(new Spline(0.5f));
-            timelineRoll.setDuration(800);
+            timelineRoll.setDuration(1000);
             timelineRoll.play();
         }
     }
@@ -245,7 +242,7 @@ public class ArtificialHorizon extends AbstractRadial {
      * @param PITCH
      */
     public void setPitch(final double PITCH) {
-        this.pitch = PITCH % 180;
+        this.pitch = PITCH*-1 % 180;
 
         if (pitch > 90) {
             pitch = 90 - (pitch - 90);
@@ -275,7 +272,7 @@ public class ArtificialHorizon extends AbstractRadial {
             timelinePitch = new Timeline(this);
             timelinePitch.addPropertyToInterpolate("pitch", this.oldPitch, PITCH);
             timelinePitch.setEase(new Spline(0.5f));
-            timelinePitch.setDuration(800);
+            timelinePitch.setDuration(1000);
             timelinePitch.play();
         }
     }
@@ -412,7 +409,7 @@ public class ArtificialHorizon extends AbstractRadial {
         TextLayout valueLayout;
         final Rectangle2D VALUE_BOUNDARY = new Rectangle2D.Double();
         for (double y = IMAGE_HEIGHT / 2.0 - STEPSIZE_Y; y > 0; y -= STEPSIZE_Y) {
-            if (step <= 80) {
+            if (step <= 10) {
                 if (stepTen) {
                     LINE.setLine((IMAGE_WIDTH - (IMAGE_WIDTH * 0.2)) / 2, y, IMAGE_WIDTH - (IMAGE_WIDTH - (IMAGE_WIDTH * 0.2)) / 2, y);
                     step += 10;
@@ -436,7 +433,7 @@ public class ArtificialHorizon extends AbstractRadial {
         G2.draw(LINE);
         G2.setStroke(FORMER_STROKE);
         for (double y = IMAGE_HEIGHT / 2.0 + STEPSIZE_Y; y <= IMAGE_HEIGHT; y += STEPSIZE_Y) {
-            if (step >= -80) {
+            if (step >= -10) {
                 if (stepTen) {
                     LINE.setLine((IMAGE_WIDTH - (IMAGE_WIDTH * 0.2)) / 2, y, IMAGE_WIDTH - (IMAGE_WIDTH - (IMAGE_WIDTH * 0.2)) / 2, y);
                     step -= 10;
@@ -475,60 +472,104 @@ public class ArtificialHorizon extends AbstractRadial {
 
         G2.setFont(new Font("Verdana", Font.PLAIN, (int) (IMAGE_WIDTH * 0.035)));
 
-        final Line2D SCALE_MARK_SMALL = new Line2D.Double(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.08878504672897196, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.0937850467);
-        final Line2D SCALE_MARK = new Line2D.Double(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.08878504672897196, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.1037850467);
-        final Line2D SCALE_MARK_BIG = new Line2D.Double(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.08878504672897196, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.113);
-        final Stroke SMALL_STROKE = new BasicStroke(0.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
-        final Stroke STROKE = new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
-        final Stroke BIG_STROKE = new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+        final Line2D SCALE_MARK = new Line2D.Double(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.09, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.14);
+        final Line2D SCALE_MARK_BIG = new Line2D.Double(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.09, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.16);
+        final Stroke STROKE = new BasicStroke(3.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
+        final Stroke BIG_STROKE = new BasicStroke(5.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
 
         final int STEP = 5;
         final AffineTransform OLD_TRANSFORM = G2.getTransform();
         G2.rotate(-Math.PI / 2, LOCAL_CENTER.getX(), LOCAL_CENTER.getY());
+        G2.setColor(getTickmarkColor());
         for (int angle = -90; angle <= 90; angle += STEP) {
-            if (angle % 45 == 0 || angle == 0) {
-                G2.setColor(getPointerColor().MEDIUM);
+            if (angle % 30 == 0 || angle == 0) {
                 G2.setStroke(BIG_STROKE);
                 G2.draw(SCALE_MARK_BIG);
-            } else if (angle % 15 == 0) {
-                G2.setColor(Color.WHITE);
+            } else if (angle % 10 == 0 && Math.abs(angle) <= 30) {
                 G2.setStroke(STROKE);
                 G2.draw(SCALE_MARK);
-            } else {
-                G2.setColor(Color.WHITE);
-                G2.setStroke(SMALL_STROKE);
-                G2.draw(SCALE_MARK_SMALL);
             }
 
             G2.rotate(Math.toRadians(STEP), LOCAL_CENTER.getX(), LOCAL_CENTER.getY());
         }
 
         G2.setTransform(OLD_TRANSFORM);
-        final GeneralPath CENTER_PLANE = new GeneralPath();
-        CENTER_PLANE.setWindingRule(Path2D.WIND_EVEN_ODD);
-        CENTER_PLANE.moveTo(IMAGE_WIDTH * 0.4766355140186916, IMAGE_HEIGHT * 0.5);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.4766355140186916, IMAGE_HEIGHT * 0.514018691588785, IMAGE_WIDTH * 0.48598130841121495, IMAGE_HEIGHT * 0.5233644859813084, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.5233644859813084);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.514018691588785, IMAGE_HEIGHT * 0.5233644859813084, IMAGE_WIDTH * 0.5233644859813084, IMAGE_HEIGHT * 0.514018691588785, IMAGE_WIDTH * 0.5233644859813084, IMAGE_HEIGHT * 0.5);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.5233644859813084, IMAGE_HEIGHT * 0.48598130841121495, IMAGE_WIDTH * 0.514018691588785, IMAGE_HEIGHT * 0.4766355140186916, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.4766355140186916);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.48598130841121495, IMAGE_HEIGHT * 0.4766355140186916, IMAGE_WIDTH * 0.4766355140186916, IMAGE_HEIGHT * 0.48598130841121495, IMAGE_WIDTH * 0.4766355140186916, IMAGE_HEIGHT * 0.5);
-        CENTER_PLANE.closePath();
-        CENTER_PLANE.moveTo(IMAGE_WIDTH * 0.4158878504672897, IMAGE_HEIGHT * 0.5046728971962616);
-        CENTER_PLANE.lineTo(IMAGE_WIDTH * 0.4158878504672897, IMAGE_HEIGHT * 0.4953271028037383);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.4158878504672897, IMAGE_HEIGHT * 0.4953271028037383, IMAGE_WIDTH * 0.4672897196261682, IMAGE_HEIGHT * 0.4953271028037383, IMAGE_WIDTH * 0.4672897196261682, IMAGE_HEIGHT * 0.4953271028037383);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.4719626168224299, IMAGE_HEIGHT * 0.48130841121495327, IMAGE_WIDTH * 0.48130841121495327, IMAGE_HEIGHT * 0.4719626168224299, IMAGE_WIDTH * 0.4953271028037383, IMAGE_HEIGHT * 0.4672897196261682);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.4953271028037383, IMAGE_HEIGHT * 0.4672897196261682, IMAGE_WIDTH * 0.4953271028037383, IMAGE_HEIGHT * 0.4158878504672897, IMAGE_WIDTH * 0.4953271028037383, IMAGE_HEIGHT * 0.4158878504672897);
-        CENTER_PLANE.lineTo(IMAGE_WIDTH * 0.5046728971962616, IMAGE_HEIGHT * 0.4158878504672897);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.5046728971962616, IMAGE_HEIGHT * 0.4158878504672897, IMAGE_WIDTH * 0.5046728971962616, IMAGE_HEIGHT * 0.4672897196261682, IMAGE_WIDTH * 0.5046728971962616, IMAGE_HEIGHT * 0.4672897196261682);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.5186915887850467, IMAGE_HEIGHT * 0.4719626168224299, IMAGE_WIDTH * 0.5280373831775701, IMAGE_HEIGHT * 0.48130841121495327, IMAGE_WIDTH * 0.5327102803738317, IMAGE_HEIGHT * 0.4953271028037383);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.5327102803738317, IMAGE_HEIGHT * 0.4953271028037383, IMAGE_WIDTH * 0.5841121495327103, IMAGE_HEIGHT * 0.4953271028037383, IMAGE_WIDTH * 0.5841121495327103, IMAGE_HEIGHT * 0.4953271028037383);
-        CENTER_PLANE.lineTo(IMAGE_WIDTH * 0.5841121495327103, IMAGE_HEIGHT * 0.5046728971962616);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.5841121495327103, IMAGE_HEIGHT * 0.5046728971962616, IMAGE_WIDTH * 0.5327102803738317, IMAGE_HEIGHT * 0.5046728971962616, IMAGE_WIDTH * 0.5327102803738317, IMAGE_HEIGHT * 0.5046728971962616);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.5280373831775701, IMAGE_HEIGHT * 0.5186915887850467, IMAGE_WIDTH * 0.5186915887850467, IMAGE_HEIGHT * 0.5327102803738317, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.5327102803738317);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.48130841121495327, IMAGE_HEIGHT * 0.5327102803738317, IMAGE_WIDTH * 0.4719626168224299, IMAGE_HEIGHT * 0.5186915887850467, IMAGE_WIDTH * 0.4672897196261682, IMAGE_HEIGHT * 0.5046728971962616);
-        CENTER_PLANE.curveTo(IMAGE_WIDTH * 0.4672897196261682, IMAGE_HEIGHT * 0.5046728971962616, IMAGE_WIDTH * 0.4158878504672897, IMAGE_HEIGHT * 0.5046728971962616, IMAGE_WIDTH * 0.4158878504672897, IMAGE_HEIGHT * 0.5046728971962616);
-        CENTER_PLANE.closePath();
-        G2.setPaint(getPointerColor().LIGHT);
-        G2.fill(CENTER_PLANE);
+        final GeneralPath INDICATOR = new GeneralPath();
+        INDICATOR.setWindingRule(Path2D.WIND_EVEN_ODD);
+        
+        // following values are percentage image width/height
+        double thickness = 0.015;  // thickness of pointer
+        
+        double leftArmStart = 0.435;  // right most location of the left arm of the pointer (adjacent to curve)
+        double rightArmStart = 0.565; // left most location of the right arm of the pointer (adjacent to curve) 
+        double leftArmEnd = 0.250;    // left most location of the left arm of the pointer
+        double rightArmEnd = 0.75;   // right most location of the right arm of the pointer
+        
+        double armTop = 0.495;   // top most height of the straight pointer arms 
+        double armBot = armTop + thickness;  // bottom most height of the straight pointer arms
+        
+        double curveValleyTop = 0.57;   // top most location at "valley" of curve
+        double curveValleyBot = curveValleyTop + thickness;  // bottom most location at "valley" of curve
+        double curvePeakLeft = leftArmStart - thickness;  // left most location at "peak" of curve
+        double curvePeakRight = rightArmStart + thickness; // right most location at "peak" of curve        
+        
+        INDICATOR.moveTo (IMAGE_WIDTH * leftArmStart, IMAGE_HEIGHT * armBot);
+        
+        INDICATOR.lineTo (IMAGE_WIDTH * leftArmStart, IMAGE_HEIGHT * armTop);
+        INDICATOR.lineTo (IMAGE_WIDTH * leftArmEnd, IMAGE_HEIGHT * armTop);
+        INDICATOR.lineTo (IMAGE_WIDTH * leftArmEnd, IMAGE_HEIGHT * armBot);
+        INDICATOR.closePath();
+        
+        INDICATOR.moveTo (IMAGE_WIDTH * rightArmEnd, IMAGE_HEIGHT * armBot);
+        
+        INDICATOR.lineTo (IMAGE_WIDTH * rightArmEnd, IMAGE_HEIGHT * armTop);
+        INDICATOR.lineTo (IMAGE_WIDTH * rightArmStart, IMAGE_HEIGHT * armTop);
+        INDICATOR.lineTo (IMAGE_WIDTH * rightArmStart, IMAGE_HEIGHT * armBot);
+        INDICATOR.closePath();
+        
+        INDICATOR.moveTo (IMAGE_WIDTH * leftArmStart, IMAGE_HEIGHT * armBot);
+             
+        INDICATOR.curveTo(IMAGE_WIDTH * leftArmStart, IMAGE_HEIGHT * armBot, IMAGE_WIDTH * leftArmStart, IMAGE_HEIGHT * curveValleyTop, IMAGE_WIDTH * 0.500, IMAGE_HEIGHT * curveValleyTop);
+        INDICATOR.curveTo(IMAGE_WIDTH * 0.500, IMAGE_HEIGHT * curveValleyTop, IMAGE_WIDTH * rightArmStart, IMAGE_HEIGHT * curveValleyTop, IMAGE_WIDTH * rightArmStart, IMAGE_HEIGHT * armBot);
+        INDICATOR.lineTo (IMAGE_WIDTH * curvePeakRight, IMAGE_HEIGHT * armBot);
+        INDICATOR.curveTo(IMAGE_WIDTH * curvePeakRight, IMAGE_HEIGHT * armBot, IMAGE_WIDTH * curvePeakRight, IMAGE_HEIGHT * curveValleyBot, IMAGE_WIDTH * 0.500, IMAGE_HEIGHT * curveValleyBot);
+        INDICATOR.curveTo(IMAGE_WIDTH * 0.500, IMAGE_HEIGHT * curveValleyBot, IMAGE_WIDTH * curvePeakLeft, IMAGE_HEIGHT * curveValleyBot, IMAGE_WIDTH * curvePeakLeft, IMAGE_HEIGHT * armBot);
+        INDICATOR.closePath();
+        
+        INDICATOR.moveTo (IMAGE_WIDTH * (0.500-(thickness/2)), IMAGE_HEIGHT * curveValleyTop); 
+        
+        INDICATOR.lineTo (IMAGE_WIDTH * (0.500+(thickness/2)), IMAGE_HEIGHT * curveValleyTop);
+        INDICATOR.lineTo (IMAGE_WIDTH * (0.500+(thickness/2)), IMAGE_HEIGHT * armTop);
+        INDICATOR.lineTo (IMAGE_WIDTH * (0.500-(thickness/2)), IMAGE_HEIGHT * armTop);
+        INDICATOR.closePath();
+        
+        INDICATOR.moveTo (IMAGE_WIDTH * (0.500-thickness), IMAGE_HEIGHT * curveValleyTop); 
+        
+        INDICATOR.lineTo (IMAGE_WIDTH * (0.500+thickness), IMAGE_HEIGHT * curveValleyBot);
+        INDICATOR.lineTo (IMAGE_WIDTH * (0.500+thickness), IMAGE_HEIGHT * 0.6);
+        INDICATOR.lineTo (IMAGE_WIDTH * (0.500-thickness), IMAGE_HEIGHT * 0.6);
+        INDICATOR.closePath();
+        
+        final Point2D INDICATOR_START = new Point2D.Double(0, INDICATOR.getBounds2D().getMinY());
+        final Point2D INDICATOR_STOP = new Point2D.Double(0, INDICATOR.getBounds2D().getMaxY());
+        final float[] INDICATOR_FRACTIONS = {
+            0.0f,
+            0.16f,
+            0.1601f,
+            0.17f,
+            1.0f
+        };
+        final Color[] INDICATOR_COLORS = {
+            getTickmarkColor(),
+            getTickmarkColor(),
+            getTickmarkColor(),
+            getPointerColor().VERY_DARK,
+            getPointerColor().VERY_DARK
+        };
+        final LinearGradientPaint INDICATOR_GRADIENT = new LinearGradientPaint(INDICATOR_START, INDICATOR_STOP, INDICATOR_FRACTIONS, INDICATOR_COLORS);
+        G2.setPaint(INDICATOR_GRADIENT);
+        
+        G2.fill(INDICATOR);
 
         G2.dispose();
 
@@ -540,24 +581,33 @@ public class ArtificialHorizon extends AbstractRadial {
             return UTIL.createImage(1, 1, Transparency.TRANSLUCENT);
         }
 
-        final java.awt.image.BufferedImage IMAGE = UTIL.createImage((int) (WIDTH * 0.0373831776), (int) (WIDTH * 0.0560747664), Transparency.TRANSLUCENT);
+        final java.awt.image.BufferedImage IMAGE = UTIL.createImage((int) (WIDTH * 0.13), (int) (WIDTH * 0.14), Transparency.TRANSLUCENT);
         final java.awt.Graphics2D G2 = IMAGE.createGraphics();
         G2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         G2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
 
         final int IMAGE_WIDTH = IMAGE.getWidth();
         final int IMAGE_HEIGHT = IMAGE.getHeight();
+        int offset = 13;
 
         // Draw angle indicator
         final GeneralPath TRIANGLE = new GeneralPath();
         TRIANGLE.setWindingRule(Path2D.WIND_EVEN_ODD);
+        
         TRIANGLE.moveTo(IMAGE_WIDTH * 0.5, 0);
         TRIANGLE.lineTo(0, IMAGE_HEIGHT);
         TRIANGLE.lineTo(IMAGE_WIDTH, IMAGE_HEIGHT);
         TRIANGLE.closePath();
+        
+//        TRIANGLE.moveTo(IMAGE_WIDTH * 0.5, 10);
+//        TRIANGLE.lineTo(10, IMAGE_HEIGHT * 0.6);
+//        TRIANGLE.lineTo(IMAGE_WIDTH * 0.8, IMAGE_HEIGHT * 0.6);
+//        TRIANGLE.lineTo(IMAGE_WIDTH* 0.5, 10);
+        G2.translate(0, offset);
+        
         G2.setColor(getPointerColor().LIGHT);
         G2.fill(TRIANGLE);
-        G2.setColor(getPointerColor().MEDIUM);
+        G2.setColor(getPointerColor().VERY_DARK);
         G2.draw(TRIANGLE);
 
         G2.dispose();

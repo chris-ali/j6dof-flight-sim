@@ -14,18 +14,32 @@ public class SaturationLimits {
 		double theta = eulerAngles[1];
 		double psi   = eulerAngles[2];
 		
-		if (eulerAngles[0] > Math.PI || eulerAngles[0] < -Math.PI)
+		// If banked past +/- pi, subtract/add 2*pi to return -/+ pi
+		if (eulerAngles[0] > Math.PI) {
+			phi -= 2*Math.PI;
 			phi %= Math.PI;
+		} else if (eulerAngles[0] < -Math.PI) {
+			phi += 2*Math.PI;
+			phi %= Math.PI;
+		}
 		
-		if (eulerAngles[1] > Math.PI || eulerAngles[1] < -Math.PI)
+		if (eulerAngles[1] > Math.PI ) {
+			theta -= 2*Math.PI;
 			theta %= Math.PI;
-		else if (eulerAngles[1] == Math.PI/2)
-			theta = Math.PI*0.90; // Prevent theta from reaching PI, which would cause singularity in Euler angles
+		} else if (eulerAngles[1] < -Math.PI) {
+			theta += 2*Math.PI;
+			theta %= Math.PI;
+		} else if (eulerAngles[1] ==  Math.PI/2) {
+			theta = Math.PI*0.95; // Prevent theta from reaching PI, which would cause singularity in Euler angles
+		} else if (eulerAngles[1] == -Math.PI/2) {
+			theta = -Math.PI*0.95;
+		}
 		
-		if (eulerAngles[2] > 2*Math.PI || eulerAngles[2] < 0)
-			psi %= 2*Math.PI;
+		// Return only positive values of psi between 0 and 2*pi
+		psi += 2*Math.PI;
+		psi %= 2*Math.PI;
 		
-		return new double[] {phi,theta,Math.abs(psi)}; // Return only positive values of psi between 0 and 2*pi
+		return new double[] {phi,theta,psi};
 	}
 	
 	/**

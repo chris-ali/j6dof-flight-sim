@@ -76,8 +76,6 @@ public class VerticalSpeed extends AbstractRadial {
 
     public VerticalSpeed() {
         super();
-        setMinValue(0);
-        setMaxValue(10);
         setLcdColor(LcdColor.BLACK_LCD);
         setValueCoupled(false);
         setLcdDecimals(0);
@@ -128,17 +126,7 @@ public class VerticalSpeed extends AbstractRadial {
         fImage = UTIL.createImage(GAUGE_WIDTH, GAUGE_WIDTH, Transparency.TRANSLUCENT);
 
         if (isFrameVisible()) {
-            switch (getFrameType()) {
-                case ROUND:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
-                    break;
-                case SQUARE:
-                    FRAME_FACTORY.createLinearFrame(GAUGE_WIDTH, GAUGE_WIDTH, getFrameDesign(), getCustomFrameDesign(), getFrameEffect(), bImage);
-                    break;
-                default:
-                    FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
-                    break;
-            }
+        	FRAME_FACTORY.createRadialFrame(GAUGE_WIDTH, FrameDesign.TILTED_BLACK, getCustomFrameDesign(), getFrameEffect(), bImage);
         }
 
         if (isBackgroundVisible()) {
@@ -160,17 +148,7 @@ public class VerticalSpeed extends AbstractRadial {
         pointerImage = create_POINTER_Image(GAUGE_WIDTH);
 
         if (isForegroundVisible()) {
-            switch (getFrameType()) {
-                case SQUARE:
-                    FOREGROUND_FACTORY.createLinearForeground(GAUGE_WIDTH, GAUGE_WIDTH, false, bImage);
-                    break;
-
-                case ROUND:
-
-                default:
-                    FOREGROUND_FACTORY.createRadialForeground(GAUGE_WIDTH, false, getForegroundType(), fImage);
-                    break;
-            }
+        	FOREGROUND_FACTORY.createRadialForeground(GAUGE_WIDTH, false, getForegroundType(), fImage);
         }
 
         if (disabledImage != null) {
@@ -248,8 +226,10 @@ public class VerticalSpeed extends AbstractRadial {
     @Override
     public void setValue(final double VALUE) {
         if (isEnabled()) {
-        	setLcdValue(VALUE);   	
-        	this.visibleValue = VALUE;
+        	if (Math.abs(VALUE) <= 3000) {
+        		setLcdValue(VALUE);   	
+        		this.visibleValue = VALUE;
+        	}
 
             fireStateChanged();
             repaint(getInnerBounds());
@@ -266,7 +246,7 @@ public class VerticalSpeed extends AbstractRadial {
             timeline.addPropertyToInterpolate("value", getValue(), value);
             timeline.setEase(new Spline(0.5f));
 
-            timeline.setDuration(250);
+            timeline.setDuration(1000);
             timeline.play();
         }
     }
@@ -478,9 +458,9 @@ public class VerticalSpeed extends AbstractRadial {
         final Point2D POINTER_STOP = new Point2D.Double(0, POINTER.getBounds2D().getMaxY());
         final float[] POINTER_FRACTIONS = {
             0.0f,
-            0.31f,
-            0.3101f,
-            0.32f,
+            0.59f,
+            0.5901f,
+            0.60f,
             1.0f
         };
         final Color[] POINTER_COLORS = {

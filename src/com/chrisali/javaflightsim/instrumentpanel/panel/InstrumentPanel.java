@@ -1,5 +1,6 @@
 package com.chrisali.javaflightsim.instrumentpanel.panel;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
@@ -148,6 +149,7 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		
 		add(inlinometer, gc);
 		
+		getContentPane().setBackground(Color.DARK_GRAY);
 		setSize(900, 620);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setVisible(true);
@@ -172,5 +174,7 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		
 		inlinometer.setValueAnimated(flightData.getFlightData().get(FlightDataType.TURN_RATE));
 		turnCoordinator.setValueAnimated(flightData.getFlightData().get(FlightDataType.TURN_COORD));
+		
+		System.out.println(flightData);
 	}
 }

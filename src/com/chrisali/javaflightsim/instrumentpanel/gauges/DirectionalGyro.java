@@ -30,6 +30,7 @@ package com.chrisali.javaflightsim.instrumentpanel.gauges;
 import eu.hansolo.steelseries.gauges.AbstractGauge;
 import eu.hansolo.steelseries.gauges.AbstractRadial;
 import eu.hansolo.steelseries.tools.FrameDesign;
+import eu.hansolo.steelseries.tools.LcdColor;
 
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
@@ -48,6 +49,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextLayout;
 import java.awt.geom.Path2D;
 import org.pushingpixels.trident.Timeline;
 import org.pushingpixels.trident.ease.Spline;
@@ -56,26 +59,28 @@ public class DirectionalGyro extends AbstractRadial {
 
 	private static final long serialVersionUID = 1L;
 
-    private boolean rotateTickmarks;
-    private double value;
-    private double rotationAngle;
-    private final Point2D CENTER;
+    private double value = 0;
+    private double rotationAngle = 0;
+    private final Point2D CENTER = new Point2D.Double();
+    private final Rectangle2D LCD = new Rectangle2D.Double();
     private BufferedImage frameImage;
     private BufferedImage backgroundImage;
     private BufferedImage tickmarksImage;
     private BufferedImage planeImage;
     private BufferedImage foregroundImage;
     private BufferedImage disabledImage;
-    private Timeline timeline;
+    private Timeline timeline = new Timeline(this);
+    private final FontRenderContext RENDER_CONTEXT = new FontRenderContext(null, true, true);
+    private TextLayout unitLayout;
+    private final Rectangle2D UNIT_BOUNDARY = new Rectangle2D.Double();
+    private double unitStringWidth;
+    private TextLayout valueLayout;
+    private final Rectangle2D VALUE_BOUNDARY = new Rectangle2D.Double();
 
     public DirectionalGyro() {
         super();
-        rotateTickmarks = true;
-        value = 0;
-        rotationAngle = 0;
-        CENTER = new Point2D.Double();
-        timeline = new Timeline(this);
         init(getInnerBounds().width, getInnerBounds().height);
+        setLcdColor(LcdColor.BLACK_LCD);
         setLcdVisible(true);
     }
 
@@ -108,6 +113,11 @@ public class DirectionalGyro extends AbstractRadial {
             tickmarksImage.flush();
         }
         tickmarksImage = create_TICKMARKS_Image(GAUGE_WIDTH);
+        
+        if (isLcdVisible()) {
+            createLcdImage(new Rectangle2D.Double(((getGaugeBounds().width - GAUGE_WIDTH * 0.4) / 2.0), (getGaugeBounds().height * 0.55), (GAUGE_WIDTH * 0.4), (GAUGE_WIDTH * 0.1)), getLcdColor(), getCustomLcdBackground(), backgroundImage);
+            LCD.setRect(((getGaugeBounds().width - GAUGE_WIDTH * 0.4) / 2.0), (getGaugeBounds().height * 0.55), GAUGE_WIDTH * 0.4, GAUGE_WIDTH * 0.1);
+        }
         
         create_TITLE_Image(WIDTH, getTitle(), getUnitString(), backgroundImage);
 
@@ -160,22 +170,35 @@ public class DirectionalGyro extends AbstractRadial {
         }
 
         // Draw the tickmarks
-        if (rotateTickmarks) {
-            G2.rotate(-rotationAngle, CENTER.getX(), CENTER.getY());
-            G2.drawImage(tickmarksImage, 0, 0, null);
-            G2.setTransform(OLD_TRANSFORM);
-        } else {
-            G2.drawImage(tickmarksImage, 0, 0, null);
+        G2.rotate(-rotationAngle, CENTER.getX(), CENTER.getY());
+        G2.drawImage(tickmarksImage, 0, 0, null);
+        G2.setTransform(OLD_TRANSFORM);
+        
+        // Draw LCD display
+        if (isLcdVisible()) {
+            if (getLcdColor() == LcdColor.CUSTOM) {
+                G2.setColor(getCustomLcdForeground());
+            } else {
+                G2.setColor(getLcdColor().TEXT_COLOR);
+            }
+            G2.setFont(getLcdUnitFont());
+            if (isLcdUnitStringVisible()) {
+                unitLayout = new TextLayout(getLcdUnitString(), G2.getFont(), RENDER_CONTEXT);
+                UNIT_BOUNDARY.setFrame(unitLayout.getBounds());
+                G2.drawString(getLcdUnitString(), (float) (LCD.getX() + (LCD.getWidth() - UNIT_BOUNDARY.getWidth()) - LCD.getWidth() * 0.03), (float) (LCD.getY() + LCD.getHeight() * 0.76));
+                unitStringWidth = UNIT_BOUNDARY.getWidth();
+            } else {
+                unitStringWidth = 0;
+            }
+            G2.setFont(getLcdValueFont());
+            
+            valueLayout = new TextLayout(formatLcdValue(getLcdValue()), G2.getFont(), RENDER_CONTEXT);
+            VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
+            G2.drawString(formatLcdValue(getLcdValue()), (float) (LCD.getX() + (LCD.getWidth() - unitStringWidth - VALUE_BOUNDARY.getWidth()) - LCD.getWidth() * 0.09), (float) (LCD.getY() + LCD.getHeight() * 0.76));
         }
 
         // Draw plane
-        if (!rotateTickmarks) {
-            G2.rotate(rotationAngle, CENTER.getX(), CENTER.getY());
-            G2.drawImage(planeImage, 0, 0, null);
-            G2.setTransform(OLD_TRANSFORM);
-        } else {
-            G2.drawImage(planeImage, 0, 0, null);
-        }
+        G2.drawImage(planeImage, 0, 0, null);
 
         // Draw foreground
         if (isForegroundVisible()) {
@@ -191,9 +214,7 @@ public class DirectionalGyro extends AbstractRadial {
 
         G2.dispose();
     }
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Getters and Setters">
     @Override
     public double getValue() {
         return value;
@@ -234,16 +255,6 @@ public class DirectionalGyro extends AbstractRadial {
         return 360;
     }
 
-    public boolean isRotateTickmarks() {
-        return this.rotateTickmarks;
-    }
-
-    public void setRotateTickmarks(final boolean ROTATE_TICKMARKS) {
-        this.rotateTickmarks = ROTATE_TICKMARKS;
-        setValue(0);
-        repaint(getInnerBounds());
-    }
-
     @Override
     public Point2D getCenter() {
         return new Point2D.Double(getInnerBounds().getCenterX() + getInnerBounds().x, getInnerBounds().getCenterX() + getInnerBounds().y);
@@ -258,9 +269,7 @@ public class DirectionalGyro extends AbstractRadial {
     public Rectangle getLcdBounds() {
         return new Rectangle();
     }
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Image related">
     private BufferedImage create_TICKMARKS_Image(final int WIDTH) {
         if (WIDTH <= 0) {
             return null;
@@ -344,32 +353,20 @@ public class DirectionalGyro extends AbstractRadial {
             if (counter != 72 && counter % 6 == 0) {
                 if (counter / 2 == 0) {
                     G2.setFont(CHAR_FONT);
-                    final Color FORMER_COLOR = G2.getColor();
-                    G2.setColor(getPointerColor().LIGHT);
                     G2.rotate(Math.toRadians(0), CENTER.getX(), CENTER.getY());
                     G2.fill(UTIL.rotateTextAroundCenter(G2, "N", (int) textPoint.getX(), (int) textPoint.getY(), (2 * Math.PI - alpha)));
-                    G2.setColor(FORMER_COLOR);
                 } else if (counter / 2 == 9) {
                     G2.setFont(CHAR_FONT);
-                    final Color FORMER_COLOR = G2.getColor();
-                    G2.setColor(getPointerColor().LIGHT);
                     G2.rotate(Math.toRadians(0), CENTER.getX(), CENTER.getY());
                     G2.fill(UTIL.rotateTextAroundCenter(G2, "E", (int) textPoint.getX(), (int) textPoint.getY(), (2 * Math.PI - alpha)));
-                    G2.setColor(FORMER_COLOR);
                 } else if (counter / 2 == 18) {
                     G2.setFont(CHAR_FONT);
-                    final Color FORMER_COLOR = G2.getColor();
-                    G2.setColor(getPointerColor().LIGHT);
                     G2.rotate(Math.toRadians(0), CENTER.getX(), CENTER.getY());
                     G2.fill(UTIL.rotateTextAroundCenter(G2, "S", (int) textPoint.getX(), (int) textPoint.getY(), (2 * Math.PI - alpha)));
-                    G2.setColor(FORMER_COLOR);
                 } else if (counter / 2 == 27) {
                     G2.setFont(CHAR_FONT);
-                    final Color FORMER_COLOR = G2.getColor();
-                    G2.setColor(getPointerColor().LIGHT);
                     G2.rotate(Math.toRadians(0), CENTER.getX(), CENTER.getY());
                     G2.fill(UTIL.rotateTextAroundCenter(G2, "W", (int) textPoint.getX(), (int) textPoint.getY(), (2 * Math.PI - alpha)));
-                    G2.setColor(FORMER_COLOR);
                 } else {
                     G2.setFont(NUMBER_FONT);
                     G2.rotate(Math.toRadians(0), CENTER.getX(), CENTER.getY());
@@ -500,7 +497,6 @@ public class DirectionalGyro extends AbstractRadial {
 
         return IMAGE;
     }
-    // </editor-fold>
 
     @Override
     public String toString() {
