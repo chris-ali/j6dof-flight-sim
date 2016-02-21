@@ -8,6 +8,7 @@ import com.chrisali.javaflightsim.aircraft.AircraftBuilder;
  */
 public enum EngineParameters {
 	NAME			("engineName"),
+	TYPE			("engineType"),
 	POS_X			("engX"),
 	POS_Y			("engY"),
 	POS_Z			("engZ"),

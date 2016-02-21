@@ -77,12 +77,19 @@ public class AircraftBuilder {
 													   Double.parseDouble(engineParams.get(EngineParameters.POS_Y)), 
 													   Double.parseDouble(engineParams.get(EngineParameters.POS_Z))};
 				
-				this.engineList.add(new FixedPitchPropEngine(					engineParams.get(EngineParameters.NAME), 
-															 Double.parseDouble(engineParams.get(EngineParameters.MAX_BHP)), 
-															 Double.parseDouble(engineParams.get(EngineParameters.MAX_RPM)), 
-															 Double.parseDouble(engineParams.get(EngineParameters.PROP_DIAMETER)), 
-															 enginePosition, 
-															 i));
+				// Currently only one type of engine, so just default to creating a fixedPitchPropEngine 
+				switch (engineParams.get(EngineParameters.TYPE)) {
+					case "fixedPitchPropEngine":
+					default:
+					this.engineList.add(new FixedPitchPropEngine(					engineParams.get(EngineParameters.NAME), 
+																 Double.parseDouble(engineParams.get(EngineParameters.MAX_BHP)), 
+																 Double.parseDouble(engineParams.get(EngineParameters.MAX_RPM)), 
+																 Double.parseDouble(engineParams.get(EngineParameters.PROP_DIAMETER)), 
+																 enginePosition, 
+																 i));	
+					break;
+				}
+				
 			}
 		} else {
 			System.err.println("Invalid number of engines! Defaulting to single engine...");

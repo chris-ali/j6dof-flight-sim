@@ -2,12 +2,14 @@
 JavaFlightSim - A Six Degree of Freedom (6DOF) Flight Simulator Written in Java
 Chris Ali
 
-This program was written to apply my knowledge and background in Flight Dynamics to build my Java language skills. It is capable of running as a simple analysis tool for flight dynamics, as well as a real time simulation for pilot in the loop use. One day I'd like to tie objectives or a scoring element into the simulation to make it a game as well.
+This program was written to apply my knowledge and background in Flight Dynamics to build my Java language skills. It is capable of running as a simple analysis tool for flight dynamics, as well as a real time simulation for pilot in the loop use. When configured as a pilot in the loop simulation, a simple Swing instrument panel is displayed and the user can control the simulation using a joystick.
+
+One day I'd like to tie objectives or a scoring element into the simulation to make it a game as well.
 
 Until I learn OpenGL or Java3D, this program will send/receive data to/from an existing flight simulator such as FlightGear or X-Plane.
 
 ##Assumptions and Simplifications
--JavaFlightSim currently assumes a flat, non-rotating Earth.
+-JavaFlightSim currently assumes a non-rotating Earth.
  
 -The aircraft is a rigid body, with a constant mass.
 
@@ -22,8 +24,6 @@ Until I learn OpenGL or Java3D, this program will send/receive data to/from an e
 
 -Selectable starting locations (in air or on ground)
 
--Create an instrument panel GUI to run either as a Swing window, or as an Android app
-
 -Moving map support in a Swing GUI or Android app
 
 ##Libraries
@@ -32,6 +32,9 @@ Until I learn OpenGL or Java3D, this program will send/receive data to/from an e
 -In addition, the jFreeChart libraries are used to graph the simulation states after the simulation stops.
 
 -jInput is used for joystick, mouse and keyboard support
+
+-Instrument panel gauges were created using Gerrit Grunwald's SteelSeries Swing port: 
+https://github.com/HanSolo/SteelSeries-Swing 
 
 ##Reference
 -The 6DOF state equations come from *Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.*
