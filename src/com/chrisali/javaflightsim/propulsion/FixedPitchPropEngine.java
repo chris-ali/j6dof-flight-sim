@@ -38,7 +38,13 @@ public class FixedPitchPropEngine extends Engine {
 	 * @param enginePosition
 	 * @param engineNumber
 	 */
-	public FixedPitchPropEngine(String engineName, double maxBHP, double maxRPM, double propDiam, double[] enginePosition, int engineNumber) {
+	public FixedPitchPropEngine(String engineName, 
+								double maxBHP, 
+								double maxRPM, 
+								double propDiam, 
+								double[] enginePosition, 
+								int engineNumber) {
+		
 		this.engineName		= engineName;
 		this.maxBHP 		= maxBHP;
 		this.maxRPM 		= maxRPM;
@@ -49,9 +55,8 @@ public class FixedPitchPropEngine extends Engine {
 		this.engineNumber   = engineNumber;
 	}
 		
-	// Update all states for one engine
 	/**
-	 * Updates all fields of engine; called by {@link Integrate6DOFEquations}
+	 * Updates all fields of engine; called by {@link Integrate6DOFEquations} to recalculate thrust, moment, fuel flow and RPM for this engine
 	 */
 	public void updateEngineState(EnumMap<FlightControls, Double> controls,				
 								  EnumMap<EnvironmentParameters, Double> environmentParameters,

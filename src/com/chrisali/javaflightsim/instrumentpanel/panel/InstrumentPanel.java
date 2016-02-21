@@ -118,7 +118,7 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		gc.fill = GridBagConstraints.BOTH;
 		
 		verticalSpeed = new VerticalSpeed();
-		verticalSpeed.setUnitString("x100 FT/MIN");
+		verticalSpeed.setUnitString("x1000 FT/MIN");
 		verticalSpeed.setTitle(verticalSpeed.toString());
 		verticalSpeed.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
 		

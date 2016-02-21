@@ -1,5 +1,11 @@
 package com.chrisali.javaflightsim.propulsion;
 
+import com.chrisali.javaflightsim.aircraft.AircraftBuilder;
+
+/**
+ *	Provides the switch cases for {@link AircraftBuilder} to determine which type of engine is 
+ *	defined in the Propulsion text file when parsing it
+ */
 public enum EngineType {
 	FIXEDPITCHPROP  ("fixedPitchProp"),
 	CONSTSPEEDPROP	("constSpeedProp"),

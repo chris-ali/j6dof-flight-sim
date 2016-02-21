@@ -1,5 +1,11 @@
 package com.chrisali.javaflightsim.propulsion;
 
+import com.chrisali.javaflightsim.aircraft.AircraftBuilder;
+
+/**
+ *	Provides keys for engineParams EnumMap in {@link AircraftBuilder} class, used to parse Propulsion 
+ *	text file to create an engine object for an aircraft
+ */
 public enum EngineParameters {
 	NAME			("engineName"),
 	POS_X			("engX"),

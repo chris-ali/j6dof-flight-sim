@@ -9,10 +9,12 @@ import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 public class RunSimulation {
 
 	public static void main(String[] args) {
+		
+		//TODO move instrument panel initialization here
 
 		// TODO gather all initial conditions/controls from trim routine
 
-		// TODO Put settings into own class 
+		// TODO Put settings into own class/GUI
 		EnumSet<Options> runOptions = EnumSet.noneOf(Options.class);
 //		runOptions.add(Options.ANALYSIS_MODE);
 //		runOptions.add(Options.TRIM_MODE);

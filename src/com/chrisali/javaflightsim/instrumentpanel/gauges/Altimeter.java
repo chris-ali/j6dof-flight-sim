@@ -92,7 +92,7 @@ public final class Altimeter extends AbstractRadial {
 		setMaxValue(10);
 		calcAngleStep();
         setLcdColor(LcdColor.BLACK_LCD);
-        setLcdVisible(true);
+        setLcdVisible(false);
     }
 
     @Override

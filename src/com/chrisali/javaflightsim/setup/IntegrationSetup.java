@@ -17,6 +17,13 @@ import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 public class IntegrationSetup {
 	protected static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\setup\\simconfig\\";
 	
+	/**
+	 * Parses a text file formatted as described in {@link IntegrationSetup#readFileAndSplit(String)} to generate an 
+	 * EnumMap of initial conditions used by {@link Integrate6DOFEquations} to start the integration for the simulation. 
+	 * 
+	 * @param fileName
+	 * @return EnumMap of initial conditions for the integration
+	 */
 	public static EnumMap<InitialConditions, Double> gatherInitialConditions(String fileName) {
 		ArrayList<String[]> initConditionsFile = readFileAndSplit(fileName);
 		EnumMap<InitialConditions,Double> initialConditions = new EnumMap<InitialConditions,Double>(InitialConditions.class); 
@@ -34,6 +41,13 @@ public class IntegrationSetup {
 		}
 	}
 	
+	/**
+	 * Parses a text file formatted as described in {@link IntegrationSetup#readFileAndSplit(String)} to generate an 
+	 * EnumMap of settings used by {@link Integrate6DOFEquations} to control the start, step and end times for the simulation. 
+	 * 
+	 * @param fileName
+	 * @return EnumMap of integration configuration options
+	 */
 	public static EnumMap<IntegratorConfig, Double> gatherIntegratorConfig(String fileName) {
 		ArrayList<String[]> intConfigFile = readFileAndSplit(fileName);
 		EnumMap<IntegratorConfig,Double> integratorConfig = new EnumMap<IntegratorConfig,Double>(IntegratorConfig.class); 
@@ -51,6 +65,13 @@ public class IntegrationSetup {
 		}
 	}
 	
+	/**
+	 * Parses a text file formatted as described in {@link IntegrationSetup#readFileAndSplit(String)} to generate an 
+	 * EnumMap of initial controls used by {@link Integrate6DOFEquations} to start the integration for the simulation. 
+	 * 
+	 * @param fileName
+	 * @return EnumMap of initial controls for the integration
+	 */
 	public static EnumMap<FlightControls, Double> gatherInitialControls(String fileName) {
 		ArrayList<String[]> initControlFile = readFileAndSplit(fileName);
 		EnumMap<FlightControls,Double> initControl = new EnumMap<FlightControls,Double>(FlightControls.class); 

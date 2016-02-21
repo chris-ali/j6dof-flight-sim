@@ -84,6 +84,7 @@ public final class Inclinometer extends AbstractRadial {
         calcAngleStep();
         setEnabled(true);
         setDecimalVisible(false);
+        setLcdVisible(false);
         init(getInnerBounds().width, getInnerBounds().height);
     }
 
@@ -176,12 +177,14 @@ public final class Inclinometer extends AbstractRadial {
         } else {
             G2.setFont(font.deriveFont(0.15f * getInnerBounds().width));
         }
-
-        textLayout = new TextLayout(DECIMAL_FORMAT.format(turnRateValue), G2.getFont(), RENDER_CONTEXT);
-        TEXT_BOUNDARY.setFrame(textLayout.getBounds());
-        G2.drawString(DECIMAL_FORMAT.format(turnRateValue), (int) ((getInnerBounds().width - TEXT_BOUNDARY.getWidth()) / 2.0), (int) ((getInnerBounds().width - TEXT_BOUNDARY.getHeight()) / 2.0) + textLayout.getAscent() - textLayout.getDescent());
-        G2.translate(-getFramelessOffset().getX(), -getFramelessOffset().getY());
-
+        
+        if (isLcdVisible()) {
+        	textLayout = new TextLayout(DECIMAL_FORMAT.format(turnRateValue), G2.getFont(), RENDER_CONTEXT);
+        	TEXT_BOUNDARY.setFrame(textLayout.getBounds());
+        	G2.drawString(DECIMAL_FORMAT.format(turnRateValue), (int) ((getInnerBounds().width - TEXT_BOUNDARY.getWidth()) / 2.0), (int) ((getInnerBounds().width - TEXT_BOUNDARY.getHeight()) / 2.0) + textLayout.getAscent() - textLayout.getDescent());
+        	G2.translate(-getFramelessOffset().getX(), -getFramelessOffset().getY());
+        }
+        
         // Draw Pointer
         G2.rotate(Math.toRadians(turnRateValue*angleStep), CENTER.getX(), CENTER.getY());
         G2.drawImage(pointerImage, 0, 0, null);
@@ -412,14 +415,14 @@ public final class Inclinometer extends AbstractRadial {
         
         POINTER.moveTo(IMAGE_WIDTH * 0.18, IMAGE_HEIGHT * 0.51);
         POINTER.lineTo(IMAGE_WIDTH * 0.82, IMAGE_HEIGHT * 0.51);
-        POINTER.lineTo(IMAGE_WIDTH * 0.82, IMAGE_HEIGHT * 0.49);
-        POINTER.lineTo(IMAGE_WIDTH * 0.18, IMAGE_HEIGHT * 0.49);
+        POINTER.lineTo(IMAGE_WIDTH * 0.82, IMAGE_HEIGHT * 0.50);
+        POINTER.lineTo(IMAGE_WIDTH * 0.18, IMAGE_HEIGHT * 0.50);
         POINTER.closePath();
         
-        POINTER.moveTo(IMAGE_WIDTH * 0.495, IMAGE_HEIGHT * 0.42);
-        POINTER.lineTo(IMAGE_WIDTH * 0.505, IMAGE_HEIGHT * 0.42);
-        POINTER.lineTo(IMAGE_WIDTH * 0.505, IMAGE_HEIGHT * 0.49);
-        POINTER.lineTo(IMAGE_WIDTH * 0.495, IMAGE_HEIGHT * 0.49);
+        POINTER.moveTo(IMAGE_WIDTH * 0.495, IMAGE_HEIGHT * 0.44);
+        POINTER.lineTo(IMAGE_WIDTH * 0.505, IMAGE_HEIGHT * 0.44);
+        POINTER.lineTo(IMAGE_WIDTH * 0.505, IMAGE_HEIGHT * 0.50);
+        POINTER.lineTo(IMAGE_WIDTH * 0.495, IMAGE_HEIGHT * 0.50);
         POINTER.closePath();
         
         POINTER.moveTo(IMAGE_WIDTH * 0.40, IMAGE_HEIGHT * 0.53);

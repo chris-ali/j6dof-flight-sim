@@ -79,7 +79,7 @@ public class VerticalSpeed extends AbstractRadial {
         setLcdColor(LcdColor.BLACK_LCD);
         setValueCoupled(false);
         setLcdDecimals(0);
-        setLcdVisible(true);
+        setLcdVisible(false);
         calcAngleStep();
         init(getInnerBounds().width, getInnerBounds().height);
     }
@@ -265,7 +265,7 @@ public class VerticalSpeed extends AbstractRadial {
      * Converts gauge value from ft/min to rotation in radians
      */
     private void calcAngleStep() {
-        angleStep = (2.0 * Math.PI) / (360*getMaxValue());
+        angleStep = Math.PI / (300*getMaxValue());
     }
 
     @Override
@@ -336,12 +336,15 @@ public class VerticalSpeed extends AbstractRadial {
         final int IMAGE_WIDTH = image.getWidth();
         final int IMAGE_HEIGHT = image.getHeight();
 
-        final Font STD_FONT = new Font("Verdana", 0, (int) (0.04 * WIDTH));
-        final BasicStroke MEDIUM_STROKE = new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL);
-        final BasicStroke THIN_STROKE = new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL);
-        final int TEXT_DISTANCE = (int) (0.08 * WIDTH);
-        final int MED_LENGTH = (int) (0.02 * WIDTH);
-        final int MAX_LENGTH = (int) (0.04 * WIDTH);
+        final Font STD_FONT = new Font("Verdana", 0, (int) (0.08 * WIDTH));
+        final Font SMALL_FONT = new Font("Verdana", 0, (int) (0.04 * WIDTH));
+        final BasicStroke THICK_STROKE = new BasicStroke(4.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL);
+        final BasicStroke MEDIUM_STROKE = new BasicStroke(3.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL);
+        final BasicStroke THIN_STROKE = new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL);
+        final int TEXT_DISTANCE = (int) (0.1 * WIDTH);
+        final int MIN_LENGTH = (int) (0.03 * WIDTH);
+        final int MED_LENGTH = (int) (0.04 * WIDTH);
+        final int MAX_LENGTH = (int) (0.05 * WIDTH);
 
         // Create the ticks itself
         final float RADIUS = IMAGE_WIDTH * 0.38f;
@@ -367,24 +370,31 @@ public class VerticalSpeed extends AbstractRadial {
 
         for (double alpha = (2.0 * Math.PI); alpha >= STEP; alpha -= STEP) {
             G2.setStroke(THIN_STROKE);
+            G2.setColor(getTickmarkColor());
             sinValue = Math.sin(alpha - 3*Math.PI / 2);
             cosValue = Math.cos(alpha - 3*Math.PI / 2);
 
-            // Different tickmark every 5 units
-            if (counter % 5 == 0) {
-                G2.setColor(super.getBackgroundColor().LABEL_COLOR);
+            // Different tickmark every 3 units
+            if (counter % 3 == 0 && alpha <= 1.33*Math.PI && alpha >= 0.66*Math.PI) {
                 G2.setStroke(THIN_STROKE);
+                INNER_POINT.setLocation(GAUGE_CENTER.getX() + (RADIUS - MIN_LENGTH) * sinValue, GAUGE_CENTER.getY() + (RADIUS - MIN_LENGTH) * cosValue);
+                OUTER_POINT.setLocation(GAUGE_CENTER.getX() + RADIUS * sinValue, GAUGE_CENTER.getY() + RADIUS * cosValue);
+                
+                TICK_LINE.setLine(INNER_POINT, OUTER_POINT);
+                G2.draw(TICK_LINE);        
+            }
+            // Different tickmark every 30 units plus text
+            if (counter % 15 == 0) {
+                G2.setStroke(MEDIUM_STROKE);
                 INNER_POINT.setLocation(GAUGE_CENTER.getX() + (RADIUS - MED_LENGTH) * sinValue, GAUGE_CENTER.getY() + (RADIUS - MED_LENGTH) * cosValue);
                 OUTER_POINT.setLocation(GAUGE_CENTER.getX() + RADIUS * sinValue, GAUGE_CENTER.getY() + RADIUS * cosValue);
                 
                 TICK_LINE.setLine(INNER_POINT, OUTER_POINT);
                 G2.draw(TICK_LINE);        
             }
-
-            // Different tickmark every 45 units plus text
+            // Different tickmark every 30 units plus text
             if (counter == 30 || counter == 0) {
-                G2.setColor(super.getBackgroundColor().LABEL_COLOR);
-                G2.setStroke(MEDIUM_STROKE);
+                G2.setStroke(THICK_STROKE);
                 INNER_POINT.setLocation(GAUGE_CENTER.getX() + (RADIUS - MAX_LENGTH) * sinValue, GAUGE_CENTER.getY() + (RADIUS - MAX_LENGTH) * cosValue);
                 OUTER_POINT.setLocation(GAUGE_CENTER.getX() + RADIUS * sinValue, GAUGE_CENTER.getY() + RADIUS * cosValue);
 
@@ -392,12 +402,24 @@ public class VerticalSpeed extends AbstractRadial {
                 TEXT_POINT.setLocation(GAUGE_CENTER.getX() + (RADIUS - TEXT_DISTANCE) * sinValue, GAUGE_CENTER.getY() + (RADIUS - TEXT_DISTANCE) * cosValue);
                 G2.setFont(STD_FONT);
 
-                G2.fill(UTIL.rotateTextAroundCenter(G2, String.valueOf((int) valueCounter/3), (int) TEXT_POINT.getX(), (int) TEXT_POINT.getY(), 0));
+                G2.fill(UTIL.rotateTextAroundCenter(G2, String.valueOf((int) valueCounter/30), (int) TEXT_POINT.getX(), (int) TEXT_POINT.getY(), 0));
 
                 counter = 0;
                 
                 TICK_LINE.setLine(INNER_POINT, OUTER_POINT);
                 G2.draw(TICK_LINE);
+            }
+            if (counter == 15 && alpha <= 1.33*Math.PI && alpha >= 0.66*Math.PI) {
+            	TEXT_POINT.setLocation(GAUGE_CENTER.getX() + (RADIUS - TEXT_DISTANCE) * sinValue, GAUGE_CENTER.getY() + (RADIUS - TEXT_DISTANCE) * cosValue);
+                G2.setFont(SMALL_FONT);
+                
+            	G2.fill(UTIL.rotateTextAroundCenter(G2, ".5 UP", (int) TEXT_POINT.getX(), (int) TEXT_POINT.getY(), 0));
+            }
+            if (counter == 15 && alpha <= 0.33*Math.PI && alpha >= Math.PI) {
+            	TEXT_POINT.setLocation(GAUGE_CENTER.getX() + (RADIUS - TEXT_DISTANCE) * sinValue, GAUGE_CENTER.getY() + (RADIUS - TEXT_DISTANCE) * cosValue);
+                G2.setFont(SMALL_FONT);
+                
+            	G2.fill(UTIL.rotateTextAroundCenter(G2, ".5 DN", (int) TEXT_POINT.getX(), (int) TEXT_POINT.getY(), 0));
             }
 
             counter++;

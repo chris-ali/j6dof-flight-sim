@@ -232,7 +232,10 @@ public final class AirspeedIndicator extends AbstractRadial {
     @Override
     public void setValue(final double VALUE) {
     	if (VALUE <= 200) {
-	        rotationAngle = (2.0 * Math.PI / 243) * VALUE;
+    		if (VALUE < 10)
+    			rotationAngle = (2.0 * Math.PI / 200) * VALUE;
+    		else
+    			rotationAngle = (2.0 * Math.PI / 200) * (VALUE-20);
 	        this.oldValue = VALUE;
 	        if (isValueCoupled()) {
 	            setLcdValue(VALUE);
