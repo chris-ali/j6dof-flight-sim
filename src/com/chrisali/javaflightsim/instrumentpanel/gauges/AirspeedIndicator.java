@@ -82,6 +82,8 @@ public final class AirspeedIndicator extends AbstractRadial {
         super();
         init(getInnerBounds().width, getInnerBounds().height);
         setLcdVisible(false);
+        setUnitString("KNOTS");
+        setTitle(this.toString());
     }
 
     @Override

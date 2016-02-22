@@ -82,6 +82,8 @@ public class DirectionalGyro extends AbstractRadial {
         init(getInnerBounds().width, getInnerBounds().height);
         setLcdColor(LcdColor.BLACK_LCD);
         setLcdVisible(false);
+        setUnitString("");
+		setTitle(this.toString());
     }
 
     @Override

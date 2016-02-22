@@ -59,6 +59,7 @@ import eu.hansolo.steelseries.tools.Section;
 public final class Altimeter extends AbstractRadial {
 
 	private static final long serialVersionUID = 1L;
+	
     private double value100 = 0;
     private double oldValue = 0;
     private double value1000 = 0;
@@ -93,6 +94,8 @@ public final class Altimeter extends AbstractRadial {
 		calcAngleStep();
         setLcdColor(LcdColor.BLACK_LCD);
         setLcdVisible(false);
+        setUnitString("");
+		setTitle(this.toString());
     }
 
     @Override

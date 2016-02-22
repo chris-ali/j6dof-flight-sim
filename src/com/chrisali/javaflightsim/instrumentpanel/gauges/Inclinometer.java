@@ -85,6 +85,8 @@ public final class Inclinometer extends AbstractRadial {
         setEnabled(true);
         setDecimalVisible(false);
         setLcdVisible(false);
+        setUnitString("");
+		setTitle(this.toString());
         init(getInnerBounds().width, getInnerBounds().height);
     }
 

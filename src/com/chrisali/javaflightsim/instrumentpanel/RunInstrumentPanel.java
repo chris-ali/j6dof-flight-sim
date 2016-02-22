@@ -27,7 +27,7 @@ public class RunInstrumentPanel {
 		new Thread(runSim).start();
 		new Thread(flightData).start();
 		
-		InstrumentPanel panel = new InstrumentPanel(flightData);
+		InstrumentPanel panel = new InstrumentPanel();
 		flightData.setFlightDataListener(panel);
 	}
 }

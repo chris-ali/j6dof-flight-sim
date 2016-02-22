@@ -59,6 +59,7 @@ import eu.hansolo.steelseries.tools.Section;
 public class VerticalSpeed extends AbstractRadial {
 
 	private static final long serialVersionUID = 1L;
+	
     private double visibleValue = 0;
     private double angleStep;
     private final Point2D CENTER = new Point2D.Double();
@@ -80,6 +81,8 @@ public class VerticalSpeed extends AbstractRadial {
         setValueCoupled(false);
         setLcdDecimals(0);
         setLcdVisible(false);
+        setUnitString("x1000 FT/MIN");
+		setTitle(this.toString());
         calcAngleStep();
         init(getInnerBounds().width, getInnerBounds().height);
     }

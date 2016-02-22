@@ -19,7 +19,7 @@ public class RunSimulation {
 //		runOptions.add(Options.ANALYSIS_MODE);
 //		runOptions.add(Options.TRIM_MODE);
 //		runOptions.add(Options.UNLIMITED_FLIGHT);
-		runOptions.add(Options.CONSOLE_DISPLAY);
+//		runOptions.add(Options.CONSOLE_DISPLAY);
 		runOptions.add(Options.USE_JOYSTICK);
 //		runOptions.add(Options.USE_MOUSE);
 		

@@ -3,7 +3,6 @@ package com.chrisali.javaflightsim.instrumentpanel.flightdata;
 import java.util.EnumMap;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.instrumentpanel.panel.FlightDataListener;
 import com.chrisali.javaflightsim.instrumentpanel.panel.InstrumentPanel;
 import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.utilities.integration.SimOuts;
@@ -66,7 +65,7 @@ public class FlightData implements Runnable {
 	 */
 	private void fireDataArrived() {
 		if(dataListener != null)
-			dataListener.onFlightDataReceived();
+			dataListener.onFlightDataReceived(this);
 	}
 	
 	@Override
