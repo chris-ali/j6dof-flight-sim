@@ -16,7 +16,7 @@ import com.chrisali.javaflightsim.instrumentpanel.gauges.AirspeedIndicator;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.Altimeter;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.ArtificialHorizon;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.DirectionalGyro;
-import com.chrisali.javaflightsim.instrumentpanel.gauges.Inclinometer;
+import com.chrisali.javaflightsim.instrumentpanel.gauges.TurnCoordinator;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.VerticalSpeed;
 import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 
@@ -34,7 +34,7 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 	private	DirectionalGyro	  directionalGyro; 
 	private AirspeedIndicator airspeedIndicator;
 	private VerticalSpeed 	  verticalSpeed;
-	private Inclinometer	  inclinometer;
+	private TurnCoordinator	  turnCoordinator;
 	
 	/**
 	 * Creates a simple instrument panel with a {@link FlightDataListener} to set the gauge values from
@@ -109,10 +109,10 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		gc.gridx = 4;
 		gc.gridy = 6;
 		
-		inclinometer = new Inclinometer();
-		inclinometer.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
+		turnCoordinator = new TurnCoordinator();
+		turnCoordinator.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
 		
-		add(inclinometer, gc);
+		add(turnCoordinator, gc);
 		
 		getContentPane().setBackground(Color.DARK_GRAY);
 		setSize(900, 620);
@@ -139,7 +139,8 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 			
 			verticalSpeed.setValue(flightData.getFlightData().get(FlightDataType.VERT_SPEED));
 			
-			inclinometer.setValueAnimated(flightData.getFlightData().get(FlightDataType.TURN_RATE));
+			turnCoordinator.setInclinoValue(flightData.getFlightData().get(FlightDataType.TURN_RATE));
+			turnCoordinator.setCoordValue(flightData.getFlightData().get(FlightDataType.TURN_COORD));
 			
 			//System.out.println(flightData);
 		}

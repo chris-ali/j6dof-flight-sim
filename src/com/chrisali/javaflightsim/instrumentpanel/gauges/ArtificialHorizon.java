@@ -27,31 +27,33 @@
  */
 package com.chrisali.javaflightsim.instrumentpanel.gauges;
 
-import eu.hansolo.steelseries.gauges.AbstractGauge;
-import eu.hansolo.steelseries.gauges.AbstractRadial;
-import eu.hansolo.steelseries.tools.FrameDesign;
-import eu.hansolo.steelseries.tools.FrameType;
 import java.awt.BasicStroke;
-import java.awt.image.BufferedImage;
-import java.awt.Graphics2D;
 import java.awt.Color;
-import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
 import java.awt.Rectangle;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.Ellipse2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.Transparency;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+
 import org.pushingpixels.trident.Timeline;
 import org.pushingpixels.trident.ease.Spline;
+
+import eu.hansolo.steelseries.gauges.AbstractGauge;
+import eu.hansolo.steelseries.gauges.AbstractRadial;
+import eu.hansolo.steelseries.tools.FrameDesign;
+import eu.hansolo.steelseries.tools.FrameType;
 
 public class ArtificialHorizon extends AbstractRadial {
 
@@ -59,7 +61,7 @@ public class ArtificialHorizon extends AbstractRadial {
 
     private double roll = 0;
     private double oldRoll;
-    private double pitch = 0;
+    private double pitch = 20;
     private double oldPitch;
     private double pitchPixel;
     private boolean upsidedown = false;
@@ -68,7 +70,7 @@ public class ArtificialHorizon extends AbstractRadial {
     private BufferedImage bImage;
     private BufferedImage fImage;
     private BufferedImage horizonImage;
-    private BufferedImage horizonForegroundImage;
+    private BufferedImage horizonTicksImage;
     private boolean customColors = false;
     private Color customSkyColor;
     private Color customGroundColor;
@@ -124,13 +126,14 @@ public class ArtificialHorizon extends AbstractRadial {
             horizonImage.flush();
         }
         horizonImage = create_HORIZON_Image(GAUGE_WIDTH);
+        
+        
+        if (horizonTicksImage != null) {
+            horizonTicksImage.flush();
+        }
+        horizonTicksImage = create_OUTER_HORIZON_TICKS_Image(GAUGE_WIDTH);
 
         create_INDICATOR_Image(GAUGE_WIDTH, fImage);
-
-        if (horizonForegroundImage != null) {
-            horizonForegroundImage.flush();
-        }
-        horizonForegroundImage = create_HORIZON_FOREGROUND_Image(GAUGE_WIDTH);
 
         if (isForegroundVisible()) {
         	FOREGROUND_FACTORY.createRadialForeground(GAUGE_WIDTH, false, getForegroundType(), fImage);
@@ -179,8 +182,10 @@ public class ArtificialHorizon extends AbstractRadial {
 
         // Draw the scale and angle indicator
         G2.translate(-getFramelessOffset().getX(), (pitch * pitchPixel) + getFramelessOffset().getY());
-        G2.drawImage(horizonForegroundImage, (int) (getWidth() * 0.5 - horizonForegroundImage.getWidth() / 2.0), (int) (getWidth() * 0.10747663551401869), null);
-
+        
+        // Draw horizon tick marks
+        G2.drawImage(horizonTicksImage, 5, 0, null);
+        
         G2.setTransform(OLD_TRANSFORM);
         G2.setClip(OLD_CLIP);
 
@@ -224,7 +229,7 @@ public class ArtificialHorizon extends AbstractRadial {
             timelineRoll = new Timeline(this);
             timelineRoll.addPropertyToInterpolate("roll", this.oldRoll, ROLL);
             timelineRoll.setEase(new Spline(0.5f));
-            timelineRoll.setDuration(1000);
+            timelineRoll.setDuration(1500);
             timelineRoll.play();
         }
     }
@@ -272,7 +277,7 @@ public class ArtificialHorizon extends AbstractRadial {
             timelinePitch = new Timeline(this);
             timelinePitch.addPropertyToInterpolate("pitch", this.oldPitch, PITCH);
             timelinePitch.setEase(new Spline(0.5f));
-            timelinePitch.setDuration(1000);
+            timelinePitch.setDuration(1500);
             timelinePitch.play();
         }
     }
@@ -368,7 +373,7 @@ public class ArtificialHorizon extends AbstractRadial {
         final int IMAGE_WIDTH = IMAGE.getWidth();
         final int IMAGE_HEIGHT = IMAGE.getHeight();
 
-        final Rectangle2D HORIZON = new Rectangle2D.Double(0, 0, IMAGE_WIDTH, HORIZON_HEIGHT);
+        final Ellipse2D HORIZON = new Ellipse2D.Double(IMAGE_WIDTH * 0.1, IMAGE_HEIGHT * 0.4, IMAGE_WIDTH * 0.8, IMAGE_HEIGHT * 0.2);
         final Point2D HORIZON_START = new Point2D.Double(0, HORIZON.getBounds2D().getMinY());
         final Point2D HORIZON_STOP = new Point2D.Double(0, HORIZON.getBounds2D().getMaxY());
         final float[] HORIZON_FRACTIONS = {
@@ -397,17 +402,17 @@ public class ArtificialHorizon extends AbstractRadial {
         final LinearGradientPaint HORIZON_GRADIENT = new LinearGradientPaint(HORIZON_START, HORIZON_STOP, HORIZON_FRACTIONS, HORIZON_COLORS);
         G2.setPaint(HORIZON_GRADIENT);
         G2.fill(HORIZON);
-
+        
         // Draw horizontal lines
         G2.setColor(UTIL.setBrightness(HORIZON_COLORS[0], 0.5f));
         final Line2D LINE = new Line2D.Double();
         final double STEPSIZE_Y = HORIZON_HEIGHT / 360.0 * 5.0;
         boolean stepTen = false;
         int step = 0;
-        G2.setFont(new Font("Verdana", Font.PLAIN, (int) (WIDTH * 0.04)));
         final FontRenderContext RENDER_CONTEXT = new FontRenderContext(null, true, true);
         TextLayout valueLayout;
         final Rectangle2D VALUE_BOUNDARY = new Rectangle2D.Double();
+        
         for (double y = IMAGE_HEIGHT / 2.0 - STEPSIZE_Y; y > 0; y -= STEPSIZE_Y) {
             if (step <= 10) {
                 if (stepTen) {
@@ -415,8 +420,6 @@ public class ArtificialHorizon extends AbstractRadial {
                     step += 10;
                     valueLayout = new TextLayout(Integer.toString(step), G2.getFont(), RENDER_CONTEXT);
                     VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
-                    G2.drawString(Integer.toString(step), (float) (LINE.getX1() - VALUE_BOUNDARY.getWidth() - 5), (float) (y + VALUE_BOUNDARY.getHeight() / 2));
-                    G2.drawString(Integer.toString(step), (float) (LINE.getX2() + 5), (float) (y + VALUE_BOUNDARY.getHeight() / 2));
                 } else {
                     LINE.setLine((IMAGE_WIDTH - (IMAGE_WIDTH * 0.1)) / 2, y, IMAGE_WIDTH - (IMAGE_WIDTH - (IMAGE_WIDTH * 0.1)) / 2, y);
                 }
@@ -426,12 +429,14 @@ public class ArtificialHorizon extends AbstractRadial {
         }
         stepTen = false;
         step = 0;
+        
         G2.setColor(Color.WHITE);
         final Stroke FORMER_STROKE = G2.getStroke();
         G2.setStroke(new BasicStroke(1.5f));
         LINE.setLine(0, IMAGE_HEIGHT / 2.0, IMAGE_WIDTH, IMAGE_HEIGHT / 2.0);
         G2.draw(LINE);
         G2.setStroke(FORMER_STROKE);
+        
         for (double y = IMAGE_HEIGHT / 2.0 + STEPSIZE_Y; y <= IMAGE_HEIGHT; y += STEPSIZE_Y) {
             if (step >= -10) {
                 if (stepTen) {
@@ -439,8 +444,6 @@ public class ArtificialHorizon extends AbstractRadial {
                     step -= 10;
                     valueLayout = new TextLayout(Integer.toString(step), G2.getFont(), RENDER_CONTEXT);
                     VALUE_BOUNDARY.setFrame(valueLayout.getBounds());
-                    G2.drawString(Integer.toString(step), (float) (LINE.getX1() - VALUE_BOUNDARY.getWidth() - 5), (float) (y + VALUE_BOUNDARY.getHeight() / 2));
-                    G2.drawString(Integer.toString(step), (float) (LINE.getX2() + 5), (float) (y + VALUE_BOUNDARY.getHeight() / 2));
                 } else {
                     LINE.setLine((IMAGE_WIDTH - (IMAGE_WIDTH * 0.1)) / 2, y, IMAGE_WIDTH - (IMAGE_WIDTH - (IMAGE_WIDTH * 0.1)) / 2, y);
                 }
@@ -448,6 +451,100 @@ public class ArtificialHorizon extends AbstractRadial {
             }
             stepTen ^= true;
         }
+        
+        // Draw horizon bank lines
+        final Point2D HORIZON_CENTER = new Point2D.Double(HORIZON.getBounds2D().getCenterX(), HORIZON.getBounds2D().getCenterY());
+        G2.setColor(Color.WHITE);
+        
+//        for (double theta = Math.PI; theta <= 2*Math.PI; theta += Math.PI/20) {
+//    		LINE.setLine(HORIZON_CENTER.getX(), HORIZON_CENTER.getY(), -IMAGE_WIDTH*Math.cos(theta), -IMAGE_WIDTH*Math.sin(theta));
+//    		G2.draw(LINE); 
+//        }
+
+        G2.dispose();
+
+        return IMAGE;
+    }
+    
+    private BufferedImage create_OUTER_HORIZON_TICKS_Image(final int WIDTH) {
+    	if (WIDTH <= 0) {
+            return UTIL.createImage(1, 1, Transparency.TRANSLUCENT);
+        }
+
+        final int HEIGHT = WIDTH;
+        final BufferedImage IMAGE = UTIL.createImage(WIDTH+5, HEIGHT-2, Transparency.TRANSLUCENT);
+        final Graphics2D G2 = IMAGE.createGraphics();
+        G2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        G2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
+
+        final int IMAGE_WIDTH = IMAGE.getWidth();
+        final int IMAGE_HEIGHT = IMAGE.getHeight();
+        final Point2D LOCAL_CENTER = new Point2D.Double(IMAGE_WIDTH / 2.0, IMAGE_HEIGHT / 2.0);
+
+        // Shape that will be subtracted from the ellipse and will be filled by the background image later
+        final Area SUBTRACT = new Area(new Ellipse2D.Double(IMAGE_WIDTH * 0.17, IMAGE_HEIGHT * 0.17, IMAGE_WIDTH * 0.66, IMAGE_HEIGHT * 0.66));
+
+        final Area INNER_BORDER = new Area(new Ellipse2D.Double(IMAGE_WIDTH * 0.14, IMAGE_HEIGHT * 0.14, IMAGE_WIDTH * 0.78, IMAGE_HEIGHT * 0.78));
+        INNER_BORDER.subtract(SUBTRACT);
+        G2.setPaint(new Color(0,0,0,255));
+        G2.fill(INNER_BORDER);
+
+        final Area OUTER_HORIZON = new Area(new Ellipse2D.Double(0.0, 0.0, IMAGE_WIDTH, IMAGE_HEIGHT));
+        OUTER_HORIZON.subtract(SUBTRACT);
+        
+        final Point2D OUTER_HORIZON_START = new Point2D.Double(0, OUTER_HORIZON.getBounds2D().getMinY());
+        final Point2D OUTER_HORIZON_STOP = new Point2D.Double(0, OUTER_HORIZON.getBounds2D().getMaxY());
+        final float[] OUTER_HORIZON_FRACTIONS = {
+            0.0f,
+            0.49999f,
+            0.5f,
+            1.0f
+        };
+        final Color[] OUTER_HORIZON_COLORS;
+        if (customColors) {
+            OUTER_HORIZON_COLORS = new Color[]{
+                customSkyColor,
+                customSkyColor,
+                customGroundColor,
+                customGroundColor
+            };
+        } else {
+            OUTER_HORIZON_COLORS = new Color[]{
+                new Color(127, 213, 240, 255),
+                new Color(127, 213, 240, 255),
+                new Color(60, 68, 57, 255),
+                new Color(60, 68, 57, 255)
+            };
+        }
+
+        final LinearGradientPaint HORIZON_GRADIENT = new LinearGradientPaint(OUTER_HORIZON_START, OUTER_HORIZON_STOP, OUTER_HORIZON_FRACTIONS, OUTER_HORIZON_COLORS);
+        G2.setPaint(HORIZON_GRADIENT);
+        G2.fill(OUTER_HORIZON);
+                
+        // Draw tickmarks
+        final Line2D SCALE_MARK = new Line2D.Double(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.09, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.14);
+        final Line2D SCALE_MARK_BIG = new Line2D.Double(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.09, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.16);
+        final Stroke STROKE = new BasicStroke(3.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
+        final Stroke BIG_STROKE = new BasicStroke(5.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
+
+        final int STEP = 5;
+        final AffineTransform OLD_TRANSFORM = G2.getTransform();
+        
+        G2.rotate(-Math.PI / 2, LOCAL_CENTER.getX(), LOCAL_CENTER.getY());
+        G2.setColor(getTickmarkColor());
+        for (int angle = -90; angle <= 90; angle += STEP) {
+            if (angle % 30 == 0 || angle == 0) {
+                G2.setStroke(BIG_STROKE);
+                G2.draw(SCALE_MARK_BIG);
+            } else if (angle % 10 == 0 && Math.abs(angle) <= 30) {
+                G2.setStroke(STROKE);
+                G2.draw(SCALE_MARK);
+            }
+
+            G2.rotate(Math.toRadians(STEP), LOCAL_CENTER.getX(), LOCAL_CENTER.getY());
+        }
+        
+        G2.setTransform(OLD_TRANSFORM);
 
         G2.dispose();
 
@@ -468,32 +565,25 @@ public class ArtificialHorizon extends AbstractRadial {
 
         final int IMAGE_WIDTH = image.getWidth();
         final int IMAGE_HEIGHT = image.getHeight();
-        final Point2D LOCAL_CENTER = new Point2D.Double(IMAGE_WIDTH / 2.0, IMAGE_HEIGHT / 2.0);
+        //int offset = 15;
 
-        G2.setFont(new Font("Verdana", Font.PLAIN, (int) (IMAGE_WIDTH * 0.035)));
+        // Draw angle indicator
+        final GeneralPath TRIANGLE = new GeneralPath();
+        TRIANGLE.setWindingRule(Path2D.WIND_EVEN_ODD);
+        
+        TRIANGLE.moveTo(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.175);
+        TRIANGLE.lineTo(IMAGE_WIDTH * 0.525, IMAGE_HEIGHT * 0.25);
+        TRIANGLE.lineTo(IMAGE_WIDTH * 0.475, IMAGE_HEIGHT * 0.25);
+        TRIANGLE.closePath();
 
-        final Line2D SCALE_MARK = new Line2D.Double(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.09, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.14);
-        final Line2D SCALE_MARK_BIG = new Line2D.Double(IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.09, IMAGE_WIDTH * 0.5, IMAGE_HEIGHT * 0.16);
-        final Stroke STROKE = new BasicStroke(3.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
-        final Stroke BIG_STROKE = new BasicStroke(5.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_ROUND);
-
-        final int STEP = 5;
-        final AffineTransform OLD_TRANSFORM = G2.getTransform();
-        G2.rotate(-Math.PI / 2, LOCAL_CENTER.getX(), LOCAL_CENTER.getY());
+        //G2.translate(0, offset);
+        
+        G2.setColor(new Color(150,150,150,125));
+        G2.fill(TRIANGLE);
         G2.setColor(getTickmarkColor());
-        for (int angle = -90; angle <= 90; angle += STEP) {
-            if (angle % 30 == 0 || angle == 0) {
-                G2.setStroke(BIG_STROKE);
-                G2.draw(SCALE_MARK_BIG);
-            } else if (angle % 10 == 0 && Math.abs(angle) <= 30) {
-                G2.setStroke(STROKE);
-                G2.draw(SCALE_MARK);
-            }
-
-            G2.rotate(Math.toRadians(STEP), LOCAL_CENTER.getX(), LOCAL_CENTER.getY());
-        }
-
-        G2.setTransform(OLD_TRANSFORM);
+        G2.draw(TRIANGLE);
+        
+        // Miniature airplane
         final GeneralPath INDICATOR = new GeneralPath();
         INDICATOR.setWindingRule(Path2D.WIND_EVEN_ODD);
         
@@ -563,8 +653,8 @@ public class ArtificialHorizon extends AbstractRadial {
             getTickmarkColor(),
             getTickmarkColor(),
             getTickmarkColor(),
-            getPointerColor().VERY_DARK,
-            getPointerColor().VERY_DARK
+            new Color(40,40,40,255),
+            new Color(40,40,40,255)
         };
         final LinearGradientPaint INDICATOR_GRADIENT = new LinearGradientPaint(INDICATOR_START, INDICATOR_STOP, INDICATOR_FRACTIONS, INDICATOR_COLORS);
         G2.setPaint(INDICATOR_GRADIENT);
@@ -574,45 +664,6 @@ public class ArtificialHorizon extends AbstractRadial {
         G2.dispose();
 
         return image;
-    }
-
-    private BufferedImage create_HORIZON_FOREGROUND_Image(final int WIDTH) {
-        if (WIDTH <= 0) {
-            return UTIL.createImage(1, 1, Transparency.TRANSLUCENT);
-        }
-
-        final java.awt.image.BufferedImage IMAGE = UTIL.createImage((int) (WIDTH * 0.13), (int) (WIDTH * 0.14), Transparency.TRANSLUCENT);
-        final java.awt.Graphics2D G2 = IMAGE.createGraphics();
-        G2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        G2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);
-
-        final int IMAGE_WIDTH = IMAGE.getWidth();
-        final int IMAGE_HEIGHT = IMAGE.getHeight();
-        int offset = 13;
-
-        // Draw angle indicator
-        final GeneralPath TRIANGLE = new GeneralPath();
-        TRIANGLE.setWindingRule(Path2D.WIND_EVEN_ODD);
-        
-        TRIANGLE.moveTo(IMAGE_WIDTH * 0.5, 0);
-        TRIANGLE.lineTo(0, IMAGE_HEIGHT);
-        TRIANGLE.lineTo(IMAGE_WIDTH, IMAGE_HEIGHT);
-        TRIANGLE.closePath();
-        
-//        TRIANGLE.moveTo(IMAGE_WIDTH * 0.5, 10);
-//        TRIANGLE.lineTo(10, IMAGE_HEIGHT * 0.6);
-//        TRIANGLE.lineTo(IMAGE_WIDTH * 0.8, IMAGE_HEIGHT * 0.6);
-//        TRIANGLE.lineTo(IMAGE_WIDTH* 0.5, 10);
-        G2.translate(0, offset);
-        
-        G2.setColor(getPointerColor().LIGHT);
-        G2.fill(TRIANGLE);
-        G2.setColor(getPointerColor().VERY_DARK);
-        G2.draw(TRIANGLE);
-
-        G2.dispose();
-
-        return IMAGE;
     }
 
     @Override
