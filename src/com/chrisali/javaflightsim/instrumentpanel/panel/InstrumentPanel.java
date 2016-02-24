@@ -1,6 +1,7 @@
 package com.chrisali.javaflightsim.instrumentpanel.panel;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
@@ -33,7 +34,7 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 	private	DirectionalGyro	  directionalGyro; 
 	private AirspeedIndicator airspeedIndicator;
 	private VerticalSpeed 	  verticalSpeed;
-	private Inclinometer	  inlinometer;
+	private Inclinometer	  inclinometer;
 	
 	/**
 	 * Creates a simple instrument panel with a {@link FlightDataListener} to set the gauge values from
@@ -108,13 +109,14 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		gc.gridx = 4;
 		gc.gridy = 6;
 		
-		inlinometer = new Inclinometer();
-		inlinometer.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
+		inclinometer = new Inclinometer();
+		inclinometer.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
 		
-		add(inlinometer, gc);
+		add(inclinometer, gc);
 		
 		getContentPane().setBackground(Color.DARK_GRAY);
 		setSize(900, 620);
+		setMinimumSize(new Dimension(900, 620));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setVisible(true);
 	}
@@ -125,19 +127,21 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 	 */
 	@Override
 	public void onFlightDataReceived(FlightData flightData) {
-		artificalHorizon.setPitch(flightData.getFlightData().get(FlightDataType.PITCH));
-		artificalHorizon.setRoll(flightData.getFlightData().get(FlightDataType.ROLL));
-		
-		altimeter.setValue(flightData.getFlightData().get(FlightDataType.ALTITUDE));
-		
-		airspeedIndicator.setValue(flightData.getFlightData().get(FlightDataType.IAS));
-		
-		directionalGyro.setValue(flightData.getFlightData().get(FlightDataType.HEADING));
-		
-		verticalSpeed.setValue(flightData.getFlightData().get(FlightDataType.VERT_SPEED));
-		
-		inlinometer.setValueAnimated(flightData.getFlightData().get(FlightDataType.TURN_RATE));
-		
-		//System.out.println(flightData);
+		if (flightData != null) {
+			artificalHorizon.setPitch(flightData.getFlightData().get(FlightDataType.PITCH));
+			artificalHorizon.setRoll(flightData.getFlightData().get(FlightDataType.ROLL));
+			
+			altimeter.setValue(flightData.getFlightData().get(FlightDataType.ALTITUDE));
+			
+			airspeedIndicator.setValue(flightData.getFlightData().get(FlightDataType.IAS));
+			
+			directionalGyro.setValue(flightData.getFlightData().get(FlightDataType.HEADING));
+			
+			verticalSpeed.setValue(flightData.getFlightData().get(FlightDataType.VERT_SPEED));
+			
+			inclinometer.setValueAnimated(flightData.getFlightData().get(FlightDataType.TURN_RATE));
+			
+			//System.out.println(flightData);
+		}
 	}
 }

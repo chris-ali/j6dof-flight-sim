@@ -28,6 +28,12 @@ public class FlightData implements Runnable {
 	
 	public EnumMap<FlightDataType, Double> getFlightData() {return flightData;}
 	
+	/**
+	 * Polls simOut for data, and assigns and converts the values needed in {@link InstrumentPanel}
+	 * to the flightData EnumMap  
+	 * 
+	 * @param simOut
+	 */
 	public void updateData(EnumMap<SimOuts, Double> simOut) {
 		final Double TAS_TO_IAS = 1/(1+((simOut.get(SimOuts.ALT)/1000)*0.02));
 		
