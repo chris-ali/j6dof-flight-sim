@@ -21,7 +21,7 @@ public class RunInstrumentPanel {
 
 	private static void runApp() {
 		Integrate6DOFEquations runSim = new Integrate6DOFEquations(new AircraftBuilder("LookupNavion"),
-																   EnumSet.of(Options.UNLIMITED_FLIGHT));
+																   EnumSet.of(Options.UNLIMITED_FLIGHT, Options.USE_JOYSTICK));
 		FlightData flightData = new FlightData(runSim);
 
 		new Thread(runSim).start();

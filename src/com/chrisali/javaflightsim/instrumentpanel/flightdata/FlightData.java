@@ -90,6 +90,8 @@ public class FlightData implements Runnable {
 	@Override
 	public void run() {
 		try {
+			Thread.sleep(250);
+			
 			while (runSim.isRunning()) {
 				Thread.sleep(150);
 				

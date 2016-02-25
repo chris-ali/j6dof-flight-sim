@@ -100,7 +100,7 @@ public class Joystick extends SimulationController {
 					continue; // Go to next component
 				}
 
-				// Joystick Axes - Read raw joystick value, convert to control deflection, and add trim value
+				// Joystick Axes - Read raw joystick value, square to reduce its sensitivity, convert to control deflection, and add trim value
 				if(component.isAnalog()){
 					double axisValue = (double)component.getPollData();
 
@@ -108,21 +108,21 @@ public class Joystick extends SimulationController {
 					if(componentIdentifier == Component.Identifier.Axis.Y) {
 						controls.put(FlightControls.ELEVATOR, 
 								 	 calculateControlDeflection(FlightControls.ELEVATOR, 
-								 			 		   	  		axisValue)+trimElevator);
+								 			 		   	  		negativeSquare(axisValue))+trimElevator);
 						continue; // Go to next component
 					}
 					// X axis (Aileron)
 					if(componentIdentifier == Component.Identifier.Axis.X) {
 						controls.put(FlightControls.AILERON, 
 									 calculateControlDeflection(FlightControls.AILERON, 
-											 		   	  		axisValue)+trimAileron);
+											 					negativeSquare(axisValue))+trimAileron);
 						continue; // Go to next component
 					}
 					// Z axis (Rudder)
 					if(componentIdentifier == Component.Identifier.Axis.RZ) {
 						controls.put(FlightControls.RUDDER, 
 								 	 calculateControlDeflection(FlightControls.RUDDER, 
-								 			 		   	  		axisValue)+trimRudder);
+								 			 					negativeSquare(axisValue))+trimRudder);
 						continue; // Go to next component
 					}
 					// Slider axis (Throttle)

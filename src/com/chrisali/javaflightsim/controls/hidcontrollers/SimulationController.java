@@ -45,6 +45,19 @@ public abstract class SimulationController {
 	}
 	
 	/**
+	 * Squares a value without removing its sign if negative
+	 * 
+	 * @param value
+	 * @return value squared that retains its original sign
+	 */
+	protected double negativeSquare(double value) {
+		if (value < 0)
+			return -(Math.pow(value, 2));
+		else
+			return Math.pow(value, 2);
+	}
+	
+	/**
 	 *  Updates values for controls in controls EnumMap, limiting their max/min via limitControls method
 	 * @param controls
 	 * @return flightControls EnumMap limited by {@link FlightControlsUtilities#limitControls(EnumMap)}
