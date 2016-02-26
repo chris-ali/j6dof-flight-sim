@@ -1,8 +1,10 @@
 package com.chrisali.javaflightsim.utilities.integration;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -214,11 +216,11 @@ public class Integrate6DOFEquations implements Runnable {
 		// Update environment		
 		this.environmentParameters = Environment.updateEnvironmentParams(NEDPosition);
 		
-		// Update controls with joystick, doublets, or mouse (later); if in analysis mode, create a series of doublets (aileron, rudder and then elevator)
-		if (options.contains(Options.USE_JOYSTICK) | options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE)) {
+		// Update controls with joystick, keyboard or mouse; if in analysis mode, create a series of doublets (aileron, rudder and then elevator)
+		if (!options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE)) {
 			this.controls = hidController.updateFlightControls(controls);
 			this.controls = hidKeyboard.updateFlightControls(controls);
-		} else if (!options.contains(Options.USE_JOYSTICK) & options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE)) {	
+		} else if (options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE)) {	
 			this.controls = FlightControlsUtilities.doubletSeries(controls, t);
 		}
 		
@@ -376,14 +378,14 @@ public class Integrate6DOFEquations implements Runnable {
 	 * 
 	 * @see SimulationPlots
 	 */
-	public ArrayList<EnumMap<SimOuts, Double>> getLogsOut() {return logsOut;}
+	public List<EnumMap<SimOuts, Double>> getLogsOut() {return Collections.unmodifiableList(logsOut);}
 	
 	/**
 	 * Returns an EnumMap of data for a single step of integration accomplished in {@link Integrate6DOFEquations#accelAndMoments#logData(double)}	
 	 * 
 	 * @return simOut
 	 */
-	public EnumMap<SimOuts, Double> getSimOut() {return simOut;}
+	public Map<SimOuts, Double> getSimOut() {return Collections.unmodifiableMap(simOut);}
 	
 	/**
 	 * Lets other objects know if {@link Integrate6DOFEquations#run()} is currently running

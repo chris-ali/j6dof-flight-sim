@@ -3,6 +3,7 @@ package com.chrisali.javaflightsim.instrumentpanel.flightdata;
 import java.util.EnumMap;
 import java.util.Map;
 
+import com.chrisali.javaflightsim.instrumentpanel.panel.FlightDataListener;
 import com.chrisali.javaflightsim.instrumentpanel.panel.InstrumentPanel;
 import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.utilities.integration.SimOuts;
@@ -15,7 +16,7 @@ public class FlightData implements Runnable {
 	private static final double FT_S_TO_KTS = 1/1.68;
 	
 	private FlightDataListener dataListener;
-	private EnumMap<FlightDataType, Double> flightData = new EnumMap<FlightDataType, Double>(FlightDataType.class);
+	private Map<FlightDataType, Double> flightData = new EnumMap<FlightDataType, Double>(FlightDataType.class);
 	Integrate6DOFEquations runSim;
 	
 	/**
@@ -26,7 +27,7 @@ public class FlightData implements Runnable {
 	 */
 	public FlightData(Integrate6DOFEquations runSim) {this.runSim = runSim;}
 	
-	public EnumMap<FlightDataType, Double> getFlightData() {return flightData;}
+	public Map<FlightDataType, Double> getFlightData() {return flightData;}
 	
 	/**
 	 * Polls simOut for data, and assigns and converts the values needed in {@link InstrumentPanel}
@@ -34,7 +35,7 @@ public class FlightData implements Runnable {
 	 * 
 	 * @param simOut
 	 */
-	public void updateData(EnumMap<SimOuts, Double> simOut) {
+	public void updateData(Map<SimOuts, Double> simOut) {
 		final Double TAS_TO_IAS = 1/(1+((simOut.get(SimOuts.ALT)/1000)*0.02));
 		
 		flightData.put(FlightDataType.IAS, simOut.get(SimOuts.TAS)*FT_S_TO_KTS*TAS_TO_IAS);

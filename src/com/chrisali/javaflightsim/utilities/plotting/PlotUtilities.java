@@ -1,7 +1,7 @@
 package com.chrisali.javaflightsim.utilities.plotting;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
@@ -23,7 +23,7 @@ public class PlotUtilities {
 	 * It first creates {@link XYSeries} objects with data from logsOut, adds those series to {@link XYSeriesCollection}, adds those 
 	 * series collections to {@link XYPlot} objects, and finally puts the XYPlot objects into {@link PlotUtilities#plotLists}
 	 */
-	protected static void makePlotLists(ArrayList<EnumMap<SimOuts, Double>> logsOut) {
+	protected static void makePlotLists(List<EnumMap<SimOuts, Double>> logsOut) {
 		
 		// Create XY series for each set of data
 		

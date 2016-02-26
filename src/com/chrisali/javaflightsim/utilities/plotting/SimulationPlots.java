@@ -1,7 +1,7 @@
 package com.chrisali.javaflightsim.utilities.plotting;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -23,7 +23,7 @@ public class SimulationPlots extends ApplicationFrame {
 	private static final long serialVersionUID = 1L;
 	
 	// Creates plots for variables monitored in the logsOut ArrayList
-	public SimulationPlots(ArrayList<EnumMap<SimOuts, Double>> logsOut, String windowTitle, String aircraftName) {
+	public SimulationPlots(List<EnumMap<SimOuts, Double>> logsOut, String windowTitle, String aircraftName) {
 		super(aircraftName + " " + windowTitle);
 		
 		PlotUtilities.makePlotLists(logsOut);
