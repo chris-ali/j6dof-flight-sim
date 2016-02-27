@@ -30,9 +30,9 @@ public class SaturationLimits {
 			theta += 2*Math.PI;
 			theta %= Math.PI;
 		} else if (eulerAngles[1] ==  Math.PI/2) {
-			theta = Math.PI*0.95; // Prevent theta from reaching PI, which would cause singularity in Euler angles
+			theta = Math.PI*0.52; // Prevent theta from reaching PI/2, which would cause singularity in Euler angles
 		} else if (eulerAngles[1] == -Math.PI/2) {
-			theta = -Math.PI*0.95;
+			theta = -Math.PI*0.52;
 		}
 		
 		// Return only positive values of psi between 0 and 2*pi

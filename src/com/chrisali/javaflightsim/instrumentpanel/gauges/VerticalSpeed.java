@@ -39,6 +39,7 @@ import java.awt.RenderingHints;
 import java.awt.Transparency;
 import java.awt.font.FontRenderContext;
 import java.awt.font.TextLayout;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Path2D;
@@ -177,6 +178,8 @@ public class VerticalSpeed extends AbstractRadial {
 
         // Translate the coordinate system related to insets
         G2.translate(getFramelessOffset().getX(), getFramelessOffset().getY());
+        
+        final AffineTransform OLD_TRANSFORM = G2.getTransform();
 
         CENTER.setLocation(getGaugeBounds().getCenterX() - getInsets().left, getGaugeBounds().getCenterX() - getInsets().right);
 
@@ -212,6 +215,7 @@ public class VerticalSpeed extends AbstractRadial {
         // Draw the pointer
         G2.rotate(visibleValue * angleStep - Math.PI/2, CENTER.getX(), CENTER.getY());
         G2.drawImage(pointerImage, 0, 0, null);
+        G2.setTransform(OLD_TRANSFORM);
 
         // Draw combined foreground image
         G2.drawImage(fImage, 0, 0, null);

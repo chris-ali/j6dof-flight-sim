@@ -197,8 +197,12 @@ public final class TurnCoordinator extends AbstractRadial {
         }
         
         // Draw Inclinometer and Ball
+        G2.drawImage(coordinatorBallImage, 0, 0, null);
+        G2.translate(coordValue, 0);
+        
+        G2.setTransform(OLD_TRANSFORM);
+        
         G2.drawImage(coordinatorTubeImage, 0, 0, null);
-        G2.drawImage(coordinatorBallImage, -(int)coordValue, 0, null);
         
         // Draw Pointer
         G2.rotate(Math.toRadians(turnRateValue*angleStep), CENTER.getX(), CENTER.getY());
