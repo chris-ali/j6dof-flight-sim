@@ -140,8 +140,6 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 			
 			turnCoordinator.setInclinoValue(flightData.getFlightData().get(FlightDataType.TURN_RATE));
 			turnCoordinator.setCoordValue(flightData.getFlightData().get(FlightDataType.TURN_COORD));
-			
-			//System.out.println(flightData);
 		}
 	}
 }
