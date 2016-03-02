@@ -14,8 +14,8 @@ import org.apache.commons.math3.linear.RealMatrix;
 
 import com.chrisali.javaflightsim.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.controls.FlightControls;
-import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.utilities.integration.SimOuts;
+import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.integration.SimOuts;
 
 /**
  * @see R. Hall and S. ANstee, Trim Calculation Methods for a Dynamical Model of

@@ -6,12 +6,13 @@ import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.controls.hidcontrollers.Keyboard;
 import com.chrisali.javaflightsim.controls.hidcontrollers.SimulationController;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
+import com.chrisali.javaflightsim.utilities.Utilities;
 
 public class ControllerTest implements Runnable {
 	@Override
 	public void run() {
 		EnumMap<FlightControls, Double> controls = IntegrationSetup.gatherInitialControls("InitialControls");
-		double[] integratorConfig 				 = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
+		double[] integratorConfig 				 = Utilities.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
 		SimulationController joystick 			 = new Keyboard(controls);
 		
 		for (double t = integratorConfig[0]; t < integratorConfig[2]; t += integratorConfig[1]) {

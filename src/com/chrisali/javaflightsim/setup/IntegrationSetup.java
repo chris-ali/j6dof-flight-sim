@@ -1,14 +1,11 @@
 package com.chrisali.javaflightsim.setup;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
 import com.chrisali.javaflightsim.controls.FlightControls;
-import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.utilities.Utilities;
 
 /**
  * Class containing methods to parse setup files to generate EnumMaps used as initial conditions,
@@ -25,7 +22,7 @@ public class IntegrationSetup {
 	 * @return EnumMap of initial conditions for the integration
 	 */
 	public static EnumMap<InitialConditions, Double> gatherInitialConditions(String fileName) {
-		ArrayList<String[]> initConditionsFile = readFileAndSplit(fileName);
+		ArrayList<String[]> initConditionsFile = Utilities.readFileAndSplit(fileName, FILE_PATH);
 		EnumMap<InitialConditions,Double> initialConditions = new EnumMap<InitialConditions,Double>(InitialConditions.class); 
 				
 		if (!verifyICFileIntegrity(initConditionsFile)) {
@@ -49,7 +46,7 @@ public class IntegrationSetup {
 	 * @return EnumMap of integration configuration options
 	 */
 	public static EnumMap<IntegratorConfig, Double> gatherIntegratorConfig(String fileName) {
-		ArrayList<String[]> intConfigFile = readFileAndSplit(fileName);
+		ArrayList<String[]> intConfigFile = Utilities.readFileAndSplit(fileName, FILE_PATH);
 		EnumMap<IntegratorConfig,Double> integratorConfig = new EnumMap<IntegratorConfig,Double>(IntegratorConfig.class); 
 				
 		if (!verifyIntConfigFileIntegrity(intConfigFile)) {
@@ -73,7 +70,7 @@ public class IntegrationSetup {
 	 * @return EnumMap of initial controls for the integration
 	 */
 	public static EnumMap<FlightControls, Double> gatherInitialControls(String fileName) {
-		ArrayList<String[]> initControlFile = readFileAndSplit(fileName);
+		ArrayList<String[]> initControlFile = Utilities.readFileAndSplit(fileName, FILE_PATH);
 		EnumMap<FlightControls,Double> initControl = new EnumMap<FlightControls,Double>(FlightControls.class); 
 		
 		if (!verifyControlFileIntegrity(initControlFile)) {
@@ -87,33 +84,6 @@ public class IntegrationSetup {
 				initControl.put(FlightControls.values()[i], Double.parseDouble(initControlFile.get(i)[1]));
 			return initControl;
 		}
-	}
-	
-	/**
-	 * Splits a text file of the name "fileName".txt located in the folder: 
-	 *  <br><code>.\src\com\chrisali\javaflightsim\setup\SimConfig\"</code></br>
-	 *  whose general syntax on each line is:
-	 *  <br><code>*parameter name* = *double value*</code></br>
-	 *  into an ArrayList of string arrays resembling:
-	 *  <br><code>{*parameter name*,*double value*}</code></br>
-	 *  
-	 * @param fileName
-	 * @return An ArrayList of String arrays of length 2  
-	 */
-	private static ArrayList<String[]> readFileAndSplit(String fileName) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(FILE_PATH).append(fileName).append(".txt");
-		ArrayList<String[]> readAndSplit = new ArrayList<>();
-		String readLine = null;
-		
-		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
-			while ((readLine = br.readLine()) != null)
-				readAndSplit.add(readLine.split(" = "));
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + ".txt!");}
-		catch (IOException e) {System.err.println("Could not read: " + fileName + ".txt!");}
-		catch (NullPointerException e) {System.err.println("Bad reference to: " + fileName + ".txt!");} 
-		
-		return readAndSplit;
 	}
 	
 	/**
@@ -174,31 +144,5 @@ public class IntegrationSetup {
 		else {return false;}
 		
 		return true;
-	}
-	
-	/**
-	 * Unboxes Double[] array into a double[] array; {@link Integrate6DOFEquations} needs primitive arrays, 
-	 * necessitating this method
-	 * @param map
-	 * @return Unboxed double[] array
-	 */
-	public static double[] unboxDoubleArray(EnumMap<?, Double> map) {
-		double[] unboxedArray = new double[map.values().size()]; 
-		for (int i = 0; i < unboxedArray.length; i++)
-			unboxedArray[i] = map.values().toArray(new Double[unboxedArray.length])[i];
-		return unboxedArray;
-	}
-	
-	/**
-	 * Unboxes Double[] array into a double[] array; {@link Integrate6DOFEquations} needs primitive arrays, 
-	 * necessitating this method
-	 * @param boxed
-	 * @return Unboxed double[] array
-	 */
-	public static double[] unboxDoubleArray(Double[] boxed) {
-		double[] unboxedArray = new double[boxed.length]; 
-		for (int i = 0; i < unboxedArray.length; i++)
-			unboxedArray[i] = boxed[i];
-		return unboxedArray;
 	}
 }

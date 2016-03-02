@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.utilities.integration;
+package com.chrisali.javaflightsim.integration;
 
 import java.util.EnumMap;
 

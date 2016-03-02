@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.utilities.integration;
+package com.chrisali.javaflightsim.integration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +25,7 @@ import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.propulsion.Engine;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.setup.Options;
+import com.chrisali.javaflightsim.utilities.Utilities;
 import com.chrisali.javaflightsim.utilities.plotting.MakePlots;
 import com.chrisali.javaflightsim.utilities.plotting.SimulationPlots;
 
@@ -108,11 +109,11 @@ public class Integrate6DOFEquations implements Runnable {
 		
 		// If TRIM_MODE enabled, use the initial conditions/controls from the trim method
 		if (options.contains(Options.TRIM_MODE)) {
-			this.initialConditions = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("nextStepInitialConditions"));
-			this.integratorConfig  = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("nextStepIntegratorConfig"));
+			this.initialConditions = Utilities.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("nextStepInitialConditions"));
+			this.integratorConfig  = Utilities.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("nextStepIntegratorConfig"));
 		} else {
-			this.initialConditions = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
-			this.integratorConfig  = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
+			this.initialConditions = Utilities.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
+			this.integratorConfig  = Utilities.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
 		}
 
 		// If USE_JOYSTICK/USE_MOUSE enabled, use joystick/mouse if ANALYSIS_MODE not enabled
@@ -167,7 +168,7 @@ public class Integrate6DOFEquations implements Runnable {
 	private double[] updateDerivatives(double[] y) {
 		double[]   yDot          = new double[14];
 		double[][] dirCosMat     = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([row][column])
-		double[]   inertiaCoeffs = SixDOFUtilities.calculateInertiaCoeffs(IntegrationSetup.unboxDoubleArray(aircraft.getInertiaValues()));
+		double[]   inertiaCoeffs = SixDOFUtilities.calculateInertiaCoeffs(Utilities.unboxDoubleArray(aircraft.getInertiaValues()));
 		double[]   ned2LLA       = SixDOFUtilities.ned2LLA(y);
 		
 		yDot[0]  = (y[11]*y[1])-(y[10]*y[2])-(gravity*Math.sin(y[7]))               +linearAccelerations[0];    // u (ft/sec)
@@ -413,7 +414,7 @@ public class Integrate6DOFEquations implements Runnable {
 				
 				// If paused and resed selected, reset initialConditions using IntegrationSetup's method 
 				if (options.contains(Options.PAUSED) & options.contains(Options.RESET))				
- 					initialConditions = IntegrationSetup.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
+ 					initialConditions = Utilities.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
 				
 				// If paused, skip the integration and update process
 				if (!options.contains(Options.PAUSED)) {

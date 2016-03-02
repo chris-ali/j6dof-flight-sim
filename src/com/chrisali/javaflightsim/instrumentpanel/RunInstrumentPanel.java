@@ -7,8 +7,8 @@ import javax.swing.SwingUtilities;
 import com.chrisali.javaflightsim.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightData;
 import com.chrisali.javaflightsim.instrumentpanel.panel.InstrumentPanel;
+import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.setup.Options;
-import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 
 public class RunInstrumentPanel {
 

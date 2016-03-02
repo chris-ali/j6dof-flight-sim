@@ -11,9 +11,10 @@ import com.chrisali.javaflightsim.aero.Aerodynamics;
 import com.chrisali.javaflightsim.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.aero.WingGeometry;
 import com.chrisali.javaflightsim.enviroment.Environment;
+import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.integration.SixDOFUtilities;
 import com.chrisali.javaflightsim.propulsion.Engine;
-import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.utilities.integration.SixDOFUtilities;
+import com.chrisali.javaflightsim.utilities.Utilities;
 
 /**
  * Aircraft object which consists of {@link StabilityDerivatives} and {@link WingGeometry} to define its aerodynamic properties,
@@ -156,7 +157,7 @@ public class Aircraft {
 		this.massProps			= new EnumMap<MassProperties, Double>(MassProperties.class);
 		
 		// Aerodynamics
-		ArrayList<String[]> readAeroFile = AircraftBuilder.readFileAndSplit(aircraftName, "Aero");
+		ArrayList<String[]> readAeroFile = Utilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "Aero");
 		
 		// Override constant stability derivative values with the keyword "lookup" in Aero.txt; need to then 
 		// supply text file with lookup table and break points
@@ -171,7 +172,7 @@ public class Aircraft {
 		}
 		
 		// Mass Properties
-		ArrayList<String[]> readMassPropFile = AircraftBuilder.readFileAndSplit(aircraftName, "MassProperties");
+		ArrayList<String[]> readMassPropFile = Utilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "MassProperties");
 		
 		for(MassProperties massPropKey : MassProperties.values()) {
 			for (String[] readLine : readMassPropFile) {
@@ -185,7 +186,7 @@ public class Aircraft {
 												  massProps.get(MassProperties.WEIGHT_PAYLOAD))/Environment.getGravity());
 		
 		// Wing Geometry
-		ArrayList<String[]> readWingGeomFile = AircraftBuilder.readFileAndSplit(aircraftName, "WingGeometry");
+		ArrayList<String[]> readWingGeomFile = Utilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "WingGeometry");
 		
 		for(WingGeometry wingGeoKey : WingGeometry.values()) {
 			for (String[] readLine : readWingGeomFile) {

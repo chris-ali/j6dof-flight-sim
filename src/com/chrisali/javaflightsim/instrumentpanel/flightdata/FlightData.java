@@ -5,8 +5,8 @@ import java.util.Map;
 
 import com.chrisali.javaflightsim.instrumentpanel.panel.FlightDataListener;
 import com.chrisali.javaflightsim.instrumentpanel.panel.InstrumentPanel;
-import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.utilities.integration.SimOuts;
+import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.integration.SimOuts;
 
 /**
  *	Model class that interacts with {@link InstrumentPanel} and {@link Integrate6DOFEquations} to pass flight data from the simulation

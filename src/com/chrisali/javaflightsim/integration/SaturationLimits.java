@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.utilities.integration;
+package com.chrisali.javaflightsim.integration;
 
 /**
  * This class provides methods to limit the results calculated in {@link Integrate6DOFEquations} to prevent large or non-physical values of the 6DOF states from affecting the simulation elsewhere  

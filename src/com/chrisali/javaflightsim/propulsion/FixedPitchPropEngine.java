@@ -5,7 +5,7 @@ import java.util.EnumMap;
 
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
-import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
 
 /**
  * Simple piston engine model with a fixed pitch propeller

@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -20,10 +19,11 @@ import org.apache.commons.math3.exception.NullArgumentException;
 
 import com.chrisali.javaflightsim.aero.Aerodynamics;
 import com.chrisali.javaflightsim.aero.StabilityDerivatives;
+import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.propulsion.Engine;
 import com.chrisali.javaflightsim.propulsion.EngineParameters;
 import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
-import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.utilities.Utilities;
 
 /**
  * Wrapper class to build a complete aircraft with a "body" ({@link Aircraft}) and a LinkedHashSet of {@link Engine}(s). This object is used by {@link Integrate6DOFEquations}
@@ -33,7 +33,7 @@ public class AircraftBuilder {
 	private Set<Engine> engineList = new LinkedHashSet<>();
 	private Aircraft aircraft;
 	
-	private static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\aircraft\\AircraftConfigurations\\";
+	protected static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\aircraft\\AircraftConfigurations\\";
 	
 	/**
 	 *  Default AircraftBuilder constructor, using the default constructors of {@link Aircraft} and {@link FixedPitchPropEngine}
@@ -53,7 +53,7 @@ public class AircraftBuilder {
 	public AircraftBuilder(String aircraftName) {
 		this.aircraft = new Aircraft(aircraftName);
 		
-		List<String[]> readPropulsionFile = readFileAndSplit(aircraftName, "Propulsion");
+		List<String[]> readPropulsionFile = Utilities.readFileAndSplit(aircraftName, FILE_PATH, "Propulsion");
 
 		// Gets the number of engines on the aircraft from the first line of the
 		// String[] ArrayList
@@ -95,35 +95,6 @@ public class AircraftBuilder {
 			System.err.println("Invalid number of engines! Defaulting to single engine...");
 			this.engineList.add(new FixedPitchPropEngine());
 		}
-	}
-	
-	/**
-	 * Splits a text file of the name "fileContents".txt located in the folder: 
-	 *  <br><code>.\src\com\chrisali\javaflightsim\aircraft\AircraftConfigurations\"aircraftName"</code></br>
-	 *  whose general syntax on each line is:
-	 *  <br><code>*parameter name* = *double value*</code></br>
-	 *  into an ArrayList of string arrays resembling:
-	 *  <br><code>{*parameter name*,*double value*}</code></br>
-	 *  
-	 * @param aircraftName
-	 * @param fileContents
-	 * @return An ArrayList of String arrays of length 2  
-	 */
-	protected static ArrayList<String[]> readFileAndSplit(String aircraftName, String fileContents) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(FILE_PATH).append(aircraftName).append("\\").append(fileContents).append(".txt");
-		ArrayList<String[]> readAndSplit = new ArrayList<>();
-		String readLine = null;
-		
-		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
-			while ((readLine = br.readLine()) != null)
-				readAndSplit.add(readLine.split(" = "));
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileContents + ".txt!");}
-		catch (IOException e) {System.err.println("Could not read: " + fileContents + ".txt!");}
-		catch (NullPointerException e) {System.err.println("Bad reference to: " + fileContents + ".txt!");} 
-		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileContents + ".txt!");}
-		
-		return readAndSplit;
 	}
 	
 	/**

@@ -6,7 +6,7 @@ import java.util.EnumMap;
 import com.chrisali.javaflightsim.aero.Aerodynamics;
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.controls.FlightControlsUtilities;
-import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
 
 import net.java.games.input.Controller;
 

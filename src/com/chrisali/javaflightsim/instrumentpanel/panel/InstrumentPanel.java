@@ -17,7 +17,7 @@ import com.chrisali.javaflightsim.instrumentpanel.gauges.ArtificialHorizon;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.DirectionalGyro;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.TurnCoordinator;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.VerticalSpeed;
-import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
 
 /**
  *	Simple Swing GUI of an aircraft instrument panel with custom gauges implementing Gerrit Grunwald's SteelSeries

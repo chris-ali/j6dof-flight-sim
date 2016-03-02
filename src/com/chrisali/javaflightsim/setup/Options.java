@@ -3,7 +3,7 @@ package com.chrisali.javaflightsim.setup;
 import com.chrisali.javaflightsim.controls.FlightControlsUtilities;
 import com.chrisali.javaflightsim.controls.hidcontrollers.Joystick;
 import com.chrisali.javaflightsim.controls.hidcontrollers.Mouse;
-import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
 
 /**
  * Provides Enums for the options EnumSet to provide the following options:

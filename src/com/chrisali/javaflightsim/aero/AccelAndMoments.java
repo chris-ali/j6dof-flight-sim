@@ -9,10 +9,10 @@ import com.chrisali.javaflightsim.aircraft.Aircraft;
 import com.chrisali.javaflightsim.aircraft.MassProperties;
 import com.chrisali.javaflightsim.controls.FlightControls;
 import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
+import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.integration.SaturationLimits;
 import com.chrisali.javaflightsim.propulsion.Engine;
-import com.chrisali.javaflightsim.setup.IntegrationSetup;
-import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.utilities.integration.SaturationLimits;
+import com.chrisali.javaflightsim.utilities.Utilities;
 
 /**
  * Calculates total accelerations and moments experienced by the aircraft in the simulation. The constructor creates an
@@ -97,8 +97,8 @@ public class AccelAndMoments {
 																	     alphaDot));
 		
 		// Apache Commons vector methods only accept primitive double[] arrays
-		Vector3D acVector = new Vector3D(IntegrationSetup.unboxDoubleArray(aircraft.getAerodynamicCenter()));
-		Vector3D cgVector = new Vector3D(IntegrationSetup.unboxDoubleArray(aircraft.getCenterOfGravity()));
+		Vector3D acVector = new Vector3D(Utilities.unboxDoubleArray(aircraft.getAerodynamicCenter()));
+		Vector3D cgVector = new Vector3D(Utilities.unboxDoubleArray(aircraft.getCenterOfGravity()));
 		
 		Vector3D aeroForceCrossProd = Vector3D.crossProduct(aeroForceVector, acVector.subtract(cgVector));
 		

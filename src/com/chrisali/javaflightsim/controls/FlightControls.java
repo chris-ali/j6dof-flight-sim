@@ -1,8 +1,8 @@
 package com.chrisali.javaflightsim.controls;
 
 import com.chrisali.javaflightsim.controls.hidcontrollers.SimulationController;
+import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.setup.IntegrationSetup;
-import com.chrisali.javaflightsim.utilities.integration.Integrate6DOFEquations;
 
 /**
  * Enum that provides the keys for the controls EnumMap in {@link Integrate6DOFEquations}. Also used to parse 
