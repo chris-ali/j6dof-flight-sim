@@ -12,7 +12,7 @@ import com.chrisali.javaflightsim.utilities.Utilities;
  * initial controls, and configuration for {@link Integrate6DOFEquations}
  */
 public class IntegrationSetup {
-	protected static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\setup\\simconfig\\";
+	protected static final String FILE_PATH = ".\\SimConfig\\";
 	
 	/**
 	 * Parses a text file formatted as described in {@link IntegrationSetup#readFileAndSplit(String)} to generate an 

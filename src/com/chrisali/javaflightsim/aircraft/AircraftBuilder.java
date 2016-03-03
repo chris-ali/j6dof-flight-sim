@@ -33,7 +33,7 @@ public class AircraftBuilder {
 	private Set<Engine> engineList = new LinkedHashSet<>();
 	private Aircraft aircraft;
 	
-	protected static final String FILE_PATH = ".\\src\\com\\chrisali\\javaflightsim\\aircraft\\AircraftConfigurations\\";
+	protected static final String FILE_PATH = ".\\Aircraft\\";
 	
 	/**
 	 *  Default AircraftBuilder constructor, using the default constructors of {@link Aircraft} and {@link FixedPitchPropEngine}
@@ -45,8 +45,8 @@ public class AircraftBuilder {
 	}
 	
 	/**
-	 * Custom AircraftBuilder constructor that uses a set of text files in a folder with a name matching the aircraftName argument. This folder is located in
-	 * <br><code>.\src\com\chrisali\javaflightsim\aircraft\AircraftConfigurations\</code></br>
+	 * Custom AircraftBuilder constructor that uses a set of text files in a folder with a name matching the aircraftName argument. This folder is located in:
+	 * <br><code>.\Aircraft\</code></br>
 	 * An example of the proper file structure and syntax can be seen in the sample aircraft (LookupNavion, Navion and TwinNavion) within this folder.  
 	 * @param aircraftName
 	 */
