@@ -1,7 +1,7 @@
 package com.chrisali.javaflightsim.utilities.tests;
 
-import com.chrisali.javaflightsim.aircraft.AircraftBuilder;
-import com.chrisali.javaflightsim.propulsion.Engine;
+import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 
 public class AircraftBuilderTest {	
 	public AircraftBuilderTest() {

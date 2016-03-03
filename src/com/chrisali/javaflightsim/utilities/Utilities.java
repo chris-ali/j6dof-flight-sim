@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
-import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 /**
  * Contains various static methods for unboxing arrays into primitive types and reading and parsing text files into lists

@@ -2,7 +2,7 @@ package com.chrisali.javaflightsim.utilities.tests;
 
 import javax.swing.SwingUtilities;
 
-import com.chrisali.javaflightsim.gui.MainFrame;
+import com.chrisali.javaflightsim.menus.MainFrame;
 
 public class GUITest {
 

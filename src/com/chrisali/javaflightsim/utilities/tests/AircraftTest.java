@@ -1,6 +1,6 @@
 package com.chrisali.javaflightsim.utilities.tests;
 
-import com.chrisali.javaflightsim.aircraft.Aircraft;
+import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 /*
  * This class tests the parsing methods defined in the Aircraft class. It helps ensure that the data needed to define an aircraft is being
  * parsed correctly, and allows for debugging of file integrity checking methods. It runs the default constructor first, followed by the 

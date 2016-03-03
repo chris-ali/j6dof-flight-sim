@@ -11,7 +11,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.ApplicationFrame;
 
-import com.chrisali.javaflightsim.integration.SimOuts;
+import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 
 /**
  * This object contains a {@link CombinedDomainXYPlot} object, consisting of group of {@link XYPlot} objects. It generates a plot windwow in AWT using {@link PlotUtilities#generatePlotWindows(SimulationPlots)}.   

@@ -14,12 +14,12 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
-import com.chrisali.javaflightsim.controls.FlightControls;
-import com.chrisali.javaflightsim.enviroment.Environment;
-import com.chrisali.javaflightsim.enviroment.EnvironmentParameters;
-import com.chrisali.javaflightsim.propulsion.Engine;
-import com.chrisali.javaflightsim.propulsion.FixedPitchPropEngine;
-import com.chrisali.javaflightsim.setup.IntegrationSetup;
+import com.chrisali.javaflightsim.simulation.controls.FlightControls;
+import com.chrisali.javaflightsim.simulation.enviroment.Environment;
+import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
+import com.chrisali.javaflightsim.simulation.propulsion.Engine;
+import com.chrisali.javaflightsim.simulation.propulsion.FixedPitchPropEngine;
+import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 
 public class EngineTest extends ApplicationFrame {
 	private static final long serialVersionUID = 1L;

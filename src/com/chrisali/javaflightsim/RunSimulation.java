@@ -2,9 +2,9 @@ package com.chrisali.javaflightsim;
 
 import java.util.EnumSet;
 
-import com.chrisali.javaflightsim.aircraft.AircraftBuilder;
-import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.setup.Options;
+import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.setup.Options;
 
 public class RunSimulation {
 

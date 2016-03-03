@@ -10,7 +10,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
 
-import com.chrisali.javaflightsim.integration.SimOuts;
+import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 
 /**
  * Contains methods to create plots from simulation data. {@link MakePlots} and {@link SimulationPlots} call on methods from this class to generate the plot objects on AWT windows

@@ -2,10 +2,10 @@ package com.chrisali.javaflightsim.utilities.tests;
 
 import java.util.EnumMap;
 
-import com.chrisali.javaflightsim.controls.FlightControls;
-import com.chrisali.javaflightsim.controls.hidcontrollers.Keyboard;
-import com.chrisali.javaflightsim.controls.hidcontrollers.SimulationController;
-import com.chrisali.javaflightsim.setup.IntegrationSetup;
+import com.chrisali.javaflightsim.simulation.controls.FlightControls;
+import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Keyboard;
+import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.SimulationController;
+import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.utilities.Utilities;
 
 public class ControllerTest implements Runnable {

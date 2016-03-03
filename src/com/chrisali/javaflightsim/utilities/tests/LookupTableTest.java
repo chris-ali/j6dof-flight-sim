@@ -2,11 +2,11 @@ package com.chrisali.javaflightsim.utilities.tests;
 
 import java.util.EnumMap;
 
-import com.chrisali.javaflightsim.aero.Aerodynamics;
-import com.chrisali.javaflightsim.aero.StabilityDerivatives;
-import com.chrisali.javaflightsim.aircraft.AircraftBuilder;
-import com.chrisali.javaflightsim.controls.FlightControls;
-import com.chrisali.javaflightsim.setup.IntegrationSetup;
+import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
+import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
+import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.controls.FlightControls;
+import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 
 public class LookupTableTest {
 	private EnumMap<FlightControls, Double> controls = IntegrationSetup.gatherInitialControls("InitialControls");

@@ -2,9 +2,9 @@ package com.chrisali.javaflightsim.utilities.plotting;
 
 import java.util.EnumSet;
 
-import com.chrisali.javaflightsim.aircraft.Aircraft;
-import com.chrisali.javaflightsim.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.setup.Options;
+import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
+import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.setup.Options;
 
 /**
  * This class is the runner class to plot data from the simulation in AWT windows. It implements threading to accomplish this, 
