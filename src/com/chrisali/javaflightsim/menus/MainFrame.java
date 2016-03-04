@@ -4,9 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.EnumSet;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+
+import com.chrisali.javaflightsim.simulation.setup.Options;
 
 public class MainFrame extends JFrame {
 
@@ -14,6 +17,7 @@ public class MainFrame extends JFrame {
 	
 	private ButtonPanel buttonPanel;
 	private AircraftPanel aircraftPanel;
+	private OptionsPanel optionsPanel;
 
 	public MainFrame() {
 		super("Java Flight Sim");
@@ -22,7 +26,23 @@ public class MainFrame extends JFrame {
 		
 		//-------------------------- Aircraft Panel ------------------------------------------------
 		
-		aircraftPanel = new AircraftPanel();
+		aircraftPanel = new AircraftPanel(this);
+		aircraftPanel.setAircraftConfigurationListener(new AircraftConfigurationListener() {
+			@Override
+			public void aircraftConfigured(String aircraftName) {
+				buttonPanel.setAircraftLabel(aircraftName);
+			}
+		});
+		
+		//-------------------------- Aircraft Panel ------------------------------------------------
+		
+		optionsPanel = new OptionsPanel(this);
+		optionsPanel.setOptionsConfigurationListener(new OptionsConfigurationListener() {
+			@Override
+			public void optionsConfigured(EnumSet<Options> options) {
+				buttonPanel.setAircraftLabel(options.toString());
+			}
+		});
 		
 		//-------------------------- Button Panel --------------------------------------------------
 		
@@ -30,7 +50,7 @@ public class MainFrame extends JFrame {
 		buttonPanel.setAircraftButtonListener(new AircraftButtonListener() {
 			@Override
 			public void buttonEventOccurred() {
-				System.out.println("Open aircraft window");
+				aircraftPanel.setVisible(true);
 			}
 		});
 		buttonPanel.setInitialConditionsButtonListener(new InitialConditionsButtonListener() {
@@ -42,8 +62,7 @@ public class MainFrame extends JFrame {
 		buttonPanel.setOptionsButtonListener(new OptionsButtonListener() {
 			@Override
 			public void buttonEventOccurred() {
-				System.out.println("Open options window");
-				add(aircraftPanel, BorderLayout.EAST);
+				optionsPanel.setVisible(true);
 			}
 		});
 		buttonPanel.setStartSimulationButtonListener(new StartSimulationButtonListener() {

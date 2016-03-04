@@ -63,7 +63,7 @@ public class Utilities {
 				readAndSplit.add(readLine.split(" = "));
 		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileContents + ".txt!");}
 		catch (IOException e) {System.err.println("Could not read: " + fileContents + ".txt!");}
-		catch (NullPointerException e) {System.err.println("Bad reference to: " + fileContents + ".txt!");} 
+		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileContents + ".txt!");} 
 		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileContents + ".txt!");}
 		
 		return readAndSplit;
@@ -91,7 +91,8 @@ public class Utilities {
 				readAndSplit.add(readLine.split(" = "));
 		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + ".txt!");}
 		catch (IOException e) {System.err.println("Could not read: " + fileName + ".txt!");}
-		catch (NullPointerException e) {System.err.println("Bad reference to: " + fileName + ".txt!");} 
+		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + ".txt!");}
+		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileName + ".txt!");}
 		
 		return readAndSplit;
 	}

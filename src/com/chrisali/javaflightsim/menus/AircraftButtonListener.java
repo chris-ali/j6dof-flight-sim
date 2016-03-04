@@ -1,5 +1,7 @@
 package com.chrisali.javaflightsim.menus;
 
-public interface AircraftButtonListener {
+import java.util.EventListener;
+
+public interface AircraftButtonListener extends EventListener {
 	public void buttonEventOccurred();
 }

@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
@@ -17,9 +18,15 @@ public class ButtonPanel extends JPanel {
 	private static final long serialVersionUID = 6491285782356385338L;
 	
 	private JButton aircraftButton;
+	private JLabel aircraftLabel;
 	private JButton initialConditionsButton;
+	private JLabel initialConditonsLabel;
 	private JButton optionsButton;
+	private JLabel optionsLabel;
 	private JButton runButton;
+	
+	private String htmlWidthOpen = "<html><body><p style='width: 150px;'>";
+	private String htmlWidthClose = "</p></body></html>";
 	
 	private AircraftButtonListener aircraftButtonListener;
 	private InitialConditionsButtonListener initialConditionsButtonListener;
@@ -30,7 +37,7 @@ public class ButtonPanel extends JPanel {
 		
 		//-------------------------- Borders and Insets  --------------------------------------
 		
-		int margins = 5;
+		int margins = 7;
 		
 		Border outerBorder = BorderFactory.createEmptyBorder(margins, margins, margins, margins);
 		Border innerBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
@@ -55,7 +62,7 @@ public class ButtonPanel extends JPanel {
 		
 		//------------------------- Aircraft Button --------------------------------------------
 		gc.gridy++;
-		gc.weighty = 0.5;
+		gc.weighty = 0.125;
 		
 		aircraftButton = new JButton("Aircraft");
 		aircraftButton.setToolTipText("Select and configure an aircraft");
@@ -67,6 +74,12 @@ public class ButtonPanel extends JPanel {
 			}
 		});
 		add(aircraftButton, gc);
+		
+		//------------------------- Aircraft Label ---------------------------------------------
+		gc.gridy++;
+		
+		aircraftLabel = new JLabel("Select an aircraft");
+		add(aircraftLabel, gc);
 		
 		//-------------------- Initial Conditions Button ---------------------------------------
 		gc.gridy++;
@@ -82,6 +95,12 @@ public class ButtonPanel extends JPanel {
 		});
 		add(initialConditionsButton, gc);
 		
+		//--------------------- Initial Conditions Label -----------------------------------------
+		gc.gridy++;
+		
+		initialConditonsLabel = new JLabel("Select starting conditions");
+		add(initialConditonsLabel, gc);
+		
 		//-------------------------- Options Button ----------------------------------------------
 		gc.gridy++;
 	
@@ -95,6 +114,12 @@ public class ButtonPanel extends JPanel {
 			}
 		});
 		add(optionsButton, gc);
+		
+		//--------------------- Initial Conditions Label -----------------------------------------
+		gc.gridy++;
+		
+		optionsLabel = new JLabel("Choose options");
+		add(optionsLabel, gc);
 	
 		// -------------------- Initial Conditions Button ---------------------------------------
 		gc.gridy++;
@@ -111,6 +136,28 @@ public class ButtonPanel extends JPanel {
 			}
 		});
 		add(runButton, gc);
+	}
+	
+	public void setAircraftLabel(String text) {
+		aircraftLabel.setText("Selected Aircraft: " + text);
+	}
+	
+	public void setInitialConditionsLabel(String[] text) {
+		StringBuilder sb = new StringBuilder();
+		
+		for (String string : text)
+			sb.append(string).append("\n");
+		
+		initialConditonsLabel.setText(htmlWidthOpen + "Starting Condtions: " + sb.toString() + htmlWidthClose);
+	}
+	
+	public void setOptionsLabel(String[] text) {
+		StringBuilder sb = new StringBuilder();
+		
+		for (String string : text)
+			sb.append(string).append("\n");
+		
+		optionsLabel.setText("Selected Options:\n" + sb.toString());
 	}
 	
 	public void setAircraftButtonListener(AircraftButtonListener aircraftButtonListener) {

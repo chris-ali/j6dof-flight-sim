@@ -1,5 +1,7 @@
 package com.chrisali.javaflightsim.menus;
 
-public interface InitialConditionsButtonListener {
+import java.util.EventListener;
+
+public interface InitialConditionsButtonListener extends EventListener {
 	public void buttonEventOccurred();
 }
