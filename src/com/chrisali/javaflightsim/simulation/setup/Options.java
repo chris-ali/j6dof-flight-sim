@@ -17,6 +17,7 @@ import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
  *	<p>CONSOLE_DISPLAY - Displays every piece of data in {@link Integrate6DOFEquations#getSimOut()} in the console for each step of integration</p>
  *	<p>USE_JOYSTICK - Uses JInput to integrate a {@link Joystick} to allow pilot in the loop simulation</p>
  *	<p>USE_MOUSE - Uses JInput to integrate a {@link Mouse} to allow pilot in the loop simulation</p>
+ *	<p>USE_CH_CONTROLS - Uses JInput to integrate a {@link CHControls} to allow pilot in the loop simulation</p>
  */
 public enum Options {
 	ANALYSIS_MODE,
@@ -27,4 +28,5 @@ public enum Options {
 	CONSOLE_DISPLAY,
 	USE_JOYSTICK,
 	USE_MOUSE,
+	USE_CH_CONTROLS
 }

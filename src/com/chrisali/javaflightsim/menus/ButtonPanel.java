@@ -5,6 +5,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.EnumSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -12,6 +13,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+
+import com.chrisali.javaflightsim.simulation.setup.Options;
 
 public class ButtonPanel extends JPanel {
 
@@ -151,11 +154,11 @@ public class ButtonPanel extends JPanel {
 		initialConditonsLabel.setText(htmlWidthOpen + "Starting Condtions: " + sb.toString() + htmlWidthClose);
 	}
 	
-	public void setOptionsLabel(String[] text) {
+	public void setOptionsLabel(EnumSet<Options> options) {
 		StringBuilder sb = new StringBuilder();
 		
-		for (String string : text)
-			sb.append(string).append("\n");
+		for (Options option : options)
+			sb.append(option.toString()).append("\n");
 		
 		optionsLabel.setText("Selected Options:\n" + sb.toString());
 	}

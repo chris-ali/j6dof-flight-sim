@@ -39,8 +39,8 @@ public class MainFrame extends JFrame {
 		optionsPanel = new OptionsPanel(this);
 		optionsPanel.setOptionsConfigurationListener(new OptionsConfigurationListener() {
 			@Override
-			public void optionsConfigured(EnumSet<Options> options) {
-				buttonPanel.setAircraftLabel(options.toString());
+			public void optionsConfigured(EnumSet<Options> options, int stepSize) {
+				buttonPanel.setOptionsLabel(options);
 			}
 		});
 		

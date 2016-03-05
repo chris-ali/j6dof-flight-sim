@@ -1,11 +1,14 @@
 package com.chrisali.javaflightsim.utilities;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
@@ -70,7 +73,7 @@ public class Utilities {
 	}
 	
 	/**
-	 * Splits a text file of the name "fileName".txt located in the folder: 
+	 * Splits a text file of the name "fileName".txt located in the folder 
 	 * specified by filePath whose general syntax on each line is:
 	 *  <br><code>*parameter name* = *double value*</code></br>
 	 *  into an ArrayList of string arrays resembling:
@@ -95,5 +98,29 @@ public class Utilities {
 		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileName + ".txt!");}
 		
 		return readAndSplit;
+	}
+	
+	/**
+	 * Creates a text file of the name "fileName".txt located in the folder 
+	 * specified by filePath using an EnumMap where each line is written as:
+	 *  <br><code>"*parameter name* = *double value*\n"</code></br>
+	 *  
+	 * @param fileName
+	 * @param filePath
+	 * @param enumMap
+	 */
+	public static void writeConfigFile(String fileName, String filePath, Map<?, Double> enumMap) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(filePath).append(fileName).append(".txt");
+		
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sb.toString()))) {
+			for (Map.Entry<?,Double> entry : enumMap.entrySet()) {
+				bw.write(entry.getKey().toString() + " = " + entry.getValue());
+				bw.newLine();
+			}
+		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + ".txt!");}
+		catch (IOException e) {System.err.println("Could not read: " + fileName + ".txt!");}
+		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + ".txt!");}
+		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileName + ".txt!");}
 	}
 }
