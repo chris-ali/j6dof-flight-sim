@@ -185,7 +185,7 @@ public class OptionsPanel extends JDialog {
 		//========================== Window Settings ===============================================
 		
 		setLocationRelativeTo(parent);
-		Dimension dims = new Dimension(600, 400);
+		Dimension dims = new Dimension(500, 400);
 		setSize(dims);
 		setMaximumSize(dims);
 		setMinimumSize(dims);

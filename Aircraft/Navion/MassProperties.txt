@@ -1,6 +1,8 @@
 % Mass Properties
-weightFuel = 360
-weightPayload = 610 
+maxWeightFuel = 360
+weightFuel = 1.0
+maxWeightPayload = 610
+weightPayload = 1.0
 weightEmpty = 1780
 jx = 1048
 jy = 3000

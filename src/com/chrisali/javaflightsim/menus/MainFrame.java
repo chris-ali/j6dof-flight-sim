@@ -15,12 +15,15 @@ public class MainFrame extends JFrame {
 
 	private static final long serialVersionUID = -1803264930661591606L;
 	
+	private Controller simController;
 	private ButtonPanel buttonPanel;
 	private AircraftPanel aircraftPanel;
 	private OptionsPanel optionsPanel;
 
-	public MainFrame() {
+	public MainFrame(Controller controller) {
 		super("Java Flight Sim");
+		
+		simController = controller;
 		
 		setLayout(new BorderLayout());
 		
@@ -41,6 +44,8 @@ public class MainFrame extends JFrame {
 			@Override
 			public void optionsConfigured(EnumSet<Options> options, int stepSize) {
 				buttonPanel.setOptionsLabel(options);
+				simController.updateIntegratorConfig(stepSize);
+				simController.updateOptions(options);
 			}
 		});
 		

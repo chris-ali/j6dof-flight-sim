@@ -2,6 +2,7 @@ package com.chrisali.javaflightsim.utilities.tests;
 
 import javax.swing.SwingUtilities;
 
+import com.chrisali.javaflightsim.menus.Controller;
 import com.chrisali.javaflightsim.menus.MainFrame;
 
 public class GUITest {
@@ -13,5 +14,5 @@ public class GUITest {
 		});
 	}
 
-	private static void runApp() {new MainFrame();}
+	private static void runApp() {new MainFrame(new Controller());}
 }

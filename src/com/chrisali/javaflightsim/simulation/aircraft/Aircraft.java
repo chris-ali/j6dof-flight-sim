@@ -109,23 +109,25 @@ public class Aircraft {
 		// =======================================
 		
 		// Center of Gravity
-		massProps.put(MassProperties.CG_X, 			 0.0);
-		massProps.put(MassProperties.CG_Y, 			 0.0);
-		massProps.put(MassProperties.CG_Z, 			 0.0);
+		massProps.put(MassProperties.CG_X, 			 	 0.0);
+		massProps.put(MassProperties.CG_Y, 			 	 0.0);
+		massProps.put(MassProperties.CG_Z, 			 	 0.0);
 		
 		// Moments of Inertia
-		massProps.put(MassProperties.J_X,  			 1048.0);
-		massProps.put(MassProperties.J_Y,    		 3000.0);
-		massProps.put(MassProperties.J_Z,  			 3050.0);
-		massProps.put(MassProperties.J_XZ, 			 0.0);
+		massProps.put(MassProperties.J_X,  				 1048.0);
+		massProps.put(MassProperties.J_Y,    		 	 3000.0);
+		massProps.put(MassProperties.J_Z,  			 	 3050.0);
+		massProps.put(MassProperties.J_XZ, 				 0.0);
 		
 		// Weights and Mass (lbf/slug)
-		massProps.put(MassProperties.WEIGHT_EMPTY,   1780.0);
-		massProps.put(MassProperties.WEIGHT_FUEL,    360.0);
-		massProps.put(MassProperties.WEIGHT_PAYLOAD, 610.0);
-		massProps.put(MassProperties.TOTAL_MASS, (massProps.get(MassProperties.WEIGHT_EMPTY) + 
-												  massProps.get(MassProperties.WEIGHT_FUEL)  +
-												  massProps.get(MassProperties.WEIGHT_PAYLOAD))/Environment.getGravity());
+		massProps.put(MassProperties.WEIGHT_EMPTY,   	 1780.0);
+		massProps.put(MassProperties.MAX_WEIGHT_FUEL,    360.0);
+		massProps.put(MassProperties.WEIGHT_FUEL,    	 1.0);
+		massProps.put(MassProperties.MAX_WEIGHT_PAYLOAD, 610.0);
+		massProps.put(MassProperties.WEIGHT_PAYLOAD,     1.0);
+		massProps.put(MassProperties.TOTAL_MASS, ((massProps.get(MassProperties.MAX_WEIGHT_PAYLOAD) * massProps.get(MassProperties.WEIGHT_PAYLOAD)) +
+												  (massProps.get(MassProperties.MAX_WEIGHT_FUEL)    * massProps.get(MassProperties.WEIGHT_FUEL)) +
+												   massProps.get(MassProperties.WEIGHT_EMPTY))      / Environment.getGravity());
 	}
 	
 	/**
@@ -181,9 +183,9 @@ public class Aircraft {
 			}
 		}
 		// Sum up empty, fuel and payload weights divided by gravity to get total mass
-		massProps.put(MassProperties.TOTAL_MASS, (massProps.get(MassProperties.WEIGHT_EMPTY) + 
-												  massProps.get(MassProperties.WEIGHT_FUEL)  +
-												  massProps.get(MassProperties.WEIGHT_PAYLOAD))/Environment.getGravity());
+		massProps.put(MassProperties.TOTAL_MASS, ((massProps.get(MassProperties.MAX_WEIGHT_PAYLOAD) * massProps.get(MassProperties.WEIGHT_PAYLOAD)) +
+												  (massProps.get(MassProperties.MAX_WEIGHT_FUEL)    * massProps.get(MassProperties.WEIGHT_FUEL)) +
+												   massProps.get(MassProperties.WEIGHT_EMPTY))      / Environment.getGravity());
 		
 		// Wing Geometry
 		ArrayList<String[]> readWingGeomFile = Utilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "WingGeometry");
