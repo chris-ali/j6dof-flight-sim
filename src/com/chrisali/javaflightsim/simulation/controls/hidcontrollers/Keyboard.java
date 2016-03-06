@@ -22,9 +22,9 @@ import net.java.games.input.ControllerEnvironment;
  * controlled by Page Up/Down. The simulation can be toggled paused by pressing P, and while paused
  * the simulation can be reset to initial conditions defined by 
  * {@link IntegrationSetup#gatherInitialConditions(String)} by pressing R
- * @see SimulationController
+ * @see AbstractController
  */
-public class Keyboard extends SimulationController {
+public class Keyboard extends AbstractController {
 	// Keep track if button is pressed, so events occur only once if button held down 
 	private boolean pPressed = false;
 	private boolean rPressed = false;

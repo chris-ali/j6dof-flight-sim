@@ -17,9 +17,9 @@ import net.java.games.input.ControllerEnvironment;
  * in the controls EnumMap. These deflections are limited by the constants defined in {@link FlightControls}. Ailerons 
  * and Elevator are controlled by horizontal and vertical mouse movement, respectively, and all throttles are controlled 
  * by the mouse wheel.
- * @see SimulationController
+ * @see AbstractController
  */
-public class Mouse extends SimulationController {
+public class Mouse extends AbstractController {
 	
 	// Since mouse axes are measured relative to the stopped position, these fields store the control deflection, 
 	// and the mouse axis value is added to these

@@ -129,7 +129,7 @@ public class Aircraft {
 	}
 	
 	/**
-	 * Custom aircraft constructor. It uses files located in <p><br><code>.\src\com\chrisali\javaflightsim\aircraft\AircraftConfigurations\</code></br></p>
+	 * Custom aircraft constructor. It uses files located in <p><br><code>.\Aircraft\</code></br></p>
 	 * to define the stability derivatives, mass properties and wing geometry. These files are: 
 	 * <p><br><code>Aero.txt</code></br> 
 	 * <br><code>StabilityDerivaticves.txt</code></br>
@@ -234,7 +234,7 @@ public class Aircraft {
 	 * {@link PiecewiseBicubicSplineInterpolatingFunction} object is detected, or simply return a double value
 	 * 
 	 * @param stabDer
-	 * @return stabilityDerivative
+	 * @return value of key in stabDerivs
 	 */
 	public Object getStabilityDerivative(StabilityDerivatives stabDer) {return stabDerivs.get(stabDer);}
 	
@@ -242,7 +242,7 @@ public class Aircraft {
 	 * Returns the value held by the {@link WingGeometry} key in the wingGeometry EnumMap
 	 * 
 	 * @param wingGeom
-	 * @return wingGeometry
+	 * @return value of key in wingGeometry
 	 */
 	public Double getWingGeometry(WingGeometry wingGeom) {return wingGeometry.get(wingGeom);}
 	
@@ -250,9 +250,24 @@ public class Aircraft {
 	 * Returns the value held by the {@link MassProperties} key in the massProps EnumMap
 	 * 
 	 * @param massProp
-	 * @return wingGeometry
+	 * @return value of key in massProps
 	 */
 	public Double getMassProperty(MassProperties massProp) {return massProps.get(massProp);}
+	
+	/**
+	 * Updates the value held by the {@link MassProperties} key in the massProps EnumMap
+	 * 
+	 * @param massProp
+	 * @return wingGeometry
+	 */
+	public void setMassProperty(MassProperties massProp, Double value) {massProps.put(massProp, value);}
+		
+	/**
+	 * Returns the EnumMap associated with the aircraft's {@link MassProperties}
+	 * 
+	 * @return massProps
+	 */
+	public Map<MassProperties, Double> getMassProps() {return massProps;}
 	
 	/**
 	 * Gets the name of the aircraft

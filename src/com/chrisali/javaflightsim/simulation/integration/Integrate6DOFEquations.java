@@ -19,7 +19,7 @@ import com.chrisali.javaflightsim.simulation.controls.FlightControlsUtilities;
 import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Joystick;
 import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Keyboard;
 import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Mouse;
-import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.SimulationController;
+import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.AbstractController;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
@@ -68,7 +68,7 @@ public class Integrate6DOFEquations implements Runnable {
 	
 	// Simulation controls (Joystick, Keyboard, etc.)
 	private EnumMap<FlightControls, Double> controls;
-	private SimulationController hidController;
+	private AbstractController hidController;
 	private Keyboard hidKeyboard;
 	
 	// Integrator Fields

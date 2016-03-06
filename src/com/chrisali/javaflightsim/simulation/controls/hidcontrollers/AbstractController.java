@@ -15,7 +15,7 @@ import net.java.games.input.Controller;
  * given by JInput, and convert them to actual control deflections used by the simulation in {@link Integrate6DOFEquations}
  * and {@link Aerodynamics} 
  */
-public abstract class SimulationController {
+public abstract class AbstractController {
 	protected ArrayList<Controller> controllerList;
 	
 	// Add these trim values to getControlDeflection method call to emulate trim deflections

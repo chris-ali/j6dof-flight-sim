@@ -19,9 +19,9 @@ import net.java.games.input.ControllerEnvironment;
  * in the controls EnumMap. These deflections are limited by the constants defined in the 
  * {@link FlightControls}. Aileron and Elevator trim are handled by the POV hat switch, and all
  * throttles are controlled by the throttle slider.
- * @see SimulationController
+ * @see AbstractController
  */
-public class Joystick extends SimulationController {
+public class Joystick extends AbstractController {
 	
 	/**
 	 *  Constructor for Joystick class creates list of controllers using searchForControllers()
