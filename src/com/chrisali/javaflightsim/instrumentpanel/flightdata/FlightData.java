@@ -6,13 +6,13 @@ import java.util.Map;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
+import com.chrisali.javaflightsim.utilities.Utilities;
 
 /**
  *	Model class that interacts with {@link InstrumentPanel} and {@link Integrate6DOFEquations} to pass flight data from the simulation
  *	to the instrument panel. Uses threading to obtain data from the simulation at a reasonable rate
  */
 public class FlightData implements Runnable {
-	private static final double FT_S_TO_KTS = 1/1.68;
 	
 	private FlightDataListener dataListener;
 	private Map<FlightDataType, Double> flightData = new EnumMap<FlightDataType, Double>(FlightDataType.class);
@@ -37,7 +37,7 @@ public class FlightData implements Runnable {
 	public void updateData(Map<SimOuts, Double> simOut) {
 		final Double TAS_TO_IAS = 1/(1+((simOut.get(SimOuts.ALT)/1000)*0.02));
 		
-		flightData.put(FlightDataType.IAS, simOut.get(SimOuts.TAS)*FT_S_TO_KTS*TAS_TO_IAS);
+		flightData.put(FlightDataType.IAS, Utilities.toKnots(simOut.get(SimOuts.TAS)*TAS_TO_IAS));
 		
 		flightData.put(FlightDataType.VERT_SPEED, simOut.get(SimOuts.ALT_DOT));
 		
@@ -45,7 +45,6 @@ public class FlightData implements Runnable {
 		
 		flightData.put(FlightDataType.ROLL, Math.toDegrees(simOut.get(SimOuts.PHI)));
 		flightData.put(FlightDataType.PITCH, Math.toDegrees(simOut.get(SimOuts.THETA)));
-		
 		
 		flightData.put(FlightDataType.HEADING, Math.toDegrees(simOut.get(SimOuts.PSI)));
 		
@@ -98,6 +97,6 @@ public class FlightData implements Runnable {
 				if(runSim.getSimOut() != null)
 					updateData(runSim.getSimOut());
 			}
-		} catch (InterruptedException e) {System.err.println("Thread interrupted!");}
+		} catch (InterruptedException e) {}
 	}
 }

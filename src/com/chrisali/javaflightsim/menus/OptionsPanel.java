@@ -60,9 +60,9 @@ public class OptionsPanel extends JDialog {
 		
 		int margins = 5;
 		Border emptyBorder = BorderFactory.createEmptyBorder(margins ,margins, margins, margins);
-		Border titleBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
+		Border etchedBorder = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
 		
-		controlsPanel.setBorder(BorderFactory.createCompoundBorder(emptyBorder, titleBorder));
+		controlsPanel.setBorder(BorderFactory.createCompoundBorder(emptyBorder, etchedBorder));
 		
 		Insets spacer = new Insets(margins, margins, margins, margins);
 		
@@ -187,8 +187,7 @@ public class OptionsPanel extends JDialog {
 		setLocationRelativeTo(parent);
 		Dimension dims = new Dimension(500, 400);
 		setSize(dims);
-		setMaximumSize(dims);
-		setMinimumSize(dims);
+		setResizable(false);
 	}
 	
 	public void setOptionsConfigurationListener(OptionsConfigurationListener optionsConfigurationListener) {

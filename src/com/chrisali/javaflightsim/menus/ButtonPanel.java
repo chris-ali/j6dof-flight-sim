@@ -145,11 +145,14 @@ public class ButtonPanel extends JPanel {
 		aircraftLabel.setText("Selected Aircraft: " + text);
 	}
 	
-	public void setInitialConditionsLabel(String[] text) {
+	public void setInitialConditionsLabel(double[] coordinates, double heading, double altitude, double airspeed) {
 		StringBuilder sb = new StringBuilder();
 		
-		for (String string : text)
-			sb.append(string).append("\n");
+		sb.append("Latitude: ").append(coordinates[0]).append("\n")
+		  .append("Longitude: ").append(coordinates[1]).append("\n")
+		  .append("Heading: ").append(heading).append("\n")
+		  .append("Altitude: ").append(altitude).append("\n")
+		  .append("Airspeed: ").append(airspeed).append("\n");
 		
 		initialConditonsLabel.setText(htmlWidthOpen + "Starting Condtions: " + sb.toString() + htmlWidthClose);
 	}

@@ -120,6 +120,7 @@ public class AircraftPanel extends JDialog {
 		descriptionArea.setMinimumSize(new Dimension(200, 150));
 		descriptionArea.setLineWrap(true);
 		descriptionArea.setWrapStyleWord(true);
+		descriptionArea.setEditable(false);
 		controlsPanel.add(new JScrollPane(descriptionArea), gc);
 		
 		//----------------- OK Button ----------------------------

@@ -123,4 +123,16 @@ public class Utilities {
 		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + ".txt!");}
 		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileName + ".txt!");}
 	}
+	
+	/**
+	 * @param knots
+	 * @return Airspeed converted from knots to ft/sec
+	 */
+	public static double toFtPerSec(double knots) {return knots*1.687810;}
+	
+	/**
+	 * @param knots
+	 * @return Airspeed converted from ft/sec to knots
+	 */
+	public static double toKnots(double ftPerSec) {return ftPerSec/1.687810;}
 }

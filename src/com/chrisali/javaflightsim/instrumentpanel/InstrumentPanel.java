@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -36,12 +38,16 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 	private VerticalSpeed 	  verticalSpeed;
 	private TurnCoordinator	  turnCoordinator;
 	
+	private ClosePanelListener closePanelListener;
+	
 	/**
 	 * Creates a simple instrument panel with a {@link FlightDataListener} to set the gauge values from
 	 * flight data received by the simulation in {@link FlightData}
 	 */
 	public InstrumentPanel() {
 		super("Panel");
+		
+		//----------------------------- Borders and Grid Bag Setup ------------------------------
 		
 		int margin = 5;
 		Border outerBorder = BorderFactory.createEmptyBorder(margin,margin,margin,margin);
@@ -114,11 +120,29 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		
 		add(turnCoordinator, gc);
 		
+		//========================== Window Settings =============================================
+		
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if (closePanelListener != null)
+					closePanelListener.panelWindowClosed();
+			}
+		});
+		
 		getContentPane().setBackground(Color.DARK_GRAY);
 		setSize(900, 620);
 		setMinimumSize(new Dimension(900, 620));
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setVisible(true);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+	}
+	
+	/**
+	 * Sets a listener to monitor for a window closing event so that the simulation can stop
+	 * 
+	 * @param closePanelListener
+	 */
+	public void setClosePanelListener(ClosePanelListener closePanelListener) {
+		this.closePanelListener = closePanelListener;
 	}
 
 	/**

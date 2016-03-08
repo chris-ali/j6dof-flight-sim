@@ -1,9 +1,12 @@
 package com.chrisali.javaflightsim.utilities.plotting;
 
+import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.List;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
 /**
@@ -18,14 +21,14 @@ import com.chrisali.javaflightsim.simulation.setup.Options;
  */
 public class MakePlots implements Runnable {
 	private String[] simPlotCategories;
-	private Integrate6DOFEquations integration;
+	private List<EnumMap<SimOuts, Double>> logsOut;
 	private Aircraft aircraft;
 	
-	public MakePlots(Integrate6DOFEquations integration, 
+	public MakePlots(List<EnumMap<SimOuts, Double>> logsOut, 
 					 String[] simPlotCategories,
 					 EnumSet<Options> options,
 					 Aircraft aircraft) {
-		this.integration 	   = integration;
+		this.logsOut 	   	   = logsOut;
 		this.simPlotCategories = simPlotCategories;
 		this.aircraft 		   = aircraft;
 	}
@@ -34,10 +37,10 @@ public class MakePlots implements Runnable {
 	public void run() {
 		try {
 			for (String plot : simPlotCategories) { 
-				new SimulationPlots(integration.getLogsOut(), plot, aircraft.getName());
+				new SimulationPlots(logsOut, plot, aircraft.getName());
 				Thread.sleep(100);
 			}
-		} catch (InterruptedException e) {System.err.println("Warning! Plotting interrupted!");}
+		} catch (InterruptedException e) {}
 	}
 
 }

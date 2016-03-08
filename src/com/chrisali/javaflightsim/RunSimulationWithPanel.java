@@ -29,5 +29,6 @@ public class RunSimulationWithPanel {
 		
 		InstrumentPanel panel = new InstrumentPanel();
 		flightData.setFlightDataListener(panel);
+		panel.setVisible(true);
 	}
 }

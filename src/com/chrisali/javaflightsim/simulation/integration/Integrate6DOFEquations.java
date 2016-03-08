@@ -444,11 +444,11 @@ public class Integrate6DOFEquations implements Runnable {
 			
 			// If in analysis mode and not in unlimited flight, generate simulation plots
 			if (options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.TRIM_MODE)) {
-				new Thread(new MakePlots(this, 
+				new Thread(new MakePlots(getLogsOut(), 
 						 				 new String[] {"Controls", "Instruments", "Position", "Rates", "Miscellaneous"},
 						 				 options,
 						 				 aircraft)).start();
 			}
-		} catch (InterruptedException e) {System.err.println("Warning! Simulation interrupted!");}
+		} catch (InterruptedException e) {}
 	}
 }
