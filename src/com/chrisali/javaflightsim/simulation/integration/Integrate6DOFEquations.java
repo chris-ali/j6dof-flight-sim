@@ -20,6 +20,7 @@ import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Joystick;
 import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Keyboard;
 import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Mouse;
 import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.AbstractController;
+import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.CHControls;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
@@ -121,6 +122,8 @@ public class Integrate6DOFEquations implements Runnable {
 			this.hidController = new Joystick(controls);
 		else if (options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE))
 			this.hidController = new Mouse(controls);
+		else if (options.contains(Options.USE_CH_CONTROLS) & !options.contains(Options.ANALYSIS_MODE))
+			this.hidController = new CHControls(controls);
 		else
 			this.hidController = null;
 		

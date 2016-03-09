@@ -162,6 +162,9 @@ public class OptionsPanel extends JDialog {
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if (!options.contains(Options.ANALYSIS_MODE))
+					options.add(Options.UNLIMITED_FLIGHT);
+				
 				if (optionsConfigurationListener != null)
 					optionsConfigurationListener.optionsConfigured(options, (int)stepSizeSpinner.getValue());
 				

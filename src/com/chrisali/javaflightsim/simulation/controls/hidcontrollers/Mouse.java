@@ -97,7 +97,7 @@ public class Mouse extends AbstractController {
 					if(componentIdentifier == Component.Identifier.Axis.Y) {
 						if(axisValue != 0) {
 							tempElev += axisValue;
-							controls.put(FlightControls.ELEVATOR, tempElev+trimElevator);
+							controls.put(FlightControls.ELEVATOR, -(tempElev+trimElevator));
 						}
 						continue; // Go to next component
 					}
@@ -105,7 +105,7 @@ public class Mouse extends AbstractController {
 					if(componentIdentifier == Component.Identifier.Axis.X) {
 						if(axisValue != 0) {
 							tempAil += axisValue;
-							controls.put(FlightControls.AILERON, tempAil+trimAileron);
+							controls.put(FlightControls.AILERON, -(tempAil+trimAileron));
 						}
 						continue; // Go to next component
 					}
