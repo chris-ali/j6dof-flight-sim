@@ -118,8 +118,7 @@ public class OptionsPanel extends JDialog {
 		controllerList.addElement("Joystick");
 		controllerList.addElement("Mouse");
 		controllerList.addElement("CH Controls Suite");
-		controllers = new JList<String>();
-		controllers.setModel(controllerList);
+		controllers = new JList<String>(controllerList);
 		controllers.setSelectedIndex(0);
 		controllers.addMouseListener(new MouseAdapter() {
 			@Override

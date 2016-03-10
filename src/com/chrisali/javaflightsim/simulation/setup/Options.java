@@ -20,13 +20,19 @@ import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
  *	<p>USE_CH_CONTROLS - Uses JInput to integrate a {@link CHControls} to allow pilot in the loop simulation</p>
  */
 public enum Options {
-	ANALYSIS_MODE,
-	TRIM_MODE,
-	UNLIMITED_FLIGHT,
-	PAUSED,
-	RESET,
-	CONSOLE_DISPLAY,
-	USE_JOYSTICK,
-	USE_MOUSE,
-	USE_CH_CONTROLS
+	ANALYSIS_MODE     ("Analysis Mode"),
+	TRIM_MODE		  ("Trimming Mode"),
+	UNLIMITED_FLIGHT  ("Unlimited Flight"),
+	PAUSED			  ("Paused"),
+	RESET			  ("Reset"),
+	CONSOLE_DISPLAY	  ("Console Display"),
+	USE_JOYSTICK	  ("Use Joystick"),
+	USE_MOUSE		  ("Use Mouse"),
+	USE_CH_CONTROLS	  ("Use CH Controls");
+	
+	private String option;
+	
+	private Options(String option) {this.option = option;}
+	
+	public String toString() {return option;}
 }

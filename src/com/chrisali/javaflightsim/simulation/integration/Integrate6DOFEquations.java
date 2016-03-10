@@ -11,24 +11,23 @@ import java.util.Set;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
+import com.chrisali.javaflightsim.plotting.SimulationPlots;
 import com.chrisali.javaflightsim.simulation.aero.AccelAndMoments;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.simulation.controls.FlightControlsUtilities;
+import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.AbstractController;
+import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.CHControls;
 import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Joystick;
 import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Keyboard;
 import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Mouse;
-import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.AbstractController;
-import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.CHControls;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.utilities.Utilities;
-import com.chrisali.javaflightsim.utilities.plotting.MakePlots;
-import com.chrisali.javaflightsim.utilities.plotting.SimulationPlots;
 
 /**
  * This class integrates all 12 6DOF (plus 2 latitude/longitude) equations numerically to obtain the aircraft's states.
@@ -445,13 +444,6 @@ public class Integrate6DOFEquations implements Runnable {
 			
 			running = false;
 			
-			// If in analysis mode and not in unlimited flight, generate simulation plots
-			if (options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.TRIM_MODE)) {
-				new Thread(new MakePlots(getLogsOut(), 
-						 				 new String[] {"Controls", "Instruments", "Position", "Rates", "Miscellaneous"},
-						 				 options,
-						 				 aircraft)).start();
-			}
 		} catch (InterruptedException e) {}
 	}
 }

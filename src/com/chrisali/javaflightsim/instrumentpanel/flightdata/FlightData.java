@@ -95,7 +95,7 @@ public class FlightData implements Runnable {
 			Thread.sleep(250);
 			
 			while (runSim.isRunning()) {
-				Thread.sleep(150);
+				Thread.sleep(50);
 				
 				if(runSim.getSimOut() != null)
 					updateData(runSim.getSimOut());

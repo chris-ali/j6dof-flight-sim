@@ -1,7 +1,9 @@
-package com.chrisali.javaflightsim.utilities.plotting;
+package com.chrisali.javaflightsim.plotting;
 
 import java.util.EnumMap;
 import java.util.List;
+
+import javax.swing.JFrame;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -9,7 +11,6 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.ui.ApplicationFrame;
 
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 
@@ -18,7 +19,7 @@ import com.chrisali.javaflightsim.simulation.integration.SimOuts;
  * an AWT window with a plot. The plot window displayed depends on the windowTitle String argument passed in. 
  * @see MakePlots
  */
-public class SimulationPlots extends ApplicationFrame {
+public class SimulationPlots extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	

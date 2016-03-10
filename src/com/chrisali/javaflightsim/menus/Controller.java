@@ -5,6 +5,7 @@ import java.util.EnumSet;
 
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightData;
+import com.chrisali.javaflightsim.plotting.MakePlots;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
@@ -14,7 +15,6 @@ import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.utilities.Utilities;
-import com.chrisali.javaflightsim.utilities.plotting.MakePlots;
 
 public class Controller {
 	
@@ -41,6 +41,8 @@ public class Controller {
 		integratorConfig = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");
 		initialControls = IntegrationSetup.gatherInitialControls("InitialControls");
 	}
+	
+	public EnumSet<Options> getOptions() {return options;}
 	
 	public void updateOptions(EnumSet<Options> newOptions) {options = EnumSet.copyOf(newOptions);}
 	
@@ -79,13 +81,16 @@ public class Controller {
 		simulationThread = new Thread(runSim);
 		simulationThread.start();
 		
-		if (!options.contains(Options.ANALYSIS_MODE)) {
+		if (options.contains(Options.ANALYSIS_MODE)) {
+			plotSimulation();
+		} else {
 			flightData = new FlightData(runSim);
 			flightData.setFlightDataListener(panel);
 			
 			flightDataThread = new Thread(flightData);
 			flightDataThread.start();
 		}
+		
 	}
 	
 	public void stopSimulation() {
@@ -96,12 +101,8 @@ public class Controller {
 	}
 	
 	public void plotSimulation() {
-		// If in analysis mode and not in unlimited flight, generate simulation plots
-		if (options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.TRIM_MODE)) {
-			new Thread(new MakePlots(runSim.getLogsOut(), 
-					 				 new String[] {"Controls", "Instruments", "Position", "Rates", "Miscellaneous"},
-					 				 options,
-					 				 ab.getAircraft())).start();
-		}
+		new Thread(new MakePlots(runSim.getLogsOut(), 
+				 				 new String[] {"Controls", "Instruments", "Position", "Rates", "Miscellaneous"},
+				 				 ab.getAircraft())).start();
 	}
 }

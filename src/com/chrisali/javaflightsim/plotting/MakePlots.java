@@ -1,13 +1,11 @@
-package com.chrisali.javaflightsim.utilities.plotting;
+package com.chrisali.javaflightsim.plotting;
 
 import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.List;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
-import com.chrisali.javaflightsim.simulation.setup.Options;
 
 /**
  * This class is the runner class to plot data from the simulation in AWT windows. It implements threading to accomplish this, 
@@ -26,7 +24,6 @@ public class MakePlots implements Runnable {
 	
 	public MakePlots(List<EnumMap<SimOuts, Double>> logsOut, 
 					 String[] simPlotCategories,
-					 EnumSet<Options> options,
 					 Aircraft aircraft) {
 		this.logsOut 	   	   = logsOut;
 		this.simPlotCategories = simPlotCategories;
@@ -36,6 +33,7 @@ public class MakePlots implements Runnable {
 	@Override
 	public void run() {
 		try {
+			Thread.sleep(250);
 			for (String plot : simPlotCategories) { 
 				new SimulationPlots(logsOut, plot, aircraft.getName());
 				Thread.sleep(100);

@@ -60,7 +60,7 @@ public class MainFrame extends JFrame {
 		optionsPanel.setOptionsConfigurationListener(new OptionsConfigurationListener() {
 			@Override
 			public void optionsConfigured(EnumSet<Options> options, int stepSize) {
-				buttonPanel.setOptionsLabel(options);
+				buttonPanel.setOptionsLabel(options, stepSize);
 				simController.updateIntegratorConfig(stepSize);
 				simController.updateOptions(options);
 			}
@@ -103,7 +103,7 @@ public class MainFrame extends JFrame {
 			public void buttonEventOccurred() {
 				simController.startSimulation(instrumentPanel);
 				MainFrame.this.setVisible(false);
-				instrumentPanel.setVisible(true);
+				instrumentPanel.setVisible(simController.getOptions().contains(Options.ANALYSIS_MODE) ? false : true);
 			}
 		});
 		add(buttonPanel, BorderLayout.CENTER);

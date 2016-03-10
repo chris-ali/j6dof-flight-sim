@@ -1,11 +1,13 @@
 package com.chrisali.javaflightsim.menus;
 
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EnumSet;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -14,7 +16,10 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
+import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
+import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.utilities.Utilities;
 
 public class ButtonPanel extends JPanel {
 
@@ -28,8 +33,10 @@ public class ButtonPanel extends JPanel {
 	private JLabel optionsLabel;
 	private JButton runButton;
 	
-	private String htmlWidthOpen = "<html><body><p style='width: 150px;'>";
-	private String htmlWidthClose = "</p></body></html>";
+	private String htmlBodyOpen = "<html><body>";
+	private String parOpen = "<p style='width: 150px;'>";
+	private String parClose = "</p>";
+	private String htmlBodyClose = "</body></html>";
 	
 	private AircraftButtonListener aircraftButtonListener;
 	private InitialConditionsButtonListener initialConditionsButtonListener;
@@ -48,6 +55,8 @@ public class ButtonPanel extends JPanel {
 		setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
 		
 		Insets insets = new Insets(margins, margins, margins, margins);
+		
+		Font labelFont = new Font(Font.SANS_SERIF, Font.PLAIN, 9);
 		
 		//------------------------- Layout Setup -----------------------------------------------
 		
@@ -82,6 +91,7 @@ public class ButtonPanel extends JPanel {
 		gc.gridy++;
 		
 		aircraftLabel = new JLabel("Select an aircraft");
+		aircraftLabel.setFont(labelFont);
 		add(aircraftLabel, gc);
 		
 		//-------------------- Initial Conditions Button ---------------------------------------
@@ -102,6 +112,8 @@ public class ButtonPanel extends JPanel {
 		gc.gridy++;
 		
 		initialConditonsLabel = new JLabel("Select starting conditions");
+		initialConditonsLabel.setFont(labelFont);
+		setInitialConditionsLabel();
 		add(initialConditonsLabel, gc);
 		
 		//-------------------------- Options Button ----------------------------------------------
@@ -118,13 +130,14 @@ public class ButtonPanel extends JPanel {
 		});
 		add(optionsButton, gc);
 		
-		//--------------------- Initial Conditions Label -----------------------------------------
+		//--------------------- Options Label -----------------------------------------
 		gc.gridy++;
 		
 		optionsLabel = new JLabel("Choose options");
+		optionsLabel.setFont(labelFont);
 		add(optionsLabel, gc);
 	
-		// -------------------- Initial Conditions Button ---------------------------------------
+		// -------------------- Start Simulation Button ---------------------------------------
 		gc.gridy++;
 		gc.weighty = 1;
 		gc.anchor = GridBagConstraints.SOUTH;
@@ -142,28 +155,48 @@ public class ButtonPanel extends JPanel {
 	}
 	
 	public void setAircraftLabel(String text) {
-		aircraftLabel.setText("Selected Aircraft: " + text);
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(parOpen).append("Selected Aircraft: ").append(parClose)
+		  .append(parOpen).append(text).append(parClose);
+		
+		aircraftLabel.setText(htmlBodyOpen + sb.toString() + htmlBodyClose);
+	}
+	
+	public void setInitialConditionsLabel() {
+		Map<InitialConditions,Double> initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
+		
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(parOpen).append("Latitude: ").append(Math.toDegrees(initialConditions.get(InitialConditions.INITLAT))).append(" deg").append(parClose)
+		  .append(parOpen).append("Longitude: ").append(Math.toDegrees(initialConditions.get(InitialConditions.INITLON))).append(" deg").append(parClose)
+		  .append(parOpen).append("Heading: ").append(Math.toDegrees(initialConditions.get(InitialConditions.INITPSI))).append(" deg").append(parClose)
+		  .append(parOpen).append("Altitude: ").append(initialConditions.get(InitialConditions.INITD)).append(" ft").append(parClose)
+		  .append(parOpen).append("Airspeed: ").append(Utilities.toKnots(initialConditions.get(InitialConditions.INITU))).append(" kts").append(parClose);
+		
+		initialConditonsLabel.setText(htmlBodyOpen + "Starting Condtions: " + sb.toString() + htmlBodyClose);
 	}
 	
 	public void setInitialConditionsLabel(double[] coordinates, double heading, double altitude, double airspeed) {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("Latitude: ").append(coordinates[0]).append("\n")
-		  .append("Longitude: ").append(coordinates[1]).append("\n")
-		  .append("Heading: ").append(heading).append("\n")
-		  .append("Altitude: ").append(altitude).append("\n")
-		  .append("Airspeed: ").append(airspeed).append("\n");
+		sb.append(parOpen).append("Latitude: ").append(coordinates[0]).append(" deg").append(parClose)
+		  .append(parOpen).append("Longitude: ").append(coordinates[1]).append(" deg").append(parClose)
+		  .append(parOpen).append("Heading: ").append(heading).append(" deg").append(parClose)
+		  .append(parOpen).append("Altitude: ").append(altitude).append(" ft").append(parClose)
+		  .append(parOpen).append("Airspeed: ").append(airspeed).append(" kts").append(parClose);
 		
-		initialConditonsLabel.setText(htmlWidthOpen + "Starting Condtions: " + sb.toString() + htmlWidthClose);
+		initialConditonsLabel.setText(htmlBodyOpen + "Starting Condtions: " + sb.toString() + htmlBodyClose);
 	}
 	
-	public void setOptionsLabel(EnumSet<Options> options) {
+	public void setOptionsLabel(EnumSet<Options> options, int stepSize) {
 		StringBuilder sb = new StringBuilder();
 		
 		for (Options option : options)
-			sb.append(option.toString()).append("\n");
+			sb.append(parOpen).append(option.toString()).append(parClose);
+		sb.append(parOpen).append("Update Rate: ").append(stepSize).append(" Hz").append(parClose);
 		
-		optionsLabel.setText("Selected Options:\n" + sb.toString());
+		optionsLabel.setText(htmlBodyOpen + "Selected Options:" + sb.toString() + htmlBodyClose);
 	}
 	
 	public void setAircraftButtonListener(AircraftButtonListener aircraftButtonListener) {

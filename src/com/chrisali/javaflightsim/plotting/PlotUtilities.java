@@ -1,7 +1,11 @@
-package com.chrisali.javaflightsim.utilities.plotting;
+package com.chrisali.javaflightsim.plotting;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.EnumMap;
 import java.util.List;
+
+import javax.swing.WindowConstants;
 
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
@@ -311,6 +315,14 @@ public class PlotUtilities {
 		simPlots.pack();
 		RefineryUtilities.centerFrameOnScreen(simPlots);
 		simPlots.setVisible(true);
+		simPlots.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		
+		simPlots.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				simPlots.setVisible(false);
+			}
+		});
 	}
 	
 	/** 

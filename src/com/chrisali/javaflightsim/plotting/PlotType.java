@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.utilities.plotting;
+package com.chrisali.javaflightsim.plotting;
 
 import org.jfree.chart.plot.XYPlot;
 

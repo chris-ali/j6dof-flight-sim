@@ -76,7 +76,7 @@ public class AircraftPanel extends JDialog {
 		GridBagConstraints gc = new GridBagConstraints();
 		
 		gc.fill = GridBagConstraints.HORIZONTAL;
-		gc.anchor = GridBagConstraints.CENTER;
+		
 		gc.weightx = 1;
 		gc.weighty = 1;
 		gc.gridy = 0;
@@ -85,7 +85,8 @@ public class AircraftPanel extends JDialog {
 		//------------- Aircraft Combobox ------------------------
 		gc.gridy++;
 		
-		gc.weightx = 0.45;
+		gc.anchor = GridBagConstraints.SOUTH;
+		gc.weightx = 0.5;
 		gc.weighty = 0.5;
 		gc.gridx = 0;
 		aircraftComboBox = new JComboBox<>();
@@ -95,15 +96,17 @@ public class AircraftPanel extends JDialog {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				pictureArea.setIcon(createPreviewPicture((String)aircraftComboBox.getSelectedItem(), "PreviewPicture.jpg"));
+				descriptionArea.setText(createDescriptionText((String)aircraftComboBox.getSelectedItem(), "Description.txt"));
 			}
 		});
 		controlsPanel.add(aircraftComboBox, gc);
 		
 		//---------------- Picture Area  ------------------------
 		
+		gc.anchor = GridBagConstraints.CENTER;
 		gc.gridx = 1;
 		gc.weightx = 0.5;
-		gc.weighty = 0.7;
+		gc.weighty = 0.5;
 		gc.gridheight = 2;
 		pictureArea = new JLabel(createPreviewPicture((String)aircraftComboBox.getSelectedItem(), "PreviewPicture.jpg"));
 		controlsPanel.add(pictureArea, gc);
@@ -112,14 +115,14 @@ public class AircraftPanel extends JDialog {
 		gc.gridy++;
 		
 		gc.gridx = 0;
-		gc.weighty = 1;
-		gc.weightx = 1;
+		gc.anchor = GridBagConstraints.NORTH;
+		gc.weighty = 0.5;
+		gc.weightx = 0.6;
 		gc.gridheight = 1;
 		descriptionArea = new JTextArea();
 		descriptionArea.setText(createDescriptionText((String)aircraftComboBox.getSelectedItem(), "Description.txt"));
-		descriptionArea.setMinimumSize(new Dimension(200, 150));
+		descriptionArea.setPreferredSize(new Dimension(300, 200));
 		descriptionArea.setLineWrap(true);
-		descriptionArea.setWrapStyleWord(true);
 		descriptionArea.setEditable(false);
 		controlsPanel.add(new JScrollPane(descriptionArea), gc);
 		
@@ -151,7 +154,7 @@ public class AircraftPanel extends JDialog {
 		//========================== Window Settings ===============================================
 		
 		setLocationRelativeTo(parent);
-		Dimension dims = new Dimension(800, 500);
+		Dimension dims = new Dimension(800, 400);
 		setSize(dims);
 		setMaximumSize(dims);
 		setMinimumSize(dims);
