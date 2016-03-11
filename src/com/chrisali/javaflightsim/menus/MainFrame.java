@@ -53,6 +53,12 @@ public class MainFrame extends JFrame {
 				simController.updateAircraft(aircraftName);
 			}
 		});
+		aircraftPanel.setWeightConfiguredListener(new WeightConfiguredListener() {
+			@Override
+			public void weightConfigured(String aircraftName, double fuelWeight, double payloadWeight) {
+				simController.updateMassProperties(aircraftName, fuelWeight, payloadWeight);
+			}
+		});
 		
 		//--------------------------- Options Panel ------------------------------------------------
 		

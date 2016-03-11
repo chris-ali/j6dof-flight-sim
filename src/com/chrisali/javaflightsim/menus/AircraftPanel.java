@@ -40,15 +40,19 @@ public class AircraftPanel extends JDialog {
 	private JComboBox<String> aircraftComboBox;
 	private JTextArea descriptionArea;
 	private JLabel pictureArea;
+	private JButton weightButton;
+	
+	private WeightDialog weightDialog;
 	
 	private JButton okButton;
 	private JButton cancelButton;
 	
 	private AircraftConfigurationListener aircraftConfigurationListener;
+	private WeightConfiguredListener weightConfiguredListener;
 	
 	public AircraftPanel(JFrame parent) {
 		super(parent, "Aircraft", false);
-		
+				
 		//-------------------- Panels ---------------------------
 		
 		JPanel controlsPanel = new JPanel();
@@ -101,6 +105,21 @@ public class AircraftPanel extends JDialog {
 		});
 		controlsPanel.add(aircraftComboBox, gc);
 		
+		//---------------- Weight Button ------------------------
+		gc.gridy++;
+		
+		weightButton = new JButton("Configure Weight");
+		weightButton.setToolTipText("Configures the fuel and payload weight of the aircraft");
+		weightButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				weightDialog.setAircraftName((String)aircraftComboBox.getSelectedItem());
+				weightDialog.updateFields();
+				weightDialog.setVisible(true);
+			}
+		});
+		controlsPanel.add(weightButton, gc);
+		
 		//---------------- Picture Area  ------------------------
 		
 		gc.anchor = GridBagConstraints.CENTER;
@@ -125,6 +144,17 @@ public class AircraftPanel extends JDialog {
 		descriptionArea.setLineWrap(true);
 		descriptionArea.setEditable(false);
 		controlsPanel.add(new JScrollPane(descriptionArea), gc);
+		
+		//--------------- Weight Dialog --------------------------
+
+		weightDialog = new WeightDialog(this, (String)aircraftComboBox.getSelectedItem());
+		weightDialog.setWeightConfiguredListener(new WeightConfiguredListener() {
+			@Override
+			public void weightConfigured(String aircraftName, double fuelWeight, double payloadWeight) {
+				if (weightConfiguredListener != null)
+					weightConfiguredListener.weightConfigured(aircraftName, fuelWeight, payloadWeight);
+			}
+		});
 		
 		//----------------- OK Button ----------------------------
 		
@@ -156,9 +186,7 @@ public class AircraftPanel extends JDialog {
 		setLocationRelativeTo(parent);
 		Dimension dims = new Dimension(800, 400);
 		setSize(dims);
-		setMaximumSize(dims);
-		setMinimumSize(dims);
-		
+		setResizable(false);
 	}
 	
 	private DefaultComboBoxModel<String> makeComboBox() {
@@ -213,5 +241,9 @@ public class AircraftPanel extends JDialog {
 	
 	public void setAircraftConfigurationListener(AircraftConfigurationListener aircraftConfigurationListener) {
 		this.aircraftConfigurationListener = aircraftConfigurationListener;
+	}
+	
+	public void setWeightConfiguredListener(WeightConfiguredListener weightConfiguredListener) {
+		this.weightConfiguredListener = weightConfiguredListener;
 	}
 }

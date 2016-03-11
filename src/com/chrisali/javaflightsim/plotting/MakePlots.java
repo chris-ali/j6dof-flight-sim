@@ -13,8 +13,7 @@ import com.chrisali.javaflightsim.simulation.integration.SimOuts;
  * from {@link Integrate6DOFEquations#getLogsOut()}. 
  * 
  * @param String simPlotCetegories
- * @param Integrate6DOFEquations integration
- * @param EnumMap options
+ * @param List<EnumMap<SimOuts, Double>> logsOut
  * @param Aircraft aircraft
  */
 public class MakePlots implements Runnable {
@@ -40,5 +39,4 @@ public class MakePlots implements Runnable {
 			}
 		} catch (InterruptedException e) {}
 	}
-
 }

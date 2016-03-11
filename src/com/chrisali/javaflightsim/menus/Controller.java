@@ -49,6 +49,8 @@ public class Controller {
 	public void updateAircraft(String aircraftName) {ab = new AircraftBuilder(aircraftName);}
 	
 	public void updateMassProperties(String aircraftName, double fuelWeight, double payloadWeight) {
+		massProperties = Utilities.parseMassProperties(aircraftName);
+		
 		massProperties.put(MassProperties.WEIGHT_FUEL, fuelWeight);
 		massProperties.put(MassProperties.WEIGHT_PAYLOAD, payloadWeight);
 		

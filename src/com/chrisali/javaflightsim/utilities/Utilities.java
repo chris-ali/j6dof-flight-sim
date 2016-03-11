@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
 
+import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 /**
@@ -122,6 +123,29 @@ public class Utilities {
 		catch (IOException e) {System.err.println("Could not read: " + fileName + ".txt!");}
 		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + ".txt!");}
 		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileName + ".txt!");}
+	}
+	
+	/**
+	 * Parses the MassProperties.txt file in .\Aircraft\aircraftName and returns an EnumMap with {@link MassProperties}
+	 * as the keys
+	 * 
+	 * @param aircraftName
+	 * @return massProperties EnumMap
+	 */
+	public static EnumMap<MassProperties, Double> parseMassProperties(String aircraftName) {
+		EnumMap<MassProperties, Double> massProperties = new EnumMap<MassProperties, Double>(MassProperties.class);
+		
+		// Mass Properties
+		ArrayList<String[]> readMassPropFile = Utilities.readFileAndSplit(aircraftName, ".//Aircraft//", "MassProperties");
+		
+		for(MassProperties massPropKey : MassProperties.values()) {
+			for (String[] readLine : readMassPropFile) {
+				if (massPropKey.toString().equals(readLine[0]))
+					massProperties.put(massPropKey, Double.parseDouble(readLine[1]));
+			}
+		}
+
+		return massProperties;
 	}
 	
 	/**

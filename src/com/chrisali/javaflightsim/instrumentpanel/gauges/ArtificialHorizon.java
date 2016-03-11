@@ -453,8 +453,8 @@ public class ArtificialHorizon extends AbstractRadial {
         }
         
         // Draw horizon bank lines
-        final Point2D HORIZON_CENTER = new Point2D.Double(HORIZON.getBounds2D().getCenterX(), HORIZON.getBounds2D().getCenterY());
-        G2.setColor(Color.WHITE);
+//        final Point2D HORIZON_CENTER = new Point2D.Double(HORIZON.getBounds2D().getCenterX(), HORIZON.getBounds2D().getCenterY());
+//        G2.setColor(Color.WHITE);
         
 //        for (double theta = Math.PI; theta <= 2*Math.PI; theta += Math.PI/20) {
 //    		LINE.setLine(HORIZON_CENTER.getX(), HORIZON_CENTER.getY(), -IMAGE_WIDTH*Math.cos(theta), -IMAGE_WIDTH*Math.sin(theta));
