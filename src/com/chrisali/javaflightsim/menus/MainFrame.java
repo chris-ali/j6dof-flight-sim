@@ -108,7 +108,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void buttonEventOccurred() {
 				simController.startSimulation(instrumentPanel);
-				MainFrame.this.setVisible(false);
+				MainFrame.this.setVisible(simController.getOptions().contains(Options.ANALYSIS_MODE) ? true : false);
 				instrumentPanel.setVisible(simController.getOptions().contains(Options.ANALYSIS_MODE) ? false : true);
 			}
 		});

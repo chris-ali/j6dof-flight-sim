@@ -1,6 +1,8 @@
 package com.chrisali.javaflightsim.utilities.tests;
 
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashSet;
 
 import com.chrisali.javaflightsim.plotting.MakePlots;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
@@ -20,8 +22,8 @@ public class SimulationTest {
 		Thread simulationThread = new Thread(runSim);
 		simulationThread.start();
 		
-		new Thread(new MakePlots(runSim.getLogsOut(), 
-				 				 new String[] {"Controls", "Instruments", "Position", "Rates", "Miscellaneous"},
-				 				 ab.getAircraft())).start();
+		new MakePlots(runSim.getLogsOut(), 
+					  new HashSet<String>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous")),
+	 				  ab.getAircraft());
 	}
 }

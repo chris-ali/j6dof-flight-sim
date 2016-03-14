@@ -1,6 +1,8 @@
 package com.chrisali.javaflightsim.plotting;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
@@ -8,35 +10,37 @@ import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 
 /**
- * This class is the runner class to plot data from the simulation in AWT windows. It implements threading to accomplish this, 
- * looping through the {@link MakePlots#simPlotCategories} array to create {@link SimulationPlots} objects using the data 
+ * This class is the runner class to plot data from the simulation in Swing windows. It loops through 
+ * the {@link MakePlots#simPlotCategories} set to create {@link SimulationPlots} objects using the data 
  * from {@link Integrate6DOFEquations#getLogsOut()}. 
  * 
  * @param String simPlotCetegories
  * @param List<EnumMap<SimOuts, Double>> logsOut
  * @param Aircraft aircraft
  */
-public class MakePlots implements Runnable {
-	private String[] simPlotCategories;
-	private List<EnumMap<SimOuts, Double>> logsOut;
-	private Aircraft aircraft;
+public class MakePlots {
+	
+	private PlotCloseListener plotCloseListener;
+	private List<SimulationPlots> plotList = new ArrayList<>();
 	
 	public MakePlots(List<EnumMap<SimOuts, Double>> logsOut, 
-					 String[] simPlotCategories,
+					 HashSet<String> simPlotCategories,
 					 Aircraft aircraft) {
-		this.logsOut 	   	   = logsOut;
-		this.simPlotCategories = simPlotCategories;
-		this.aircraft 		   = aircraft;
+		
+		for (String plotTitle : simPlotCategories) {
+			try {Thread.sleep(125);} 
+			catch (InterruptedException e) {}
+			
+			SimulationPlots plotObject = new SimulationPlots(logsOut, plotTitle, aircraft.getName());
+			plotList.add(plotObject);
+			plotObject.setPlotCloseListner(plotCloseListener);
+		}
+	}
+		
+	public List<SimulationPlots> getPlotList() {return plotList;}
+
+	public void setPlotCloseListener (PlotCloseListener plotCloseListener) {
+		this.plotCloseListener = plotCloseListener;
 	}
 	
-	@Override
-	public void run() {
-		try {
-			Thread.sleep(250);
-			for (String plot : simPlotCategories) { 
-				new SimulationPlots(logsOut, plot, aircraft.getName());
-				Thread.sleep(100);
-			}
-		} catch (InterruptedException e) {}
-	}
 }

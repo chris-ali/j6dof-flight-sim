@@ -31,7 +31,9 @@ public class SimulationPlots extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static EnumMap<PlotType, XYPlot> plotLists = new EnumMap<PlotType, XYPlot>(PlotType.class);
+	private PlotCloseListener plotCloseListener;
+	
+	private  EnumMap<PlotType, XYPlot> plotLists = new EnumMap<PlotType, XYPlot>(PlotType.class);
 	
 	// Creates plots for variables monitored in the logsOut ArrayList
 	public SimulationPlots(List<EnumMap<SimOuts, Double>> logsOut, String windowTitle, String aircraftName) {
@@ -82,6 +84,9 @@ public class SimulationPlots extends JFrame {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				setVisible(false);
+				
+				if (plotCloseListener != null)
+					plotCloseListener.plotWindowClosed();
 			}
 		});
 	}
@@ -187,7 +192,7 @@ public class SimulationPlots extends JFrame {
 	 * It first creates {@link XYSeries} objects with data from logsOut, adds those series to {@link XYSeriesCollection}, adds those 
 	 * series collections to {@link XYPlot} objects, and finally puts the XYPlot objects into {@link plotLists}
 	 */
-	protected static void makePlotLists(List<EnumMap<SimOuts, Double>> logsOut) {
+	protected void makePlotLists(List<EnumMap<SimOuts, Double>> logsOut) {
 		
 		// Create XY series for each set of data
 		
@@ -466,5 +471,9 @@ public class SimulationPlots extends JFrame {
 											 new StandardXYItemRenderer());
 
 		plotLists.put(PlotType.MACH, machPlot);
+	}
+	
+	public void setPlotCloseListner(PlotCloseListener plotCloseListener) {
+		this.plotCloseListener = plotCloseListener;		
 	}
 }

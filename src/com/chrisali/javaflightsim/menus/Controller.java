@@ -1,7 +1,9 @@
 package com.chrisali.javaflightsim.menus;
 
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.HashSet;
 
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightData;
@@ -103,8 +105,8 @@ public class Controller {
 	}
 	
 	public void plotSimulation() {
-		new Thread(new MakePlots(runSim.getLogsOut(), 
-				 				 new String[] {"Controls", "Instruments", "Position", "Rates", "Miscellaneous"},
-				 				 ab.getAircraft())).start();
+		new MakePlots(runSim.getLogsOut(), 
+	 				  new HashSet<String>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous")),
+	 				  ab.getAircraft());
 	}
 }
