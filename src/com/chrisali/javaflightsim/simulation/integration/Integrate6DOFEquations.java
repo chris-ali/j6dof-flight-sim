@@ -11,7 +11,6 @@ import java.util.Set;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
-import com.chrisali.javaflightsim.plotting.SimulationPlots;
 import com.chrisali.javaflightsim.simulation.aero.AccelAndMoments;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
@@ -378,8 +377,6 @@ public class Integrate6DOFEquations implements Runnable {
 	 * or output it to a file
 	 * 
 	 * @return logsOut
-	 * 
-	 * @see SimulationPlots
 	 */
 	public List<EnumMap<SimOuts, Double>> getLogsOut() {return Collections.unmodifiableList(logsOut);}
 	

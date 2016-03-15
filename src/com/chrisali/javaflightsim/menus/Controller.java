@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightData;
-import com.chrisali.javaflightsim.plotting.MakePlots;
+import com.chrisali.javaflightsim.plotting.PlotWindow;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
@@ -105,8 +105,8 @@ public class Controller {
 	}
 	
 	public void plotSimulation() {
-		new MakePlots(runSim.getLogsOut(), 
-	 				  new HashSet<String>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous")),
-	 				  ab.getAircraft());
+		new PlotWindow(runSim.getLogsOut(), 
+	 				   new HashSet<String>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous")),
+	 				   ab.getAircraft());
 	}
 }
