@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 
-import com.chrisali.javaflightsim.plotting.MakePlots;
+import com.chrisali.javaflightsim.plotting.PlotWindow;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -22,7 +22,7 @@ public class SimulationTest {
 		Thread simulationThread = new Thread(runSim);
 		simulationThread.start();
 		
-		new MakePlots(runSim.getLogsOut(), 
+		new PlotWindow(runSim.getLogsOut(), 
 					  new HashSet<String>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous")),
 	 				  ab.getAircraft());
 	}

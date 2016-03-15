@@ -1,13 +1,11 @@
 package com.chrisali.javaflightsim.plotting;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.EnumMap;
 import java.util.List;
 
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
+import javax.swing.JComponent;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -18,77 +16,58 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.ui.RefineryUtilities;
 
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 
 /**
- * This object contains a {@link CombinedDomainXYPlot} object, consisting of group of {@link XYPlot} objects.   
- * It generates a plot in Swing as a JFrame window. The plot displayed depends on the windowTitle String argument passed in. 
- * @see MakePlots
+ * Contains a {@link CombinedDomainXYPlot} object, consisting of group of {@link XYPlot} objects.   
+ * It generates a plot in Swing as a JComponent used in the JTabbedPane of {@link PlotWindow}. 
+ * The plot created depends on the windowTitle String argument passed in. 
  */
-public class SimulationPlots extends JFrame {
+public class SimulationPlot extends JComponent {
 
 	private static final long serialVersionUID = 1L;
-	
-	private PlotCloseListener plotCloseListener;
 	
 	private  EnumMap<PlotType, XYPlot> plotLists = new EnumMap<PlotType, XYPlot>(PlotType.class);
 	
 	// Creates plots for variables monitored in the logsOut ArrayList
-	public SimulationPlots(List<EnumMap<SimOuts, Double>> logsOut, String windowTitle, String aircraftName) {
-		super(aircraftName + " " + windowTitle);
+	public SimulationPlot(List<EnumMap<SimOuts, Double>> logsOut, String windowTitle) {
 		
 		makePlotLists(logsOut);
+		
+		setLayout(new BorderLayout());
 		
 		// Select from methods below to create a chart panels to populate AWT window 
 		switch (windowTitle) {
 			case "Rates":
 				ChartPanel ratePlotPanel = new ChartPanel(makeRatesPlots(plotLists));
-				ratePlotPanel.setPreferredSize(new Dimension(1000, 950));
-				setContentPane(ratePlotPanel);
+				setPreferredSize(new Dimension(1000, 950));
+				add(ratePlotPanel, BorderLayout.CENTER);
 				break;
 			case "Position":
 				ChartPanel posPlotPanel = new ChartPanel(makePositionPlot(plotLists));
-				posPlotPanel.setPreferredSize(new Dimension(750, 750));
-				setContentPane(posPlotPanel);
+				setPreferredSize(new Dimension(750, 750));
+				add(posPlotPanel, BorderLayout.CENTER);
 				break;
 			case "Instruments":
 				ChartPanel instPlotPanel = new ChartPanel(makeInstrumentPlots(plotLists));
-				instPlotPanel.setPreferredSize(new Dimension(1000, 950));
-				setContentPane(instPlotPanel);
+				setPreferredSize(new Dimension(1000, 950));
+				add(instPlotPanel, BorderLayout.CENTER);
 				break;
 			case "Miscellaneous":
 				ChartPanel miscPlotPanel = new ChartPanel(makeMiscPlots(plotLists));
-				miscPlotPanel.setPreferredSize(new Dimension(1000, 400));
-				setContentPane(miscPlotPanel);
+				setPreferredSize(new Dimension(1000, 400));
+				add(miscPlotPanel, BorderLayout.CENTER);
 				break;
 			case "Controls":
 				ChartPanel controlPlotPanel = new ChartPanel(makeControlsPlots(plotLists));
-				controlPlotPanel.setPreferredSize(new Dimension(1000, 950));
-				setContentPane(controlPlotPanel);
+				setPreferredSize(new Dimension(1000, 950));
+				add(controlPlotPanel, BorderLayout.CENTER);
 				break;	
 			default:
 				System.err.println("Invalid plot type selected!");
 				break;
 		}
-		
-		//================== Window Settings ====================================
-		
-		pack();
-		RefineryUtilities.centerFrameOnScreen(this);
-		setVisible(true);
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				setVisible(false);
-				
-				if (plotCloseListener != null)
-					plotCloseListener.plotWindowClosed();
-			}
-		});
 	}
 	
 	/**
@@ -471,9 +450,5 @@ public class SimulationPlots extends JFrame {
 											 new StandardXYItemRenderer());
 
 		plotLists.put(PlotType.MACH, machPlot);
-	}
-	
-	public void setPlotCloseListner(PlotCloseListener plotCloseListener) {
-		this.plotCloseListener = plotCloseListener;		
 	}
 }
