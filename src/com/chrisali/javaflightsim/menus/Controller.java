@@ -79,6 +79,8 @@ public class Controller {
 		Utilities.writeConfigFile("InitialContols", SIM_CONFIG_PATH, initialControls);
 	}	
 	
+	public boolean simulationIsRunning(){return runSim.isRunning();}
+	
 	public void startSimulation(InstrumentPanel panel) {
 		runSim = new Integrate6DOFEquations(ab, options);
 		

@@ -1,15 +1,12 @@
-% Mass Properties
-maxWeightFuel = 450
+maxWeightFuel = 450.0
 weightFuel = 1.0
-maxWeightPayload = 530
+maxWeightPayload = 530.0
 weightPayload = 1.0
-weightEmpty = 2950
-jx = 1548
-jy = 3400
-jz = 3800
-jxz = 0
-
-% CG Position
-cgX = 0
-cgY = 0
-cgZ = 0
+weightEmpty = 2950.0
+jx = 1548.0
+jy = 3400.0
+jz = 3800.0
+jxz = 0.0
+cgX = 0.0
+cgY = 0.0
+cgZ = 0.0

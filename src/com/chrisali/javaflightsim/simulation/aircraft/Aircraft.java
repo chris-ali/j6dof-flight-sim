@@ -73,7 +73,7 @@ public class Aircraft {
 		stabDerivs.put(StabilityDerivatives.CROLL_P,      new Double(-0.410));
 		stabDerivs.put(StabilityDerivatives.CROLL_R,      new Double(0.107));
 		stabDerivs.put(StabilityDerivatives.CROLL_D_AIL,  new Double(-0.134));
-		stabDerivs.put(StabilityDerivatives.CROLL_D_RUD,  new Double(0.107));
+		stabDerivs.put(StabilityDerivatives.CROLL_D_RUD,  new Double(-0.107));
 		
 		// Pitch Moment
 		stabDerivs.put(StabilityDerivatives.CM_ALPHA,     new Double(-0.683));

@@ -24,7 +24,7 @@ Croll_beta = -0.074
 Croll_p = -0.410
 Croll_r = 0.107
 Croll_d_ail = -0.134
-Croll_d_rud = 0.107
+Croll_d_rud = -0.107
 
 %CM
 CM_alpha = -0.683

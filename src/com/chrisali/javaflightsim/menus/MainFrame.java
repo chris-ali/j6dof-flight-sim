@@ -2,6 +2,9 @@ package com.chrisali.javaflightsim.menus;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.EnumSet;
@@ -114,8 +117,37 @@ public class MainFrame extends JFrame {
 		});
 		add(buttonPanel, BorderLayout.CENTER);
 		
+		//============================== Hot Keys ==================================================
+		
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+			@Override
+			public boolean dispatchKeyEvent(KeyEvent ev) {
+				switch (ev.getKeyCode()) {
+				
+				case KeyEvent.VK_L:
+					if (simController.simulationIsRunning())
+						simController.plotSimulation();
+					break;
+					
+				case KeyEvent.VK_Q:
+					if (simController.simulationIsRunning()) {
+						simController.stopSimulation();
+						instrumentPanel.setVisible(false);
+						MainFrame.this.setVisible(true);
+					}
+					break;
+					
+				default:
+					break;
+					
+				}
+				
+				return false;
+			}
+		});
+		
 		//========================== Window Settings ===============================================
-
+		
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
