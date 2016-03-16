@@ -1,9 +1,11 @@
 package com.chrisali.javaflightsim.menus;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.List;
 
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightData;
@@ -12,6 +14,7 @@ import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
@@ -28,6 +31,8 @@ public class Controller {
 	private Thread flightDataThread;
 	private FlightData flightData;
 	private AircraftBuilder ab;
+	
+	private PlotWindow plotWindow;
 	
 	private EnumMap<MassProperties, Double> massProperties;
 	
@@ -79,7 +84,11 @@ public class Controller {
 		Utilities.writeConfigFile("InitialContols", SIM_CONFIG_PATH, initialControls);
 	}	
 	
-	public boolean simulationIsRunning(){return runSim.isRunning();}
+	public boolean simulationIsRunning() {return runSim.isRunning();}
+	
+	public AircraftBuilder getAircraftBuilder() {return ab;}
+	
+	public List<EnumMap<SimOuts, Double>> getLogsOut() {return runSim.getLogsOut();}
 	
 	public void startSimulation(InstrumentPanel panel) {
 		runSim = new Integrate6DOFEquations(ab, options);
@@ -107,8 +116,12 @@ public class Controller {
 	}
 	
 	public void plotSimulation() {
-		new PlotWindow(runSim.getLogsOut(), 
-	 				   new HashSet<String>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous")),
-	 				   ab.getAircraft());
+		if(plotWindow == null) {
+			plotWindow = new PlotWindow(runSim.getLogsOut(), 
+					 				    new HashSet<String>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous")),
+					 				    ab.getAircraft());
+		} else {
+			plotWindow.refreshPlots(new ArrayList<EnumMap<SimOuts, Double>>(runSim.getLogsOut()));
+		}
 	}
 }

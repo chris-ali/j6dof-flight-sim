@@ -99,44 +99,44 @@ public class Integrate6DOFEquations implements Runnable {
 	 */
 	public Integrate6DOFEquations(AircraftBuilder builtAircraft,
 								  EnumSet<Options> runOptions) {
-		this.aircraft 		   = builtAircraft.getAircraft();
-		this.engineList   	   = builtAircraft.getEngineList();
-		this.accelAndMoments   = new AccelAndMoments(aircraft);
-		this.options		   = runOptions;
+		aircraft 		   = builtAircraft.getAircraft();
+		engineList   	   = builtAircraft.getEngineList();
+		accelAndMoments    = new AccelAndMoments(aircraft);
+		options		       = runOptions;
 		
-		this.controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
+		controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
 		
 		// If TRIM_MODE enabled, use the initial conditions/controls from the trim method
 		if (options.contains(Options.TRIM_MODE)) {
-			this.initialConditions = Utilities.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("nextStepInitialConditions"));
-			this.integratorConfig  = Utilities.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("nextStepIntegratorConfig"));
+			initialConditions = Utilities.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("nextStepInitialConditions"));
+			integratorConfig  = Utilities.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("nextStepIntegratorConfig"));
 		} else {
-			this.initialConditions = Utilities.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
-			this.integratorConfig  = Utilities.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
+			initialConditions = Utilities.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
+			integratorConfig  = Utilities.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
 		}
 
 		// If USE_JOYSTICK/USE_MOUSE enabled, use joystick/mouse if ANALYSIS_MODE not enabled
 		if (options.contains(Options.USE_JOYSTICK) & !options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE))
-			this.hidController = new Joystick(controls);
+			hidController = new Joystick(controls);
 		else if (options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE))
-			this.hidController = new Mouse(controls);
+			hidController = new Mouse(controls);
 		else if (options.contains(Options.USE_CH_CONTROLS) & !options.contains(Options.ANALYSIS_MODE))
-			this.hidController = new CHControls(controls);
+			hidController = new CHControls(controls);
 		else
-			this.hidController = null;
+			hidController = null;
 		
 		// If ANALYSIS_MODE not enabled use keyboard
 		if (!options.contains(Options.ANALYSIS_MODE))
-			this.hidKeyboard = new Keyboard(controls);
+			hidKeyboard = new Keyboard(controls);
 		else
-			this.hidKeyboard = null;
+			hidKeyboard = null;
 		
 		// Lets simulation run forever when UNLIMITED_FLIGHT enabled, and ANALYSIS_MODE and TRIM_MODE are disabled
 		if(options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE))
-			this.integratorConfig[2] = Double.POSITIVE_INFINITY;
+			integratorConfig[2] = Double.POSITIVE_INFINITY;
 		
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
-		this.integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[1]);
+		integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[1]);
 		
 		// Calculate initial data members' values
 		updateDataMembers(initialConditions, integratorConfig[0]);
@@ -201,71 +201,71 @@ public class Integrate6DOFEquations implements Runnable {
 	private void updateDataMembers(double[] y, double t) {
 		// Assign indices in yTemp array to 6DOF state arrays
 		for (int i=0; i<linearVelocities.length; i++) {
-			this.linearVelocities[i] = y[i];
-			this.NEDPosition[i]      = y[i+3];
-			this.eulerAngles[i]      = y[i+6];
-			this.angularRates[i]     = y[i+9];
+			linearVelocities[i] = y[i];
+			NEDPosition[i]      = y[i+3];
+			eulerAngles[i]      = y[i+6];
+			angularRates[i]     = y[i+9];
 		}
 
 		// Implement saturation and (2)pi bounding to keep states within realistic limits
-		this.linearVelocities = SaturationLimits.limitLinearVelocities(linearVelocities);
-		this.eulerAngles      = SaturationLimits.piBounding(eulerAngles);
-		this.angularRates     = SaturationLimits.limitAngularRates(angularRates);
+		linearVelocities = SaturationLimits.limitLinearVelocities(linearVelocities);
+		eulerAngles      = SaturationLimits.piBounding(eulerAngles);
+		angularRates     = SaturationLimits.limitAngularRates(angularRates);
 		
 		// Update wind parameters
-		this.windParameters = SixDOFUtilities.calculateWindParameters(linearVelocities);
+		windParameters = SixDOFUtilities.calculateWindParameters(linearVelocities);
 		
 		// Update environment		
-		this.environmentParameters = Environment.updateEnvironmentParams(NEDPosition);
+		environmentParameters = Environment.updateEnvironmentParams(NEDPosition);
 		
 		// Update controls with joystick, keyboard or mouse; if in analysis mode, create a series of doublets (aileron, rudder and then elevator)
 		if (!options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE)) {
-			this.controls = hidController.updateFlightControls(controls);
-			this.controls = hidKeyboard.updateFlightControls(controls);
+			controls = hidController.updateFlightControls(controls);
+			controls = hidKeyboard.updateFlightControls(controls);
 		} else if (options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE)) {	
-			this.controls = FlightControlsUtilities.doubletSeries(controls, t);
+			controls = FlightControlsUtilities.doubletSeries(controls, t);
 		}
 		
 		// Update all engines in engine list
-		for(Engine engine : this.engineList)
+		for(Engine engine : engineList)
 			 engine.updateEngineState(controls, environmentParameters, windParameters);
 		
 		// Update alphaDot
-		this.alphaDot = SixDOFUtilities.calculateAlphaDot(linearVelocities, sixDOFDerivatives);
+		alphaDot = SixDOFUtilities.calculateAlphaDot(linearVelocities, sixDOFDerivatives);
 		
 		// Update mach
-		this.mach = SixDOFUtilities.calculateMach(windParameters, environmentParameters);
+		mach = SixDOFUtilities.calculateMach(windParameters, environmentParameters);
 		
 		// Update accelerations
-		this.linearAccelerations = accelAndMoments.calculateLinearAccelerations(windParameters,
-																			    angularRates,
-																			    environmentParameters,
-																			    controls,
-																			    alphaDot,
-																			    engineList,
-																			    aircraft);
+		linearAccelerations = accelAndMoments.calculateLinearAccelerations(windParameters,
+																		   angularRates,
+																		   environmentParameters,
+																		   controls,
+																		   alphaDot,
+																		   engineList,
+																		   aircraft);
 		// Update moments
-		this.totalMoments = accelAndMoments.calculateTotalMoments(windParameters,
-															 	  angularRates,
-																  environmentParameters,
-																  controls,
-																  alphaDot,
-																  engineList,
-																  aircraft);
+		totalMoments = accelAndMoments.calculateTotalMoments(windParameters,
+														 	 angularRates,
+															 environmentParameters,
+															 controls,
+															 alphaDot,
+															 engineList,
+															 aircraft);
 				
 		// Recalculates derivatives for next step
-		this.sixDOFDerivatives = updateDerivatives(new double[] {linearVelocities[0],
-																 linearVelocities[1],
-																 linearVelocities[2],
-																 NEDPosition[0],
-																 NEDPosition[1],
-																 NEDPosition[2],
-																 eulerAngles[0],
-																 eulerAngles[1],
-																 eulerAngles[2],
-																 angularRates[0],
-																 angularRates[1],
-																 angularRates[2]});
+		sixDOFDerivatives = updateDerivatives(new double[] {linearVelocities[0],
+															linearVelocities[1],
+															linearVelocities[2],
+															NEDPosition[0],
+															NEDPosition[1],
+															NEDPosition[2],
+															eulerAngles[0],
+															eulerAngles[1],
+															eulerAngles[2],
+															angularRates[0],
+															angularRates[1],
+															angularRates[2]});
 	}
 	
 	/**
@@ -334,10 +334,29 @@ public class Integrate6DOFEquations implements Runnable {
 		
 		// Engine(s)
 		for (Engine engine : engineList) {
-			if (engine.getEngineNumber() == 1) {
+			switch(engine.getEngineNumber()) {
+			case 1:
 				simOut.put(SimOuts.THRUST_1, 	engine.getThrust()[0]);
 				simOut.put(SimOuts.RPM_1, 	 	engine.getRPM());
 				simOut.put(SimOuts.FUEL_FLOW_1, engine.getFuelFlow());
+				break;
+			case 2:
+				simOut.put(SimOuts.THRUST_2, 	engine.getThrust()[0]);
+				simOut.put(SimOuts.RPM_2, 	 	engine.getRPM());
+				simOut.put(SimOuts.FUEL_FLOW_2, engine.getFuelFlow());
+				break;
+			case 3:
+				simOut.put(SimOuts.THRUST_3, 	engine.getThrust()[0]);
+				simOut.put(SimOuts.RPM_3, 	 	engine.getRPM());
+				simOut.put(SimOuts.FUEL_FLOW_3, engine.getFuelFlow());
+				break;
+			case 4:
+				simOut.put(SimOuts.THRUST_4, 	engine.getThrust()[0]);
+				simOut.put(SimOuts.RPM_4, 	 	engine.getRPM());
+				simOut.put(SimOuts.FUEL_FLOW_4, engine.getFuelFlow());
+				break;
+			default:
+				break;
 			}
 		}
 		

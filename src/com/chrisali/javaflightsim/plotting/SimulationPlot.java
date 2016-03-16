@@ -3,6 +3,7 @@ package com.chrisali.javaflightsim.plotting;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.EnumMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -28,9 +29,56 @@ public class SimulationPlot extends JComponent {
 
 	private static final long serialVersionUID = 1L;
 	
-	private  EnumMap<PlotType, XYPlot> plotLists = new EnumMap<PlotType, XYPlot>(PlotType.class);
+	private EnumMap<PlotType, XYPlot> plotLists = new EnumMap<PlotType, XYPlot>(PlotType.class);
+	private ChartPanel chartPanel;
 	
-	// Creates plots for variables monitored in the logsOut ArrayList
+	// XY series objects for each set of data
+	
+	private	XYSeries uData        = new XYSeries("u");
+	private	XYSeries vData        = new XYSeries("v");
+	private	XYSeries wData        = new XYSeries("w");
+			
+	private	XYSeries posData      = new XYSeries("Position");
+	private	XYSeries altData      = new XYSeries("Altitude");
+			
+	private	XYSeries altDotData   = new XYSeries("Alt Dot");
+			
+	private	XYSeries phiData      = new XYSeries("Phi");
+	private	XYSeries thetaData    = new XYSeries("Theta");
+	private	XYSeries psiData      = new XYSeries("Psi");
+			
+	private	XYSeries pData        = new XYSeries("p");
+	private	XYSeries qData        = new XYSeries("q");
+	private	XYSeries rData        = new XYSeries("r");
+					
+	private	XYSeries axData       = new XYSeries("a_x");
+	private	XYSeries ayData       = new XYSeries("a_y");
+	private	XYSeries azData       = new XYSeries("a_z");		
+			
+	private	XYSeries lData        = new XYSeries("L");
+	private	XYSeries mData        = new XYSeries("M");
+	private	XYSeries nData        = new XYSeries("N");
+			
+	private	XYSeries tasData      = new XYSeries("TAS");
+			
+	private	XYSeries betaData     = new XYSeries("Beta");
+	private	XYSeries alphaData    = new XYSeries("Alpha");
+			
+	private	XYSeries elevData     = new XYSeries("Elevator");
+	private	XYSeries ailData      = new XYSeries("Aileron");
+	private	XYSeries rudData      = new XYSeries("Rudder");
+	private	XYSeries throtData    = new XYSeries("Throttle");
+	private	XYSeries flapData     = new XYSeries("Flaps");
+			
+	private	XYSeries alphaDotData = new XYSeries("Alpha Dot");
+	private	XYSeries machData     = new XYSeries("Mach");
+	
+	/**
+	 * Creates plots for variables monitored in the logsOut ArrayList
+	 * 
+	 * @param logsOut
+	 * @param windowTitle
+	 */
 	public SimulationPlot(List<EnumMap<SimOuts, Double>> logsOut, String windowTitle) {
 		
 		makePlotLists(logsOut);
@@ -40,29 +88,29 @@ public class SimulationPlot extends JComponent {
 		// Select from methods below to create a chart panels to populate AWT window 
 		switch (windowTitle) {
 			case "Rates":
-				ChartPanel ratePlotPanel = new ChartPanel(makeRatesPlots(plotLists));
+				chartPanel = new ChartPanel(makeRatesPlots(plotLists));
 				setPreferredSize(new Dimension(1000, 950));
-				add(ratePlotPanel, BorderLayout.CENTER);
+				add(chartPanel, BorderLayout.CENTER);
 				break;
 			case "Position":
-				ChartPanel posPlotPanel = new ChartPanel(makePositionPlot(plotLists));
+				chartPanel = new ChartPanel(makePositionPlot(plotLists));
 				setPreferredSize(new Dimension(750, 750));
-				add(posPlotPanel, BorderLayout.CENTER);
+				add(chartPanel, BorderLayout.CENTER);
 				break;
 			case "Instruments":
-				ChartPanel instPlotPanel = new ChartPanel(makeInstrumentPlots(plotLists));
+				chartPanel = new ChartPanel(makeInstrumentPlots(plotLists));
 				setPreferredSize(new Dimension(1000, 950));
-				add(instPlotPanel, BorderLayout.CENTER);
+				add(chartPanel, BorderLayout.CENTER);
 				break;
 			case "Miscellaneous":
-				ChartPanel miscPlotPanel = new ChartPanel(makeMiscPlots(plotLists));
+				chartPanel = new ChartPanel(makeMiscPlots(plotLists));
 				setPreferredSize(new Dimension(1000, 400));
-				add(miscPlotPanel, BorderLayout.CENTER);
+				add(chartPanel, BorderLayout.CENTER);
 				break;
 			case "Controls":
-				ChartPanel controlPlotPanel = new ChartPanel(makeControlsPlots(plotLists));
+				chartPanel = new ChartPanel(makeControlsPlots(plotLists));
 				setPreferredSize(new Dimension(1000, 950));
-				add(controlPlotPanel, BorderLayout.CENTER);
+				add(chartPanel, BorderLayout.CENTER);
 				break;	
 			default:
 				System.err.println("Invalid plot type selected!");
@@ -171,91 +219,9 @@ public class SimulationPlot extends JComponent {
 	 * It first creates {@link XYSeries} objects with data from logsOut, adds those series to {@link XYSeriesCollection}, adds those 
 	 * series collections to {@link XYPlot} objects, and finally puts the XYPlot objects into {@link plotLists}
 	 */
-	protected void makePlotLists(List<EnumMap<SimOuts, Double>> logsOut) {
+	private void makePlotLists(List<EnumMap<SimOuts, Double>> logsOut) {
 		
-		// Create XY series for each set of data
-		
-		XYSeries uData        = new XYSeries("u");
-		XYSeries vData        = new XYSeries("v");
-		XYSeries wData        = new XYSeries("w");
-		
-		XYSeries posData      = new XYSeries("Position");
-		XYSeries altData      = new XYSeries("Altitude");
-		
-		XYSeries altDotData   = new XYSeries("Alt Dot");
-		
-		XYSeries phiData      = new XYSeries("Phi");
-		XYSeries thetaData    = new XYSeries("Theta");
-		XYSeries psiData      = new XYSeries("Psi");
-		
-		XYSeries pData        = new XYSeries("p");
-		XYSeries qData        = new XYSeries("q");
-		XYSeries rData        = new XYSeries("r");
-				
-		XYSeries axData       = new XYSeries("a_x");
-		XYSeries ayData       = new XYSeries("a_y");
-		XYSeries azData       = new XYSeries("a_z");		
-		
-		XYSeries lData        = new XYSeries("L");
-		XYSeries mData        = new XYSeries("M");
-		XYSeries nData        = new XYSeries("N");
-		
-		XYSeries tasData      = new XYSeries("TAS");
-		
-		XYSeries betaData     = new XYSeries("Beta");
-		XYSeries alphaData    = new XYSeries("Alpha");
-		
-		XYSeries elevData     = new XYSeries("Elevator");
-		XYSeries ailData      = new XYSeries("Aileron");
-		XYSeries rudData      = new XYSeries("Rudder");
-		XYSeries throtData    = new XYSeries("Throttle");
-		XYSeries flapData     = new XYSeries("Flaps");
-		
-		XYSeries alphaDotData = new XYSeries("Alpha Dot");
-		XYSeries machData     = new XYSeries("Mach");
-		
-		// Add data from logsOut to each XYSeries
-		
-		for (EnumMap<SimOuts, Double> simOut : logsOut) {
-			uData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.U));
-			vData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.V));
-			wData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.W));
-			
-			posData.add(simOut.get(SimOuts.EAST),simOut.get(SimOuts.NORTH));
-			altData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALT));
-			
-			altDotData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALT_DOT));
-			
-			phiData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.PHI));
-			thetaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.THETA));
-			psiData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.PSI));
-			
-			pData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.P));
-			qData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.Q));
-			rData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.R));
-			
-			axData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_X));
-			ayData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_Y));
-			azData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_Z));
-			
-			lData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.L));
-			mData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.M));
-			nData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.N));
-			
-			tasData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.TAS));
-			
-			betaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.BETA));
-			alphaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALPHA));
-			
-			elevData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ELEVATOR));
-			ailData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AILERON));
-			rudData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.RUDDER));
-			throtData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.THROTTLE_1));
-			flapData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.FLAPS));
-			
-			alphaDotData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALPHA_DOT));
-			machData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.MACH));
-		}
+		updateXYSeriesData(logsOut);
 		
 		// Create XYSeriesCollections for each desired plot and add series to them
 		
@@ -451,4 +417,102 @@ public class SimulationPlot extends JComponent {
 
 		plotLists.put(PlotType.MACH, machPlot);
 	}
+	
+	/**
+	 * Updates all XYSeries objects with new data from logsOut list
+	 * 
+	 * @param logsOut
+	 */
+	protected void updateXYSeriesData(List<EnumMap<SimOuts, Double>> logsOut) {
+		
+		// Clear all data from series
+		uData.clear();
+		vData.clear();
+		wData.clear();
+		
+		posData.clear();
+		altData.clear();
+		
+		altDotData.clear();
+		
+		phiData.clear();
+		thetaData.clear();
+		psiData.clear();
+		
+		pData.clear();
+		qData.clear();
+		rData.clear();
+		
+		axData.clear();
+		ayData.clear();
+		azData.clear();
+		
+		lData.clear();
+		mData.clear();
+		nData.clear();
+		
+		tasData.clear();
+		
+		betaData.clear();
+		alphaData.clear();
+		
+		elevData.clear();
+		ailData.clear();
+		rudData.clear();
+		throtData.clear();
+		flapData.clear();
+		
+		alphaDotData.clear();
+		machData.clear();
+		
+		// Add data from logsOut to each XYSeries
+		
+		for (Iterator<EnumMap<SimOuts, Double>> logsOutItr = logsOut.iterator(); logsOutItr.hasNext();) {
+			EnumMap<SimOuts, Double> simOut = logsOutItr.next();
+			
+			uData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.U));
+			vData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.V));
+			wData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.W));
+			
+			posData.add(simOut.get(SimOuts.EAST),simOut.get(SimOuts.NORTH));
+			altData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALT));
+			
+			altDotData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALT_DOT));
+			
+			phiData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.PHI));
+			thetaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.THETA));
+			psiData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.PSI));
+			
+			pData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.P));
+			qData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.Q));
+			rData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.R));
+			
+			axData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_X));
+			ayData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_Y));
+			azData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_Z));
+			
+			lData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.L));
+			mData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.M));
+			nData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.N));
+			
+			tasData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.TAS));
+			
+			betaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.BETA));
+			alphaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALPHA));
+			
+			elevData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ELEVATOR));
+			ailData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AILERON));
+			rudData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.RUDDER));
+			throtData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.THROTTLE_1));
+			flapData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.FLAPS));
+			
+			alphaDotData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALPHA_DOT));
+			machData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.MACH));
+		}
+	}
+	
+	/**
+	 * @return ChartPanel object so that it can be updated with new data
+	 */
+	protected ChartPanel getChartPanel() {return chartPanel;}
 }
