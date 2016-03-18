@@ -33,6 +33,7 @@ public class OptionsPanel extends JDialog {
 	private static final long serialVersionUID = -2865224216075732617L;
 	
 	private JCheckBox analysisMode;
+	private JCheckBox consoleDisplay;
 	private JList<String> controllers;
 	private JSpinner stepSizeSpinner;
 	private JButton okButton;
@@ -104,6 +105,29 @@ public class OptionsPanel extends JDialog {
 			}
 		});
 		controlsPanel.add(analysisMode, gc);
+		
+		//----------- Analysis Mode Checkbox --------------------- 
+		gc.gridy++;
+		
+		gc.gridx = 0;
+		gc.anchor = GridBagConstraints.EAST;
+		controlsPanel.add(new JLabel("Console Display:"), gc);
+		
+		gc.gridx = 1;
+		gc.anchor = GridBagConstraints.WEST;
+		consoleDisplay = new JCheckBox("Show Raw Data Output");
+		consoleDisplay.setToolTipText("Displays a table showing raw data output of the simulation");
+		consoleDisplay.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(((JCheckBox)e.getSource()).isSelected())
+					options.add(Options.CONSOLE_DISPLAY);
+				else
+					options.remove(Options.CONSOLE_DISPLAY);
+			}
+		});
+		controlsPanel.add(consoleDisplay, gc);
+		
 		
 		//-------------- Controllers List  ------------------------ 
 		gc.gridy++;

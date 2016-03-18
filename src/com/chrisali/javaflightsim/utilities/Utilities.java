@@ -2,16 +2,19 @@ package com.chrisali.javaflightsim.utilities;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 
 /**
  * Contains various static methods for unboxing arrays into primitive types and reading and parsing text files into lists
@@ -146,6 +149,51 @@ public class Utilities {
 		}
 
 		return massProperties;
+	}
+	
+	/**
+	 * @param fileName
+	 * @return string containing the file's extension 
+	 */
+	public static String getFileExtension(String fileName) {
+		int periodLocation = fileName.lastIndexOf(".");
+		
+		if (periodLocation == -1)
+			return "";
+		else if (periodLocation == fileName.length()-1)
+			return "";
+		else 
+			return fileName.substring(periodLocation+1, fileName.length());
+	}
+	
+	/**
+	 * Writes a CSV file from data contained within the logsOut ArrayList 
+	 * 
+	 * @param file
+	 * @param logsOut
+	 * @throws IOException
+	 */
+	public static void saveToCSVFile(File file, List<EnumMap<SimOuts, Double>> logsOut) throws IOException {
+		
+		BufferedWriter bw = new BufferedWriter(new FileWriter(file.getPath()));
+		
+		// First line of CSV file should have the names of each parameter
+		StringBuilder sb_line1 = new StringBuilder();
+		for (SimOuts simOut : SimOuts.values()) {
+			sb_line1.append(simOut.toString()).append(",");
+		}
+		bw.write(sb_line1.append("\n").toString());
+		
+		// Subsequent lines contain data
+		for (EnumMap<SimOuts, Double> simOut : logsOut) {
+			StringBuilder sb = new StringBuilder();
+			for (Map.Entry<?,Double> entry : simOut.entrySet()) {
+				sb.append(entry.getValue().toString()).append(",");
+			}
+			bw.write(sb.append("\n").toString());
+		}
+		
+		bw.close();
 	}
 	
 	/**

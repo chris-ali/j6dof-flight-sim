@@ -5,8 +5,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
@@ -41,7 +41,7 @@ public class PlotWindow extends JFrame {
 	 * @param Aircraft aircraft
 	 */
 	public PlotWindow(List<EnumMap<SimOuts, Double>> logsOut, 
-					 HashSet<String> simPlotCategories,
+					 Set<String> simPlotCategories,
 					 Aircraft aircraft) {
 		super(aircraft.getName() + " Plots");
 		setLayout(new BorderLayout());

@@ -322,6 +322,9 @@ public class Integrate6DOFEquations implements Runnable {
 		simOut.put(SimOuts.N, 		 	totalMoments[2]);
 		
 		// 6DOF Derivatives
+		simOut.put(SimOuts.U_DOT, 	    sixDOFDerivatives[0]);
+		simOut.put(SimOuts.V_DOT, 	    sixDOFDerivatives[1]);
+		simOut.put(SimOuts.W_DOT, 	    sixDOFDerivatives[2]);
 		simOut.put(SimOuts.NORTH_DOT,   sixDOFDerivatives[3]);
 		simOut.put(SimOuts.EAST_DOT, 	sixDOFDerivatives[4]);
 		simOut.put(SimOuts.ALT_DOT,    (sixDOFDerivatives[5]*60));
@@ -377,6 +380,7 @@ public class Integrate6DOFEquations implements Runnable {
 		// Add output step to logging arrayList
 		logsOut.add(simOut);
 		
+		/*
 		// Prints to console (if desired)
 		if (options.contains(Options.CONSOLE_DISPLAY)) {
 			for (Map.Entry<SimOuts, Double> out : simOut.entrySet())
@@ -389,6 +393,7 @@ public class Integrate6DOFEquations implements Runnable {
 				
 			System.out.println("");
 		}
+		*/
 	}
 	
 	/**

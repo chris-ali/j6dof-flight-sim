@@ -1,11 +1,14 @@
 package com.chrisali.javaflightsim.menus;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightData;
@@ -26,20 +29,23 @@ public class Controller {
 	private static final String SIM_CONFIG_PATH = ".\\SimConfig\\";
 	private static final String AIRCRAFT_PATH = ".\\Aircraft\\";
 	
-	private Integrate6DOFEquations runSim;
-	private Thread simulationThread;
-	private Thread flightDataThread;
-	private FlightData flightData;
-	private AircraftBuilder ab;
-	
-	private PlotWindow plotWindow;
-	
-	private EnumMap<MassProperties, Double> massProperties;
-	
 	private EnumSet<Options> options;
 	private EnumMap<InitialConditions, Double> initialConditions;
 	private EnumMap<IntegratorConfig, Double> integratorConfig;
 	private EnumMap<FlightControls, Double> initialControls; 
+	
+	private Integrate6DOFEquations runSim;
+	private Thread simulationThread;
+	private Thread flightDataThread;
+	private FlightData flightData;
+	
+	private AircraftBuilder ab;
+	private EnumMap<MassProperties, Double> massProperties;
+	
+	private PlotWindow plotWindow;
+	private Set<String> plotCategories = new HashSet<>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous"));
+	
+	private ConsoleTablePanel consoleTablePanel;
 	
 	public Controller() {
 		options = EnumSet.noneOf(Options.class);
@@ -48,6 +54,8 @@ public class Controller {
 		integratorConfig = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");
 		initialControls = IntegrationSetup.gatherInitialControls("InitialControls");
 	}
+	
+	//=============================== Configuration ===========================================================
 	
 	public EnumSet<Options> getOptions() {return options;}
 	
@@ -84,6 +92,8 @@ public class Controller {
 		Utilities.writeConfigFile("InitialContols", SIM_CONFIG_PATH, initialControls);
 	}	
 	
+	//=============================== Simulation ===========================================================
+	
 	public boolean simulationIsRunning() {return runSim.isRunning();}
 	
 	public AircraftBuilder getAircraftBuilder() {return ab;}
@@ -96,6 +106,9 @@ public class Controller {
 		simulationThread = new Thread(runSim);
 		simulationThread.start();
 		
+		if (options.contains(Options.CONSOLE_DISPLAY))
+			updateConsole();
+		
 		if (options.contains(Options.ANALYSIS_MODE)) {
 			plotSimulation();
 		} else {
@@ -104,8 +117,9 @@ public class Controller {
 			
 			flightDataThread = new Thread(flightData);
 			flightDataThread.start();
+			
+			consoleTablePanel.setVisible(true);
 		}
-		
 	}
 	
 	public void stopSimulation() {
@@ -113,15 +127,34 @@ public class Controller {
 			simulationThread.interrupt();
 		if (flightDataThread != null && flightDataThread.isAlive())
 			flightDataThread.interrupt();
+		if (consoleTablePanel.isVisible())
+			consoleTablePanel.setVisible(false);
 	}
 	
+	//=============================== Plotting =============================================================
+	
 	public void plotSimulation() {
-		if(plotWindow == null) {
-			plotWindow = new PlotWindow(runSim.getLogsOut(), 
-					 				    new HashSet<String>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous")),
-					 				    ab.getAircraft());
-		} else {
+		if(plotWindow == null)
+			plotWindow = new PlotWindow(runSim.getLogsOut(), plotCategories, ab.getAircraft());
+		else
 			plotWindow.refreshPlots(new ArrayList<EnumMap<SimOuts, Double>>(runSim.getLogsOut()));
-		}
+	}
+	
+	public boolean isPlotWindowVisible() {
+		if (plotWindow == null) return false;
+		else return plotWindow.isVisible();
+	}
+	
+	//=============================== Console =============================================================
+	
+	public void updateConsole() {
+		if (consoleTablePanel == null)
+			consoleTablePanel = new ConsoleTablePanel(runSim.getLogsOut(), this);
+		else
+			consoleTablePanel.refresh();
+	}
+	
+	public void saveConsoleOutput(File file) throws IOException {
+		Utilities.saveToCSVFile(file, runSim.getLogsOut());
 	}
 }

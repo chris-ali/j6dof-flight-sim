@@ -125,7 +125,7 @@ public class MainFrame extends JFrame {
 				switch (ev.getKeyCode()) {
 				
 				case KeyEvent.VK_L:
-					if (simController.simulationIsRunning())
+					if (simController.simulationIsRunning() && !simController.isPlotWindowVisible())
 						simController.plotSimulation();
 					break;
 					
@@ -139,7 +139,6 @@ public class MainFrame extends JFrame {
 					
 				default:
 					break;
-					
 				}
 				
 				return false;

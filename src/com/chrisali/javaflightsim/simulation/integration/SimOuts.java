@@ -30,7 +30,7 @@ public enum SimOuts {
 	Q_DOT		("q_dot"),
 	R			("r"),
 	R_DOT		("r_dot"),
-	TAS			(""),
+	TAS			("tas"),
 	BETA		("beta"),
 	ALPHA		("alpha"),
 	ALPHA_DOT	("alpha_dot"),
