@@ -9,12 +9,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
+import com.chrisali.javaflightsim.simulation.setup.Options;
 
 /**
  * Contains various static methods for unboxing arrays into primitive types and reading and parsing text files into lists
@@ -48,7 +51,7 @@ public class Utilities {
 	}
 	
 	/**
-	 * Splits a text file of the name "fileContents".txt located in the folder 
+	 * Splits a config file called "fileContents".txt located in the folder 
 	 * specified by filePath whose general syntax on each line is:
 	 *  <br><code>*parameter name* = *double value*</code></br>
 	 *  into an ArrayList of string arrays resembling:
@@ -77,7 +80,7 @@ public class Utilities {
 	}
 	
 	/**
-	 * Splits a text file of the name "fileName".txt located in the folder 
+	 * Splits a config file called "fileName".txt located in the folder 
 	 * specified by filePath whose general syntax on each line is:
 	 *  <br><code>*parameter name* = *double value*</code></br>
 	 *  into an ArrayList of string arrays resembling:
@@ -105,7 +108,7 @@ public class Utilities {
 	}
 	
 	/**
-	 * Creates a text file of the name "fileName".txt located in the folder 
+	 * Creates a config file called "fileName".txt located in the folder 
 	 * specified by filePath using an EnumMap where each line is written as:
 	 *  <br><code>"*parameter name* = *double value*\n"</code></br>
 	 *  
@@ -129,6 +132,51 @@ public class Utilities {
 	}
 	
 	/**
+	 * Creates a config file called "fileName".txt located in the folder specified by filePath 
+	 * using the opstionsSet EnumSet of selected options and the selected aircraft's name,
+	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
+	 *  
+	 * @param optionsSet
+	 * @param selectedAircraft
+	 * @param enumMap
+	 */
+	public static void writeConfigFile(String fileName, String filePath, Set<Options> optionsSet, String selectedAircraft) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(filePath).append(fileName).append(".txt");
+		
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sb.toString()))) {
+			for (Options option : Options.values()) {
+				bw.write(option.name() + " = " + optionsSet.contains(option));
+				bw.newLine();
+			}
+			bw.write("selectedAircraft = " + selectedAircraft);
+			bw.newLine();
+		} catch (FileNotFoundException e) {System.err.println("Could not find: SimulationSetup.txt!");}
+		catch (IOException e) {System.err.println("Could not read: SimulationSetup.txt!");}
+		catch (NullPointerException e) {System.err.println("Bad reference to: SimulationSetup.txt!");}
+	}
+	
+	/**
+	 * Parses a config file called SimulationSetup.txt located in .\\SimConfig\\ 
+	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
+	 * and returns an EnumSet containing enums from Options for each line in the
+	 * file where *value* contains true  
+	 * 
+	 * @return EnumSet of selected options
+	 */
+	public static EnumSet<Options> parseSimSetupFile() throws IllegalArgumentException {
+		ArrayList<String[]> readSimSetupFile = readFileAndSplit("SimulationSetup", ".\\SimConfig\\");
+		EnumSet<Options> options = EnumSet.noneOf(Options.class);
+		
+		for (String[] readLine : readSimSetupFile) {
+			if (readLine[1].compareTo("true") == 0)
+				options.add(Options.valueOf(readLine[0]));
+		}
+		
+		return options;
+	}
+	
+	/**
 	 * Parses the MassProperties.txt file in .\Aircraft\aircraftName and returns an EnumMap with {@link MassProperties}
 	 * as the keys
 	 * 
@@ -139,7 +187,7 @@ public class Utilities {
 		EnumMap<MassProperties, Double> massProperties = new EnumMap<MassProperties, Double>(MassProperties.class);
 		
 		// Mass Properties
-		ArrayList<String[]> readMassPropFile = Utilities.readFileAndSplit(aircraftName, ".//Aircraft//", "MassProperties");
+		ArrayList<String[]> readMassPropFile = readFileAndSplit(aircraftName, ".//Aircraft//", "MassProperties");
 		
 		for(MassProperties massPropKey : MassProperties.values()) {
 			for (String[] readLine : readMassPropFile) {

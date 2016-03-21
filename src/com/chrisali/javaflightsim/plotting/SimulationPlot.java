@@ -73,6 +73,38 @@ public class SimulationPlot extends JComponent {
 	private	XYSeries alphaDotData = new XYSeries("Alpha Dot");
 	private	XYSeries machData     = new XYSeries("Mach");
 	
+	// Domain Axes
+	
+	private NumberAxis timeAxis   = new NumberAxis("Time [sec]");
+	private NumberAxis eastAxis   = new NumberAxis("East [ft]");
+	
+	// Range Axes
+	
+	private NumberAxis linVelAxis 		= new NumberAxis("Body Velocity [ft/sec]");
+	private NumberAxis northAxis  		= new NumberAxis("North [ft]");
+	private NumberAxis altAxis 			= new NumberAxis("Altitude [ft]");
+	private NumberAxis altDotAxis 		= new NumberAxis("Vertical Speed [ft/min]"); 
+	private NumberAxis psiAxis 			= new NumberAxis("Heading [rad]");
+	private NumberAxis eulerAnglesAxis 	= new NumberAxis("Angle [rad]");
+	private NumberAxis angularRatesAxis = new NumberAxis("Angular Rate [rad/sec]");
+	private NumberAxis linearAccelAxis 	= new NumberAxis("Acceleration [g]");
+	private NumberAxis totalMomentAxis 	= new NumberAxis("Moment [ft*lb]");
+	private NumberAxis tasAxis 			= new NumberAxis("True Airspeed [ft/sec]");
+	private NumberAxis windParamAxis 	= new NumberAxis("Angle [rad]");
+	private NumberAxis elevAxis 		= new NumberAxis("Deflection [rad]");
+	private NumberAxis ailAxis 			= new NumberAxis("Deflection [rad]");
+	private NumberAxis rudAxis 			= new NumberAxis("Deflection [rad]");
+	private NumberAxis throtAxis 		= new NumberAxis("Position [norm]");
+	private NumberAxis flapAxis 		= new NumberAxis("Deflection [rad]");
+	private NumberAxis alphDotAxis 		= new NumberAxis("Rate [rad/sec]");
+	private NumberAxis machAxis 		= new NumberAxis("Mach Number");
+	
+	private CombinedDomainXYPlot ratesPlot      = new CombinedDomainXYPlot(timeAxis);
+	private CombinedDomainXYPlot positionPlot   = new CombinedDomainXYPlot(eastAxis);
+	private CombinedDomainXYPlot instrumentPlot = new CombinedDomainXYPlot(timeAxis);
+	private CombinedDomainXYPlot miscPlot       = new CombinedDomainXYPlot(timeAxis);
+	private CombinedDomainXYPlot controlsPlot   = new CombinedDomainXYPlot(timeAxis);
+
 	/**
 	 * Creates plots for variables monitored in the logsOut ArrayList
 	 * 
@@ -88,27 +120,27 @@ public class SimulationPlot extends JComponent {
 		// Select from methods below to create a chart panels to populate AWT window 
 		switch (windowTitle) {
 			case "Rates":
-				chartPanel = new ChartPanel(makeRatesPlots(plotLists));
+				chartPanel = new ChartPanel(makeRatesPlots());
 				setPreferredSize(new Dimension(1000, 950));
 				add(chartPanel, BorderLayout.CENTER);
 				break;
 			case "Position":
-				chartPanel = new ChartPanel(makePositionPlot(plotLists));
+				chartPanel = new ChartPanel(makePositionPlot());
 				setPreferredSize(new Dimension(750, 750));
 				add(chartPanel, BorderLayout.CENTER);
 				break;
 			case "Instruments":
-				chartPanel = new ChartPanel(makeInstrumentPlots(plotLists));
+				chartPanel = new ChartPanel(makeInstrumentPlots());
 				setPreferredSize(new Dimension(1000, 950));
 				add(chartPanel, BorderLayout.CENTER);
 				break;
 			case "Miscellaneous":
-				chartPanel = new ChartPanel(makeMiscPlots(plotLists));
-				setPreferredSize(new Dimension(1000, 400));
+				chartPanel = new ChartPanel(makeMiscPlots());
+				setPreferredSize(new Dimension(1000, 950));
 				add(chartPanel, BorderLayout.CENTER);
 				break;
 			case "Controls":
-				chartPanel = new ChartPanel(makeControlsPlots(plotLists));
+				chartPanel = new ChartPanel(makeControlsPlots());
 				setPreferredSize(new Dimension(1000, 950));
 				add(chartPanel, BorderLayout.CENTER);
 				break;	
@@ -121,96 +153,86 @@ public class SimulationPlot extends JComponent {
 	/**
 	 *  Generates a {@link JFreeChart} object associated with rates and accelerations (Angular Rates, Linear Velocities and Linear Accelerations) on a {@link CombinedDomainXYPlot}.
 	 */
-	private JFreeChart makeRatesPlots(EnumMap<PlotType, XYPlot> plotLists) {
-		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
-		
-		simulationPlot.add(plotLists.get(PlotType.ANGULAR_RATE), 1);
-		simulationPlot.add(plotLists.get(PlotType.VELOCITY),     1);
-		simulationPlot.add(plotLists.get(PlotType.ACCELERATION), 1);
-		simulationPlot.setOrientation(PlotOrientation.VERTICAL);
-		simulationPlot.setGap(20);
+	private JFreeChart makeRatesPlots() {
+		ratesPlot.add(plotLists.get(PlotType.ANGULAR_RATE), 1);
+		ratesPlot.add(plotLists.get(PlotType.VELOCITY),     1);
+		ratesPlot.add(plotLists.get(PlotType.ACCELERATION), 1);
+		ratesPlot.setOrientation(PlotOrientation.VERTICAL);
+		ratesPlot.setGap(20);
 		
 		return new JFreeChart("Rates", 
 					 	      JFreeChart.DEFAULT_TITLE_FONT, 
-					          simulationPlot, 
+					 	      ratesPlot, 
 					          true);
 	}
 	
 	/**
 	 *  Generates a {@link JFreeChart} object associated with aircraft position (North vs East) on a {@link CombinedDomainXYPlot}.
 	 */
-	private JFreeChart makePositionPlot(EnumMap<PlotType, XYPlot> plotLists) {
-		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("East [ft]"));
+	private JFreeChart makePositionPlot() {
+		positionPlot.add(plotLists.get(PlotType.POSITION), 1);
 		
-		simulationPlot.add(plotLists.get(PlotType.POSITION), 1);
-		
-		simulationPlot.setOrientation(PlotOrientation.VERTICAL);
-		simulationPlot.setGap(20);
+		positionPlot.setOrientation(PlotOrientation.VERTICAL);
+		positionPlot.setGap(20);
 		
 		return new JFreeChart("Position", 
 					 	      JFreeChart.DEFAULT_TITLE_FONT, 
-					          simulationPlot, 
+					 	      positionPlot, 
 					          true);
 	}
 	
 	/**
 	 *  Generates a {@link JFreeChart} object associated with instrumentation data (Pitch, Roll, Airspeed, Heading, Altitude and Vertical Speed) on a {@link CombinedDomainXYPlot}.
 	 */
-	private JFreeChart makeInstrumentPlots(EnumMap<PlotType, XYPlot> plotLists) {
-		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
+	private JFreeChart makeInstrumentPlots() {
+		instrumentPlot.add(plotLists.get(PlotType.EULER_ANGLES), 1);
+		instrumentPlot.add(plotLists.get(PlotType.TAS), 		 1);
+		instrumentPlot.add(plotLists.get(PlotType.HEADING),      1);
+		instrumentPlot.add(plotLists.get(PlotType.ALTITUDE),     1);
+		instrumentPlot.add(plotLists.get(PlotType.VERT_SPEED),   1);
 		
-		simulationPlot.add(plotLists.get(PlotType.EULER_ANGLES), 1);
-		simulationPlot.add(plotLists.get(PlotType.TAS), 		 1);
-		simulationPlot.add(plotLists.get(PlotType.HEADING),      1);
-		simulationPlot.add(plotLists.get(PlotType.ALTITUDE),     1);
-		simulationPlot.add(plotLists.get(PlotType.VERT_SPEED),   1);
-		
-		simulationPlot.setOrientation(PlotOrientation.VERTICAL);
-		simulationPlot.setGap(20);
+		instrumentPlot.setOrientation(PlotOrientation.VERTICAL);
+		instrumentPlot.setGap(20);
 		
 		return new JFreeChart("Instruments", 
 					 	      JFreeChart.DEFAULT_TITLE_FONT, 
-					          simulationPlot, 
+					 	      instrumentPlot, 
 					          true);
 	}
 	
 	/**
 	 *  Generates a {@link JFreeChart} object associated with miscellaneous air data (Alpha, Beta, Alphadot and Mach) on a {@link CombinedDomainXYPlot}.
 	 */
-	private JFreeChart makeMiscPlots(EnumMap<PlotType, XYPlot> plotLists) {
-		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
+	private JFreeChart makeMiscPlots() {
+		miscPlot.add(plotLists.get(PlotType.WIND_PARAM), 1);
+		miscPlot.add(plotLists.get(PlotType.ALPHA_DOT),  1);
+		miscPlot.add(plotLists.get(PlotType.MACH),  1);
 		
-		simulationPlot.add(plotLists.get(PlotType.WIND_PARAM), 1);
-		simulationPlot.add(plotLists.get(PlotType.ALPHA_DOT),  1);
-		simulationPlot.add(plotLists.get(PlotType.MACH),  1);
-		
-		simulationPlot.setOrientation(PlotOrientation.VERTICAL);
-		simulationPlot.setGap(20);
+		miscPlot.setOrientation(PlotOrientation.VERTICAL);
+		miscPlot.setGap(20);
 		
 		return new JFreeChart("Miscellaneous", 
 					 	      JFreeChart.DEFAULT_TITLE_FONT, 
-					          simulationPlot, 
+					 	      miscPlot, 
 					          true);
 	}
 	
 	/**
 	 *  Generates a {@link JFreeChart} object associated with aircraft controls (Elevator, Aileron, Rudder, Throttle, Flaps) on a {@link CombinedDomainXYPlot}.
 	 */
-	private JFreeChart makeControlsPlots(EnumMap<PlotType, XYPlot> plotLists) {
-		CombinedDomainXYPlot simulationPlot = new CombinedDomainXYPlot(new NumberAxis("Time [sec]"));
+	private JFreeChart makeControlsPlots() {
+		controlsPlot.add(plotLists.get(PlotType.ELEVATOR), 1);
+		controlsPlot.add(plotLists.get(PlotType.AILERON),  1);
+		controlsPlot.add(plotLists.get(PlotType.RUDDER),   1);
+		controlsPlot.add(plotLists.get(PlotType.THROTTLE), 1);
+		controlsPlot.add(plotLists.get(PlotType.FLAPS),    1);
 		
-		simulationPlot.add(plotLists.get(PlotType.ELEVATOR), 1);
-		simulationPlot.add(plotLists.get(PlotType.AILERON),  1);
-		simulationPlot.add(plotLists.get(PlotType.RUDDER),   1);
-		simulationPlot.add(plotLists.get(PlotType.THROTTLE), 1);
-		simulationPlot.add(plotLists.get(PlotType.FLAPS),    1);
-		
-		simulationPlot.setOrientation(PlotOrientation.VERTICAL);
-		simulationPlot.setGap(20);
+		controlsPlot.setOrientation(PlotOrientation.VERTICAL);
+		controlsPlot.setGap(20);
 		
 		return new JFreeChart("Controls", 
 					 	      JFreeChart.DEFAULT_TITLE_FONT, 
-					          simulationPlot, 
+					 	      controlsPlot, 
 					          true);
 	}
 	
@@ -292,127 +314,127 @@ public class SimulationPlot extends JComponent {
 		// Create plots, add series collections to them and put the plots into a HashMap with an enum key
 		
 		XYPlot linearVelPlot    = new XYPlot(linearVelSeries,    
-											 null,
-											 new NumberAxis("Body Velocity [ft/sec]"), 
+											 timeAxis,
+											 linVelAxis, 
 									 		 new StandardXYItemRenderer()); 
 		
 		plotLists.put(PlotType.VELOCITY, linearVelPlot);
 		
 		XYPlot positionPlot     = new XYPlot(positionSeries, 
-											 new NumberAxis("East [ft]"), 
-											 new NumberAxis("North [ft]"), 
+											 eastAxis, 
+											 northAxis, 
 											 new StandardXYItemRenderer());
 		
 		plotLists.put(PlotType.POSITION, positionPlot);
 		
 		XYPlot altitudePlot     = new XYPlot(altitudeSeries, 
-											 null, 
-											 new NumberAxis("Altitude [ft]"), 
+											 timeAxis, 
+											 altAxis, 
 											 new StandardXYItemRenderer());
 
 		plotLists.put(PlotType.ALTITUDE, altitudePlot);
 		
 		XYPlot altDotPlot       = new XYPlot(altDotSeries, 
-										     null, 
-										     new NumberAxis("Vertical Speed [ft/min]"), 
+											 timeAxis, 
+										     altDotAxis, 
 										     new StandardXYItemRenderer());
 
 		plotLists.put(PlotType.VERT_SPEED, altDotPlot);
 		
 		XYPlot headingPlot      = new XYPlot(headingSeries, 
-											 null, 
-											 new NumberAxis("Heading [rad]"), 
+											 timeAxis, 
+											 psiAxis, 
 											 new StandardXYItemRenderer());
 							
 		plotLists.put(PlotType.HEADING, headingPlot);
 		
 		XYPlot eulerAnglesPlot  = new XYPlot(eulerAnglesSeries, 
-											 null, 
-											 new NumberAxis("Angle [rad]"), 
+											 timeAxis, 
+											 eulerAnglesAxis, 
 											 new StandardXYItemRenderer());
 		
 		plotLists.put(PlotType.EULER_ANGLES, eulerAnglesPlot);
 		
 		XYPlot angularRatesPlot = new XYPlot(angularRatesSeries, 
-											 null, 
-									     	 new NumberAxis("Angular Rate [rad/sec]"), 
+											 timeAxis, 
+									     	 angularRatesAxis, 
 									     	 new StandardXYItemRenderer());
 		
 		plotLists.put(PlotType.ANGULAR_RATE, angularRatesPlot);
 		
 		XYPlot linearAccelPlot  = new XYPlot(linearAccelSeries, 
-										     null, 
-											 new NumberAxis("Acceleration [g]"), 
+										   	 timeAxis, 
+											 linearAccelAxis, 
 											 new StandardXYItemRenderer());
 		
 		plotLists.put(PlotType.ACCELERATION, linearAccelPlot);
 		
 		XYPlot totalMomentPlot  = new XYPlot(totalMomentSeries, 
-											 null, 
-											 new NumberAxis("Moment [ft*lb]"), 
+											 timeAxis, 
+											 totalMomentAxis, 
 											 new StandardXYItemRenderer()); 
 		
 		plotLists.put(PlotType.MOMENT, totalMomentPlot);
 		
 		XYPlot tasPlot          = new XYPlot(tasSeries, 
-										     null, 
-										     new NumberAxis("True Airspeed [ft/sec]"), 
+											 timeAxis, 
+										     tasAxis, 
 										     new StandardXYItemRenderer());
 
 		plotLists.put(PlotType.TAS, tasPlot);
 		
 		XYPlot windParamPlot    = new XYPlot(windParamSeries, 
-											 null, 
-											 new NumberAxis("Angle [rad]"), 
+											 timeAxis, 
+											 windParamAxis, 
 											 new StandardXYItemRenderer());
 		
 		plotLists.put(PlotType.WIND_PARAM, windParamPlot);
 		
 		XYPlot elevPlot    		= new XYPlot(elevSeries, 
-											 null, 
-											 new NumberAxis("Deflection [rad]"), 
+											 timeAxis, 
+											 elevAxis, 
 											 new StandardXYItemRenderer());
 
 		plotLists.put(PlotType.ELEVATOR, elevPlot);
 		
 		XYPlot ailPlot		    = new XYPlot(ailSeries, 
-											 null, 
-											 new NumberAxis("Deflection [rad]"), 
+											 timeAxis, 
+											 ailAxis, 
 											 new StandardXYItemRenderer());
 		
 		plotLists.put(PlotType.AILERON, ailPlot);
 		
 		XYPlot rudPlot    		= new XYPlot(rudSeries, 
-											 null, 
-											 new NumberAxis("Deflection [rad]"), 
+											 timeAxis, 
+											 rudAxis, 
 											 new StandardXYItemRenderer());
 		
 		plotLists.put(PlotType.RUDDER, rudPlot);
 		
 		XYPlot throtPlot        = new XYPlot(throtSeries, 
-											 null, 
-											 new NumberAxis("Position [norm]"), 
+											 timeAxis, 
+											 throtAxis, 
 											 new StandardXYItemRenderer());
 		
 		plotLists.put(PlotType.THROTTLE, throtPlot);
 		
 		XYPlot flapPlot         = new XYPlot(flapSeries, 
-											 null, 
-											 new NumberAxis("Deflection [rad]"), 
+											 timeAxis, 
+											 flapAxis, 
 											 new StandardXYItemRenderer());
 		
 		plotLists.put(PlotType.FLAPS, flapPlot);
 		
 		XYPlot alphaDotPlot     = new XYPlot(alphaDotSeries, 
-											 null, 
-											 new NumberAxis("Rate [rad/sec]"), 
+											 timeAxis, 
+											 alphDotAxis, 
 											 new StandardXYItemRenderer());
 							
 		plotLists.put(PlotType.ALPHA_DOT, alphaDotPlot);
 
 		XYPlot machPlot         = new XYPlot(machSeries, 
-											 null, 
-											 new NumberAxis("Mach Number"), 
+											 timeAxis, 
+											 machAxis, 
 											 new StandardXYItemRenderer());
 
 		plotLists.put(PlotType.MACH, machPlot);
@@ -426,6 +448,7 @@ public class SimulationPlot extends JComponent {
 	protected void updateXYSeriesData(List<EnumMap<SimOuts, Double>> logsOut) {
 		
 		// Clear all data from series
+		
 		uData.clear();
 		vData.clear();
 		wData.clear();
@@ -508,6 +531,44 @@ public class SimulationPlot extends JComponent {
 			
 			alphaDotData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALPHA_DOT));
 			machData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.MACH));
+		}
+		
+		// Bounds the minimum X Axis value to the first time value in the data series 
+		
+		timeAxis.setRange(uData.getMinX(), uData.getMaxX());
+		
+		// Updates each CombinedDomainXYPlot with the new time axis
+		
+		ratesPlot.setDomainAxis(timeAxis);
+		for (int i = 0; i < ratesPlot.getRangeAxisCount(); i++) {
+			if (ratesPlot.getRangeAxis(i) != null) {
+				ratesPlot.getRangeAxis(i).setAutoRange(false);
+				ratesPlot.getRangeAxis(i).resizeRange(3);
+			}
+		}
+		
+		instrumentPlot.setDomainAxis(timeAxis);
+		for (int i = 0; i < instrumentPlot.getRangeAxisCount(); i++) {
+			if (instrumentPlot.getRangeAxis(i) != null)	{
+				instrumentPlot.getRangeAxis(i).setAutoRange(false);
+				instrumentPlot.getRangeAxis(i).resizeRange(3);
+			}
+		}
+		
+		miscPlot.setDomainAxis(timeAxis);
+		for (int i = 0; i < miscPlot.getRangeAxisCount(); i++) {
+			if (miscPlot.getRangeAxis(i) != null) {
+				miscPlot.getRangeAxis(i).setAutoRange(false);
+				miscPlot.getRangeAxis(i).resizeRange(3);
+			}
+		}
+		
+		controlsPlot.setDomainAxis(timeAxis);
+		for (int i = 0; i < controlsPlot.getRangeAxisCount(); i++) {
+			if (controlsPlot.getRangeAxis(i) != null) {
+				controlsPlot.getRangeAxis(i).setAutoRange(false);
+				controlsPlot.getRangeAxis(i).resizeRange(3);
+			}
 		}
 	}
 	

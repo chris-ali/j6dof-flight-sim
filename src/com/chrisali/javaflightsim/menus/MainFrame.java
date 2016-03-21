@@ -14,7 +14,9 @@ import javax.swing.JOptionPane;
 
 import com.chrisali.javaflightsim.instrumentpanel.ClosePanelListener;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
+import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.utilities.Utilities;
 
 public class MainFrame extends JFrame {
 
@@ -145,6 +147,10 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
+		//============================ Miscellaneous ===============================================
+		
+		setOptionsAndText();
+		
 		//========================== Window Settings ===============================================
 		
 		addWindowListener(new WindowAdapter() {
@@ -166,5 +172,16 @@ public class MainFrame extends JFrame {
 		setVisible(true);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	}
-
+	
+	private void setOptionsAndText() {
+		try {
+			simController.updateOptions(Utilities.parseSimSetupFile());
+		} catch (IllegalArgumentException e) {
+			JOptionPane.showMessageDialog(this, "Unable to read SimulationSetup.txt!", "Error Reading File", JOptionPane.ERROR_MESSAGE);
+		}
+		
+		int stepSize = (int)(1/simController.getIntegratorConfig().get(IntegratorConfig.DT));
+		
+		buttonPanel.setOptionsLabel(simController.getOptions(), stepSize);
+	}
 }

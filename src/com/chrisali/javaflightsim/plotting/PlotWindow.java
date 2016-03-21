@@ -1,6 +1,9 @@
 package com.chrisali.javaflightsim.plotting;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -9,7 +12,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
+import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -70,6 +77,8 @@ public class PlotWindow extends JFrame {
 		
 		//================== Window Settings ====================================
 		
+		setJMenuBar(createMenuBar());
+		
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
 		addWindowListener(new WindowAdapter() {
@@ -88,6 +97,50 @@ public class PlotWindow extends JFrame {
 		
 	}
 	
+	private JMenuBar createMenuBar() {
+
+		//+++++++++++++++++++++++++ File Menu ++++++++++++++++++++++++++++++++++++++++++
+		
+		JMenu fileMenu = new JMenu("File");
+		fileMenu.setMnemonic(KeyEvent.VK_F);
+		
+		//------------------- Refresh Item -------------------------------
+		
+		JMenuItem refreshItem = new JMenuItem("Refresh");
+		refreshItem.setMnemonic(KeyEvent.VK_R);
+		refreshItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));
+		refreshItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent ev) {
+				System.out.println("Refresh Plots");
+				//refreshPlots();
+			}
+		});
+		fileMenu.add(refreshItem);
+		
+		//----------------------- Close Item -------------------------------
+		
+		JMenuItem closeItem = new JMenuItem("Close");
+		closeItem.setMnemonic(KeyEvent.VK_C);
+		closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.CTRL_MASK));
+		closeItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				PlotWindow.this.setVisible(false);
+			}
+		});
+		fileMenu.add(closeItem);
+		
+		//===========================================================================
+		//                              Menu Bar
+		//===========================================================================
+		
+		JMenuBar menuBar = new JMenuBar();
+		menuBar.add(fileMenu);
+		
+		return menuBar;
+	}
+	
 	/**
 	 * Commands each plot in the plotList ArrayList to update its XYSeries values using data from logsOut. 
 	 * This will also set the plot window visible again if it has been closed.
@@ -103,7 +156,7 @@ public class PlotWindow extends JFrame {
 		if (!isVisible())
 			setVisible(true);
 	}
-
+	
 	public void setPlotCloseListener (PlotCloseListener plotCloseListener) {
 		this.plotCloseListener = plotCloseListener;
 	}

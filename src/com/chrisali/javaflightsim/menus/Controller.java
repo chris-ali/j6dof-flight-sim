@@ -57,12 +57,38 @@ public class Controller {
 	
 	//=============================== Configuration ===========================================================
 	
+	/**
+	 * @return options EnumSet
+	 */
 	public EnumSet<Options> getOptions() {return options;}
 	
-	public void updateOptions(EnumSet<Options> newOptions) {options = EnumSet.copyOf(newOptions);}
+	/**
+	 * Sets options to new options and then saves the configuration to a text file using 
+	 * {@link Utilities#writeConfigFile(String, String, Set, String)}
+	 * 
+	 * @param newOptions
+	 */
+	public void updateOptions(EnumSet<Options> newOptions) {
+		options = EnumSet.copyOf(newOptions);
+		
+		if (ab != null)
+			Utilities.writeConfigFile(SIM_CONFIG_PATH, "SimulationSetup", options, ab.getAircraft().getName());
+	}
 	
+	/**
+	 * Calls the {@link AircraftBuilder} constructor with using the aircraftName argument
+	 * 
+	 * @param aircraftName
+	 */
 	public void updateAircraft(String aircraftName) {ab = new AircraftBuilder(aircraftName);}
 	
+	/**
+	 * Updates the MassProperties config file for the selected aircraft using aircraftName
+	 * 
+	 * @param aircraftName
+	 * @param fuelWeight
+	 * @param payloadWeight
+	 */
 	public void updateMassProperties(String aircraftName, double fuelWeight, double payloadWeight) {
 		massProperties = Utilities.parseMassProperties(aircraftName);
 		
@@ -72,12 +98,30 @@ public class Controller {
 		Utilities.writeConfigFile("MassProperties", AIRCRAFT_PATH + aircraftName + "\\", massProperties);
 	}
 	
+	/**
+	 * @return integratorConfig EnumMap
+	 */
+	public EnumMap<IntegratorConfig, Double> getIntegratorConfig() {return integratorConfig;}
+
+	/**
+	 * Updates the IntegratorConfig file with stepSize inverted and converted to a double  
+	 * 
+	 * @param stepSize
+	 */
 	public void updateIntegratorConfig(int stepSize) {
 		integratorConfig.put(IntegratorConfig.DT, (1/((double)stepSize)));
 		
 		Utilities.writeConfigFile("IntegratorConfig", SIM_CONFIG_PATH, integratorConfig);
 	}
 	
+	/**
+	 * Updates initialConditions file with the following arguments, converted to radians and ft/sec:
+	 * 
+	 * @param coordinates [latitude, longitude]
+	 * @param heading 
+	 * @param altitude 
+	 * @param airspeed
+	 */
 	public void updateInitialConditions(double[] coordinates, double heading, double altitude, double airspeed) {
 		initialConditions.put(InitialConditions.INITLAT, Math.toRadians(coordinates[0]));
 		initialConditions.put(InitialConditions.INITLON, Math.toRadians(coordinates[1]));
@@ -88,27 +132,48 @@ public class Controller {
 		Utilities.writeConfigFile("InitialConditions", SIM_CONFIG_PATH, initialConditions);
 	}
 	
+	/**
+	 * Updates the InitialControls config file
+	 */
 	public void updateIninitialControls() {
-		Utilities.writeConfigFile("InitialContols", SIM_CONFIG_PATH, initialControls);
+		Utilities.writeConfigFile("InitialControls", SIM_CONFIG_PATH, initialControls);
 	}	
 	
 	//=============================== Simulation ===========================================================
 	
+	/**
+	 * @return boolean showing if the simulation is running 
+	 */
 	public boolean simulationIsRunning() {return runSim.isRunning();}
 	
+	/**
+	 * @return {@link AircraftBuilder} object
+	 */
 	public AircraftBuilder getAircraftBuilder() {return ab;}
 	
+	/**
+	 * @return ArrayList of simulation output data 
+	 * @see SimOuts
+	 */
 	public List<EnumMap<SimOuts, Double>> getLogsOut() {return runSim.getLogsOut();}
 	
+	/**
+	 * Initializes and starts the simulation (and flight data, if selected) threads.
+	 * Depending on options specified, a console panel, plot window and instrument panel
+	 * will alse be initialized and opened 
+	 * 
+	 * @param panel
+	 */
 	public void startSimulation(InstrumentPanel panel) {
 		runSim = new Integrate6DOFEquations(ab, options);
 		
 		simulationThread = new Thread(runSim);
 		simulationThread.start();
 		
-		if (options.contains(Options.CONSOLE_DISPLAY))
+		if (options.contains(Options.CONSOLE_DISPLAY)) {
 			updateConsole();
-		
+			consoleTablePanel.setVisible(true);
+		}
 		if (options.contains(Options.ANALYSIS_MODE)) {
 			plotSimulation();
 		} else {
@@ -117,22 +182,26 @@ public class Controller {
 			
 			flightDataThread = new Thread(flightData);
 			flightDataThread.start();
-			
-			consoleTablePanel.setVisible(true);
 		}
 	}
 	
+	/**
+	 * Interrupts simulation and flight data (if running) threads and closes the raw data console window
+	 */
 	public void stopSimulation() {
 		if (runSim != null && runSim.isRunning() && simulationThread != null && simulationThread.isAlive())
 			simulationThread.interrupt();
 		if (flightDataThread != null && flightDataThread.isAlive())
 			flightDataThread.interrupt();
-		if (consoleTablePanel.isVisible())
+		if (consoleTablePanel != null && consoleTablePanel.isVisible())
 			consoleTablePanel.setVisible(false);
 	}
 	
 	//=============================== Plotting =============================================================
 	
+	/**
+	 * Initializes the plot window if not already initalized, otherwise refreshes the window and sets it viaible again
+	 */
 	public void plotSimulation() {
 		if(plotWindow == null)
 			plotWindow = new PlotWindow(runSim.getLogsOut(), plotCategories, ab.getAircraft());
@@ -140,6 +209,9 @@ public class Controller {
 			plotWindow.refreshPlots(new ArrayList<EnumMap<SimOuts, Double>>(runSim.getLogsOut()));
 	}
 	
+	/**
+	 * @return if the plot window is visible
+	 */
 	public boolean isPlotWindowVisible() {
 		if (plotWindow == null) return false;
 		else return plotWindow.isVisible();
@@ -147,6 +219,9 @@ public class Controller {
 	
 	//=============================== Console =============================================================
 	
+	/**
+	 * Initializes the raw data console window if not already initalized, otherwise refreshes the window
+	 */
 	public void updateConsole() {
 		if (consoleTablePanel == null)
 			consoleTablePanel = new ConsoleTablePanel(runSim.getLogsOut(), this);
@@ -154,6 +229,12 @@ public class Controller {
 			consoleTablePanel.refresh();
 	}
 	
+	/**
+	 * Saves the raw data in the console window to a .csv file 
+	 * 
+	 * @param file
+	 * @throws IOException
+	 */
 	public void saveConsoleOutput(File file) throws IOException {
 		Utilities.saveToCSVFile(file, runSim.getLogsOut());
 	}
