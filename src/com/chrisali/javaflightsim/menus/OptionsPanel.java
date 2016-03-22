@@ -216,6 +216,24 @@ public class OptionsPanel extends JDialog {
 		setResizable(false);
 	}
 	
+	public void setOptionsPanel(EnumSet<Options> options, int stepSize) {
+		this.options = options;
+		
+		if (options.contains(Options.ANALYSIS_MODE))
+			analysisMode.setSelected(true);
+		if (options.contains(Options.CONSOLE_DISPLAY))
+			consoleDisplay.setSelected(true);
+		
+		if (options.contains(Options.USE_CH_CONTROLS))
+			controllers.setSelectedIndex(2);
+		else if (options.contains(Options.USE_MOUSE))
+			controllers.setSelectedIndex(1);
+		else
+			controllers.setSelectedIndex(0);
+		
+		stepSizeSpinner.setValue(stepSize);
+	}
+	
 	public void setOptionsConfigurationListener(OptionsConfigurationListener optionsConfigurationListener) {
 		this.optionsConfigurationListener = optionsConfigurationListener;
 	}

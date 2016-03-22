@@ -20,8 +20,6 @@ Until I learn OpenGL or Java3D, this program will send/receive data to/from an e
 -No trim method is implemented yet.
 
 ##Future Ideas
--Include different aircraft, selectable from a GUI
-
 -Selectable starting locations (in air or on ground)
 
 -Moving map support in a Swing GUI or Android app

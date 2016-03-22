@@ -38,6 +38,7 @@ public class AircraftPanel extends JDialog {
 	private static final long serialVersionUID = -4654745584883998137L;
 	
 	private JComboBox<String> aircraftComboBox;
+	private DefaultComboBoxModel<String> aircraftComboBoxModel;
 	private JTextArea descriptionArea;
 	private JLabel pictureArea;
 	private JButton weightButton;
@@ -94,7 +95,8 @@ public class AircraftPanel extends JDialog {
 		gc.weighty = 0.5;
 		gc.gridx = 0;
 		aircraftComboBox = new JComboBox<>();
-		aircraftComboBox.setModel(makeComboBox());
+		aircraftComboBoxModel = makeComboBox();
+		aircraftComboBox.setModel(aircraftComboBoxModel);
 		aircraftComboBox.setSelectedIndex(0);
 		aircraftComboBox.addItemListener(new ItemListener() {
 			@Override
@@ -237,6 +239,13 @@ public class AircraftPanel extends JDialog {
 		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + ".txt!");}
 		
 		return readFile.toString();
+	}
+	
+	public void setAircraftPanel(String aircraftName) {
+		for(int i=0; i<aircraftComboBoxModel.getSize(); i++) {
+			if (aircraftComboBoxModel.getElementAt(i).compareTo(aircraftName) == 0)
+				aircraftComboBox.setSelectedIndex(i);
+		}
 	}
 	
 	public void setAircraftConfigurationListener(AircraftConfigurationListener aircraftConfigurationListener) {

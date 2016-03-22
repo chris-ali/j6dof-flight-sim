@@ -183,8 +183,12 @@ public class MainFrame extends JFrame {
 		}
 		
 		int stepSize = (int)(1/simController.getIntegratorConfig().get(IntegratorConfig.DT));
+		String aircrafName = simController.getAircraftBuilder().getAircraft().getName();
 		
 		buttonPanel.setOptionsLabel(simController.getOptions(), stepSize);
-		buttonPanel.setAircraftLabel(simController.getAircraftBuilder().getAircraft().getName());
+		buttonPanel.setAircraftLabel(aircrafName);
+		
+		aircraftPanel.setAircraftPanel(aircrafName);
+		optionsPanel.setOptionsPanel(simController.getOptions(), stepSize);
 	}
 }
