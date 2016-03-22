@@ -1,7 +1,8 @@
-package com.chrisali.javaflightsim;
+package com.chrisali.javaflightsim.utilities.tests;
 
 import java.util.EnumSet;
 
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
@@ -10,7 +11,7 @@ import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
-public class RunSimulationWithPanel {
+public class InstrumentPanelTest {
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -29,6 +30,7 @@ public class RunSimulationWithPanel {
 		
 		InstrumentPanel panel = new InstrumentPanel();
 		flightData.setFlightDataListener(panel);
+		panel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		panel.setVisible(true);
 	}
 }
