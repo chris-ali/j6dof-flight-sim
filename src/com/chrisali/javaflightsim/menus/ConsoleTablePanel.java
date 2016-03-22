@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
+import javax.swing.SwingWorker;
 
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 
@@ -29,24 +30,40 @@ public class ConsoleTablePanel extends JFrame {
 	
 	private JTable table;
 	private ConsoleTableModel consoleTableModel;
-	private Controller controller;
+	private Controller simController;
+	private SwingWorker<Void,Integer> tableRefreshWorker;
 	
 	public ConsoleTablePanel(List<EnumMap<SimOuts, Double>> logsOut, Controller controller) {
 		super("Raw Data Output");
 		
-		this.controller = controller;
+		this.simController = controller;
 		setLayout(new BorderLayout());
 		
 		//-------------- Table Panel ------------------------
 		
 		consoleTableModel = new ConsoleTableModel();
+		consoleTableModel.setData(logsOut);
 		table = new JTable(consoleTableModel);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setColumnSelectionAllowed(true);
 		table.setRowSelectionAllowed(true);
+		tableRefreshWorker = new SwingWorker<Void, Integer>() {
+			@Override
+			protected void done() {
+				//if (!simController.getSimulation().isRunning())
+				//	ConsoleTablePanel.this.setVisible(false);
+			}
+
+			@Override
+			protected Void doInBackground() throws Exception {
+				while (controller.getSimulation().isRunning()) {
+					consoleTableModel.fireTableDataChanged();
+					Thread.sleep(50);
+				}
+				return null;
+			}
+		};
 		add(new JScrollPane(table), BorderLayout.CENTER);
-		
-		setData(logsOut);
 		
 		//=================== Window Settings =======================
 		
@@ -88,7 +105,7 @@ public class ConsoleTablePanel extends JFrame {
 			public void actionPerformed(ActionEvent ev) {
 				if (fileChooser.showSaveDialog(ConsoleTablePanel.this) == JFileChooser.APPROVE_OPTION) {
 					try {
-						controller.saveConsoleOutput(fileChooser.getSelectedFile());
+						simController.saveConsoleOutput(fileChooser.getSelectedFile());
 					} catch (IOException ex) {
 						JOptionPane.showMessageDialog(ConsoleTablePanel.this, 
 								"Could not save data to file", "Error", JOptionPane.ERROR_MESSAGE);
@@ -121,12 +138,8 @@ public class ConsoleTablePanel extends JFrame {
 		return menuBar;
 	}
 	
-	private void setData(List<EnumMap<SimOuts, Double>> logsOut) {
-		consoleTableModel.setData(logsOut);
-	}
-	
-	public void refresh() {
-		consoleTableModel.fireTableDataChanged();
+	public void startTableRefresh() {
+		tableRefreshWorker.execute();
 	}
 
 }

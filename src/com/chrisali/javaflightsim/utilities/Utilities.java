@@ -140,7 +140,7 @@ public class Utilities {
 	 * @param selectedAircraft
 	 * @param enumMap
 	 */
-	public static void writeConfigFile(String fileName, String filePath, Set<Options> optionsSet, String selectedAircraft) {
+	public static void writeConfigFile(String filePath, String fileName, Set<Options> optionsSet, String selectedAircraft) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(filePath).append(fileName).append(".txt");
 		

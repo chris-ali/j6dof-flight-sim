@@ -17,6 +17,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -37,6 +38,9 @@ public class PlotWindow extends JFrame {
 	private JTabbedPane tabPane;
 	private List<SimulationPlot> plotList;
 	private PlotCloseListener plotCloseListener;
+	private SwingWorker<Void, Integer> tabPaneWorker;
+	private SwingWorker<Void, Integer> refreshPlotWorker;
+	//private ProgressDialog progressDialog;
 	
 	/**
 	 * Plots data from the simulation in a Swing window. It loops through 
@@ -58,15 +62,21 @@ public class PlotWindow extends JFrame {
 		//------------------ Tab Pane ------------------------------
 		
 		tabPane = new JTabbedPane();
-		for (String plotTitle : simPlotCategories) {
-			try {Thread.sleep(125);} 
-			catch (InterruptedException e) {}
-			
-			SimulationPlot plotObject = new SimulationPlot(logsOut, plotTitle);
-			tabPane.add(plotTitle, plotObject);
-			plotList.add(plotObject);
-		}
-		tabPane.setSelectedIndex(0);
+		tabPaneWorker = new SwingWorker<Void, Integer>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				for (String plotTitle : simPlotCategories) {
+					try {Thread.sleep(125);} 
+					catch (InterruptedException e) {}
+					
+					SimulationPlot plotObject = new SimulationPlot(new ArrayList<EnumMap<SimOuts, Double>>(logsOut), plotTitle);
+					tabPane.add(plotTitle, plotObject);
+					plotList.add(plotObject);
+				}
+				return null;
+			}
+		};
+		tabPaneWorker.execute();
 		tabPane.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -74,7 +84,7 @@ public class PlotWindow extends JFrame {
 			}
 		});
 		add(tabPane, BorderLayout.CENTER);
-		
+
 		//================== Window Settings ====================================
 		
 		setJMenuBar(createMenuBar());
@@ -91,7 +101,7 @@ public class PlotWindow extends JFrame {
 			}
 		});
 		
-		setSize(tabPane.getSelectedComponent().getPreferredSize());
+		//setSize(tabPane.getSelectedComponent().getPreferredSize());
 		RefineryUtilities.centerFrameOnScreen(this);
 		setVisible(true);
 		
@@ -148,13 +158,23 @@ public class PlotWindow extends JFrame {
 	 * @param logsOut
 	 */
 	public void refreshPlots(List<EnumMap<SimOuts, Double>> logsOut) {
-		for (SimulationPlot plot : plotList) {
-			plot.updateXYSeriesData(logsOut);
-			plot.getChartPanel().repaint();
-		}
-		
-		if (!isVisible())
-			setVisible(true);
+		refreshPlotWorker = new SwingWorker<Void, Integer>() {
+			@Override
+			protected void done() {
+				if (!isVisible())
+					setVisible(true);
+			}
+
+			@Override
+			protected Void doInBackground() throws Exception {
+				for (SimulationPlot plot : plotList) {
+					plot.updateXYSeriesData(new ArrayList<EnumMap<SimOuts, Double>>(logsOut));
+					plot.getChartPanel().repaint();
+				}
+				return null;
+			}
+		};
+		refreshPlotWorker.execute();
 	}
 	
 	public void setPlotCloseListener (PlotCloseListener plotCloseListener) {

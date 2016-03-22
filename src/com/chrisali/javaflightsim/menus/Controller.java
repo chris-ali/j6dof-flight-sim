@@ -2,7 +2,6 @@ package com.chrisali.javaflightsim.menus;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -142,9 +141,9 @@ public class Controller {
 	//=============================== Simulation ===========================================================
 	
 	/**
-	 * @return boolean showing if the simulation is running 
+	 * @return instance of simulation
 	 */
-	public boolean simulationIsRunning() {return runSim.isRunning();}
+	public Integrate6DOFEquations getSimulation() {return runSim;}
 	
 	/**
 	 * @return {@link AircraftBuilder} object
@@ -170,10 +169,8 @@ public class Controller {
 		simulationThread = new Thread(runSim);
 		simulationThread.start();
 		
-		if (options.contains(Options.CONSOLE_DISPLAY)) {
-			updateConsole();
-			consoleTablePanel.setVisible(true);
-		}
+		if (options.contains(Options.CONSOLE_DISPLAY))
+			initializeConsole();
 		if (options.contains(Options.ANALYSIS_MODE)) {
 			plotSimulation();
 		} else {
@@ -200,13 +197,13 @@ public class Controller {
 	//=============================== Plotting =============================================================
 	
 	/**
-	 * Initializes the plot window if not already initalized, otherwise refreshes the window and sets it viaible again
+	 * Initializes the plot window if not already initialized, otherwise refreshes the window and sets it visible again
 	 */
 	public void plotSimulation() {
 		if(plotWindow == null)
 			plotWindow = new PlotWindow(runSim.getLogsOut(), plotCategories, ab.getAircraft());
 		else
-			plotWindow.refreshPlots(new ArrayList<EnumMap<SimOuts, Double>>(runSim.getLogsOut()));
+			plotWindow.refreshPlots(runSim.getLogsOut());
 	}
 	
 	/**
@@ -220,13 +217,11 @@ public class Controller {
 	//=============================== Console =============================================================
 	
 	/**
-	 * Initializes the raw data console window if not already initalized, otherwise refreshes the window
+	 * Initializes the raw data console window and starts the auto-refresh of its contents
 	 */
-	public void updateConsole() {
-		if (consoleTablePanel == null)
-			consoleTablePanel = new ConsoleTablePanel(runSim.getLogsOut(), this);
-		else
-			consoleTablePanel.refresh();
+	public void initializeConsole() {
+		consoleTablePanel = new ConsoleTablePanel(runSim.getLogsOut(), this);
+		consoleTablePanel.startTableRefresh();
 	}
 	
 	/**

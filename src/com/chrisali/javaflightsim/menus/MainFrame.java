@@ -127,12 +127,12 @@ public class MainFrame extends JFrame {
 				switch (ev.getKeyCode()) {
 				
 				case KeyEvent.VK_L:
-					if (simController.simulationIsRunning() && !simController.isPlotWindowVisible())
+					if (simController.getSimulation().isRunning() && !simController.isPlotWindowVisible())
 						simController.plotSimulation();
 					break;
 					
 				case KeyEvent.VK_Q:
-					if (simController.simulationIsRunning()) {
+					if (simController.getSimulation().isRunning()) {
 						simController.stopSimulation();
 						instrumentPanel.setVisible(false);
 						MainFrame.this.setVisible(true);
@@ -177,7 +177,8 @@ public class MainFrame extends JFrame {
 		try {
 			simController.updateOptions(Utilities.parseSimSetupFile());
 		} catch (IllegalArgumentException e) {
-			JOptionPane.showMessageDialog(this, "Unable to read SimulationSetup.txt!", "Error Reading File", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Unable to read SimulationSetup.txt!", 
+					"Error Reading File", JOptionPane.ERROR_MESSAGE);
 		}
 		
 		int stepSize = (int)(1/simController.getIntegratorConfig().get(IntegratorConfig.DT));
