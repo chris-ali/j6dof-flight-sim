@@ -159,7 +159,7 @@ public class Controller {
 	/**
 	 * Initializes and starts the simulation (and flight data, if selected) threads.
 	 * Depending on options specified, a console panel, plot window and instrument panel
-	 * will alse be initialized and opened 
+	 * will also be initialized and opened 
 	 * 
 	 * @param panel
 	 */

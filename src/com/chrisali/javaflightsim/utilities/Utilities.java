@@ -24,6 +24,10 @@ import com.chrisali.javaflightsim.simulation.setup.Options;
  */
 public class Utilities {
 
+	//===================================================================================================
+	//										Data Manipulation
+	//===================================================================================================	
+	
 	/**
 	 * Unboxes Double[] array into a double[] array; {@link Integrate6DOFEquations} needs primitive arrays, 
 	 * necessitating this method
@@ -49,6 +53,10 @@ public class Utilities {
 			unboxedArray[i] = boxed[i];
 		return unboxedArray;
 	}
+	
+	//===================================================================================================
+	//										File Reading
+	//===================================================================================================
 	
 	/**
 	 * Splits a config file called "fileContents".txt located in the folder 
@@ -108,6 +116,88 @@ public class Utilities {
 	}
 	
 	/**
+	 * Parses a config file called SimulationSetup.txt located in .\\SimConfig\\ 
+	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
+	 * and returns an EnumSet containing enums from Options for each line in the
+	 * file where *value* contains true  
+	 * 
+	 * @return EnumSet of selected options
+	 */
+	public static EnumSet<Options> parseSimSetupOptions() throws IllegalArgumentException {
+		ArrayList<String[]> readSimSetupFile = readFileAndSplit("SimulationSetup", ".\\SimConfig\\");
+		EnumSet<Options> options = EnumSet.noneOf(Options.class);
+		
+		for (String[] readLine : readSimSetupFile) {
+			if (readLine[1].compareTo("true") == 0)
+				options.add(Options.valueOf(readLine[0]));
+		}
+		
+		return options;
+	}
+	
+	/**
+	 * Parses a config file called SimulationSetup.txt located in .\\SimConfig\\ 
+	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
+	 * and returns a String of the right hand side value contained on the line
+	 * <br><code>"selectedAircraft = *value*\n"</code></br>
+	 * 
+	 * @return selectedAircraft
+	 */
+	public static String parseSimSetupSelectedAircraft() throws IllegalArgumentException {
+		ArrayList<String[]> readSimSetupFile = readFileAndSplit("SimulationSetup", ".\\SimConfig\\");
+		String selectedAircraft = "";
+		
+		for (String[] readLine : readSimSetupFile) {
+			if (readLine[0].compareTo("selectedAircraft") == 0)
+				selectedAircraft = readLine[1];
+		}
+		
+		return selectedAircraft;
+	}
+	
+	/**
+	 * Parses the MassProperties.txt file in .\Aircraft\aircraftName and returns an EnumMap with {@link MassProperties}
+	 * as the keys
+	 * 
+	 * @param aircraftName
+	 * @return massProperties EnumMap
+	 */
+	public static EnumMap<MassProperties, Double> parseMassProperties(String aircraftName) {
+		EnumMap<MassProperties, Double> massProperties = new EnumMap<MassProperties, Double>(MassProperties.class);
+		
+		// Mass Properties
+		ArrayList<String[]> readMassPropFile = readFileAndSplit(aircraftName, ".//Aircraft//", "MassProperties");
+		
+		for(MassProperties massPropKey : MassProperties.values()) {
+			for (String[] readLine : readMassPropFile) {
+				if (massPropKey.toString().equals(readLine[0]))
+					massProperties.put(massPropKey, Double.parseDouble(readLine[1]));
+			}
+		}
+
+		return massProperties;
+	}
+	
+	/**
+	 * @param fileName
+	 * @return string containing the file's extension 
+	 */
+	public static String getFileExtension(String fileName) {
+		int periodLocation = fileName.lastIndexOf(".");
+		
+		if (periodLocation == -1)
+			return "";
+		else if (periodLocation == fileName.length()-1)
+			return "";
+		else 
+			return fileName.substring(periodLocation+1, fileName.length());
+	}
+	
+	//===================================================================================================
+	//										File Writing
+	//===================================================================================================
+	
+	/**
 	 * Creates a config file called "fileName".txt located in the folder 
 	 * specified by filePath using an EnumMap where each line is written as:
 	 *  <br><code>"*parameter name* = *double value*\n"</code></br>
@@ -157,64 +247,6 @@ public class Utilities {
 	}
 	
 	/**
-	 * Parses a config file called SimulationSetup.txt located in .\\SimConfig\\ 
-	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
-	 * and returns an EnumSet containing enums from Options for each line in the
-	 * file where *value* contains true  
-	 * 
-	 * @return EnumSet of selected options
-	 */
-	public static EnumSet<Options> parseSimSetupFile() throws IllegalArgumentException {
-		ArrayList<String[]> readSimSetupFile = readFileAndSplit("SimulationSetup", ".\\SimConfig\\");
-		EnumSet<Options> options = EnumSet.noneOf(Options.class);
-		
-		for (String[] readLine : readSimSetupFile) {
-			if (readLine[1].compareTo("true") == 0)
-				options.add(Options.valueOf(readLine[0]));
-		}
-		
-		return options;
-	}
-	
-	/**
-	 * Parses the MassProperties.txt file in .\Aircraft\aircraftName and returns an EnumMap with {@link MassProperties}
-	 * as the keys
-	 * 
-	 * @param aircraftName
-	 * @return massProperties EnumMap
-	 */
-	public static EnumMap<MassProperties, Double> parseMassProperties(String aircraftName) {
-		EnumMap<MassProperties, Double> massProperties = new EnumMap<MassProperties, Double>(MassProperties.class);
-		
-		// Mass Properties
-		ArrayList<String[]> readMassPropFile = readFileAndSplit(aircraftName, ".//Aircraft//", "MassProperties");
-		
-		for(MassProperties massPropKey : MassProperties.values()) {
-			for (String[] readLine : readMassPropFile) {
-				if (massPropKey.toString().equals(readLine[0]))
-					massProperties.put(massPropKey, Double.parseDouble(readLine[1]));
-			}
-		}
-
-		return massProperties;
-	}
-	
-	/**
-	 * @param fileName
-	 * @return string containing the file's extension 
-	 */
-	public static String getFileExtension(String fileName) {
-		int periodLocation = fileName.lastIndexOf(".");
-		
-		if (periodLocation == -1)
-			return "";
-		else if (periodLocation == fileName.length()-1)
-			return "";
-		else 
-			return fileName.substring(periodLocation+1, fileName.length());
-	}
-	
-	/**
 	 * Writes a CSV file from data contained within the logsOut ArrayList 
 	 * 
 	 * @param file
@@ -243,6 +275,10 @@ public class Utilities {
 		
 		bw.close();
 	}
+	
+	//===================================================================================================
+	//										Unit Conversions
+	//===================================================================================================
 	
 	/**
 	 * @param knots

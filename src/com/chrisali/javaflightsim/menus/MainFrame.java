@@ -175,7 +175,8 @@ public class MainFrame extends JFrame {
 	
 	private void setOptionsAndText() {
 		try {
-			simController.updateOptions(Utilities.parseSimSetupFile());
+			simController.updateOptions(Utilities.parseSimSetupOptions());
+			simController.updateAircraft(Utilities.parseSimSetupSelectedAircraft());
 		} catch (IllegalArgumentException e) {
 			JOptionPane.showMessageDialog(this, "Unable to read SimulationSetup.txt!", 
 					"Error Reading File", JOptionPane.ERROR_MESSAGE);
@@ -184,5 +185,6 @@ public class MainFrame extends JFrame {
 		int stepSize = (int)(1/simController.getIntegratorConfig().get(IntegratorConfig.DT));
 		
 		buttonPanel.setOptionsLabel(simController.getOptions(), stepSize);
+		buttonPanel.setAircraftLabel(simController.getAircraftBuilder().getAircraft().getName());
 	}
 }
