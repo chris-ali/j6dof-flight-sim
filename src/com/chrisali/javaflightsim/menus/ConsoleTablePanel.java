@@ -8,8 +8,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.EnumMap;
-import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -22,8 +20,6 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 
-import com.chrisali.javaflightsim.simulation.integration.SimOuts;
-
 public class ConsoleTablePanel extends JFrame {
 
 	private static final long serialVersionUID = 555700867777925736L;
@@ -33,7 +29,7 @@ public class ConsoleTablePanel extends JFrame {
 	private Controller simController;
 	private SwingWorker<Void,Integer> tableRefreshWorker;
 	
-	public ConsoleTablePanel(List<EnumMap<SimOuts, Double>> logsOut, Controller controller) {
+	public ConsoleTablePanel(Controller controller) {
 		super("Raw Data Output");
 		
 		this.simController = controller;
@@ -42,7 +38,7 @@ public class ConsoleTablePanel extends JFrame {
 		//-------------- Table Panel ------------------------
 		
 		consoleTableModel = new ConsoleTableModel();
-		consoleTableModel.setData(logsOut);
+		consoleTableModel.setData(simController.getLogsOut());
 		table = new JTable(consoleTableModel);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setColumnSelectionAllowed(true);

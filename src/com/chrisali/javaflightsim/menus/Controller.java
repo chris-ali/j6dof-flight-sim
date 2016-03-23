@@ -220,7 +220,7 @@ public class Controller {
 	 * Initializes the raw data console window and starts the auto-refresh of its contents
 	 */
 	public void initializeConsole() {
-		consoleTablePanel = new ConsoleTablePanel(runSim.getLogsOut(), this);
+		consoleTablePanel = new ConsoleTablePanel(this);
 		consoleTablePanel.startTableRefresh();
 	}
 	

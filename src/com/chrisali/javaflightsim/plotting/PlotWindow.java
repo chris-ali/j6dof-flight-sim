@@ -22,8 +22,6 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.jfree.ui.RefineryUtilities;
-
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
@@ -35,12 +33,17 @@ public class PlotWindow extends JFrame {
 
 	private static final long serialVersionUID = -4197697777449504415L;
 	
+	private List<EnumMap<SimOuts, Double>> logsOut;
+	private Set<String> simPlotCategories;
+	
 	private JTabbedPane tabPane;
 	private List<SimulationPlot> plotList;
-	private PlotCloseListener plotCloseListener;
 	private SwingWorker<Void, Integer> tabPaneWorker;
 	private SwingWorker<Void, Integer> refreshPlotWorker;
 	//private ProgressDialog progressDialog;
+	
+	private PlotCloseListener plotCloseListener;
+	private PlotRefreshListener plotRefreshListener;
 	
 	/**
 	 * Plots data from the simulation in a Swing window. It loops through 
@@ -58,25 +61,16 @@ public class PlotWindow extends JFrame {
 		setLayout(new BorderLayout());
 		
 		plotList = new ArrayList<>();
+		this.logsOut = logsOut;
+		this.simPlotCategories = simPlotCategories;
 		
 		//------------------ Tab Pane ------------------------------
 		
 		tabPane = new JTabbedPane();
-		tabPaneWorker = new SwingWorker<Void, Integer>() {
-			@Override
-			protected Void doInBackground() throws Exception {
-				for (String plotTitle : simPlotCategories) {
-					try {Thread.sleep(125);} 
-					catch (InterruptedException e) {}
-					
-					SimulationPlot plotObject = new SimulationPlot(new ArrayList<EnumMap<SimOuts, Double>>(logsOut), plotTitle);
-					tabPane.add(plotTitle, plotObject);
-					plotList.add(plotObject);
-				}
-				return null;
-			}
-		};
-		tabPaneWorker.execute();
+		
+		if (this.logsOut != null && this.simPlotCategories != null)
+			initializePlots();
+		
 		tabPane.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
@@ -102,9 +96,7 @@ public class PlotWindow extends JFrame {
 		});
 		
 		//setSize(tabPane.getSelectedComponent().getPreferredSize());
-		RefineryUtilities.centerFrameOnScreen(this);
 		setVisible(true);
-		
 	}
 	
 	private JMenuBar createMenuBar() {
@@ -122,8 +114,8 @@ public class PlotWindow extends JFrame {
 		refreshItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent ev) {
-				System.out.println("Refresh Plots");
-				//refreshPlots();
+				if(plotRefreshListener != null)
+					plotRefreshListener.refeshPlotsSelected();
 			}
 		});
 		fileMenu.add(refreshItem);
@@ -149,6 +141,27 @@ public class PlotWindow extends JFrame {
 		menuBar.add(fileMenu);
 		
 		return menuBar;
+	}
+	
+	/**
+	 * Initalizes the plot window by generating plot objects and adding them to a tabbed pane 
+	 */
+	public void initializePlots() {
+		tabPaneWorker = new SwingWorker<Void, Integer>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				for (String plotTitle : simPlotCategories) {
+					try {Thread.sleep(125);} 
+					catch (InterruptedException e) {}
+					
+					SimulationPlot plotObject = new SimulationPlot(new ArrayList<EnumMap<SimOuts, Double>>(logsOut), plotTitle);
+					tabPane.add(plotTitle, plotObject);
+					plotList.add(plotObject);
+				}
+				return null;
+			}
+		};
+		tabPaneWorker.execute();
 	}
 	
 	/**
@@ -179,5 +192,9 @@ public class PlotWindow extends JFrame {
 	
 	public void setPlotCloseListener (PlotCloseListener plotCloseListener) {
 		this.plotCloseListener = plotCloseListener;
+	}
+	
+	public void setPlotRefreshListener (PlotRefreshListener plotRefreshListener) {
+		this.plotRefreshListener = plotRefreshListener;
 	}
 }

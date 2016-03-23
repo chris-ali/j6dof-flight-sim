@@ -90,7 +90,7 @@ public class ButtonPanel extends JPanel {
 		//------------------------- Aircraft Label ---------------------------------------------
 		gc.gridy++;
 		
-		aircraftLabel = new JLabel("Select an aircraft");
+		aircraftLabel = new JLabel("<b>Select an aircraft</b>");
 		aircraftLabel.setFont(labelFont);
 		add(aircraftLabel, gc);
 		
@@ -111,7 +111,7 @@ public class ButtonPanel extends JPanel {
 		//--------------------- Initial Conditions Label -----------------------------------------
 		gc.gridy++;
 		
-		initialConditonsLabel = new JLabel("Select starting conditions");
+		initialConditonsLabel = new JLabel("<b>Select starting conditions</b>");
 		initialConditonsLabel.setFont(labelFont);
 		setInitialConditionsLabel();
 		add(initialConditonsLabel, gc);
@@ -133,7 +133,7 @@ public class ButtonPanel extends JPanel {
 		//--------------------- Options Label -----------------------------------------
 		gc.gridy++;
 		
-		optionsLabel = new JLabel("Choose options");
+		optionsLabel = new JLabel("<b>Choose options</b>");
 		optionsLabel.setFont(labelFont);
 		add(optionsLabel, gc);
 	
@@ -143,6 +143,7 @@ public class ButtonPanel extends JPanel {
 		gc.anchor = GridBagConstraints.SOUTH;
 	
 		runButton = new JButton("Start Simulation");
+		runButton.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
 		runButton.setToolTipText("Runs the simulation with the selected options");
 		runButton.addActionListener(new ActionListener() {
 			@Override
@@ -157,7 +158,7 @@ public class ButtonPanel extends JPanel {
 	public void setAircraftLabel(String text) {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(parOpen).append("Selected Aircraft: ").append(parClose)
+		sb.append(parOpen).append("<b>Selected Aircraft:</b> ").append(parClose)
 		  .append(parOpen).append(text).append(parClose);
 		
 		aircraftLabel.setText(htmlBodyOpen + sb.toString() + htmlBodyClose);
@@ -174,7 +175,7 @@ public class ButtonPanel extends JPanel {
 		  .append(parOpen).append("Altitude: ").append(initialConditions.get(InitialConditions.INITD)).append(" ft").append(parClose)
 		  .append(parOpen).append("Airspeed: ").append(Utilities.toKnots(initialConditions.get(InitialConditions.INITU))).append(" kts").append(parClose);
 		
-		initialConditonsLabel.setText(htmlBodyOpen + "Starting Condtions: " + sb.toString() + htmlBodyClose);
+		initialConditonsLabel.setText(htmlBodyOpen + "<b>Starting Condtions:</b> " + sb.toString() + htmlBodyClose);
 	}
 	
 	public void setInitialConditionsLabel(double[] coordinates, double heading, double altitude, double airspeed) {
@@ -186,7 +187,7 @@ public class ButtonPanel extends JPanel {
 		  .append(parOpen).append("Altitude: ").append(altitude).append(" ft").append(parClose)
 		  .append(parOpen).append("Airspeed: ").append(airspeed).append(" kts").append(parClose);
 		
-		initialConditonsLabel.setText(htmlBodyOpen + "Starting Condtions: " + sb.toString() + htmlBodyClose);
+		initialConditonsLabel.setText(htmlBodyOpen + "<b>Starting Condtions:</b> " + sb.toString() + htmlBodyClose);
 	}
 	
 	public void setOptionsLabel(EnumSet<Options> options, int stepSize) {
@@ -196,7 +197,7 @@ public class ButtonPanel extends JPanel {
 			sb.append(parOpen).append(option.toString()).append(parClose);
 		sb.append(parOpen).append("Update Rate: ").append(stepSize).append(" Hz").append(parClose);
 		
-		optionsLabel.setText(htmlBodyOpen + "Selected Options:" + sb.toString() + htmlBodyClose);
+		optionsLabel.setText(htmlBodyOpen + "<b>Selected Options:</b>" + sb.toString() + htmlBodyClose);
 	}
 	
 	public void setAircraftButtonListener(AircraftButtonListener aircraftButtonListener) {
