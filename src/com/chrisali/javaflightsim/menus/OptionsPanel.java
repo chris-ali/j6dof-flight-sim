@@ -16,8 +16,6 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -28,7 +26,7 @@ import javax.swing.border.EtchedBorder;
 
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
-public class OptionsPanel extends JDialog {
+public class OptionsPanel extends JPanel {
 
 	private static final long serialVersionUID = -2865224216075732617L;
 	
@@ -41,9 +39,9 @@ public class OptionsPanel extends JDialog {
 
 	private EnumSet<Options> options = EnumSet.noneOf(Options.class);
 	private OptionsConfigurationListener optionsConfigurationListener;
+	private CancelButtonListener cancelButtonListener;
 	
-	public OptionsPanel(JFrame parent) {
-		super(parent, "Options", false);
+	public OptionsPanel() {
 		
 		//-------------------- Panels ---------------------------
 		
@@ -190,8 +188,6 @@ public class OptionsPanel extends JDialog {
 				
 				if (optionsConfigurationListener != null)
 					optionsConfigurationListener.optionsConfigured(options, (int)stepSizeSpinner.getValue());
-				
-				setVisible(false);
 			}
 		});
 		buttonPanel.add(okButton);
@@ -202,7 +198,8 @@ public class OptionsPanel extends JDialog {
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
+				if (cancelButtonListener != null)
+					cancelButtonListener.cancelButtonClicked();
 			}
 		});
 		buttonPanel.add(cancelButton);
@@ -210,10 +207,9 @@ public class OptionsPanel extends JDialog {
 		
 		//========================== Window Settings ===============================================
 		
-		setLocationRelativeTo(parent);
 		Dimension dims = new Dimension(500, 400);
 		setSize(dims);
-		setResizable(false);
+		setPreferredSize(dims);
 	}
 	
 	public void setOptionsPanel(EnumSet<Options> options, int stepSize) {
@@ -232,6 +228,10 @@ public class OptionsPanel extends JDialog {
 			controllers.setSelectedIndex(0);
 		
 		stepSizeSpinner.setValue(stepSize);
+	}
+	
+	public void setCancelButtonListener(CancelButtonListener cancelButtonListener) {
+		this.cancelButtonListener = cancelButtonListener;
 	}
 	
 	public void setOptionsConfigurationListener(OptionsConfigurationListener optionsConfigurationListener) {

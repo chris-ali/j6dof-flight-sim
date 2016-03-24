@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
@@ -49,7 +50,7 @@ public class WeightDialog extends JDialog {
 	
 	private WeightConfiguredListener weightConfiguredListener;
 	
-	public WeightDialog(JDialog parent, String aircraft) {
+	public WeightDialog(JFrame parent, String aircraft) {
 		super(parent, "Weight", false);
 		
 		aircraftName = aircraft;

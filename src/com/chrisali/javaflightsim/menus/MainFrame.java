@@ -1,6 +1,7 @@
 package com.chrisali.javaflightsim.menus;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
@@ -11,6 +12,7 @@ import java.util.EnumSet;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import com.chrisali.javaflightsim.instrumentpanel.ClosePanelListener;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
@@ -28,13 +30,24 @@ public class MainFrame extends JFrame {
 	private OptionsPanel optionsPanel;
 	private InitialConditionsPanel initialConditionsPanel;
 	private InstrumentPanel instrumentPanel;
-
+	private JPanel cardPanel; 
+	private CardLayout cardLayout;
+	
 	public MainFrame(Controller controller) {
 		super("Java Flight Sim");
 		
 		simController = controller;
 		
 		setLayout(new BorderLayout());
+		Dimension dims = new Dimension(200, 400);
+		
+		//---------------------------- Card Panel --------------------------------------------------
+		
+		cardLayout = new ResizingCardLayout();
+		cardPanel = new JPanel();
+		cardPanel.setLayout(cardLayout);
+		cardPanel.setVisible(false);
+		add(cardPanel, BorderLayout.EAST);
 		
 		//------------------------- Instrument Panel -----------------------------------------------
 		
@@ -56,6 +69,9 @@ public class MainFrame extends JFrame {
 			public void aircraftConfigured(String aircraftName) {
 				buttonPanel.setAircraftLabel(aircraftName);
 				simController.updateAircraft(aircraftName);
+				
+				setSize(dims);
+				cardPanel.setVisible(false);
 			}
 		});
 		aircraftPanel.setWeightConfiguredListener(new WeightConfiguredListener() {
@@ -64,29 +80,59 @@ public class MainFrame extends JFrame {
 				simController.updateMassProperties(aircraftName, fuelWeight, payloadWeight);
 			}
 		});
+		aircraftPanel.setCancelButtonListener(new CancelButtonListener() {
+			@Override
+			public void cancelButtonClicked() {
+				setSize(dims);
+				cardPanel.setVisible(false);
+			}
+		});
+		cardPanel.add(aircraftPanel, "aircraft");
 		
 		//--------------------------- Options Panel ------------------------------------------------
 		
-		optionsPanel = new OptionsPanel(this);
+		optionsPanel = new OptionsPanel();
 		optionsPanel.setOptionsConfigurationListener(new OptionsConfigurationListener() {
 			@Override
 			public void optionsConfigured(EnumSet<Options> options, int stepSize) {
 				buttonPanel.setOptionsLabel(options, stepSize);
 				simController.updateIntegratorConfig(stepSize);
 				simController.updateOptions(options);
+				
+				setSize(dims);
+				cardPanel.setVisible(false);
 			}
 		});
+		optionsPanel.setCancelButtonListener(new CancelButtonListener() {
+			@Override
+			public void cancelButtonClicked() {
+				setSize(dims);
+				cardPanel.setVisible(false);
+			}
+		});
+		cardPanel.add(optionsPanel, "options");
 		
-		//--------------------------- Options Panel ------------------------------------------------
+		//-------------------- Initial Conditions Panel --------------------------------------------
 		
-		initialConditionsPanel = new InitialConditionsPanel(this);
+		initialConditionsPanel = new InitialConditionsPanel();
 		initialConditionsPanel.setInitialConditionsConfigurationListener(new InitialConditionsConfigurationListener() {
 			@Override
 			public void initialConditonsConfigured(double[] coordinates, double heading, double altitude, double airspeed) {
 				buttonPanel.setInitialConditionsLabel(coordinates, heading, altitude, airspeed);
 				simController.updateInitialConditions(coordinates, heading, altitude, airspeed);
+				
+				setSize(dims);
+				cardPanel.setVisible(false);
 			}
 		});
+		initialConditionsPanel.setCancelButtonListener(new CancelButtonListener() {
+			@Override
+			public void cancelButtonClicked() {
+				setSize(dims);
+				cardPanel.setVisible(false);
+			}
+		});
+		cardPanel.add(initialConditionsPanel, "initialConditions");
 		
 		//-------------------------- Button Panel --------------------------------------------------
 		
@@ -94,24 +140,33 @@ public class MainFrame extends JFrame {
 		buttonPanel.setAircraftButtonListener(new AircraftButtonListener() {
 			@Override
 			public void buttonEventOccurred() {
-				aircraftPanel.setVisible(true);
+				setSize((dims.width+aircraftPanel.getPreferredSize().width), dims.height);
+				cardPanel.setVisible(true);
+				cardLayout.show(cardPanel, "aircraft");
 			}
 		});
 		buttonPanel.setInitialConditionsButtonListener(new InitialConditionsButtonListener() {
 			@Override
 			public void buttonEventOccurred() {
-				initialConditionsPanel.setVisible(true);
+				setSize((dims.width+initialConditionsPanel.getPreferredSize().width), dims.height);
+				cardPanel.setVisible(true);
+				cardLayout.show(cardPanel, "initialConditions");
 			}
 		});
 		buttonPanel.setOptionsButtonListener(new OptionsButtonListener() {
 			@Override
 			public void buttonEventOccurred() {
-				optionsPanel.setVisible(true);
+				setSize((dims.width+optionsPanel.getPreferredSize().width), dims.height);
+				cardPanel.setVisible(true);
+				cardLayout.show(cardPanel, "options");
 			}
 		});
 		buttonPanel.setStartSimulationButtonListener(new StartSimulationButtonListener() {
 			@Override
 			public void buttonEventOccurred() {
+				setSize(dims);
+				cardPanel.setVisible(false);
+				
 				simController.startSimulation(instrumentPanel);
 				MainFrame.this.setVisible(simController.getOptions().contains(Options.ANALYSIS_MODE) ? true : false);
 				instrumentPanel.setVisible(simController.getOptions().contains(Options.ANALYSIS_MODE) ? false : true);
@@ -165,7 +220,6 @@ public class MainFrame extends JFrame {
 			}
 		});
 
-		Dimension dims = new Dimension(200, 400);
 		setSize(dims);
 		setResizable(false);
 		

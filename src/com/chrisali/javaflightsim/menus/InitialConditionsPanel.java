@@ -13,8 +13,6 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -25,7 +23,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class InitialConditionsPanel extends JDialog {
+public class InitialConditionsPanel extends JPanel {
 
 	private static final long serialVersionUID = -6719504365922614073L;
 
@@ -39,9 +37,9 @@ public class InitialConditionsPanel extends JDialog {
 	private JButton cancelButton;
 	
 	private InitialConditionsConfigurationListener initialConditionsConfigurationListener;
+	private CancelButtonListener cancelButtonListener;
 	
-	public InitialConditionsPanel(JFrame parent) {
-		super(parent, "Initial Conditions", false);
+	public InitialConditionsPanel() {
 		
 		//-------------------- Panels ---------------------------
 		
@@ -194,8 +192,6 @@ public class InitialConditionsPanel extends JDialog {
 							new double[]{Double.parseDouble(latitudeArea.getText()), Double.parseDouble(longitudeArea.getText())}, 
 							(double)headingSpinner.getValue(), (double)altitudeSpinner.getValue(), (double)airspeedSpinner.getValue());
 				}
-				
-				setVisible(false);
 			}
 		});
 		buttonPanel.add(okButton);
@@ -206,7 +202,8 @@ public class InitialConditionsPanel extends JDialog {
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
+				if (cancelButtonListener != null)
+					cancelButtonListener.cancelButtonClicked();
 			}
 		});
 		buttonPanel.add(cancelButton);
@@ -214,9 +211,12 @@ public class InitialConditionsPanel extends JDialog {
 		
 		//========================== Window Settings ===============================================
 		
-		setLocationRelativeTo(parent);
 		setSize(windowSize);
-		setResizable(false);
+		setPreferredSize(windowSize);
+	}
+	
+	public void setCancelButtonListener(CancelButtonListener cancelButtonListener) {
+		this.cancelButtonListener = cancelButtonListener;
 	}
 	
 	public void setInitialConditionsConfigurationListener (InitialConditionsConfigurationListener initialConditionsConfigurationListener) {

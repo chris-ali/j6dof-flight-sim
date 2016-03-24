@@ -1,5 +1,6 @@
 package com.chrisali.javaflightsim.menus;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -153,6 +154,10 @@ public class ButtonPanel extends JPanel {
 			}
 		});
 		add(runButton, gc);
+		
+		//================================ Window Settings =========================================
+		
+		setSize(new Dimension(200, 400));
 	}
 	
 	public void setAircraftLabel(String text) {

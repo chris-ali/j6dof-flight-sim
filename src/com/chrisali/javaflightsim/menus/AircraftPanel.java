@@ -23,7 +23,6 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -33,7 +32,7 @@ import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
-public class AircraftPanel extends JDialog {
+public class AircraftPanel extends JPanel {
 
 	private static final long serialVersionUID = -4654745584883998137L;
 	
@@ -50,9 +49,9 @@ public class AircraftPanel extends JDialog {
 	
 	private AircraftConfigurationListener aircraftConfigurationListener;
 	private WeightConfiguredListener weightConfiguredListener;
+	private CancelButtonListener cancelButtonListener;
 	
 	public AircraftPanel(JFrame parent) {
-		super(parent, "Aircraft", false);
 				
 		//-------------------- Panels ---------------------------
 		
@@ -149,7 +148,7 @@ public class AircraftPanel extends JDialog {
 		
 		//--------------- Weight Dialog --------------------------
 
-		weightDialog = new WeightDialog(this, (String)aircraftComboBox.getSelectedItem());
+		weightDialog = new WeightDialog(parent, (String)aircraftComboBox.getSelectedItem());
 		weightDialog.setWeightConfiguredListener(new WeightConfiguredListener() {
 			@Override
 			public void weightConfigured(String aircraftName, double fuelWeight, double payloadWeight) {
@@ -166,7 +165,6 @@ public class AircraftPanel extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				if (aircraftConfigurationListener != null)
 					aircraftConfigurationListener.aircraftConfigured((String)aircraftComboBox.getSelectedItem());
-				setVisible(false);
 			}
 		});
 		buttonPanel.add(okButton);
@@ -177,7 +175,8 @@ public class AircraftPanel extends JDialog {
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
+				if (cancelButtonListener != null)
+					cancelButtonListener.cancelButtonClicked();
 			}
 		});
 		buttonPanel.add(cancelButton);
@@ -185,10 +184,8 @@ public class AircraftPanel extends JDialog {
 		
 		//========================== Window Settings ===============================================
 		
-		setLocationRelativeTo(parent);
 		Dimension dims = new Dimension(800, 400);
 		setSize(dims);
-		setResizable(false);
 	}
 	
 	private DefaultComboBoxModel<String> makeComboBox() {
@@ -246,6 +243,10 @@ public class AircraftPanel extends JDialog {
 			if (aircraftComboBoxModel.getElementAt(i).compareTo(aircraftName) == 0)
 				aircraftComboBox.setSelectedIndex(i);
 		}
+	}
+	
+	public void setCancelButtonListener(CancelButtonListener cancelButtonListener) {
+		this.cancelButtonListener = cancelButtonListener;
 	}
 	
 	public void setAircraftConfigurationListener(AircraftConfigurationListener aircraftConfigurationListener) {
