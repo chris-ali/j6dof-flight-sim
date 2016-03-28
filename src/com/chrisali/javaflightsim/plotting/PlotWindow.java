@@ -22,6 +22,8 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.chrisali.javaflightsim.menus.ProgressDialog;
+import com.chrisali.javaflightsim.menus.ProgressDialogListener;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
@@ -29,7 +31,7 @@ import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 /**
  * Generates a window of JFreeChart plots in tabs containing relevant data from the simulation
  */
-public class PlotWindow extends JFrame {
+public class PlotWindow extends JFrame implements ProgressDialogListener {
 
 	private static final long serialVersionUID = -4197697777449504415L;
 	
@@ -40,7 +42,7 @@ public class PlotWindow extends JFrame {
 	private List<SimulationPlot> plotList;
 	private SwingWorker<Void, Integer> tabPaneWorker;
 	private SwingWorker<Void, Integer> refreshPlotWorker;
-	//private ProgressDialog progressDialog;
+	private ProgressDialog progressDialog;
 	
 	private PlotCloseListener plotCloseListener;
 	private PlotRefreshListener plotRefreshListener;
@@ -78,6 +80,11 @@ public class PlotWindow extends JFrame {
 			}
 		});
 		add(tabPane, BorderLayout.CENTER);
+		
+		//-------------- Progress Dialog ----------------------------
+		
+		progressDialog = new ProgressDialog(this, "Plots Refreshing");
+		progressDialog.setProgressDialogListener(this);
 
 		//================== Window Settings ====================================
 		
@@ -171,23 +178,47 @@ public class PlotWindow extends JFrame {
 	 * @param logsOut
 	 */
 	public void refreshPlots(List<EnumMap<SimOuts, Double>> logsOut) {
+		progressDialog.setMaximum(plotList.size());
+		progressDialog.setVisible(true);
+		
 		refreshPlotWorker = new SwingWorker<Void, Integer>() {
 			@Override
 			protected void done() {
+				progressDialog.setVisible(false);
+				
+				if (isCancelled())
+					return;
+				
 				if (!isVisible())
 					setVisible(true);
 			}
 
 			@Override
+			protected void process(List<Integer> counts) {
+				int retreived = counts.get(counts.size()-1);
+				progressDialog.setValue(retreived);
+			}
+
+			@Override
 			protected Void doInBackground() throws Exception {
+				int count = 0;
+				
 				for (SimulationPlot plot : plotList) {
 					plot.updateXYSeriesData(new ArrayList<EnumMap<SimOuts, Double>>(logsOut));
 					plot.getChartPanel().repaint();
+					
+					count++;
+					publish(count);
 				}
 				return null;
 			}
 		};
 		refreshPlotWorker.execute();
+	}
+	
+	@Override
+	public void ProgressDialogCancelled() {
+		refreshPlotWorker.cancel(true);
 	}
 	
 	public void setPlotCloseListener (PlotCloseListener plotCloseListener) {

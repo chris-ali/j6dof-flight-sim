@@ -25,27 +25,37 @@ import com.chrisali.javaflightsim.utilities.Utilities;
 
 public class Controller {
 	
+	// Paths
 	private static final String SIM_CONFIG_PATH = ".\\SimConfig\\";
 	private static final String AIRCRAFT_PATH = ".\\Aircraft\\";
 	
+	// Configuration
 	private EnumSet<Options> options;
 	private EnumMap<InitialConditions, Double> initialConditions;
 	private EnumMap<IntegratorConfig, Double> integratorConfig;
 	private EnumMap<FlightControls, Double> initialControls; 
 	
+	// Simulation
 	private Integrate6DOFEquations runSim;
 	private Thread simulationThread;
 	private Thread flightDataThread;
 	private FlightData flightData;
 	
+	// Aircraft
 	private AircraftBuilder ab;
 	private EnumMap<MassProperties, Double> massProperties;
 	
+	// Plotting
 	private PlotWindow plotWindow;
 	private Set<String> plotCategories = new HashSet<>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous"));
 	
+	// Raw Data Console
 	private ConsoleTablePanel consoleTablePanel;
 	
+	/**
+	 * Constructor for the controller that initializes initial settings, configurations and conditions
+	 * to be edited through the menu options in the view
+	 */
 	public Controller() {
 		options = EnumSet.noneOf(Options.class);
 		
@@ -222,6 +232,14 @@ public class Controller {
 	public void initializeConsole() {
 		consoleTablePanel = new ConsoleTablePanel(this);
 		consoleTablePanel.startTableRefresh();
+	}
+	
+	/**
+	 * @return if the raw data console window is visible
+	 */
+	public boolean isConsoleWindowVisible() {
+		if (consoleTablePanel == null) return false;
+		else return consoleTablePanel.isVisible();
 	}
 	
 	/**
