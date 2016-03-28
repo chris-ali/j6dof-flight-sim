@@ -3,6 +3,7 @@ package com.chrisali.javaflightsim.menus;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -36,6 +37,7 @@ public class AircraftPanel extends JPanel {
 
 	private static final long serialVersionUID = -4654745584883998137L;
 	
+	private JLabel headerLabel;
 	private JComboBox<String> aircraftComboBox;
 	private DefaultComboBoxModel<String> aircraftComboBoxModel;
 	private JTextArea descriptionArea;
@@ -55,13 +57,16 @@ public class AircraftPanel extends JPanel {
 				
 		//-------------------- Panels ---------------------------
 		
+		JPanel headerPanel = new JPanel();
 		JPanel controlsPanel = new JPanel();
 		JPanel buttonPanel = new JPanel();
 		
+		headerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 		controlsPanel.setLayout(new GridBagLayout());
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		
 		setLayout(new BorderLayout());
+		add(headerPanel, BorderLayout.NORTH);
 		add(controlsPanel, BorderLayout.CENTER);
 		add(buttonPanel, BorderLayout.SOUTH);
 		
@@ -74,6 +79,12 @@ public class AircraftPanel extends JPanel {
 		controlsPanel.setBorder(BorderFactory.createCompoundBorder(emptyBorder, titleBorder));
 		
 		Insets spacer = new Insets(margins, margins, margins, margins);
+		
+		//------------------- Header ----------------------------
+		
+		headerLabel = new JLabel("Aircraft");
+		headerLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 16));
+		headerPanel.add(headerLabel);
 		
 		//-------------- GridBag Items -------------------------- 
 		

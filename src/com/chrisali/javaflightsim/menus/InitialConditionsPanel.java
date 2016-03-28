@@ -1,8 +1,10 @@
 package com.chrisali.javaflightsim.menus;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -26,7 +28,8 @@ import javax.swing.event.ChangeListener;
 public class InitialConditionsPanel extends JPanel {
 
 	private static final long serialVersionUID = -6719504365922614073L;
-
+	
+	private JLabel headerLabel;
 	private JTextArea latitudeArea;
 	private JTextArea longitudeArea;
 	private JSpinner headingSpinner;
@@ -43,16 +46,19 @@ public class InitialConditionsPanel extends JPanel {
 		
 		//-------------------- Panels ---------------------------
 		
+		JPanel headerPanel = new JPanel();
 		JPanel controlsPanel = new JPanel();
 		JPanel buttonPanel = new JPanel();
 		
+		headerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 		controlsPanel.setLayout(new GridBagLayout());
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		
 		setLayout(new BorderLayout());
+		add(headerPanel, BorderLayout.NORTH);
 		add(controlsPanel, BorderLayout.CENTER);
 		add(buttonPanel, BorderLayout.SOUTH);
-		
+
 		//--------- Dimensions Borders and Insets ---------------
 		
 		int margins = 5;
@@ -65,6 +71,12 @@ public class InitialConditionsPanel extends JPanel {
 		
 		Dimension componentSize = new Dimension(60, 25);
 		Dimension windowSize = new Dimension(300, 400);
+		
+		//------------------- Header ----------------------------
+		
+		headerLabel = new JLabel("Initial Conditions");
+		headerLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 16));
+		headerPanel.add(headerLabel);
 		
 		//-------------- GridBag Items -------------------------- 
 		
@@ -79,10 +91,10 @@ public class InitialConditionsPanel extends JPanel {
 		
 		//------- Coordinates Text Labels Row -------------------
 		gc.gridy++;
-		gc.weighty = 0.1;
+		gc.weighty = 0.05;
 		
 		gc.gridx = 1;
-		gc.weightx = 0.01;
+		gc.weightx = 0.005;
 		gc.anchor = GridBagConstraints.LAST_LINE_START;
 		controlsPanel.add(new JLabel("Latitude:"), gc);
 		
@@ -98,10 +110,11 @@ public class InitialConditionsPanel extends JPanel {
 		controlsPanel.add(new JLabel("Position:"), gc);
 		
 		gc.gridx = 1;
-		gc.weightx = 0.01;
+		gc.weightx = 0.005;
 		gc.anchor = GridBagConstraints.LINE_START;
 		latitudeArea = new JTextArea("0.0");
 		latitudeArea.setPreferredSize(componentSize);
+		latitudeArea.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		latitudeArea.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent e) {	
@@ -118,6 +131,7 @@ public class InitialConditionsPanel extends JPanel {
 		gc.gridx = 2;
 		longitudeArea = new JTextArea("0.0");
 		longitudeArea.setPreferredSize(componentSize);
+		longitudeArea.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		longitudeArea.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent e) {	

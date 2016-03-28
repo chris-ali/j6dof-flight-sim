@@ -1,8 +1,10 @@
 package com.chrisali.javaflightsim.menus;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -30,6 +32,7 @@ public class OptionsPanel extends JPanel {
 
 	private static final long serialVersionUID = -2865224216075732617L;
 	
+	private JLabel headerLabel;
 	private JCheckBox analysisMode;
 	private JCheckBox consoleDisplay;
 	private JList<String> controllers;
@@ -45,13 +48,16 @@ public class OptionsPanel extends JPanel {
 		
 		//-------------------- Panels ---------------------------
 		
+		JPanel headerPanel = new JPanel();
 		JPanel controlsPanel = new JPanel();
 		JPanel buttonPanel = new JPanel();
 		
+		headerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 		controlsPanel.setLayout(new GridBagLayout());
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		
 		setLayout(new BorderLayout());
+		add(headerPanel, BorderLayout.NORTH);
 		add(controlsPanel, BorderLayout.CENTER);
 		add(buttonPanel, BorderLayout.SOUTH);
 		
@@ -64,6 +70,12 @@ public class OptionsPanel extends JPanel {
 		controlsPanel.setBorder(BorderFactory.createCompoundBorder(emptyBorder, etchedBorder));
 		
 		Insets spacer = new Insets(margins, margins, margins, margins);
+		
+		//------------------- Header ----------------------------
+		
+		headerLabel = new JLabel("Options");
+		headerLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 16));
+		headerPanel.add(headerLabel);
 		
 		//-------------- GridBag Items -------------------------- 
 		
@@ -139,9 +151,11 @@ public class OptionsPanel extends JPanel {
 		DefaultListModel<String> controllerList = new DefaultListModel<>();
 		controllerList.addElement("Joystick");
 		controllerList.addElement("Mouse");
-		controllerList.addElement("CH Controls Suite");
+		controllerList.addElement("CH Controls");
 		controllers = new JList<String>(controllerList);
+		controllers.setToolTipText("Chooses which HID controller will control the simulation");
 		controllers.setSelectedIndex(0);
+		controllers.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		controllers.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
@@ -170,11 +184,12 @@ public class OptionsPanel extends JPanel {
 		
 		gc.gridx = 0;
 		gc.anchor = GridBagConstraints.EAST;
-		controlsPanel.add(new JLabel("Simulation Refresh Rate (cycles/sec):"), gc);
+		controlsPanel.add(new JLabel("Simulation Refresh Rate (Hz):"), gc);
 		
 		gc.gridx = 1;
 		gc.anchor = GridBagConstraints.WEST;
 		stepSizeSpinner = new JSpinner(new SpinnerNumberModel(20,10,500,10));
+		stepSizeSpinner.setToolTipText("Sets the simulation resolution, dictating how many times per second the simulation updates");
 		controlsPanel.add(stepSizeSpinner, gc);
 
 		//----------------- OK Button ----------------------------
@@ -207,7 +222,7 @@ public class OptionsPanel extends JPanel {
 		
 		//========================== Window Settings ===============================================
 		
-		Dimension dims = new Dimension(500, 400);
+		Dimension dims = new Dimension(400, 400);
 		setSize(dims);
 		setPreferredSize(dims);
 	}
