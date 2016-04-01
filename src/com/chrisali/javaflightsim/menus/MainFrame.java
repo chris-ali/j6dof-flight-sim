@@ -182,7 +182,9 @@ public class MainFrame extends JFrame {
 				switch (ev.getKeyCode()) {
 				
 				case KeyEvent.VK_L:
-					if (simController.getSimulation().isRunning() && !simController.isPlotWindowVisible())
+					if (simController.getSimulation() != null 
+							&& simController.getSimulation().isRunning() 
+							&& !simController.isPlotWindowVisible())
 						simController.plotSimulation();
 					break;
 					

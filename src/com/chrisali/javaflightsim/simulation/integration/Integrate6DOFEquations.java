@@ -334,8 +334,21 @@ public class Integrate6DOFEquations implements Runnable {
 		simOut.put(SimOuts.P_DOT, 	 	sixDOFDerivatives[9]);
 		simOut.put(SimOuts.Q_DOT, 	 	sixDOFDerivatives[10]);
 		simOut.put(SimOuts.R_DOT, 	 	sixDOFDerivatives[11]);
-		
+
 		// Engine(s)
+		simOut.put(SimOuts.THRUST_1, 	0.0);
+		simOut.put(SimOuts.RPM_1, 	 	0.0);
+		simOut.put(SimOuts.FUEL_FLOW_1, 0.0);
+		simOut.put(SimOuts.THRUST_2, 	0.0);
+		simOut.put(SimOuts.RPM_2, 	 	0.0);
+		simOut.put(SimOuts.FUEL_FLOW_2, 0.0);
+		simOut.put(SimOuts.THRUST_3, 	0.0);
+		simOut.put(SimOuts.RPM_3, 	 	0.0);
+		simOut.put(SimOuts.FUEL_FLOW_3, 0.0);
+		simOut.put(SimOuts.THRUST_4, 	0.0);
+		simOut.put(SimOuts.RPM_4, 	 	0.0);
+		simOut.put(SimOuts.FUEL_FLOW_4, 0.0);
+
 		for (Engine engine : engineList) {
 			switch(engine.getEngineNumber()) {
 			case 1:
@@ -371,7 +384,16 @@ public class Integrate6DOFEquations implements Runnable {
 		simOut.put(SimOuts.THROTTLE_2, 	controls.get(FlightControls.THROTTLE_2));
 		simOut.put(SimOuts.THROTTLE_3, 	controls.get(FlightControls.THROTTLE_3));
 		simOut.put(SimOuts.THROTTLE_4, 	controls.get(FlightControls.THROTTLE_4));
+		simOut.put(SimOuts.PROPELLER_1, controls.get(FlightControls.PROPELLER_1));
+		simOut.put(SimOuts.PROPELLER_2, controls.get(FlightControls.PROPELLER_2));
+		simOut.put(SimOuts.PROPELLER_3, controls.get(FlightControls.PROPELLER_3));
+		simOut.put(SimOuts.PROPELLER_4, controls.get(FlightControls.PROPELLER_4));
+		simOut.put(SimOuts.MIXTURE_1, 	controls.get(FlightControls.MIXTURE_1));
+		simOut.put(SimOuts.MIXTURE_2, 	controls.get(FlightControls.MIXTURE_2));
+		simOut.put(SimOuts.MIXTURE_3, 	controls.get(FlightControls.MIXTURE_3));
+		simOut.put(SimOuts.MIXTURE_4, 	controls.get(FlightControls.MIXTURE_4));
 		simOut.put(SimOuts.FLAPS, 	 	controls.get(FlightControls.FLAPS));
+		simOut.put(SimOuts.GEAR, 	 	controls.get(FlightControls.GEAR));
 		
 		// Removes the first entry in logsOut to keep a maximum of 100 sec of flight data in UNLIMITED_FLIGHT
 		if (options.contains(Options.UNLIMITED_FLIGHT) & t >= 100)

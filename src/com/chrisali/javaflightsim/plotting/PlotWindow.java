@@ -22,8 +22,6 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.chrisali.javaflightsim.menus.ProgressDialog;
-import com.chrisali.javaflightsim.menus.ProgressDialogListener;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;

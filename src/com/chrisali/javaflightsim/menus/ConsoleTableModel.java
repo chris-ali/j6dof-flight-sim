@@ -34,6 +34,7 @@ public class ConsoleTableModel extends AbstractTableModel {
 	public Object getValueAt(int row, int col) {
 		simOut = logsOut.get(row);
 		
+		DecimalFormat df6 = new DecimalFormat("#.######");
 		DecimalFormat df4 = new DecimalFormat("#.####");
 		DecimalFormat df2 = new DecimalFormat("#.##");
 		DecimalFormat df1 = new DecimalFormat("#.#");
@@ -103,11 +104,11 @@ public class ConsoleTableModel extends AbstractTableModel {
 		case 30:
 			return df4.format(simOut.get(SimOuts.LAT));
 		case 31:
-			return df4.format(simOut.get(SimOuts.LAT_DOT));
+			return df6.format(simOut.get(SimOuts.LAT_DOT));
 		case 32:
 			return df4.format(simOut.get(SimOuts.LON));
 		case 33:
-			return df4.format(simOut.get(SimOuts.LON_DOT));
+			return df6.format(simOut.get(SimOuts.LON_DOT));
 		case 34:
 			return df4.format(simOut.get(SimOuts.A_X));
 		case 35:
@@ -165,13 +166,13 @@ public class ConsoleTableModel extends AbstractTableModel {
 		case 61:
 			return df1.format(simOut.get(SimOuts.THROTTLE_4));
 		case 62:
-			return df1.format(simOut.get(SimOuts.PROPLLER_1));
+			return df1.format(simOut.get(SimOuts.PROPELLER_1));
 		case 63:
-			return df1.format(simOut.get(SimOuts.PROPLLER_2));
+			return df1.format(simOut.get(SimOuts.PROPELLER_2));
 		case 64:
-			return df1.format(simOut.get(SimOuts.PROPLLER_3));
+			return df1.format(simOut.get(SimOuts.PROPELLER_3));
 		case 65:
-			return df1.format(simOut.get(SimOuts.PROPLLER_4));
+			return df1.format(simOut.get(SimOuts.PROPELLER_4));
 		case 66:
 			return df1.format(simOut.get(SimOuts.MIXTURE_1));
 		case 67:

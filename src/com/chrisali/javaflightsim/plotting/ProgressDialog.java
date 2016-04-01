@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.menus;
+package com.chrisali.javaflightsim.plotting;
 
 import java.awt.BorderLayout;
 import java.awt.Cursor;
@@ -62,8 +62,9 @@ public class ProgressDialog extends JDialog {
 			}
 		});
 		
-		setSize(200, 75);
+		setSize(300, 100);
 		setLocationRelativeTo(parent);
+		setAlwaysOnTop(true);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	}
 	
