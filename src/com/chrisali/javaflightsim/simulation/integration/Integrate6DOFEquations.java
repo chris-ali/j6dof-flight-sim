@@ -171,14 +171,17 @@ public class Integrate6DOFEquations implements Runnable {
 		double[][] dirCosMat     = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([row][column])
 		double[]   inertiaCoeffs = SixDOFUtilities.calculateInertiaCoeffs(Utilities.unboxDoubleArray(aircraft.getInertiaValues()));
 		double[]   ned2LLA       = SixDOFUtilities.ned2LLA(y);
+		double[]   windSpdNED    = new double[]{environmentParameters.get(EnvironmentParameters.WIND_SPEED_N),
+												environmentParameters.get(EnvironmentParameters.WIND_SPEED_E),
+												environmentParameters.get(EnvironmentParameters.WIND_SPEED_D)};
 		
 		yDot[0]  = (y[11]*y[1])-(y[10]*y[2])-(gravity*Math.sin(y[7]))               +linearAccelerations[0];    // u (ft/sec)
 		yDot[1]  = (y[9]* y[2])-(y[11]*y[0])+(gravity*Math.sin(y[6])*Math.cos(y[7]))+linearAccelerations[1];    // v (ft/sec)
 		yDot[2]  = (y[10]*y[0])-(y[9]* y[1])+(gravity*Math.cos(y[6])*Math.cos(y[7]))+linearAccelerations[2];    // w (ft/sec)
 		
-		yDot[3]  = (y[0]*dirCosMat[0][0]+y[1]*dirCosMat[0][1]+y[2]*dirCosMat[0][2]);    // N (ft)
-		yDot[4]  = (y[0]*dirCosMat[1][0]+y[1]*dirCosMat[1][1]+y[2]*dirCosMat[1][2]);    // E (ft)
-		yDot[5]  = (y[0]*dirCosMat[2][0]+y[1]*dirCosMat[2][1]+y[2]*dirCosMat[2][2])*-1; // D (ft)
+		yDot[3]  =    (y[0]*dirCosMat[0][0]+y[1]*dirCosMat[0][1]+y[2]*dirCosMat[0][2])+windSpdNED[0];    // N (ft)
+		yDot[4]  =    (y[0]*dirCosMat[1][0]+y[1]*dirCosMat[1][1]+y[2]*dirCosMat[1][2])+windSpdNED[1];    // E (ft)
+		yDot[5]  = -1*(y[0]*dirCosMat[2][0]+y[1]*dirCosMat[2][1]+y[2]*dirCosMat[2][2])+windSpdNED[2];    // D (ft)
 		
 		yDot[6]  =   y[9]+(Math.tan(y[7])*((y[10]*Math.sin(y[6]))+(y[11]*Math.cos(y[6])))); // phi (rad)
 		yDot[7]  =  (y[10]*Math.cos(y[6]))-(y[11]*Math.sin(y[6]));     			            // theta (rad)
@@ -419,28 +422,6 @@ public class Integrate6DOFEquations implements Runnable {
 	}
 	
 	/**
-	 * Returns an ArrayList of {@link Integrate6DOFEquations#getSimOut()} objects; acts as a logging method, which can be used to plot simulation data
-	 * or output it to a file
-	 * 
-	 * @return logsOut
-	 */
-	public List<EnumMap<SimOuts, Double>> getLogsOut() {return Collections.unmodifiableList(logsOut);}
-	
-	/**
-	 * Returns an EnumMap of data for a single step of integration accomplished in {@link Integrate6DOFEquations#accelAndMoments#logData(double)}	
-	 * 
-	 * @return simOut
-	 */
-	public Map<SimOuts, Double> getSimOut() {return Collections.unmodifiableMap(simOut);}
-	
-	/**
-	 * Lets other objects know if {@link Integrate6DOFEquations#run()} is currently running
-	 * 
-	 * @return Running status of integration
-	 */
-	public boolean isRunning() {return running;}
-	
-	/**
 	 * Runs {@link Integrate6DOFEquations} integration loop by calling the {@link ClassicalRungeKuttaIntegrator#singleStep(FirstOrderDifferentialEquations, double, double[], double)}
 	 * method on each iteration of the loop as long as {@link Options#PAUSED} isn't enabled 
 	 * 
@@ -488,5 +469,38 @@ public class Integrate6DOFEquations implements Runnable {
 			running = false;
 			
 		} catch (InterruptedException e) {}
+	}
+	
+	/**
+	 * Returns an ArrayList of {@link Integrate6DOFEquations#getSimOut()} objects; acts as a logging method, which can be used to plot simulation data
+	 * or output it to a file
+	 * 
+	 * @return logsOut
+	 */
+	public List<EnumMap<SimOuts, Double>> getLogsOut() {return Collections.unmodifiableList(logsOut);}
+	
+	/**
+	 * Returns an EnumMap of data for a single step of integration accomplished in {@link Integrate6DOFEquations#accelAndMoments#logData(double)}	
+	 * 
+	 * @return simOut
+	 */
+	public Map<SimOuts, Double> getSimOut() {return Collections.unmodifiableMap(simOut);}
+	
+	/**
+	 * Lets other objects know if {@link Integrate6DOFEquations#run()} is currently running
+	 * 
+	 * @return Running status of integration
+	 */
+	public boolean isRunning() {return running;}
+	
+	/**
+	 * Sets the wind speed (kts) and wind direction (deg) 
+	 * 
+	 * @param windSpeed
+	 * @param windDir
+	 */
+	public void setWind(double windSpeed, double windDir) {
+		Environment.setWindDir(windDir);
+		Environment.setWindSpeed(windSpeed);
 	}
 }

@@ -33,8 +33,9 @@ public class EnvironmentTest extends ApplicationFrame {
 		
 		XYSeries gravData    = new XYSeries("Gravity");
 		
-		XYSeries windSpdData = new XYSeries("Wind Speed");		
-		XYSeries windDirData = new XYSeries("Wind Direction");
+		XYSeries windSpdNData = new XYSeries("N Wind Speed");
+		XYSeries windSpdEData = new XYSeries("E Wind Speed");
+		XYSeries windSpdDData = new XYSeries("D Wind Speed");
 		
 		XYSeriesCollection tSeries    = new XYSeriesCollection();
 		XYSeriesCollection pSeries    = new XYSeriesCollection();
@@ -44,6 +45,8 @@ public class EnvironmentTest extends ApplicationFrame {
 		XYSeriesCollection windSeries = new XYSeriesCollection();
 		
 		for (double alt=0; alt<60000; alt+=10) {
+			Environment.setWindDir(alt*6/1000);
+			Environment.setWindSpeed(alt/6000);
 			envData = Environment.updateEnvironmentParams(new double[] {0, 0, alt});
 			
 			// Add envData to each XYSeries
@@ -54,8 +57,9 @@ public class EnvironmentTest extends ApplicationFrame {
 			
 			gravData.add(alt,envData.get(EnvironmentParameters.GRAVITY));
 			
-			windSpdData.add(alt,envData.get(EnvironmentParameters.WIND_SPEED));
-			windDirData.add(alt,envData.get(EnvironmentParameters.WIND_DIRECTION));
+			windSpdNData.add(alt,envData.get(EnvironmentParameters.WIND_SPEED_N));
+			windSpdEData.add(alt,envData.get(EnvironmentParameters.WIND_SPEED_E));
+			windSpdDData.add(alt,envData.get(EnvironmentParameters.WIND_SPEED_D));
 		}
 		
 		// Add series data to XYSeriesCollections
@@ -66,8 +70,9 @@ public class EnvironmentTest extends ApplicationFrame {
 		
 		gravSeries.addSeries(gravData);
 		
-		windSeries.addSeries(windSpdData);
-		windSeries.addSeries(windDirData);
+		windSeries.addSeries(windSpdNData);
+		windSeries.addSeries(windSpdEData);
+		windSeries.addSeries(windSpdDData);
 	
 		// Create plots and add XYSeriesCollections to them		
 		XYPlot tPlot    = new XYPlot(tSeries,    
@@ -95,10 +100,10 @@ public class EnvironmentTest extends ApplicationFrame {
 									 new NumberAxis("Gravity [ft/sec^2]"), 
 									 new StandardXYItemRenderer());
 
-//		XYPlot windPlot = new XYPlot(windSeries, 
-//									 null, 
-//									 new NumberAxis("Wind Speed/Direction"), 
-//									 new StandardXYItemRenderer());
+		XYPlot windPlot = new XYPlot(windSeries, 
+									 null, 
+									 new NumberAxis("Wind Speed"), 
+									 new StandardXYItemRenderer());
 
 		// Create CombinedDomainXYPlots and add XYPlots to them
 		CombinedDomainXYPlot environmentPlot = new CombinedDomainXYPlot(new NumberAxis("Altitude [ft]"));
@@ -109,7 +114,7 @@ public class EnvironmentTest extends ApplicationFrame {
 		environmentPlot.add(aPlot,   3);
 		
 		environmentPlot.add(gravPlot, 1);
-//		environmentPlot.add(windPlot, 2);
+		environmentPlot.add(windPlot, 2);
 		
 		environmentPlot.setOrientation(PlotOrientation.VERTICAL);
 		environmentPlot.setGap(20);

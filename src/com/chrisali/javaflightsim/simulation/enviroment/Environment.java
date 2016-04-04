@@ -2,6 +2,9 @@ package com.chrisali.javaflightsim.simulation.enviroment;
 
 import java.util.EnumMap;
 
+import com.chrisali.javaflightsim.simulation.integration.SaturationLimits;
+import com.chrisali.javaflightsim.utilities.Utilities;
+
 /**
  * This class calculates atmospheric parameters as a function of height, and the gravitational acceleration constant.
  * It uses the 1976 NASA Standard Atmosphere model, and assumes that gravity is constant in the Z direction.
@@ -23,16 +26,20 @@ public class Environment {
 	private static final double ENV_CONST_TROP = 0.0000068755;
 	private static final double ENV_CONST_STRAT = -0.0000480637;
 	
+	private static double windSpeed = 0.0;
+	private static double windDir   = 0.0;
+
 	/**
 	 * Calculates the temperature (R), presssure (lb/ft^2), density (slug/ft^3), speed of sound (ft/sec) and gravity (ft/sec^2)
-	 * for a given height above Earth and then places that data into an EnumMap with {@link EnvironmentParameters} as the keys 
+	 * for a given height above Earth, then calculates the wind speed components for a given speed and direction,
+	 *  and then places that data into an EnumMap with {@link EnvironmentParameters} as the keys 
 	 * 
 	 * @param NEDPosition
 	 * @return EnumMap of environment parameters
 	 */
 	public static EnumMap<EnvironmentParameters, Double> updateEnvironmentParams(double[] NEDPosition) {
 		EnumMap<EnvironmentParameters, Double> environmentParams = new EnumMap<EnvironmentParameters, Double>(EnvironmentParameters.class); 
-		Double temp, rho, p, a, g;
+		double temp, rho, p, a, g, windN, windE, windD;
 		
 		// Troposphere
 		if (NEDPosition[2] < HT_TROP) {
@@ -51,11 +58,18 @@ public class Environment {
 		
 		g = GRAVITY*(RADIUS_EARTH/(RADIUS_EARTH+NEDPosition[2]));
 		
-		environmentParams.put(EnvironmentParameters.T,       temp);
-		environmentParams.put(EnvironmentParameters.P,       p);
-		environmentParams.put(EnvironmentParameters.RHO,     rho);
-		environmentParams.put(EnvironmentParameters.A,       a);
-		environmentParams.put(EnvironmentParameters.GRAVITY, g);
+		windN = windSpeed*Math.cos(windDir);
+		windE = windSpeed*Math.sin(windDir);
+		windD = 0.0;
+		
+		environmentParams.put(EnvironmentParameters.T,       	   temp);
+		environmentParams.put(EnvironmentParameters.P,       		  p);
+		environmentParams.put(EnvironmentParameters.RHO,     		rho);
+		environmentParams.put(EnvironmentParameters.A,       	  	  a);
+		environmentParams.put(EnvironmentParameters.GRAVITY, 	  	  g);
+		environmentParams.put(EnvironmentParameters.WIND_SPEED_N, windN);
+		environmentParams.put(EnvironmentParameters.WIND_SPEED_E, windE);
+		environmentParams.put(EnvironmentParameters.WIND_SPEED_D, windD);
 		
 		return environmentParams;
 	}
@@ -64,4 +78,20 @@ public class Environment {
 	 * @return Gravity (ft/sec^2) as a double array vector
 	 */
 	public static double getGravity() {return GRAVITY;}
+	
+	/**
+	 * Sets the wind speed (kts)
+	 * 
+	 * @param windSpeed
+	 */
+	public static void setWindSpeed(double windSpeed) {
+		Environment.windSpeed = (windSpeed > 100) ? Utilities.toFtPerSec(100) : Utilities.toFtPerSec(windSpeed);
+	}
+	
+	/**
+	 * Sets the wind direction (deg)
+	 * 
+	 * @param windDir
+	 */
+	public static void setWindDir(double windDir) {Environment.windDir = SaturationLimits.twoPiBounding(Math.toRadians(windDir)-Math.PI);}
 }

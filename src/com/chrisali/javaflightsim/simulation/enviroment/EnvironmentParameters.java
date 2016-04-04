@@ -9,8 +9,9 @@ public enum EnvironmentParameters {
 	P			   ("pressure"),
 	RHO			   ("density"),
 	A			   ("speedOfSound"),
-	WIND_SPEED	   ("windSpeed"),
-	WIND_DIRECTION ("windDirection"),
+	WIND_SPEED_N   ("windSpeedN"),
+	WIND_SPEED_E   ("windSpeedE"),
+	WIND_SPEED_D   ("windSpeedD"),
 	TURBULENCE	   ("turbulence");
 	
 	private final String environmentParameter;

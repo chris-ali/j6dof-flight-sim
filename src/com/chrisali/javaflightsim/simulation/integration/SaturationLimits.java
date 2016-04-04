@@ -1,12 +1,25 @@
 package com.chrisali.javaflightsim.simulation.integration;
 
 /**
- * This class provides methods to limit the results calculated in {@link Integrate6DOFEquations} to prevent large or non-physical values of the 6DOF states from affecting the simulation elsewhere  
+ * This class provides methods to limit the results calculated in {@link Integrate6DOFEquations} to prevent large or non-physical values 
+ * of the 6DOF states from affecting the simulation elsewhere  
  */
 public class SaturationLimits {
 	
 	/**
-	 * Binds pitch and bank angles between +/- Pi, and heading between 0 and 2*Pi. In addition, pitch is prevented from reaching +/- Pi/2, as this would cause a singularity in the calculation of heading in {@link Integrate6DOFEquations}
+	 * @return Angle bound between 0 and 2*Pi. 
+	 */
+	public static double twoPiBounding(double angle) {
+		// Return only positive values of angle between 0 and 2*pi
+		angle += 2*Math.PI;
+		angle %= 2*Math.PI;
+		
+		return angle;
+	}
+	
+	/**
+	 * Binds pitch and bank angles between +/- Pi, and heading between 0 and 2*Pi. In addition, pitch is prevented from reaching +/- Pi/2, 
+	 * as this would cause a singularity in the calculation of heading in {@link Integrate6DOFEquations}
 	 * @return eulerAngles
 	 */
 	public static double[] piBounding(double[] eulerAngles) {
