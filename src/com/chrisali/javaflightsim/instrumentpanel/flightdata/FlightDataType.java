@@ -13,7 +13,9 @@ public enum FlightDataType {
 	TURN_COORD	 ("Lateral Acceleration", "g"),
 	ALTITUDE	 ("Altitude", "ft"),
 	LATITUDE	 ("Latitude","deg"),
-	LONGITUDE	 ("Longitude","deg");
+	LONGITUDE	 ("Longitude","deg"),
+	NORTH	 	 ("North","ft"),
+	EAST	 	 ("East","ft");
 	
 	private final String dataType;
 	private final String unit;

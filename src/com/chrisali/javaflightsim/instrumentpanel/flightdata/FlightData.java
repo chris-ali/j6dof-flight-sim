@@ -54,6 +54,9 @@ public class FlightData implements Runnable {
 		flightData.put(FlightDataType.LATITUDE, Math.toDegrees(simOut.get(SimOuts.LAT)));
 		flightData.put(FlightDataType.LONGITUDE, Math.toDegrees(simOut.get(SimOuts.LON)));
 		
+		flightData.put(FlightDataType.NORTH, simOut.get(SimOuts.NORTH));
+		flightData.put(FlightDataType.EAST, simOut.get(SimOuts.EAST));
+		
 		fireDataArrived();
 	}
 	

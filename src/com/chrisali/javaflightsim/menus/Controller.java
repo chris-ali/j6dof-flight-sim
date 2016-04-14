@@ -124,6 +124,11 @@ public class Controller {
 	}
 	
 	/**
+	 * @return initialConditions EnumMap
+	 */
+	public EnumMap<InitialConditions, Double> getInitialConditions() {return initialConditions;}
+
+	/**
 	 * Updates initialConditions file with the following arguments, converted to radians and ft/sec:
 	 * 
 	 * @param coordinates [latitude, longitude]
