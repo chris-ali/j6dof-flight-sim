@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.menus;
+package com.chrisali.javaflightsim.consoletable;
 
 import java.io.File;
 

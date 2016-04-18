@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.menus;
+package com.chrisali.javaflightsim.menus.aircraftpanel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -32,6 +32,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+
+import com.chrisali.javaflightsim.menus.CancelButtonListener;
 
 public class AircraftPanel extends JPanel {
 

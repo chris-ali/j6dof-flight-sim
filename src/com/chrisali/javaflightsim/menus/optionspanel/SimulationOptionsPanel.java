@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.menus;
+package com.chrisali.javaflightsim.menus.optionspanel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -26,9 +26,10 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
+import com.chrisali.javaflightsim.menus.CancelButtonListener;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
-public class OptionsPanel extends JPanel {
+public class SimulationOptionsPanel extends JPanel {
 
 	private static final long serialVersionUID = -2865224216075732617L;
 	
@@ -44,7 +45,7 @@ public class OptionsPanel extends JPanel {
 	private OptionsConfigurationListener optionsConfigurationListener;
 	private CancelButtonListener cancelButtonListener;
 	
-	public OptionsPanel() {
+	public SimulationOptionsPanel() {
 		
 		//-------------------- Panels ---------------------------
 		
@@ -202,7 +203,7 @@ public class OptionsPanel extends JPanel {
 					options.add(Options.UNLIMITED_FLIGHT);
 				
 				if (optionsConfigurationListener != null)
-					optionsConfigurationListener.optionsConfigured(options, (int)stepSizeSpinner.getValue());
+					optionsConfigurationListener.simulationOptionsConfigured(options, (int)stepSizeSpinner.getValue());
 			}
 		});
 		buttonPanel.add(okButton);

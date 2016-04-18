@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.menus;
+package com.chrisali.javaflightsim.menus.initialconditionspanel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -24,6 +24,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import com.chrisali.javaflightsim.menus.CancelButtonListener;
 
 public class InitialConditionsPanel extends JPanel {
 

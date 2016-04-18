@@ -8,6 +8,7 @@ import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.EnumMap;
 import java.util.EnumSet;
 
 import javax.swing.JFrame;
@@ -16,6 +17,14 @@ import javax.swing.JPanel;
 
 import com.chrisali.javaflightsim.instrumentpanel.ClosePanelListener;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
+import com.chrisali.javaflightsim.menus.aircraftpanel.AircraftConfigurationListener;
+import com.chrisali.javaflightsim.menus.aircraftpanel.AircraftPanel;
+import com.chrisali.javaflightsim.menus.aircraftpanel.WeightConfiguredListener;
+import com.chrisali.javaflightsim.menus.initialconditionspanel.InitialConditionsConfigurationListener;
+import com.chrisali.javaflightsim.menus.initialconditionspanel.InitialConditionsPanel;
+import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
+import com.chrisali.javaflightsim.menus.optionspanel.OptionsConfigurationListener;
+import com.chrisali.javaflightsim.menus.optionspanel.SimulationOptionsPanel;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.utilities.Utilities;
@@ -27,7 +36,7 @@ public class MainFrame extends JFrame {
 	private Controller simController;
 	private ButtonPanel buttonPanel;
 	private AircraftPanel aircraftPanel;
-	private OptionsPanel optionsPanel;
+	private SimulationOptionsPanel optionsPanel;
 	private InitialConditionsPanel initialConditionsPanel;
 	private InstrumentPanel instrumentPanel;
 	private JPanel cardPanel; 
@@ -91,16 +100,21 @@ public class MainFrame extends JFrame {
 		
 		//--------------------------- Options Panel ------------------------------------------------
 		
-		optionsPanel = new OptionsPanel();
+		optionsPanel = new SimulationOptionsPanel();
 		optionsPanel.setOptionsConfigurationListener(new OptionsConfigurationListener() {
 			@Override
-			public void optionsConfigured(EnumSet<Options> options, int stepSize) {
+			public void simulationOptionsConfigured(EnumSet<Options> options, int stepSize) {
 				buttonPanel.setOptionsLabel(options, stepSize);
 				simController.updateIntegratorConfig(stepSize);
 				simController.updateOptions(options);
 				
 				setSize(dims);
 				cardPanel.setVisible(false);
+			}
+
+			@Override
+			public void displayOptionsConfigured(EnumMap<DisplayOptions, Integer> displayOptions) {
+				
 			}
 		});
 		optionsPanel.setCancelButtonListener(new CancelButtonListener() {

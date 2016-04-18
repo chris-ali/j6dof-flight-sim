@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.menus;
+package com.chrisali.javaflightsim.consoletable;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -19,6 +19,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
+
+import com.chrisali.javaflightsim.menus.Controller;
 
 public class ConsoleTablePanel extends JFrame {
 
