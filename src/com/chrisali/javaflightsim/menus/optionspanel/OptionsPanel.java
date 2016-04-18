@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.EnumMap;
 import java.util.EnumSet;
 
 import javax.swing.JButton;
@@ -67,8 +68,8 @@ public class OptionsPanel extends JPanel {
 					simulationOptionsTab.getSimulationOptions().add(Options.UNLIMITED_FLIGHT);
 				
 				if (optionsConfigurationListener != null) {
-					optionsConfigurationListener.simulationOptionsConfigured(simulationOptionsTab.getSimulationOptions(), stepSize);
-					optionsConfigurationListener.displayOptionsConfigured(displayOptionsTab.getDisplayOptions());
+					optionsConfigurationListener.simulationOptionsConfigured(simulationOptionsTab.getSimulationOptions(), stepSize,
+																			displayOptionsTab.getDisplayOptions());
 				}
 			}
 		});
@@ -94,9 +95,11 @@ public class OptionsPanel extends JPanel {
 		setPreferredSize(dims);
 	}
 	
-	public void setSimulationOptions(EnumSet<Options> simulationOptions, int stepSize) {
+	public void setAllOptions(EnumSet<Options> simulationOptions, int stepSize, 
+									EnumMap<DisplayOptions, Integer> displayOptions) {
 		this.stepSize = stepSize;
 		simulationOptionsTab.setOptionsTab(simulationOptions, stepSize);
+		displayOptionsTab.setOptionsTab(displayOptions);
 	}
 	
 	public void setCancelButtonListener(CancelButtonListener cancelButtonListener) {

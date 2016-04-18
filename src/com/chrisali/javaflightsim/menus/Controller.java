@@ -12,6 +12,7 @@ import java.util.Set;
 import com.chrisali.javaflightsim.consoletable.ConsoleTablePanel;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightData;
+import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.plotting.PlotWindow;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
@@ -31,7 +32,8 @@ public class Controller {
 	private static final String AIRCRAFT_PATH = ".\\Aircraft\\";
 	
 	// Configuration
-	private EnumSet<Options> options;
+	private EnumMap<DisplayOptions, Integer> displayOptions;
+	private EnumSet<Options> simulationOptions;
 	private EnumMap<InitialConditions, Double> initialConditions;
 	private EnumMap<IntegratorConfig, Double> integratorConfig;
 	private EnumMap<FlightControls, Double> initialControls; 
@@ -58,7 +60,8 @@ public class Controller {
 	 * to be edited through the menu options in the view
 	 */
 	public Controller() {
-		options = EnumSet.noneOf(Options.class);
+		simulationOptions = EnumSet.noneOf(Options.class);
+		displayOptions = new EnumMap<DisplayOptions, Integer>(DisplayOptions.class);
 		
 		initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
 		integratorConfig = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");
@@ -68,21 +71,31 @@ public class Controller {
 	//=============================== Configuration ===========================================================
 	
 	/**
-	 * @return options EnumSet
+	 * @return simulationOptions EnumSet
 	 */
-	public EnumSet<Options> getOptions() {return options;}
+	public EnumSet<Options> getSimulationOptions() {return simulationOptions;}
 	
 	/**
-	 * Sets options to new options and then saves the configuration to a text file using 
-	 * {@link Utilities#writeConfigFile(String, String, Set, String)}
+	 * @return displayOptions EnumMap
+	 */
+	public EnumMap<DisplayOptions, Integer> getDisplayOptions() {return displayOptions;}
+	
+	/**
+	 * Updates simulation and display options and then saves the configurations to text files using either
+	 * <p>{@link Utilities#writeConfigFile(String, String, Set, String)}</p>
+	 * <br/>or
+	 * <p>{@link Utilities#writeConfigFile(String, String, Set, String)}</p>
 	 * 
 	 * @param newOptions
+	 * @param newDisplayOptions
 	 */
-	public void updateOptions(EnumSet<Options> newOptions) {
-		options = EnumSet.copyOf(newOptions);
+	public void updateOptions(EnumSet<Options> newOptions, EnumMap<DisplayOptions, Integer> newDisplayOptions) {
+		simulationOptions = EnumSet.copyOf(newOptions);
+		displayOptions = newDisplayOptions;
 		
 		if (ab != null)
-			Utilities.writeConfigFile(SIM_CONFIG_PATH, "SimulationSetup", options, ab.getAircraft().getName());
+			Utilities.writeConfigFile(SIM_CONFIG_PATH, "SimulationSetup", simulationOptions, ab.getAircraft().getName());
+		Utilities.writeConfigFile(SIM_CONFIG_PATH, "DisplaySetup", newDisplayOptions);
 	}
 	
 	/**
@@ -121,7 +134,7 @@ public class Controller {
 	public void updateIntegratorConfig(int stepSize) {
 		integratorConfig.put(IntegratorConfig.DT, (1/((double)stepSize)));
 		
-		Utilities.writeConfigFile("IntegratorConfig", SIM_CONFIG_PATH, integratorConfig);
+		Utilities.writeConfigFile(SIM_CONFIG_PATH, "IntegratorConfig", integratorConfig);
 	}
 	
 	/**
@@ -180,14 +193,14 @@ public class Controller {
 	 * @param panel
 	 */
 	public void startSimulation(InstrumentPanel panel) {
-		runSim = new Integrate6DOFEquations(ab, options);
+		runSim = new Integrate6DOFEquations(ab, simulationOptions);
 		
 		simulationThread = new Thread(runSim);
 		simulationThread.start();
 		
-		if (options.contains(Options.CONSOLE_DISPLAY))
+		if (simulationOptions.contains(Options.CONSOLE_DISPLAY))
 			initializeConsole();
-		if (options.contains(Options.ANALYSIS_MODE)) {
+		if (simulationOptions.contains(Options.ANALYSIS_MODE)) {
 			plotSimulation();
 		} else {
 			flightData = new FlightData(runSim);

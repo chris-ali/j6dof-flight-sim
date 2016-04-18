@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
@@ -123,7 +124,7 @@ public class Utilities {
 	 * 
 	 * @return EnumSet of selected options
 	 */
-	public static EnumSet<Options> parseSimSetupOptions() throws IllegalArgumentException {
+	public static EnumSet<Options> parseSimulationSetup() throws IllegalArgumentException {
 		ArrayList<String[]> readSimSetupFile = readFileAndSplit("SimulationSetup", ".\\SimConfig\\");
 		EnumSet<Options> options = EnumSet.noneOf(Options.class);
 		
@@ -143,7 +144,7 @@ public class Utilities {
 	 * 
 	 * @return selectedAircraft
 	 */
-	public static String parseSimSetupSelectedAircraft() throws IllegalArgumentException {
+	public static String parseSimulationSetupForAircraft() throws IllegalArgumentException {
 		ArrayList<String[]> readSimSetupFile = readFileAndSplit("SimulationSetup", ".\\SimConfig\\");
 		String selectedAircraft = "";
 		
@@ -153,6 +154,29 @@ public class Utilities {
 		}
 		
 		return selectedAircraft;
+	}
+	
+	/**
+	 * Parses the DisplaySetup.txt file in .\SimConfig\ and returns an EnumMap with {@link DisplayOptions}
+	 * as the keys
+	 * 
+	 * @param aircraftName
+	 * @return massProperties EnumMap
+	 */
+	public static EnumMap<DisplayOptions, Integer> parseDisplaySetup() {
+		EnumMap<DisplayOptions, Integer> displayOptions = new EnumMap<DisplayOptions, Integer>(DisplayOptions.class);
+		
+		// Display options
+		ArrayList<String[]> readDisplaySetupFile = readFileAndSplit("DisplaySetup", ".\\SimConfig\\");
+		
+		for(DisplayOptions displayOptionsKey : DisplayOptions.values()) {
+			for (String[] readLine : readDisplaySetupFile) {
+				if (displayOptionsKey.toString().equals(readLine[0]))
+					displayOptions.put(displayOptionsKey, Integer.decode(readLine[1]));
+			}
+		}
+
+		return displayOptions;
 	}
 	
 	/**
@@ -206,12 +230,12 @@ public class Utilities {
 	 * @param filePath
 	 * @param enumMap
 	 */
-	public static void writeConfigFile(String fileName, String filePath, Map<?, Double> enumMap) {
+	public static void writeConfigFile(String filePath, String fileName, Map<?, ?> enumMap) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(filePath).append(fileName).append(".txt");
 		
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sb.toString()))) {
-			for (Map.Entry<?,Double> entry : enumMap.entrySet()) {
+			for (Map.Entry<?,?> entry : enumMap.entrySet()) {
 				bw.write(entry.getKey().toString() + " = " + entry.getValue());
 				bw.newLine();
 			}

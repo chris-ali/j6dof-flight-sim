@@ -128,7 +128,7 @@ public class DisplayOptionsTab extends JPanel {
 		return displayOptions;
 	}
 
-	public void setOptionsPanel(EnumMap<DisplayOptions, Integer> displayOptions) {
+	public void setOptionsTab(EnumMap<DisplayOptions, Integer> displayOptions) {
 		this.displayOptions = displayOptions;
 		
 		antiAliasingCheckbox.setSelected(displayOptions.get(DisplayOptions.ANTI_ALIASING) != 0);

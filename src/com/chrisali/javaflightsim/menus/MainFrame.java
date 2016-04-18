@@ -103,18 +103,14 @@ public class MainFrame extends JFrame {
 		optionsPanel = new OptionsPanel();
 		optionsPanel.setOptionsConfigurationListener(new OptionsConfigurationListener() {
 			@Override
-			public void simulationOptionsConfigured(EnumSet<Options> options, int stepSize) {
+			public void simulationOptionsConfigured(EnumSet<Options> options, int stepSize, 
+													EnumMap<DisplayOptions, Integer> displayOptions) {
 				buttonPanel.setOptionsLabel(options, stepSize);
 				simController.updateIntegratorConfig(stepSize);
-				simController.updateOptions(options);
+				simController.updateOptions(options, displayOptions);
 				
 				setSize(dims);
 				cardPanel.setVisible(false);
-			}
-
-			@Override
-			public void displayOptionsConfigured(EnumMap<DisplayOptions, Integer> displayOptions) {
-				
 			}
 		});
 		optionsPanel.setCancelButtonListener(new CancelButtonListener() {
@@ -182,8 +178,8 @@ public class MainFrame extends JFrame {
 				cardPanel.setVisible(false);
 				
 				simController.startSimulation(instrumentPanel);
-				MainFrame.this.setVisible(simController.getOptions().contains(Options.ANALYSIS_MODE) ? true : false);
-				instrumentPanel.setVisible(simController.getOptions().contains(Options.ANALYSIS_MODE) ? false : true);
+				MainFrame.this.setVisible(simController.getSimulationOptions().contains(Options.ANALYSIS_MODE) ? true : false);
+				instrumentPanel.setVisible(simController.getSimulationOptions().contains(Options.ANALYSIS_MODE) ? false : true);
 			}
 		});
 		add(buttonPanel, BorderLayout.CENTER);
@@ -245,8 +241,8 @@ public class MainFrame extends JFrame {
 	
 	private void setOptionsAndText() {
 		try {
-			simController.updateOptions(Utilities.parseSimSetupOptions());
-			simController.updateAircraft(Utilities.parseSimSetupSelectedAircraft());
+			simController.updateOptions(Utilities.parseSimulationSetup(), Utilities.parseDisplaySetup());
+			simController.updateAircraft(Utilities.parseSimulationSetupForAircraft());
 		} catch (IllegalArgumentException e) {
 			JOptionPane.showMessageDialog(this, "Unable to read SimulationSetup.txt!", 
 					"Error Reading File", JOptionPane.ERROR_MESSAGE);
@@ -255,10 +251,11 @@ public class MainFrame extends JFrame {
 		int stepSize = (int)(1/simController.getIntegratorConfig().get(IntegratorConfig.DT));
 		String aircrafName = simController.getAircraftBuilder().getAircraft().getName();
 		
-		buttonPanel.setOptionsLabel(simController.getOptions(), stepSize);
+		buttonPanel.setOptionsLabel(simController.getSimulationOptions(), stepSize);
 		buttonPanel.setAircraftLabel(aircrafName);
 		
 		aircraftPanel.setAircraftPanel(aircrafName);
-		optionsPanel.setSimulationOptions(simController.getOptions(), stepSize);
+		optionsPanel.setAllOptions(simController.getSimulationOptions(), stepSize, 
+									simController.getDisplayOptions());
 	}
 }
