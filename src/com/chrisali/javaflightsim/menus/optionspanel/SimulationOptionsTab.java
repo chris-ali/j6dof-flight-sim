@@ -16,7 +16,6 @@ import java.util.EnumSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -25,11 +24,12 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-import com.chrisali.javaflightsim.menus.CancelButtonListener;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
-public class SimulationOptionsPanel extends JPanel {
+public class SimulationOptionsTab extends JPanel {
 
 	private static final long serialVersionUID = -2865224216075732617L;
 	
@@ -38,29 +38,23 @@ public class SimulationOptionsPanel extends JPanel {
 	private JCheckBox consoleDisplay;
 	private JList<String> controllers;
 	private JSpinner stepSizeSpinner;
-	private JButton okButton;
-	private JButton cancelButton;
+	private StepSizeValueChangedListener stepSizeValueChangedListener;
 
-	private EnumSet<Options> options = EnumSet.noneOf(Options.class);
-	private OptionsConfigurationListener optionsConfigurationListener;
-	private CancelButtonListener cancelButtonListener;
+	private EnumSet<Options> simulationOptions;
 	
-	public SimulationOptionsPanel() {
+	public SimulationOptionsTab() {
 		
 		//-------------------- Panels ---------------------------
 		
 		JPanel headerPanel = new JPanel();
 		JPanel controlsPanel = new JPanel();
-		JPanel buttonPanel = new JPanel();
 		
 		headerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 		controlsPanel.setLayout(new GridBagLayout());
-		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		
 		setLayout(new BorderLayout());
 		add(headerPanel, BorderLayout.NORTH);
 		add(controlsPanel, BorderLayout.CENTER);
-		add(buttonPanel, BorderLayout.SOUTH);
 		
 		//------------------ Borders and Insets -----------------
 		
@@ -105,19 +99,19 @@ public class SimulationOptionsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(((JCheckBox)e.getSource()).isSelected()) {
-					options.removeAll(options);
-					options.add(Options.ANALYSIS_MODE);
+					simulationOptions.removeIf(p -> (p != Options.CONSOLE_DISPLAY));
+					simulationOptions.add(Options.ANALYSIS_MODE);
 					controllers.setEnabled(false);
 				} else {
-					options.remove(Options.ANALYSIS_MODE);
-					options.add(Options.UNLIMITED_FLIGHT);
+					simulationOptions.remove(Options.ANALYSIS_MODE);
+					simulationOptions.add(Options.UNLIMITED_FLIGHT);
 					controllers.setEnabled(true);
 				}
 			}
 		});
 		controlsPanel.add(analysisMode, gc);
 		
-		//----------- Analysis Mode Checkbox --------------------- 
+		//---------- Console Display Checkbox ------------------- 
 		gc.gridy++;
 		
 		gc.gridx = 0;
@@ -132,13 +126,12 @@ public class SimulationOptionsPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(((JCheckBox)e.getSource()).isSelected())
-					options.add(Options.CONSOLE_DISPLAY);
+					simulationOptions.add(Options.CONSOLE_DISPLAY);
 				else
-					options.remove(Options.CONSOLE_DISPLAY);
+					simulationOptions.remove(Options.CONSOLE_DISPLAY);
 			}
 		});
 		controlsPanel.add(consoleDisplay, gc);
-		
 		
 		//-------------- Controllers List  ------------------------ 
 		gc.gridy++;
@@ -162,16 +155,16 @@ public class SimulationOptionsPanel extends JPanel {
 			public void mouseReleased(MouseEvent e) {
 				switch (controllers.getSelectedValue()) {
 				case ("Joystick"):
-					options.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_CH_CONTROLS));
-					options.add(Options.USE_JOYSTICK);
+					simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_CH_CONTROLS));
+					simulationOptions.add(Options.USE_JOYSTICK);
 					break;
 				case ("Mouse"):
-					options.removeIf(p -> (p == Options.USE_JOYSTICK || p == Options.USE_CH_CONTROLS));
-					options.add(Options.USE_MOUSE);
+					simulationOptions.removeIf(p -> (p == Options.USE_JOYSTICK || p == Options.USE_CH_CONTROLS));
+					simulationOptions.add(Options.USE_MOUSE);
 					break;
-				case ("CH Controls Suite"):
-					options.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_JOYSTICK));
-					options.add(Options.USE_CH_CONTROLS);
+				case ("CH Controls"):
+					simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_JOYSTICK));
+					simulationOptions.add(Options.USE_CH_CONTROLS);
 					break;
 				default:
 					break;
@@ -191,35 +184,15 @@ public class SimulationOptionsPanel extends JPanel {
 		gc.anchor = GridBagConstraints.WEST;
 		stepSizeSpinner = new JSpinner(new SpinnerNumberModel(20,10,500,10));
 		stepSizeSpinner.setToolTipText("Sets the simulation resolution, dictating how many times per second the simulation updates");
+		stepSizeSpinner.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (stepSizeValueChangedListener != null)
+					stepSizeValueChangedListener.valueChanged((int) stepSizeSpinner.getValue());
+			}
+		});
 		controlsPanel.add(stepSizeSpinner, gc);
 
-		//----------------- OK Button ----------------------------
-		
-		okButton = new JButton("OK");
-		okButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (!options.contains(Options.ANALYSIS_MODE))
-					options.add(Options.UNLIMITED_FLIGHT);
-				
-				if (optionsConfigurationListener != null)
-					optionsConfigurationListener.simulationOptionsConfigured(options, (int)stepSizeSpinner.getValue());
-			}
-		});
-		buttonPanel.add(okButton);
-		
-		//------------------- Cancel Button ------------------------
-		
-		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (cancelButtonListener != null)
-					cancelButtonListener.cancelButtonClicked();
-			}
-		});
-		buttonPanel.add(cancelButton);
-		okButton.setPreferredSize(cancelButton.getPreferredSize());
 		
 		//========================== Window Settings ===============================================
 		
@@ -228,29 +201,27 @@ public class SimulationOptionsPanel extends JPanel {
 		setPreferredSize(dims);
 	}
 	
-	public void setOptionsPanel(EnumSet<Options> options, int stepSize) {
-		this.options = options;
+	protected EnumSet<Options> getSimulationOptions() {
+		return simulationOptions;
+	}
+	
+	public void setOptionsTab(EnumSet<Options> options, int stepSize) {
+		this.simulationOptions = options;
 		
-		if (options.contains(Options.ANALYSIS_MODE))
-			analysisMode.setSelected(true);
-		if (options.contains(Options.CONSOLE_DISPLAY))
-			consoleDisplay.setSelected(true);
+		analysisMode.setSelected(simulationOptions.contains(Options.ANALYSIS_MODE) ? true : false);
+		consoleDisplay.setSelected(simulationOptions.contains(Options.CONSOLE_DISPLAY) ? true : false);
 		
-		if (options.contains(Options.USE_CH_CONTROLS))
+		if (simulationOptions.contains(Options.USE_CH_CONTROLS))
 			controllers.setSelectedIndex(2);
-		else if (options.contains(Options.USE_MOUSE))
+		else if (simulationOptions.contains(Options.USE_MOUSE))
 			controllers.setSelectedIndex(1);
 		else
 			controllers.setSelectedIndex(0);
 		
 		stepSizeSpinner.setValue(stepSize);
 	}
-	
-	public void setCancelButtonListener(CancelButtonListener cancelButtonListener) {
-		this.cancelButtonListener = cancelButtonListener;
-	}
-	
-	public void setOptionsConfigurationListener(OptionsConfigurationListener optionsConfigurationListener) {
-		this.optionsConfigurationListener = optionsConfigurationListener;
+
+	public void setStepSizeValueChangedListener(StepSizeValueChangedListener stepSizeValueChangedListener) {
+		this.stepSizeValueChangedListener = stepSizeValueChangedListener;
 	}
 }

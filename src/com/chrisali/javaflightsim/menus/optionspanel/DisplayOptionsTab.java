@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 import java.util.EnumMap;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,9 +20,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
-import com.chrisali.javaflightsim.menus.CancelButtonListener;
-
-public class DisplayOptionsPanel extends JPanel {
+public class DisplayOptionsTab extends JPanel {
 
 	private static final long serialVersionUID = -2865224216075732617L;
 	
@@ -31,30 +28,22 @@ public class DisplayOptionsPanel extends JPanel {
 	private JSpinner displayWidthSpinner;
 	private JSpinner displayHeightSpinner;
 	private JCheckBox antiAliasingCheckbox;
-	private JButton okButton;
-	private JButton cancelButton;
-
-	private EnumMap<DisplayOptions, Integer> displayOptions = new EnumMap<DisplayOptions,Integer>(DisplayOptions.class);
 	
-	private OptionsConfigurationListener optionsConfigurationListener;
-	private CancelButtonListener cancelButtonListener;
+	private EnumMap<DisplayOptions, Integer> displayOptions;
 	
-	public DisplayOptionsPanel() {
+	public DisplayOptionsTab() {
 		
 		//-------------------- Panels ---------------------------
 		
 		JPanel headerPanel = new JPanel();
 		JPanel controlsPanel = new JPanel();
-		JPanel buttonPanel = new JPanel();
 		
 		headerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 		controlsPanel.setLayout(new GridBagLayout());
-		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		
 		setLayout(new BorderLayout());
 		add(headerPanel, BorderLayout.NORTH);
 		add(controlsPanel, BorderLayout.CENTER);
-		add(buttonPanel, BorderLayout.SOUTH);
 		
 		//------------------ Borders and Insets -----------------
 		
@@ -83,7 +72,7 @@ public class DisplayOptionsPanel extends JPanel {
 		gc.gridy = 0;
 		gc.insets = spacer;
 		
-		//----------- Analysis Mode Checkbox --------------------- 
+		//----------- Anti Aliasing Checkbox --------------------- 
 		gc.gridy++;
 		
 		gc.gridx = 0;
@@ -116,7 +105,7 @@ public class DisplayOptionsPanel extends JPanel {
 		displayWidthSpinner = new JSpinner(new SpinnerNumberModel(1440,320,1920,10));
 		controlsPanel.add(displayWidthSpinner, gc);
 		
-		//------------- Window Width Spinner -------------------- 
+		//------------- Window Height Spinner -------------------- 
 		gc.gridy++;
 		
 		gc.gridx = 0;
@@ -127,31 +116,6 @@ public class DisplayOptionsPanel extends JPanel {
 		gc.anchor = GridBagConstraints.WEST;
 		displayHeightSpinner = new JSpinner(new SpinnerNumberModel(900,240,1080,10));
 		controlsPanel.add(displayHeightSpinner, gc);
-
-		//----------------- OK Button ----------------------------
-		
-		okButton = new JButton("OK");
-		okButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {			
-				if (optionsConfigurationListener != null)
-					optionsConfigurationListener.displayOptionsConfigured(displayOptions);
-			}
-		});
-		buttonPanel.add(okButton);
-		
-		//------------------- Cancel Button ------------------------
-		
-		cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (cancelButtonListener != null)
-					cancelButtonListener.cancelButtonClicked();
-			}
-		});
-		buttonPanel.add(cancelButton);
-		okButton.setPreferredSize(cancelButton.getPreferredSize());
 		
 		//========================== Window Settings ===============================================
 		
@@ -160,6 +124,10 @@ public class DisplayOptionsPanel extends JPanel {
 		setPreferredSize(dims);
 	}
 	
+	protected EnumMap<DisplayOptions, Integer> getDisplayOptions() {
+		return displayOptions;
+	}
+
 	public void setOptionsPanel(EnumMap<DisplayOptions, Integer> displayOptions) {
 		this.displayOptions = displayOptions;
 		
@@ -167,13 +135,5 @@ public class DisplayOptionsPanel extends JPanel {
 		
 		displayWidthSpinner.setValue(displayOptions.get(DisplayOptions.DISPLAY_WIDTH));
 		displayHeightSpinner.setValue(displayOptions.get(DisplayOptions.DISPLAY_HEIGHT));
-	}
-	
-	public void setCancelButtonListener(CancelButtonListener cancelButtonListener) {
-		this.cancelButtonListener = cancelButtonListener;
-	}
-	
-	public void setOptionsConfigurationListener(OptionsConfigurationListener optionsConfigurationListener) {
-		this.optionsConfigurationListener = optionsConfigurationListener;
 	}
 }

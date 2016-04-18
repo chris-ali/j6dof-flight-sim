@@ -24,7 +24,7 @@ import com.chrisali.javaflightsim.menus.initialconditionspanel.InitialConditions
 import com.chrisali.javaflightsim.menus.initialconditionspanel.InitialConditionsPanel;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.menus.optionspanel.OptionsConfigurationListener;
-import com.chrisali.javaflightsim.menus.optionspanel.SimulationOptionsPanel;
+import com.chrisali.javaflightsim.menus.optionspanel.OptionsPanel;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.utilities.Utilities;
@@ -36,7 +36,7 @@ public class MainFrame extends JFrame {
 	private Controller simController;
 	private ButtonPanel buttonPanel;
 	private AircraftPanel aircraftPanel;
-	private SimulationOptionsPanel optionsPanel;
+	private OptionsPanel optionsPanel;
 	private InitialConditionsPanel initialConditionsPanel;
 	private InstrumentPanel instrumentPanel;
 	private JPanel cardPanel; 
@@ -100,7 +100,7 @@ public class MainFrame extends JFrame {
 		
 		//--------------------------- Options Panel ------------------------------------------------
 		
-		optionsPanel = new SimulationOptionsPanel();
+		optionsPanel = new OptionsPanel();
 		optionsPanel.setOptionsConfigurationListener(new OptionsConfigurationListener() {
 			@Override
 			public void simulationOptionsConfigured(EnumSet<Options> options, int stepSize) {
@@ -259,6 +259,6 @@ public class MainFrame extends JFrame {
 		buttonPanel.setAircraftLabel(aircrafName);
 		
 		aircraftPanel.setAircraftPanel(aircrafName);
-		optionsPanel.setOptionsPanel(simController.getOptions(), stepSize);
+		optionsPanel.setSimulationOptions(simController.getOptions(), stepSize);
 	}
 }
