@@ -2,7 +2,7 @@ package com.chrisali.javaflightsim;
 
 import javax.swing.SwingUtilities;
 
-import com.chrisali.javaflightsim.menus.Controller;
+import com.chrisali.javaflightsim.controllers.SimulationController;
 import com.chrisali.javaflightsim.menus.MainFrame;
 
 public class RunSimulation {
@@ -14,5 +14,5 @@ public class RunSimulation {
 		});
 	}
 	
-	private static void runApp() {new MainFrame(new Controller());}
+	private static void runApp() {new MainFrame(new SimulationController());}
 }

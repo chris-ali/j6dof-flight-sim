@@ -28,6 +28,7 @@ public class Environment {
 	
 	private static double windSpeed = 0.0;
 	private static double windDir   = 0.0;
+	private static double deltaIsa  = 0.0;
 
 	/**
 	 * Calculates the temperature (R), presssure (lb/ft^2), density (slug/ft^3), speed of sound (ft/sec) and gravity (ft/sec^2)
@@ -43,13 +44,13 @@ public class Environment {
 		
 		// Troposphere
 		if (NEDPosition[2] < HT_TROP) {
-			temp = T_SSL-(0.003566*NEDPosition[2]);                              // (deg R)
+			temp = T_SSL-(0.003566*NEDPosition[2]) + deltaIsa;                   // (deg R)
 			p = P_SSL*Math.pow((1-(ENV_CONST_TROP*NEDPosition[2])),5.2559);      // (lbf/ft^2)
 			rho = RHO_SSL*Math.pow((1-(ENV_CONST_TROP*NEDPosition[2])),4.2559);  // (slug/ft^3) 												
 		}
 		// Stratosphere
 		else {
-			temp = 389.97; 														 // (degR)
+			temp = 389.97 + deltaIsa; 											 // (degR)
 			p = P_TROP*Math.exp(ENV_CONST_STRAT*(NEDPosition[2]-HT_TROP)); 		 // (lbf/ft^2)
 			rho = RHO_TROP*Math.exp(ENV_CONST_STRAT*(NEDPosition[2]-HT_TROP));   // (slug/ft^3)			
 		}
@@ -94,4 +95,12 @@ public class Environment {
 	 * @param windDir
 	 */
 	public static void setWindDir(double windDir) {Environment.windDir = SaturationLimits.twoPiBounding(Math.toRadians(windDir)-Math.PI);}
+
+	/**
+	 * Sets the difference in temperature from ISA (59 F, 15 C at Standard Sea Level)
+	 * 
+	 * @param deltaIsa
+	 */
+	public static void setDeltaIsa(double deltaIsa) {Environment.deltaIsa = deltaIsa;}
+	
 }

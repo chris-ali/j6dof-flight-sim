@@ -95,6 +95,11 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 			public void windowClosing(WindowEvent e) {
 				setVisible(false);
 				
+				if (refreshPlotWorker != null)
+					refreshPlotWorker.cancel(true);
+				if (tabPaneWorker != null)
+					tabPaneWorker.cancel(true);
+				
 				if (plotCloseListener != null)
 					plotCloseListener.plotWindowClosed();
 			}
@@ -155,11 +160,14 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 		tabPaneWorker = new SwingWorker<Void, Integer>() {
 			@Override
 			protected Void doInBackground() throws Exception {
+				
+				List<EnumMap<SimOuts, Double>> newLogsOut = new ArrayList<EnumMap<SimOuts, Double>>(logsOut);
+				
 				for (String plotTitle : simPlotCategories) {
 					try {Thread.sleep(125);} 
 					catch (InterruptedException e) {}
 					
-					SimulationPlot plotObject = new SimulationPlot(new ArrayList<EnumMap<SimOuts, Double>>(logsOut), plotTitle);
+					SimulationPlot plotObject = new SimulationPlot(newLogsOut, plotTitle);
 					tabPane.add(plotTitle, plotObject);
 					plotList.add(plotObject);
 				}
@@ -201,8 +209,14 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 			protected Void doInBackground() throws Exception {
 				int count = 0;
 				
+				try {Thread.sleep(125);} 
+				catch (InterruptedException e) {}
+				
+				List<EnumMap<SimOuts, Double>> newLogsOut = new ArrayList<EnumMap<SimOuts, Double>>(logsOut);
+				
+				SimulationPlot.updateXYSeriesData(newLogsOut);
+				
 				for (SimulationPlot plot : plotList) {
-					plot.updateXYSeriesData(new ArrayList<EnumMap<SimOuts, Double>>(logsOut));
 					plot.getChartPanel().repaint();
 					
 					count++;

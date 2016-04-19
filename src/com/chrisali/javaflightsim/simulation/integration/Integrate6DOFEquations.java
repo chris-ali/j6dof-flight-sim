@@ -494,13 +494,16 @@ public class Integrate6DOFEquations implements Runnable {
 	public boolean isRunning() {return running;}
 	
 	/**
-	 * Sets the wind speed (kts) and wind direction (deg) 
+	 * Sets the wind speed (kts), wind direction (deg) and temperature (deg C)  
 	 * 
 	 * @param windSpeed
 	 * @param windDir
+	 * @param
 	 */
-	public void setWind(double windSpeed, double windDir) {
+	public void setEnvironment(double windSpeed, double windDir, double temperature) {
 		Environment.setWindDir(windDir);
 		Environment.setWindSpeed(windSpeed);
+		// Subtract standard temperature from argument to get deviation from standard, then convert C deg to F deg 
+		Environment.setDeltaIsa((temperature-15)*9/5);
 	}
 }

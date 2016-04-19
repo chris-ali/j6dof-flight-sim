@@ -20,7 +20,7 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 
-import com.chrisali.javaflightsim.menus.Controller;
+import com.chrisali.javaflightsim.controllers.SimulationController;
 
 public class ConsoleTablePanel extends JFrame {
 
@@ -28,10 +28,10 @@ public class ConsoleTablePanel extends JFrame {
 	
 	private JTable table;
 	private ConsoleTableModel consoleTableModel;
-	private Controller simController;
+	private SimulationController simController;
 	private SwingWorker<Void,Integer> tableRefreshWorker;
 	
-	public ConsoleTablePanel(Controller controller) {
+	public ConsoleTablePanel(SimulationController controller) {
 		super("Raw Data Output");
 		
 		this.simController = controller;

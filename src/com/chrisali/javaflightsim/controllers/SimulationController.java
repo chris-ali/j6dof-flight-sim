@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.menus;
+package com.chrisali.javaflightsim.controllers;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +25,17 @@ import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.utilities.Utilities;
 
-public class Controller {
+/**
+ * Controls the configuration and running of processes supporting the simulation component of JavaFlightSim. This consists of: 
+ * <p>The simulation engine that integrates the 6DOF equations ({@link Integrate6DOFEquations})</p>
+ * <p>Plotting of the simulation states and data ({@link PlotWindow})</p>
+ * <p>Raw data display of simulation states ({@link ConsoleTablePanel})</p>
+ * <p>Transmission of flight data to the instrument panel and out the window display ({@link FlightData})</p>
+ * 
+ * @author Christopher Ali
+ *
+ */
+public class SimulationController {
 	
 	// Paths
 	private static final String SIM_CONFIG_PATH = ".\\SimConfig\\";
@@ -59,7 +69,7 @@ public class Controller {
 	 * Constructor for the controller that initializes initial settings, configurations and conditions
 	 * to be edited through the menu options in the view
 	 */
-	public Controller() {
+	public SimulationController() {
 		simulationOptions = EnumSet.noneOf(Options.class);
 		displayOptions = new EnumMap<DisplayOptions, Integer>(DisplayOptions.class);
 		

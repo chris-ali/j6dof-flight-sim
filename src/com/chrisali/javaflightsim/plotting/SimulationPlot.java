@@ -29,81 +29,81 @@ public class SimulationPlot extends JComponent {
 
 	private static final long serialVersionUID = 1L;
 	
-	private EnumMap<PlotType, XYPlot> plotLists = new EnumMap<PlotType, XYPlot>(PlotType.class);
+	private static EnumMap<PlotType, XYPlot> plotLists = new EnumMap<PlotType, XYPlot>(PlotType.class);
 	private ChartPanel chartPanel;
 	
 	// XY series objects for each set of data
 	
-	private	XYSeries uData        = new XYSeries("u");
-	private	XYSeries vData        = new XYSeries("v");
-	private	XYSeries wData        = new XYSeries("w");
+	private static	XYSeries uData        = new XYSeries("u");
+	private static	XYSeries vData        = new XYSeries("v");
+	private	static	XYSeries wData        = new XYSeries("w");
 			
-	private	XYSeries posData      = new XYSeries("Position");
-	private	XYSeries altData      = new XYSeries("Altitude");
+	private	static	XYSeries posData      = new XYSeries("Position");
+	private	static	XYSeries altData      = new XYSeries("Altitude");
 			
-	private	XYSeries altDotData   = new XYSeries("Alt Dot");
+	private	static	XYSeries altDotData   = new XYSeries("Alt Dot");
 			
-	private	XYSeries phiData      = new XYSeries("Phi");
-	private	XYSeries thetaData    = new XYSeries("Theta");
-	private	XYSeries psiData      = new XYSeries("Psi");
+	private	static	XYSeries phiData      = new XYSeries("Phi");
+	private	static	XYSeries thetaData    = new XYSeries("Theta");
+	private	static	XYSeries psiData      = new XYSeries("Psi");
 			
-	private	XYSeries pData        = new XYSeries("p");
-	private	XYSeries qData        = new XYSeries("q");
-	private	XYSeries rData        = new XYSeries("r");
+	private	static	XYSeries pData        = new XYSeries("p");
+	private	static	XYSeries qData        = new XYSeries("q");
+	private	static	XYSeries rData        = new XYSeries("r");
 					
-	private	XYSeries axData       = new XYSeries("a_x");
-	private	XYSeries ayData       = new XYSeries("a_y");
-	private	XYSeries azData       = new XYSeries("a_z");		
+	private	static	XYSeries axData       = new XYSeries("a_x");
+	private	static	XYSeries ayData       = new XYSeries("a_y");
+	private	static	XYSeries azData       = new XYSeries("a_z");		
 			
-	private	XYSeries lData        = new XYSeries("L");
-	private	XYSeries mData        = new XYSeries("M");
-	private	XYSeries nData        = new XYSeries("N");
+	private	static	XYSeries lData        = new XYSeries("L");
+	private	static	XYSeries mData        = new XYSeries("M");
+	private	static	XYSeries nData        = new XYSeries("N");
 			
-	private	XYSeries tasData      = new XYSeries("TAS");
+	private	static	XYSeries tasData      = new XYSeries("TAS");
 			
-	private	XYSeries betaData     = new XYSeries("Beta");
-	private	XYSeries alphaData    = new XYSeries("Alpha");
+	private	static	XYSeries betaData     = new XYSeries("Beta");
+	private	static	XYSeries alphaData    = new XYSeries("Alpha");
 			
-	private	XYSeries elevData     = new XYSeries("Elevator");
-	private	XYSeries ailData      = new XYSeries("Aileron");
-	private	XYSeries rudData      = new XYSeries("Rudder");
-	private	XYSeries throtData    = new XYSeries("Throttle");
-	private	XYSeries flapData     = new XYSeries("Flaps");
+	private	static	XYSeries elevData     = new XYSeries("Elevator");
+	private	static	XYSeries ailData      = new XYSeries("Aileron");
+	private	static	XYSeries rudData      = new XYSeries("Rudder");
+	private	static	XYSeries throtData    = new XYSeries("Throttle");
+	private	static	XYSeries flapData     = new XYSeries("Flaps");
 			
-	private	XYSeries alphaDotData = new XYSeries("Alpha Dot");
-	private	XYSeries machData     = new XYSeries("Mach");
+	private	static	XYSeries alphaDotData = new XYSeries("Alpha Dot");
+	private static	XYSeries machData     = new XYSeries("Mach");
 	
 	// Domain Axes
 	
-	private NumberAxis timeAxis   = new NumberAxis("Time [sec]");
-	private NumberAxis eastAxis   = new NumberAxis("East [ft]");
+	private static	NumberAxis timeAxis   = new NumberAxis("Time [sec]");
+	private static	NumberAxis eastAxis   = new NumberAxis("East [ft]");
 	
 	// Range Axes
 	
-	private NumberAxis linVelAxis 		= new NumberAxis("Body Velocity [ft/sec]");
-	private NumberAxis northAxis  		= new NumberAxis("North [ft]");
-	private NumberAxis altAxis 			= new NumberAxis("Altitude [ft]");
-	private NumberAxis altDotAxis 		= new NumberAxis("Vertical Speed [ft/min]"); 
-	private NumberAxis psiAxis 			= new NumberAxis("Heading [rad]");
-	private NumberAxis eulerAnglesAxis 	= new NumberAxis("Angle [rad]");
-	private NumberAxis angularRatesAxis = new NumberAxis("Angular Rate [rad/sec]");
-	private NumberAxis linearAccelAxis 	= new NumberAxis("Acceleration [g]");
-	private NumberAxis totalMomentAxis 	= new NumberAxis("Moment [ft*lb]");
-	private NumberAxis tasAxis 			= new NumberAxis("True Airspeed [ft/sec]");
-	private NumberAxis windParamAxis 	= new NumberAxis("Angle [rad]");
-	private NumberAxis elevAxis 		= new NumberAxis("Deflection [rad]");
-	private NumberAxis ailAxis 			= new NumberAxis("Deflection [rad]");
-	private NumberAxis rudAxis 			= new NumberAxis("Deflection [rad]");
-	private NumberAxis throtAxis 		= new NumberAxis("Position [norm]");
-	private NumberAxis flapAxis 		= new NumberAxis("Deflection [rad]");
-	private NumberAxis alphDotAxis 		= new NumberAxis("Rate [rad/sec]");
-	private NumberAxis machAxis 		= new NumberAxis("Mach Number");
+	private static NumberAxis linVelAxis 		= new NumberAxis("Body Velocity [ft/sec]");
+	private static NumberAxis northAxis  		= new NumberAxis("North [ft]");
+	private static NumberAxis altAxis 			= new NumberAxis("Altitude [ft]");
+	private static NumberAxis altDotAxis 		= new NumberAxis("Vertical Speed [ft/min]"); 
+	private static NumberAxis psiAxis 			= new NumberAxis("Heading [rad]");
+	private static NumberAxis eulerAnglesAxis 	= new NumberAxis("Angle [rad]");
+	private static NumberAxis angularRatesAxis  = new NumberAxis("Angular Rate [rad/sec]");
+	private static NumberAxis linearAccelAxis 	= new NumberAxis("Acceleration [g]");
+	private static NumberAxis totalMomentAxis 	= new NumberAxis("Moment [ft*lb]");
+	private static NumberAxis tasAxis 			= new NumberAxis("True Airspeed [ft/sec]");
+	private static NumberAxis windParamAxis 	= new NumberAxis("Angle [rad]");
+	private static NumberAxis elevAxis 			= new NumberAxis("Deflection [rad]");
+	private static NumberAxis ailAxis 			= new NumberAxis("Deflection [rad]");
+	private static NumberAxis rudAxis 			= new NumberAxis("Deflection [rad]");
+	private static NumberAxis throtAxis 		= new NumberAxis("Position [norm]");
+	private static NumberAxis flapAxis 			= new NumberAxis("Deflection [rad]");
+	private static NumberAxis alphDotAxis 		= new NumberAxis("Rate [rad/sec]");
+	private static NumberAxis machAxis 			= new NumberAxis("Mach Number");
 	
-	private CombinedDomainXYPlot ratesPlot      = new CombinedDomainXYPlot(timeAxis);
-	private CombinedDomainXYPlot positionPlot   = new CombinedDomainXYPlot(eastAxis);
-	private CombinedDomainXYPlot instrumentPlot = new CombinedDomainXYPlot(timeAxis);
-	private CombinedDomainXYPlot miscPlot       = new CombinedDomainXYPlot(timeAxis);
-	private CombinedDomainXYPlot controlsPlot   = new CombinedDomainXYPlot(timeAxis);
+	private static CombinedDomainXYPlot ratesPlot      = new CombinedDomainXYPlot(timeAxis);
+	private static CombinedDomainXYPlot positionPlot   = new CombinedDomainXYPlot(eastAxis);
+	private static CombinedDomainXYPlot instrumentPlot = new CombinedDomainXYPlot(timeAxis);
+	private static CombinedDomainXYPlot miscPlot       = new CombinedDomainXYPlot(timeAxis);
+	private static CombinedDomainXYPlot controlsPlot   = new CombinedDomainXYPlot(timeAxis);
 
 	/**
 	 * Creates plots for variables monitored in the logsOut ArrayList
@@ -113,7 +113,9 @@ public class SimulationPlot extends JComponent {
 	 */
 	public SimulationPlot(List<EnumMap<SimOuts, Double>> logsOut, String windowTitle) {
 		
-		makePlotLists(logsOut);
+		// Only run makePlotLists() once
+		if(plotLists.isEmpty())
+			makePlotLists(logsOut);
 		
 		setLayout(new BorderLayout());
 		
@@ -241,7 +243,7 @@ public class SimulationPlot extends JComponent {
 	 * It first creates {@link XYSeries} objects with data from logsOut, adds those series to {@link XYSeriesCollection}, adds those 
 	 * series collections to {@link XYPlot} objects, and finally puts the XYPlot objects into {@link plotLists}
 	 */
-	private void makePlotLists(List<EnumMap<SimOuts, Double>> logsOut) {
+	private static void makePlotLists(List<EnumMap<SimOuts, Double>> logsOut) {
 		
 		updateXYSeriesData(logsOut);
 		
@@ -445,7 +447,7 @@ public class SimulationPlot extends JComponent {
 	 * 
 	 * @param logsOut
 	 */
-	protected void updateXYSeriesData(List<EnumMap<SimOuts, Double>> logsOut) {
+	protected static void updateXYSeriesData(List<EnumMap<SimOuts, Double>> logsOut) {
 		
 		// Clear all data from series
 		
