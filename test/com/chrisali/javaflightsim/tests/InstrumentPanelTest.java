@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.utilities.tests;
+package com.chrisali.javaflightsim.tests;
 
 import java.util.EnumSet;
 
