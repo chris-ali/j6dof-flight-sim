@@ -490,49 +490,49 @@ public class SimulationPlot extends JComponent {
 		alphaDotData.clear();
 		machData.clear();
 		
-		// Add data from logsOut to each XYSeries
+		// Add data from logsOut to each XYSeries; only notify of a SeriesChangeEvent at the end of the loop
 		
 		for (Iterator<EnumMap<SimOuts, Double>> logsOutItr = logsOut.iterator(); logsOutItr.hasNext();) {
 			EnumMap<SimOuts, Double> simOut = logsOutItr.next();
 			
-			uData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.U));
-			vData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.V));
-			wData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.W));
+			uData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.U), !logsOutItr.hasNext());
+			vData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.V), !logsOutItr.hasNext());
+			wData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.W), !logsOutItr.hasNext());
 			
-			posData.add(simOut.get(SimOuts.EAST),simOut.get(SimOuts.NORTH));
-			altData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALT));
+			posData.add(simOut.get(SimOuts.EAST),simOut.get(SimOuts.NORTH), !logsOutItr.hasNext());
+			altData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALT), !logsOutItr.hasNext());
 			
-			altDotData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALT_DOT));
+			altDotData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALT_DOT), !logsOutItr.hasNext());
 			
-			phiData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.PHI));
-			thetaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.THETA));
-			psiData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.PSI));
+			phiData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.PHI), !logsOutItr.hasNext());
+			thetaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.THETA), !logsOutItr.hasNext());
+			psiData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.PSI), !logsOutItr.hasNext());
 			
-			pData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.P));
-			qData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.Q));
-			rData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.R));
+			pData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.P), !logsOutItr.hasNext());
+			qData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.Q), !logsOutItr.hasNext());
+			rData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.R), !logsOutItr.hasNext());
 			
-			axData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_X));
-			ayData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_Y));
-			azData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_Z));
+			axData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_X), !logsOutItr.hasNext());
+			ayData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_Y), !logsOutItr.hasNext());
+			azData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AN_Z), !logsOutItr.hasNext());
 			
-			lData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.L));
-			mData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.M));
-			nData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.N));
+			lData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.L), !logsOutItr.hasNext());
+			mData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.M), !logsOutItr.hasNext());
+			nData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.N), !logsOutItr.hasNext());
 			
-			tasData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.TAS));
+			tasData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.TAS), !logsOutItr.hasNext());
 			
-			betaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.BETA));
-			alphaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALPHA));
+			betaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.BETA), !logsOutItr.hasNext());
+			alphaData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALPHA), !logsOutItr.hasNext());
 			
-			elevData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ELEVATOR));
-			ailData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AILERON));
-			rudData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.RUDDER));
-			throtData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.THROTTLE_1));
-			flapData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.FLAPS));
+			elevData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ELEVATOR), !logsOutItr.hasNext());
+			ailData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.AILERON), !logsOutItr.hasNext());
+			rudData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.RUDDER), !logsOutItr.hasNext());
+			throtData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.THROTTLE_1), !logsOutItr.hasNext());
+			flapData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.FLAPS), !logsOutItr.hasNext());
 			
-			alphaDotData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALPHA_DOT));
-			machData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.MACH));
+			alphaDotData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.ALPHA_DOT), !logsOutItr.hasNext());
+			machData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.MACH), !logsOutItr.hasNext());
 		}
 		
 		// Bounds the minimum X Axis value to the first time value in the data series 
