@@ -1,0 +1,36 @@
+#version 140
+
+in vec2 position;
+
+in mat4 modelViewMatrix;
+in vec4 textureOffsets;
+in float blendFactor;
+
+out vec2 textureCoordinates1;
+out vec2 textureCoordinates2;
+out float textureBlend;
+out float visibility;
+
+uniform float density;
+uniform float gradient;
+uniform mat4 projectionMatrix;
+uniform float numberOfAtlasRows;
+
+void main(void){
+
+	vec3 positionRelativeToCam = vec3(modelViewMatrix[3][0], modelViewMatrix[3][1], modelViewMatrix[3][2]);
+
+	vec2 textureCoordinates = position + vec2(0.5, 0.5);
+	textureCoordinates.y = 1.0 - textureCoordinates.y;
+	textureCoordinates /= numberOfAtlasRows;
+	
+	textureCoordinates1 = textureCoordinates + textureOffsets.xy;
+	textureCoordinates2 = textureCoordinates + textureOffsets.zw;
+	textureBlend = blendFactor;
+
+	gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 0.0, 1.0);
+	
+	float distance = length(positionRelativeToCam);
+	visibility = exp(-pow((distance*density), gradient));
+	visibility = clamp(visibility, 0.0, 1.0);
+}

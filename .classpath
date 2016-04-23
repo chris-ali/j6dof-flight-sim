@@ -6,8 +6,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/apache-commons"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jfreechart"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jinput"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ApacheCommons"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jFreeChart"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/SteelSeries"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/LWJGL"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

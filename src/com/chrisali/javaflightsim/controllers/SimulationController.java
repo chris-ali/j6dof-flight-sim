@@ -13,6 +13,7 @@ import com.chrisali.javaflightsim.consoletable.ConsoleTablePanel;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightData;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
+import com.chrisali.javaflightsim.otw.RunWorld;
 import com.chrisali.javaflightsim.plotting.PlotWindow;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
@@ -64,6 +65,10 @@ public class SimulationController {
 	
 	// Raw Data Console
 	private ConsoleTablePanel consoleTablePanel;
+	
+	// Out the Window
+	private RunWorld outTheWindow;
+	private Thread outTheWindowThread;
 	
 	/**
 	 * Constructor for the controller that initializes initial settings, configurations and conditions
@@ -215,9 +220,14 @@ public class SimulationController {
 		} else {
 			flightData = new FlightData(runSim);
 			flightData.setFlightDataListener(panel);
+			//flightData.setFlightDataListener(runWorld);
 			
 			flightDataThread = new Thread(flightData);
 			flightDataThread.start();
+			
+			outTheWindow = new RunWorld();
+			outTheWindowThread = new Thread(outTheWindow);
+			outTheWindowThread.start();
 		}
 	}
 	
