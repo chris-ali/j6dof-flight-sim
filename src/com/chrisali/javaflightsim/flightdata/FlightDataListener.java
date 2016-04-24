@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.instrumentpanel.flightdata;
+package com.chrisali.javaflightsim.flightdata;
 
 import java.util.EventListener;
 

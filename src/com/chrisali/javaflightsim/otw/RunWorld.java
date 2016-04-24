@@ -10,9 +10,9 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightData;
-import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightDataListener;
-import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightDataType;
+import com.chrisali.javaflightsim.flightdata.FlightData;
+import com.chrisali.javaflightsim.flightdata.FlightDataListener;
+import com.chrisali.javaflightsim.flightdata.FlightDataType;
 import com.chrisali.javaflightsim.otw.entities.Camera;
 import com.chrisali.javaflightsim.otw.entities.EntityCollections;
 import com.chrisali.javaflightsim.otw.entities.Light;
@@ -46,12 +46,11 @@ public class RunWorld implements Runnable, FlightDataListener {
 	private Vector3f ownshipRotation;
 	
 	private GUIText text;
-	
-	public static void main(String[] args) {
-		new RunWorld().run();
-	}
 
-	public RunWorld() {
+	public RunWorld() {}	
+	
+	@Override
+	public void run() {
 		
 		//=================================== Set Up ==========================================================
 		
@@ -59,15 +58,52 @@ public class RunWorld implements Runnable, FlightDataListener {
 		DisplayManager.setHeight(900);
 		DisplayManager.setWidth(1440);
 		
+		loader = new Loader();
+		
 		masterRenderer = new MasterRenderer();
 		MasterRenderer.setSkyColor(new Vector3f(0.0f, 0.75f, 0.95f));
 		MasterRenderer.setFogDensity(0.0015f);
 		MasterRenderer.setFogGradient(1.5f);
 		
-		loader = new Loader();
-		
 		ParticleMaster.init(loader, masterRenderer.getProjectionMatrix());
 		TextMaster.init(loader);
+		
+		loadAssets();
+
+		//=============================== Main Loop ==========================================================
+
+		while (!Display.isCloseRequested()) {
+			//--------- Movement ----------------
+			camera.move();
+			ownship.move(ownshipPosition, ownshipRotation.x, ownshipRotation.z, ownshipRotation.y);
+			
+			//--------- Particles ---------------
+			ParticleMaster.update(camera);
+			
+			//----------- UI --------------------
+			text.setTextString(String.valueOf(ownship.getPosition().y));
+			TextMaster.loadText(text);
+
+			//------ Render Everything -----------
+			masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainArray(), 
+											lights, camera, new Vector4f(0, 1, 0, 0));
+			ParticleMaster.renderParticles(camera);
+			TextMaster.render();
+			
+			DisplayManager.updateDisplay();
+		}
+		
+		//================================ Clean Up ==========================================================
+		
+		ParticleMaster.cleanUp();
+		TextMaster.cleanUp();
+		masterRenderer.cleanUp();
+		loader.cleanUp();
+		
+		DisplayManager.closeDisplay();
+	}
+	
+	private void loadAssets() {
 		
 		//==================================== Sun ===========================================================
 		
@@ -88,9 +124,9 @@ public class RunWorld implements Runnable, FlightDataListener {
 		TexturedModel bunny =  new TexturedModel(OBJLoader.loadObjModel("bunny", "Entities", loader), 
 			    								new ModelTexture(loader.loadTexture("bunny", "Entities")));
 		
-		ownshipPosition = new Vector3f(0, 0, 0);
+		ownshipPosition = new Vector3f(800, 10, 800);
 		ownshipRotation = new Vector3f(0, 0, 0);
-		ownship = new Ownship(bunny, ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z, 0.5f);
+		ownship = new Ownship(bunny, ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z, 0.05f);
 		
 		entities.addToStaticEntities(ownship);
 		
@@ -110,55 +146,21 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		FontType font = new FontType(loader.loadTexture("arial", "Fonts"), new File("Resources\\Fonts\\arial.fnt"));
 		text = new GUIText("", 1, font, new Vector2f(0, 0), 1f, true);
-	}	
-	
-	@Override
-	public void run() {
-
-		//=============================== Main Loop ==========================================================
-
-		while (!Display.isCloseRequested()) {
-			//--------- Movement ----------------
-			camera.move();
-			ownship.move(ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z);
-			
-			//--------- Particles ---------------
-			ParticleMaster.update(camera);
-			
-			//----------- UI --------------------
-			text.setTextString(String.valueOf(ownship.getPosition().y));
-			TextMaster.loadText(text);
-
-			//------ Render Everything -----------
-			masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainArray(), 
-											lights, camera, new Vector4f(0, 1, 0, 0));
-			ParticleMaster.renderParticles(camera);
-			TextMaster.render();
-			
-			DisplayManager.updateDisplay();
-			
-			try {Thread.sleep(5);} 
-			catch (InterruptedException e) {}
-		}
 		
-		//================================ Clean Up ==========================================================
-		
-		ParticleMaster.cleanUp();
-		TextMaster.cleanUp();
-		masterRenderer.cleanUp();
-		loader.cleanUp();
-		
-		DisplayManager.closeDisplay();
 	}
 
 	@Override
 	public void onFlightDataReceived(FlightData flightData) {
-		ownshipPosition.x = (float) Double.parseDouble(flightData.getFlightData().get(FlightDataType.NORTH).toString());
-		ownshipPosition.y = (float) Double.parseDouble(flightData.getFlightData().get(FlightDataType.ALTITUDE).toString());
-		ownshipPosition.z = (float) Double.parseDouble(flightData.getFlightData().get(FlightDataType.EAST).toString());
+		if (ownshipPosition != null) {
+			ownshipPosition.x = (float) (flightData.getFlightData().get(FlightDataType.NORTH)/20);
+			ownshipPosition.y = (float) (flightData.getFlightData().get(FlightDataType.ALTITUDE)/10);
+			ownshipPosition.z = (float) (flightData.getFlightData().get(FlightDataType.EAST)/20);
+		}
 		
-		ownshipRotation.x = (float) Double.parseDouble(flightData.getFlightData().get(FlightDataType.ROLL).toString());
-		ownshipRotation.y = (float) Double.parseDouble(flightData.getFlightData().get(FlightDataType.HEADING).toString());
-		ownshipRotation.z = (float) Double.parseDouble(flightData.getFlightData().get(FlightDataType.PITCH).toString());
+		if (ownshipRotation != null) {
+			ownshipRotation.x = (float) (flightData.getFlightData().get(FlightDataType.ROLL)/1);
+			ownshipRotation.y = (float) (flightData.getFlightData().get(FlightDataType.HEADING)/1);
+			ownshipRotation.z = (float) (flightData.getFlightData().get(FlightDataType.PITCH)/-1);
+		}
 	}
 }

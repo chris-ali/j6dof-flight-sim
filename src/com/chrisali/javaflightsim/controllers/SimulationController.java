@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.chrisali.javaflightsim.consoletable.ConsoleTablePanel;
+import com.chrisali.javaflightsim.flightdata.FlightData;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
-import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightData;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.otw.RunWorld;
 import com.chrisali.javaflightsim.plotting.PlotWindow;
@@ -218,14 +218,15 @@ public class SimulationController {
 		if (simulationOptions.contains(Options.ANALYSIS_MODE)) {
 			plotSimulation();
 		} else {
+			outTheWindow = new RunWorld();
+			
 			flightData = new FlightData(runSim);
-			flightData.setFlightDataListener(panel);
-			//flightData.setFlightDataListener(runWorld);
+			flightData.addFlightDataListener(panel);
+			flightData.addFlightDataListener(outTheWindow);
 			
 			flightDataThread = new Thread(flightData);
 			flightDataThread.start();
 			
-			outTheWindow = new RunWorld();
 			outTheWindowThread = new Thread(outTheWindow);
 			outTheWindowThread.start();
 		}

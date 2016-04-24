@@ -1,20 +1,21 @@
-package com.chrisali.javaflightsim.instrumentpanel.flightdata;
+package com.chrisali.javaflightsim.flightdata;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.utilities.Utilities;
 
 /**
- *	Model class that interacts with {@link InstrumentPanel} and {@link Integrate6DOFEquations} to pass flight data from the simulation
- *	to the instrument panel. Uses threading to obtain data from the simulation at a reasonable rate
+ *	Interacts with {@link Integrate6DOFEquations} and any registered listeners to pass flight data from the simulation
+ *	listeners. Uses threading to obtain data from the simulation at a reasonable rate
  */
 public class FlightData implements Runnable {
 	
-	private FlightDataListener dataListener;
+	private List<FlightDataListener> dataListenerList;
 	private Map<FlightDataType, Double> flightData = new EnumMap<FlightDataType, Double>(FlightDataType.class);
 	Integrate6DOFEquations runSim;
 	
@@ -24,13 +25,15 @@ public class FlightData implements Runnable {
 	 * 
 	 * @param runSim
 	 */
-	public FlightData(Integrate6DOFEquations runSim) {this.runSim = runSim;}
+	public FlightData(Integrate6DOFEquations runSim) {
+		this.runSim = runSim;
+		this.dataListenerList = new ArrayList<>();
+	}
 	
 	public Map<FlightDataType, Double> getFlightData() {return flightData;}
 	
 	/**
-	 * Polls simOut for data, and assigns and converts the values needed in {@link InstrumentPanel}
-	 * to the flightData EnumMap  
+	 * Polls simOut for data, and assigns and converts the values needed to the flightData EnumMap  
 	 * 
 	 * @param simOut
 	 */
@@ -61,22 +64,24 @@ public class FlightData implements Runnable {
 	}
 	
 	/**
-	 * Initializes dataListener so that {@link InstrumentPanel} (which implements {@link FlightDataListener}) can listen
+	 * Adds a listener that implements {@link FlightDataListener} to a list of listeners that can listen
 	 * to {@link FlightData} 
 	 * 
 	 * @param dataListener
 	 */
-	public void setFlightDataListener(FlightDataListener dataListener) {
-		this.dataListener = dataListener;
+	public void addFlightDataListener(FlightDataListener dataListener) {
+		dataListenerList.add(dataListener);
 	}
 	
 	/**
-	 * Lets the view ({@link InstrumentPanel}) know that data has arrived from the {@link Integrate6DOFEquations} thread
-	 * so that it can update its display
+	 * Lets registered listeners know that data has arrived from the {@link Integrate6DOFEquations} thread
+	 * so that they can use it as needed
 	 */
 	private void fireDataArrived() {
-		if(dataListener != null)
-			dataListener.onFlightDataReceived(this);
+		for (FlightDataListener listener : dataListenerList) {
+			if(listener != null) 
+				listener.onFlightDataReceived(this);
+		}
 	}
 	
 	@Override

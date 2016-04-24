@@ -5,8 +5,8 @@ import java.util.EnumSet;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import com.chrisali.javaflightsim.flightdata.FlightData;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
-import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightData;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -29,7 +29,7 @@ public class InstrumentPanelTest {
 		new Thread(flightData).start();
 		
 		InstrumentPanel panel = new InstrumentPanel();
-		flightData.setFlightDataListener(panel);
+		flightData.addFlightDataListener(panel);
 		panel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		panel.setVisible(true);
 	}

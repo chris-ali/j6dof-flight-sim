@@ -11,9 +11,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.border.Border;
 
-import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightData;
-import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightDataListener;
-import com.chrisali.javaflightsim.instrumentpanel.flightdata.FlightDataType;
+import com.chrisali.javaflightsim.flightdata.FlightData;
+import com.chrisali.javaflightsim.flightdata.FlightDataListener;
+import com.chrisali.javaflightsim.flightdata.FlightDataType;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.AirspeedIndicator;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.Altimeter;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.ArtificialHorizon;

@@ -20,11 +20,11 @@ public class DisplayManager {
 	public static void createDisplay() {
 		try {
 			ContextAttribs attribs = new ContextAttribs(3,3)
-			.withForwardCompatible(true)
-			.withProfileCore(true);
+										.withForwardCompatible(true)
+										.withProfileCore(true);
 			
 			Display.setDisplayMode(new DisplayMode(width, height));
-			Display.setTitle("My Game");
+			Display.setTitle("Java Flight Simulator");
 			Display.create(new PixelFormat(),attribs);
 		} catch (LWJGLException e) {
 			e.printStackTrace();
