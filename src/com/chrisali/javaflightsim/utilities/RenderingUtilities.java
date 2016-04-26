@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.otw.toolbox;
+package com.chrisali.javaflightsim.utilities;
 
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
@@ -6,7 +6,13 @@ import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.otw.entities.Camera;
 
-public class Utilities {
+/**
+ * Contains static methods to create view/transformation matrices and calculate barycentric coordicates  
+ * 
+ * @author Christopher Ali
+ *
+ */
+public class RenderingUtilities {
 	
 	public static Matrix4f createTransformationMatrix(Vector2f translation, Vector2f scale) {
 		Matrix4f matrix = new Matrix4f();
@@ -48,7 +54,7 @@ public class Utilities {
 		  return viewMatrix;
 	 }
 	
-	public static float barryCentric(Vector3f p1, Vector3f p2, Vector3f p3, Vector2f pos) {
+	public static float barycentric(Vector3f p1, Vector3f p2, Vector3f p3, Vector2f pos) {
 		float det = (p2.z - p3.z) * (p1.x - p3.x)  + (p3.x - p2.x) * (p1.z - p3.z);
 		float l1 = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
 		float l2 = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.y - p3.z)) / det;

@@ -13,7 +13,7 @@ import com.chrisali.javaflightsim.otw.models.RawModel;
 import com.chrisali.javaflightsim.otw.shaders.TerrainShader;
 import com.chrisali.javaflightsim.otw.terrain.Terrain;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexturePack;
-import com.chrisali.javaflightsim.otw.toolbox.Utilities;
+import com.chrisali.javaflightsim.utilities.RenderingUtilities;
 
 public class TerrainRenderer {
 	private TerrainShader terrainShader;
@@ -75,7 +75,7 @@ public class TerrainRenderer {
 	}
 	
 	private void loadModelMatrix(Terrain terrain) {
-		Matrix4f transformationMatrix = Utilities.createTransformationMatrix(new Vector3f(terrain.getX(), 0, terrain.getZ()), 0, 0, 0, 1);
+		Matrix4f transformationMatrix = RenderingUtilities.createTransformationMatrix(new Vector3f(terrain.getX(), 0, terrain.getZ()), 0, 0, 0, 1);
 		terrainShader.loadTransformationMatrix(transformationMatrix);
 	}
 }

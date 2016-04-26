@@ -12,8 +12,8 @@ import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.simulation.aero.WingGeometry;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.simulation.integration.SixDOFUtilities;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
+import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
 import com.chrisali.javaflightsim.utilities.Utilities;
 
 /**

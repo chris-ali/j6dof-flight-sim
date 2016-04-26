@@ -9,7 +9,7 @@ import org.lwjgl.util.vector.Vector4f;
 
 import com.chrisali.javaflightsim.otw.entities.Camera;
 import com.chrisali.javaflightsim.otw.entities.Light;
-import com.chrisali.javaflightsim.otw.toolbox.Utilities;
+import com.chrisali.javaflightsim.utilities.RenderingUtilities;
 
 public class StaticShader extends ShaderProgram {
 
@@ -123,7 +123,7 @@ public class StaticShader extends ShaderProgram {
 	}
 	
 	public void loadViewMatrix(Camera camera) {
-		Matrix4f viewMatrix = Utilities.createViewMatrix(camera);
+		Matrix4f viewMatrix = RenderingUtilities.createViewMatrix(camera);
 		super.loadMatrix(location_viewMatrix, viewMatrix);
 	}
 }

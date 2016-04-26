@@ -14,7 +14,7 @@ import com.chrisali.javaflightsim.otw.models.RawModel;
 import com.chrisali.javaflightsim.otw.models.TexturedModel;
 import com.chrisali.javaflightsim.otw.shaders.StaticShader;
 import com.chrisali.javaflightsim.otw.textures.ModelTexture;
-import com.chrisali.javaflightsim.otw.toolbox.Utilities;
+import com.chrisali.javaflightsim.utilities.RenderingUtilities;
 
 public class EntityRenderer {
 	
@@ -72,7 +72,7 @@ public class EntityRenderer {
 	}
 	
 	private void prepareInstatce(Entity entity) {
-		Matrix4f transformationMatrix = Utilities.createTransformationMatrix(entity.getPosition(), entity.getRotX(), 
+		Matrix4f transformationMatrix = RenderingUtilities.createTransformationMatrix(entity.getPosition(), entity.getRotX(), 
 				entity.getRotY(), entity.getRotZ(), entity.getScale());
 		shader.loadTransformationMatrix(transformationMatrix);
 		shader.loadOffset(entity.getTextureXOffset(), entity.getTextureYOffset());

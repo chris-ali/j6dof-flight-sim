@@ -141,6 +141,7 @@ public class AircraftPanel extends JPanel {
 		gc.weightx = 0.5;
 		gc.weighty = 0.5;
 		gc.gridheight = 2;
+		//Picture must be ~430x230 pixels
 		pictureArea = new JLabel(createPreviewPicture((String)aircraftComboBox.getSelectedItem(), "PreviewPicture.jpg"));
 		controlsPanel.add(pictureArea, gc);
 		

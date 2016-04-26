@@ -8,7 +8,7 @@ import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
-import com.chrisali.javaflightsim.simulation.integration.SixDOFUtilities;
+import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
 
 /**
  * This class calculates aerodynamic forces and moments in the stability coordinate frame. The aerodynamic forces are then converted to the 

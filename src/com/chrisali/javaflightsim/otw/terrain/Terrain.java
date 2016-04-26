@@ -13,7 +13,7 @@ import com.chrisali.javaflightsim.otw.models.RawModel;
 import com.chrisali.javaflightsim.otw.renderengine.Loader;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexture;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexturePack;
-import com.chrisali.javaflightsim.otw.toolbox.Utilities;
+import com.chrisali.javaflightsim.utilities.RenderingUtilities;
 
 public class Terrain {
 	private static final float SIZE = 800;
@@ -135,12 +135,12 @@ public class Terrain {
 		
 		float terrainHeight;
 		if (xCoord <= (1-zCoord)) {
-			terrainHeight = Utilities.barryCentric(new Vector3f(0, heightArray[gridX][gridZ], 0), 
+			terrainHeight = RenderingUtilities.barycentric(new Vector3f(0, heightArray[gridX][gridZ], 0), 
 												   new Vector3f(1, heightArray[gridX + 1][gridZ], 0), 
 												   new Vector3f(0, heightArray[gridX][gridZ + 1], 1), 
 												   new Vector2f(xCoord, zCoord));
 		} else {
-			terrainHeight = Utilities.barryCentric(new Vector3f(1, heightArray[gridX + 1][gridZ], 0), 
+			terrainHeight = RenderingUtilities.barycentric(new Vector3f(1, heightArray[gridX + 1][gridZ], 0), 
 												   new Vector3f(1, heightArray[gridX + 1][gridZ + 1], 1), 
 												   new Vector3f(0, heightArray[gridX][gridZ + 1], 1), 
 												   new Vector2f(xCoord, zCoord));

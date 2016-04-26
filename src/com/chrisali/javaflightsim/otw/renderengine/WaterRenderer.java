@@ -12,9 +12,9 @@ import org.lwjgl.util.vector.Vector3f;
 import com.chrisali.javaflightsim.otw.entities.Camera;
 import com.chrisali.javaflightsim.otw.models.RawModel;
 import com.chrisali.javaflightsim.otw.shaders.WaterShader;
-import com.chrisali.javaflightsim.otw.toolbox.Utilities;
 import com.chrisali.javaflightsim.otw.water.WaterFrameBuffers;
 import com.chrisali.javaflightsim.otw.water.WaterTile;
+import com.chrisali.javaflightsim.utilities.RenderingUtilities;
 
 public class WaterRenderer {
 	
@@ -45,7 +45,7 @@ public class WaterRenderer {
 	public void render(List<WaterTile> water, Camera camera) {
 		prepareRender(camera);	
 		for (WaterTile tile : water) {
-			Matrix4f modelMatrix = Utilities.createTransformationMatrix(
+			Matrix4f modelMatrix = RenderingUtilities.createTransformationMatrix(
 					new Vector3f(tile.getX(), tile.getHeight(), tile.getZ()), 0, 0, 0,
 					WaterTile.TILE_SIZE);
 			shader.loadModelMatrix(modelMatrix);

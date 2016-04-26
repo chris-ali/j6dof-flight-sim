@@ -11,7 +11,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import com.chrisali.javaflightsim.otw.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.otw.models.RawModel;
 import com.chrisali.javaflightsim.otw.shaders.InterfaceShader;
-import com.chrisali.javaflightsim.otw.toolbox.Utilities;
+import com.chrisali.javaflightsim.utilities.RenderingUtilities;
 
 public class InterfaceRenderer {
 	
@@ -37,7 +37,7 @@ public class InterfaceRenderer {
 			GL13.glActiveTexture(GL13.GL_TEXTURE0);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, interfaceTexture.getTexture());
 			
-			Matrix4f matrix = Utilities.createTransformationMatrix(interfaceTexture.getPosition(), 
+			Matrix4f matrix = RenderingUtilities.createTransformationMatrix(interfaceTexture.getPosition(), 
 					interfaceTexture.getScale());
 			shader.loadTransformation(matrix);
 			

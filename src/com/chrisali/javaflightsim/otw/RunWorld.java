@@ -31,6 +31,13 @@ import com.chrisali.javaflightsim.otw.renderengine.OBJLoader;
 import com.chrisali.javaflightsim.otw.terrain.TerrainCollection;
 import com.chrisali.javaflightsim.otw.textures.ModelTexture;
 
+/**
+ * Runner class for out the window display for Java Flight Sim. It utilizes LWJGL to create a 3D world in OpenGL. 
+ * The display runs in a separate thread that receives data from {@link FlightData} via {@link FlightDataListener} 
+ * 
+ * @author Christopher Ali
+ *
+ */
 public class RunWorld implements Runnable, FlightDataListener {
 	
 	private Loader loader;
@@ -40,10 +47,11 @@ public class RunWorld implements Runnable, FlightDataListener {
 	private TerrainCollection terrainCollection;
 	private EntityCollections entities;
 	
-	private Camera camera;
+	// Ownship is the "player" that moves around the world based on data received from FlightData
 	private Ownship ownship;
 	private Vector3f ownshipPosition;
 	private Vector3f ownshipRotation;
+	private Camera camera;
 	
 	private GUIText text;
 
@@ -104,6 +112,9 @@ public class RunWorld implements Runnable, FlightDataListener {
 		DisplayManager.closeDisplay();
 	}
 	
+	/**
+	 * Initalizes and generates all assets needed to render lights, entities, particles terrain and text
+	 */
 	private void loadAssets() {
 		
 		//==================================== Sun ===========================================================

@@ -26,6 +26,7 @@ import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
 import com.chrisali.javaflightsim.utilities.Utilities;
 
 /**

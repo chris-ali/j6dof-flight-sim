@@ -1,9 +1,11 @@
-package com.chrisali.javaflightsim.simulation.integration;
+package com.chrisali.javaflightsim.utilities;
 
 import java.util.EnumMap;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
+import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.integration.SaturationLimits;
 
 /**
  * This class contains methods to do coordinate axes transformations from Body to NED and from Wind to Body. It also calculates Geodetic coordinates from NED position, Mach number, 

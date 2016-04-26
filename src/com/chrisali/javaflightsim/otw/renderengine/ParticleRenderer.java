@@ -18,7 +18,7 @@ import com.chrisali.javaflightsim.otw.models.RawModel;
 import com.chrisali.javaflightsim.otw.particles.Particle;
 import com.chrisali.javaflightsim.otw.particles.ParticleTexture;
 import com.chrisali.javaflightsim.otw.shaders.ParticleShader;
-import com.chrisali.javaflightsim.otw.toolbox.Utilities;
+import com.chrisali.javaflightsim.utilities.RenderingUtilities;
 
 public class ParticleRenderer {
 
@@ -54,7 +54,7 @@ public class ParticleRenderer {
 	}
 
 	public void render(Map<ParticleTexture, List<Particle>> particles, Camera camera) {
-		Matrix4f viewMatrix = Utilities.createViewMatrix(camera);
+		Matrix4f viewMatrix = RenderingUtilities.createViewMatrix(camera);
 		prepare();
 		
 		shader.loadSkyColor(MasterRenderer.getSkyColor().x, 
