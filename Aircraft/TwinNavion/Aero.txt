@@ -17,7 +17,7 @@ CD_alpha = 0.33
 CD_0 = 0.025
 CD_d_elev = 0.001
 CD_d_flap = 0.02
-CD_d_gear = 0.09
+CD_d_gear = 0.008
 
 %CL - Roll
 Croll_beta = -0.074
