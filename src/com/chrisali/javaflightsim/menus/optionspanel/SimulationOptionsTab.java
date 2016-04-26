@@ -149,7 +149,7 @@ public class SimulationOptionsTab extends JPanel {
 		controllers = new JList<String>(controllerList);
 		controllers.setToolTipText("Chooses which HID controller will control the simulation");
 		controllers.setSelectedIndex(0);
-		controllers.setEnabled(analysisMode.isSelected());
+		controllers.setEnabled(!analysisMode.isSelected());
 		controllers.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		controllers.addMouseListener(new MouseAdapter() {
 			@Override

@@ -172,14 +172,14 @@ public class SimulationController {
 		initialConditions.put(InitialConditions.INITU,   Utilities.toFtPerSec(airspeed));
 		initialConditions.put(InitialConditions.INITD,   altitude);
 		
-		Utilities.writeConfigFile("InitialConditions", SIM_CONFIG_PATH, initialConditions);
+		Utilities.writeConfigFile(SIM_CONFIG_PATH, "InitialConditions", initialConditions);
 	}
 	
 	/**
 	 * Updates the InitialControls config file
 	 */
 	public void updateIninitialControls() {
-		Utilities.writeConfigFile("InitialControls", SIM_CONFIG_PATH, initialControls);
+		Utilities.writeConfigFile(SIM_CONFIG_PATH, "InitialControls", initialControls);
 	}	
 	
 	//=============================== Simulation ===========================================================

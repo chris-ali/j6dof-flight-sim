@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -26,6 +27,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.chrisali.javaflightsim.menus.CancelButtonListener;
+import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
+import com.chrisali.javaflightsim.utilities.Utilities;
 
 public class InitialConditionsPanel extends JPanel {
 
@@ -35,8 +38,11 @@ public class InitialConditionsPanel extends JPanel {
 	private JTextArea latitudeArea;
 	private JTextArea longitudeArea;
 	private JSpinner headingSpinner;
+	private SpinnerNumberModel headingSpinnerModel;
 	private JSpinner altitudeSpinner;
+	private SpinnerNumberModel altitudeSpinnerModel;
 	private JSpinner airspeedSpinner;
+	private SpinnerNumberModel airspeedSpinnerModel;
 	
 	private JButton okButton;
 	private JButton cancelButton;
@@ -157,7 +163,8 @@ public class InitialConditionsPanel extends JPanel {
 		
 		gc.gridx = 1;
 		gc.anchor = GridBagConstraints.LINE_START;
-		headingSpinner = new JSpinner(new SpinnerNumberModel(45.0, 0.0, 359.0, 1.0));
+		headingSpinnerModel = new SpinnerNumberModel(45.0, 0.0, 359.0, 1.0); 
+		headingSpinner = new JSpinner(headingSpinnerModel);
 		headingSpinner.setPreferredSize(componentSize);
 		headingSpinner.addChangeListener(new ChangeListener() {
 			@Override
@@ -179,7 +186,8 @@ public class InitialConditionsPanel extends JPanel {
 		
 		gc.gridx = 1;
 		gc.anchor = GridBagConstraints.LINE_START;
-		altitudeSpinner = new JSpinner(new SpinnerNumberModel(5000.0, 0.0, 60000.0, 10.0));
+		altitudeSpinnerModel = new SpinnerNumberModel(5000.0, 0.0, 60000.0, 10.0);
+		altitudeSpinner = new JSpinner(altitudeSpinnerModel);
 		altitudeSpinner.setPreferredSize(componentSize);
 		controlsPanel.add(altitudeSpinner, gc);
 		
@@ -189,11 +197,12 @@ public class InitialConditionsPanel extends JPanel {
 		
 		gc.gridx = 0;
 		gc.anchor = GridBagConstraints.FIRST_LINE_END;
-		controlsPanel.add(new JLabel("Airspeed:"), gc);
+		controlsPanel.add(new JLabel("True Airspeed:"), gc);
 		
 		gc.gridx = 1;
 		gc.anchor = GridBagConstraints.FIRST_LINE_START;
-		airspeedSpinner = new JSpinner(new SpinnerNumberModel(115.0, 0.0, 300.0, 1.0));
+		airspeedSpinnerModel = new SpinnerNumberModel(115.0, 0.0, 300.0, 1.0);
+		airspeedSpinner = new JSpinner(airspeedSpinnerModel);
 		airspeedSpinner.setPreferredSize(componentSize);
 		controlsPanel.add(airspeedSpinner, gc);
 		
@@ -229,6 +238,12 @@ public class InitialConditionsPanel extends JPanel {
 		
 		setSize(windowSize);
 		setPreferredSize(windowSize);
+	}
+	
+	public void setInitialConditionsPanel(Map<InitialConditions, Double> initialConditions) {
+		headingSpinnerModel.setValue(Math.toDegrees(initialConditions.get(InitialConditions.INITPSI)));
+		airspeedSpinnerModel.setValue(Utilities.toKnots(initialConditions.get(InitialConditions.INITU)));
+		altitudeSpinnerModel.setValue(initialConditions.get(InitialConditions.INITD));
 	}
 	
 	public void setCancelButtonListener(CancelButtonListener cancelButtonListener) {

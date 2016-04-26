@@ -127,6 +127,7 @@ public class MainFrame extends JFrame {
 		//-------------------- Initial Conditions Panel --------------------------------------------
 		
 		initialConditionsPanel = new InitialConditionsPanel();
+		initialConditionsPanel.setInitialConditionsPanel(simController.getInitialConditions());
 		initialConditionsPanel.setInitialConditionsConfigurationListener(new InitialConditionsConfigurationListener() {
 			@Override
 			public void initialConditonsConfigured(double[] coordinates, double heading, double altitude, double airspeed) {
