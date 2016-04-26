@@ -61,8 +61,8 @@ public class RunWorld implements Runnable, FlightDataListener {
 		loader = new Loader();
 		
 		masterRenderer = new MasterRenderer();
-		MasterRenderer.setSkyColor(new Vector3f(0.0f, 0.75f, 0.95f));
-		MasterRenderer.setFogDensity(0.0015f);
+		MasterRenderer.setSkyColor(new Vector3f(0.0f, 0.85f, 1.0f));
+		MasterRenderer.setFogDensity(0.0010f);
 		MasterRenderer.setFogGradient(1.5f);
 		
 		ParticleMaster.init(loader, masterRenderer.getProjectionMatrix());
@@ -73,9 +73,10 @@ public class RunWorld implements Runnable, FlightDataListener {
 		//=============================== Main Loop ==========================================================
 
 		while (!Display.isCloseRequested()) {
+			
 			//--------- Movement ----------------
-			camera.move();
-			ownship.move(ownshipPosition, ownshipRotation.x, ownshipRotation.z, ownshipRotation.y);
+			camera.move(ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z);
+			ownship.move(ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z);
 			
 			//--------- Particles ---------------
 			ParticleMaster.update(camera);
@@ -126,7 +127,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		ownshipPosition = new Vector3f(800, 10, 800);
 		ownshipRotation = new Vector3f(0, 0, 0);
-		ownship = new Ownship(bunny, ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z, 0.05f);
+		ownship = new Ownship(bunny, ownshipPosition, ownshipRotation.z, ownshipRotation.z, ownshipRotation.x, 0.005f);
 		
 		entities.addToStaticEntities(ownship);
 		
@@ -152,15 +153,15 @@ public class RunWorld implements Runnable, FlightDataListener {
 	@Override
 	public void onFlightDataReceived(FlightData flightData) {
 		if (ownshipPosition != null) {
-			ownshipPosition.x = (float) (flightData.getFlightData().get(FlightDataType.NORTH)/20);
-			ownshipPosition.y = (float) (flightData.getFlightData().get(FlightDataType.ALTITUDE)/10);
-			ownshipPosition.z = (float) (flightData.getFlightData().get(FlightDataType.EAST)/20);
+			ownshipPosition.x = (float) ((flightData.getFlightData().get(FlightDataType.NORTH)+800)/20);
+			ownshipPosition.y = (float) (flightData.getFlightData().get(FlightDataType.ALTITUDE)/25);
+			ownshipPosition.z = (float) ((flightData.getFlightData().get(FlightDataType.EAST)+800)/20);
 		}
 		
 		if (ownshipRotation != null) {
-			ownshipRotation.x = (float) (flightData.getFlightData().get(FlightDataType.ROLL)/1);
-			ownshipRotation.y = (float) (flightData.getFlightData().get(FlightDataType.HEADING)/1);
-			ownshipRotation.z = (float) (flightData.getFlightData().get(FlightDataType.PITCH)/-1);
+			ownshipRotation.x = (float) (flightData.getFlightData().get(FlightDataType.ROLL)/-1);
+			ownshipRotation.y = (float) (flightData.getFlightData().get(FlightDataType.PITCH)/-1);
+			ownshipRotation.z = (float) (flightData.getFlightData().get(FlightDataType.HEADING)-270); // rotate to follow camera translation
 		}
 	}
 }

@@ -34,12 +34,12 @@ public class Utilities {
 		  Matrix4f viewMatrix = new Matrix4f();
 		  viewMatrix.setIdentity();
 		  
-		  Matrix4f.rotate((float) Math.toRadians(camera.getPitch()), new Vector3f(1,0,0), viewMatrix,
+		  Matrix4f.rotate((float) Math.toRadians(camera.getPitch()), new Vector3f(1, 0, 0), viewMatrix,
 				  								 viewMatrix);
-		  Matrix4f.rotate((float) Math.toRadians(camera.getYaw()),   new Vector3f(0,1,0), viewMatrix,
+		  Matrix4f.rotate((float) Math.toRadians(camera.getYaw()),   new Vector3f(0, 1, 0), viewMatrix,
 	  											 viewMatrix);
-		  Matrix4f.rotate((float) Math.toRadians(camera.getRoll()),  new Vector3f(0,0,1), viewMatrix,
-				  								 viewMatrix);
+		  Matrix4f.rotate((float) Math.toRadians(camera.getRoll()),  new Vector3f((float) Math.sin(Math.toRadians(camera.getYaw())), 0, (float) -Math.cos(Math.toRadians(camera.getYaw()))), viewMatrix,
+				  								 viewMatrix); // Rotation of unit vector to rotate around needed to ensure camera "rolls" regardless of yaw angle 
 		  
 		  Vector3f cameraPos = camera.getPosition();
 		  Vector3f negativeCameraPos = new Vector3f(-cameraPos.x,-cameraPos.y,-cameraPos.z);

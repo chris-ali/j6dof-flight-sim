@@ -19,8 +19,8 @@ public class Ownship extends Entity {
 	public void move(Vector3f position, float phi, float theta, float psi) {
 		super.setPosition(position);
 		
-		super.setRotZ(phi);
-		super.setRotX(theta);
+		super.setRotX(phi);
+		super.setRotZ(theta);
 		super.setRotY(psi);
 	}
 	

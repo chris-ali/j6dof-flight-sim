@@ -18,7 +18,7 @@ public class SixDOFUtilities {
 	 * @see <i>Source Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
 	 */
 	public static double[][] body2Ned(double[] eulerAngles) {
-		double body2NedDCM[][] = new double[3][3]; //[row][column]
+		double body2NedDCM[][] = new double[3][3]; //[column][row]
 		
 		body2NedDCM[0][0] =  Math.cos(eulerAngles[1])*Math.cos(eulerAngles[2]);
 		body2NedDCM[1][0] =  Math.cos(eulerAngles[1])*Math.sin(eulerAngles[2]);
@@ -33,6 +33,28 @@ public class SixDOFUtilities {
 		body2NedDCM[2][2] =  Math.cos(eulerAngles[0])*Math.cos(eulerAngles[1]);
 				
 		return body2NedDCM;
+	}
+
+	/**
+	 * Calculates the direction cosine matrix needed to convert from NED to body coordinate axes 
+	 * @see <i>Source Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
+	 */
+	public static double[][] ned2Body(double[] eulerAngles) {
+		double ned2BodyDCM[][] = new double[3][3]; //[column][row]
+		
+		ned2BodyDCM[0][0] =  Math.cos(eulerAngles[1])*Math.cos(eulerAngles[2]);
+		ned2BodyDCM[1][0] =  Math.sin(eulerAngles[0])*Math.sin(eulerAngles[1])*Math.cos(eulerAngles[2]) - Math.cos(eulerAngles[0])*Math.sin(eulerAngles[2]);
+		ned2BodyDCM[2][0] =  Math.cos(eulerAngles[0])*Math.sin(eulerAngles[1])*Math.cos(eulerAngles[2]) + Math.sin(eulerAngles[0])*Math.sin(eulerAngles[2]);
+		
+		ned2BodyDCM[0][1] =  Math.cos(eulerAngles[1])*Math.sin(eulerAngles[2]);
+		ned2BodyDCM[1][1] =  Math.sin(eulerAngles[0])*Math.sin(eulerAngles[1])*Math.sin(eulerAngles[2]) + Math.cos(eulerAngles[0])*Math.cos(eulerAngles[2]);
+		ned2BodyDCM[2][1] =  Math.cos(eulerAngles[0])*Math.sin(eulerAngles[1])*Math.sin(eulerAngles[2]) - Math.sin(eulerAngles[0])*Math.cos(eulerAngles[2]);
+		
+		ned2BodyDCM[0][2] = -Math.sin(eulerAngles[1]);
+		ned2BodyDCM[1][2] =  Math.sin(eulerAngles[0])*Math.cos(eulerAngles[1]);
+		ned2BodyDCM[2][2] =  Math.cos(eulerAngles[0])*Math.cos(eulerAngles[1]);
+		
+		return ned2BodyDCM;
 	}
 	
 	/**

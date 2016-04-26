@@ -168,7 +168,7 @@ public class Integrate6DOFEquations implements Runnable {
 	 */
 	private double[] updateDerivatives(double[] y) {
 		double[]   yDot          = new double[14];
-		double[][] dirCosMat     = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([row][column])
+		double[][] dirCosMat     = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([column][row])
 		double[]   inertiaCoeffs = SixDOFUtilities.calculateInertiaCoeffs(Utilities.unboxDoubleArray(aircraft.getInertiaValues()));
 		double[]   ned2LLA       = SixDOFUtilities.ned2LLA(y);
 		double[]   windSpdNED    = new double[]{environmentParameters.get(EnvironmentParameters.WIND_SPEED_N),

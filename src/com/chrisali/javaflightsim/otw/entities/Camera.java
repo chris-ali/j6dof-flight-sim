@@ -117,11 +117,28 @@ public class Camera {
 		calculateCameraPosition(calculateHorizontalDistanceToPlayer(), 
 								calculateVerticalDistanceToPlayer());
 		
-		if (!isChaseView) {
-			phi   =   0 - (entityToFollow.getRotZ() + cameraToEntityPhi);
-			theta =   0 + (entityToFollow.getRotX() + cameraToEntityTheta);
-		}
+		phi   =   0 - (entityToFollow.getRotZ() + cameraToEntityPhi);
+		theta =   0 + (entityToFollow.getRotX() + cameraToEntityTheta);
 		psi   = 180 - (entityToFollow.getRotY() + cameraToEntityPsi);
+	}
+	
+	/**
+	 * Translates and rotates the directly camera based on the position and angles supplied as arguments;
+	 * these values are then sent to the shader classes where OpenGL can draw the scene.
+	 * 
+	 * @param position
+	 * @param phi
+	 * @param theta
+	 * @param psi
+	 */
+	public void move(Vector3f position, float phi, float theta, float psi) {
+		this.position.x = position.x;
+		this.position.y = position.y;
+		this.position.z = position.z;
+		
+		this.phi = phi; 
+		this.theta = theta;
+		this.psi = psi;
 	}
 	
 	public Vector3f getPosition() {
