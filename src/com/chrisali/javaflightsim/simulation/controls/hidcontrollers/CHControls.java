@@ -35,6 +35,8 @@ public class CHControls extends AbstractController {
 		trimAileron  = controls.get(FlightControls.AILERON);
 		trimRudder   = controls.get(FlightControls.RUDDER);
 		
+		flaps = controls.get(FlightControls.FLAPS);
+		
 		searchForControllers();
 	}
 	
@@ -77,9 +79,44 @@ public class CHControls extends AbstractController {
 
 				// Buttons
 				if(componentIdentifier.getName().matches("^[0-9]*$")) { // If the component identifier contains only numbers, it is a button
-					if(component.getPollData() == 1.0f) {
-						// Button index (nothing implemented yet)
-						switch(component.getIdentifier().toString()) {}
+					if(component.getPollData() == 1.0f && controller.getName().toLowerCase().compareTo("ch flight sim yoke usb") == 0) {
+						// Button index
+						switch(component.getIdentifier().toString()) {
+						case "2":
+							if(trimAileron >= FlightControls.AILERON.getMinimum()) trimAileron  += 0.000125;
+							break;
+						case "3":
+							if(trimAileron <= FlightControls.AILERON.getMaximum()) trimAileron  -= 0.000125;
+							break;
+						case "4":
+							controls.put(FlightControls.GEAR, FlightControls.GEAR.getMinimum()); // Retract landing gear
+							break;
+						case "5":
+							controls.put(FlightControls.GEAR, FlightControls.GEAR.getMaximum()); // Extend landing gear
+							break;
+						case "6":
+							if (flaps >= FlightControls.FLAPS.getMinimum())	controls.put(FlightControls.FLAPS, (flaps -= 0.004));
+							break;
+						case "7":
+							if (flaps <= FlightControls.FLAPS.getMaximum()) controls.put(FlightControls.FLAPS, (flaps += 0.004));
+							break;
+						case "10":
+							if (trimElevator <= FlightControls.ELEVATOR.getMaximum()) trimElevator += 0.00025;
+							break;	
+						case "11":
+							if (trimElevator >= FlightControls.ELEVATOR.getMinimum()) trimElevator -= 0.00025;
+							break;
+						}
+					} else if(component.getPollData() == 1.0f && controller.getName().toLowerCase().compareTo("ch throttle quadrant usb") == 0) {
+						// Button index
+						switch(component.getIdentifier().toString()) {
+						case "0":
+							if (trimElevator >= FlightControls.ELEVATOR.getMinimum()) trimElevator -= 0.000125;
+							break;
+						case "1":
+							if (trimElevator <= FlightControls.ELEVATOR.getMaximum()) trimElevator += 0.000125;
+							break;
+						}
 					}
 					continue; // Go to next component
 				}

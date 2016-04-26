@@ -23,6 +23,9 @@ public abstract class AbstractController {
 	protected static double trimAileron  = 0.0;
 	protected static double trimRudder   = 0.0;
 	
+	// Flaps deflection
+	protected static double flaps   	 = 0.0;
+	
 	protected abstract void searchForControllers();
 	
 	protected abstract EnumMap<FlightControls, Double> calculateControllerValues(EnumMap<FlightControls, Double> controls);
