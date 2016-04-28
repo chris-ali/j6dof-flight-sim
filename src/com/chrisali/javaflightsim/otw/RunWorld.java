@@ -124,7 +124,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		//================================= Terrain ==========================================================
 		
-		terrainCollection = new TerrainCollection(4, loader);
+		terrainCollection = new TerrainCollection(12, loader);
 		
 		//================================= Entities ==========================================================
 		
@@ -138,7 +138,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		ownshipPosition = new Vector3f(800, 10, 800);
 		ownshipRotation = new Vector3f(0, 0, 0);
-		ownship = new Ownship(bunny, ownshipPosition, ownshipRotation.z, ownshipRotation.z, ownshipRotation.x, 0.005f);
+		ownship = new Ownship(bunny, ownshipPosition, ownshipRotation.z, ownshipRotation.z, ownshipRotation.x, 0.000f);
 		
 		entities.addToStaticEntities(ownship);
 		
@@ -152,7 +152,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		Random random = new Random();
 		for (int i = 0; i < 1000; i++)
-			new Cloud(clouds, new Vector3f(random.nextInt(800*5), 200, i*5), new Vector3f(0, 0, 0), 0, 200);
+			new Cloud(clouds, new Vector3f(random.nextInt(800*10), 200, i*10), new Vector3f(0, 0, 0), 0, 200);
 		
 		//=============================== Interface ==========================================================
 		

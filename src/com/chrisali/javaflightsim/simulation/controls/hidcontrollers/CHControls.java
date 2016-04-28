@@ -111,10 +111,10 @@ public class CHControls extends AbstractController {
 						// Button index
 						switch(component.getIdentifier().toString()) {
 						case "0":
-							if (trimElevator >= FlightControls.ELEVATOR.getMinimum()) trimElevator -= 0.000125;
+							if (trimElevator <= FlightControls.ELEVATOR.getMaximum()) trimElevator += 0.000125;
 							break;
 						case "1":
-							if (trimElevator <= FlightControls.ELEVATOR.getMaximum()) trimElevator += 0.000125;
+							if (trimElevator >= FlightControls.ELEVATOR.getMinimum()) trimElevator -= 0.000125;
 							break;
 						}
 					}
