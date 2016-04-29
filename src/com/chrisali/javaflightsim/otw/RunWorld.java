@@ -70,8 +70,8 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		masterRenderer = new MasterRenderer();
 		MasterRenderer.setSkyColor(new Vector3f(0.0f, 0.85f, 1.0f));
-		MasterRenderer.setFogDensity(0.0010f);
-		MasterRenderer.setFogGradient(1.5f);
+		MasterRenderer.setFogDensity(0.0005f);
+		MasterRenderer.setFogGradient(3.5f);
 		
 		ParticleMaster.init(loader, masterRenderer.getProjectionMatrix());
 		TextMaster.init(loader);
@@ -120,7 +120,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		//==================================== Sun ===========================================================
 		
 		lights = new ArrayList<>();
-		lights.add(new Light(new Vector3f(20000, 40000, 20000), new Vector3f(0.8f, 0.8f, 0.8f)));
+		lights.add(new Light(new Vector3f(20000, 40000, 20000), new Vector3f(0.95f, 0.95f, 0.95f)));
 		
 		//================================= Terrain ==========================================================
 		
@@ -152,7 +152,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		Random random = new Random();
 		for (int i = 0; i < 1000; i++)
-			new Cloud(clouds, new Vector3f(random.nextInt(800*10), 200, i*10), new Vector3f(0, 0, 0), 0, 200);
+			new Cloud(clouds, new Vector3f(random.nextInt(800*10), 150, i*10), new Vector3f(0, 0, 0), 0, 200);
 		
 		//=============================== Interface ==========================================================
 		

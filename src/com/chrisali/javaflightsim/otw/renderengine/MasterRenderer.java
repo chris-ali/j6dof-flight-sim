@@ -21,16 +21,16 @@ import com.chrisali.javaflightsim.otw.shaders.TerrainShader;
 import com.chrisali.javaflightsim.otw.terrain.Terrain;
 
 public class MasterRenderer {
-	private static float fov = 70;
+	private static float fov = 85;
 	private static float nearPlane = 0.1f;
-	private static float farPlane = 2000;
+	private static float farPlane = 6000;
 	
 	private static float skyRed = 0.5f;
 	private static float skyGreen = 0.5f;
 	private static float skyBlue = 0.5f;
 	
-	private static float fogDensity = 0.002f;
-	private static float fogGradient = 1.5f;
+	private static float fogDensity = 0.0015f;
+	private static float fogGradient = 0.5f;
 	
 	private StaticShader staticShader = new StaticShader();
 	private TerrainShader terrainShader = new TerrainShader();
@@ -172,6 +172,14 @@ public class MasterRenderer {
 	
 	public static void setFogGradient(float fogGrad) {
 		fogGradient = fogGrad;
+	}
+	
+	public static void setFarPlane(float farPlane) {
+		MasterRenderer.farPlane = farPlane;
+	}
+	
+	public static void setFov(float fov) {
+		MasterRenderer.fov = fov;
 	}
 
 	public static float getFov() {

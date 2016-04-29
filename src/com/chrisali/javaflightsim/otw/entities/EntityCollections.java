@@ -55,7 +55,7 @@ public class EntityCollections {
 		oakforest.getTexture().setUseFakeLighting(true);
 		
 		Random random = new Random();
-		for (int i=0; i<2400; i++) {
+		for (int i=0; i<9600; i++) {
 			float x, y, z;
 			
 			if (i % 7 == 0) {

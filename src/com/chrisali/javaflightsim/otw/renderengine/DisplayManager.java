@@ -14,6 +14,8 @@ public class DisplayManager {
 	private static int height = 900;
 	private static int width = 1440;
 	
+	private static int aaSamples = 0;
+	
 	private static long lastFrameTime;
 	private static float delta;
 	
@@ -25,7 +27,7 @@ public class DisplayManager {
 			
 			Display.setDisplayMode(new DisplayMode(width, height));
 			Display.setTitle("Java Flight Simulator");
-			Display.create(new PixelFormat(),attribs);
+			Display.create(new PixelFormat().withSamples(aaSamples).withDepthBits(24),attribs);
 		} catch (LWJGLException e) {
 			e.printStackTrace();
 		}
@@ -61,4 +63,8 @@ public class DisplayManager {
 	public static void setWidth(int width) {
 		DisplayManager.width = width;
 	}
-}
+
+	public static void setAaSamples(int aaSamples) {
+		DisplayManager.aaSamples = aaSamples;
+	}
+	}
