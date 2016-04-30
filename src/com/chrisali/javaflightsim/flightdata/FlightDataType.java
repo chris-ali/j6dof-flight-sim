@@ -15,7 +15,9 @@ public enum FlightDataType {
 	LATITUDE	 ("Latitude","deg"),
 	LONGITUDE	 ("Longitude","deg"),
 	NORTH	 	 ("North","ft"),
-	EAST	 	 ("East","ft");
+	EAST	 	 ("East","ft"),
+	RPM_L		 ("Left RPM","1/min"),
+	RPM_R		 ("Right RPM","1/min");
 	
 	private final String dataType;
 	private final String unit;

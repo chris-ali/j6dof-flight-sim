@@ -40,25 +40,34 @@ public class FlightData implements Runnable {
 	public void updateData(Map<SimOuts, Double> simOut) {
 		final Double TAS_TO_IAS = 1/(1+((simOut.get(SimOuts.ALT)/1000)*0.02));
 		
-		flightData.put(FlightDataType.IAS, Utilities.toKnots(simOut.get(SimOuts.TAS)*TAS_TO_IAS));
-		
-		flightData.put(FlightDataType.VERT_SPEED, simOut.get(SimOuts.ALT_DOT));
-		
-		flightData.put(FlightDataType.ALTITUDE, simOut.get(SimOuts.ALT));
-		
-		flightData.put(FlightDataType.ROLL, Math.toDegrees(simOut.get(SimOuts.PHI)));
-		flightData.put(FlightDataType.PITCH, Math.toDegrees(simOut.get(SimOuts.THETA)));
-		
-		flightData.put(FlightDataType.HEADING, Math.toDegrees(simOut.get(SimOuts.PSI)));
-		
-		flightData.put(FlightDataType.TURN_RATE, Math.toDegrees(simOut.get(SimOuts.PSI_DOT)));
-		flightData.put(FlightDataType.TURN_COORD, simOut.get(SimOuts.AN_Y));
-		
-		flightData.put(FlightDataType.LATITUDE, Math.toDegrees(simOut.get(SimOuts.LAT)));
-		flightData.put(FlightDataType.LONGITUDE, Math.toDegrees(simOut.get(SimOuts.LON)));
-		
-		flightData.put(FlightDataType.NORTH, simOut.get(SimOuts.NORTH));
-		flightData.put(FlightDataType.EAST, simOut.get(SimOuts.EAST));
+		try { 
+			flightData.put(FlightDataType.IAS, Utilities.toKnots(simOut.get(SimOuts.TAS)*TAS_TO_IAS));
+			
+			flightData.put(FlightDataType.VERT_SPEED, simOut.get(SimOuts.ALT_DOT));
+			
+			flightData.put(FlightDataType.ALTITUDE, simOut.get(SimOuts.ALT));
+			
+			flightData.put(FlightDataType.ROLL, Math.toDegrees(simOut.get(SimOuts.PHI)));
+			flightData.put(FlightDataType.PITCH, Math.toDegrees(simOut.get(SimOuts.THETA)));
+			
+			flightData.put(FlightDataType.HEADING, Math.toDegrees(simOut.get(SimOuts.PSI)));
+			
+			flightData.put(FlightDataType.TURN_RATE, Math.toDegrees(simOut.get(SimOuts.PSI_DOT)));
+			flightData.put(FlightDataType.TURN_COORD, simOut.get(SimOuts.AN_Y));
+			
+			flightData.put(FlightDataType.LATITUDE, Math.toDegrees(simOut.get(SimOuts.LAT)));
+			flightData.put(FlightDataType.LONGITUDE, Math.toDegrees(simOut.get(SimOuts.LON)));
+			
+			flightData.put(FlightDataType.NORTH, simOut.get(SimOuts.NORTH));
+			flightData.put(FlightDataType.EAST, simOut.get(SimOuts.EAST));
+			
+			flightData.put(FlightDataType.RPM_L, simOut.get(SimOuts.RPM_1));
+			flightData.put(FlightDataType.RPM_R, simOut.get(SimOuts.RPM_2));
+			
+		} catch (NullPointerException e) {
+			//e.printStackTrace();
+			System.err.println("Null data encountered!");
+		}
 		
 		fireDataArrived();
 	}

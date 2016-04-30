@@ -18,6 +18,7 @@ import com.chrisali.javaflightsim.instrumentpanel.gauges.AirspeedIndicator;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.Altimeter;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.ArtificialHorizon;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.DirectionalGyro;
+import com.chrisali.javaflightsim.instrumentpanel.gauges.Tachometer;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.TurnCoordinator;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.VerticalSpeed;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
@@ -37,6 +38,7 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 	private AirspeedIndicator airspeedIndicator;
 	private VerticalSpeed 	  verticalSpeed;
 	private TurnCoordinator	  turnCoordinator;
+	private Tachometer	  	  tachometer;
 	
 	private ClosePanelListener closePanelListener;
 	
@@ -120,6 +122,16 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		
 		add(turnCoordinator, gc);
 		
+		//----------------------------------- Tachometer -----------------------------------------
+
+		gc.gridx = 7;
+		gc.gridy = 6;
+		
+		tachometer = new Tachometer();
+		tachometer.setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
+		
+		add(tachometer, gc);
+		
 		//========================== Window Settings =============================================
 		
 		addWindowListener(new WindowAdapter() {
@@ -151,7 +163,7 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 	 */
 	@Override
 	public void onFlightDataReceived(FlightData flightData) {
-		if (flightData != null) {
+		if (flightData.getFlightData() != null) {
 			artificalHorizon.setPitch(flightData.getFlightData().get(FlightDataType.PITCH));
 			artificalHorizon.setRoll(flightData.getFlightData().get(FlightDataType.ROLL));
 			
@@ -165,6 +177,9 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 			
 			turnCoordinator.setInclinoValue(flightData.getFlightData().get(FlightDataType.TURN_RATE));
 			turnCoordinator.setCoordValue(flightData.getFlightData().get(FlightDataType.TURN_COORD));
+			
+			tachometer.setLeftValue(flightData.getFlightData().get(FlightDataType.RPM_L));
+			tachometer.setRightValue(flightData.getFlightData().get(FlightDataType.RPM_R));
 		}
 	}
 }
