@@ -416,13 +416,13 @@ public class VerticalSpeed extends AbstractRadial {
                 TICK_LINE.setLine(INNER_POINT, OUTER_POINT);
                 G2.draw(TICK_LINE);
             }
-            if (counter == 15 && alpha <= 1.33*Math.PI && alpha >= 0.66*Math.PI) {
+            if (counter == 15 && alpha <= Math.PI && alpha >= 0.66*Math.PI) {
             	TEXT_POINT.setLocation(GAUGE_CENTER.getX() + (RADIUS - TEXT_DISTANCE) * sinValue, GAUGE_CENTER.getY() + (RADIUS - TEXT_DISTANCE) * cosValue);
                 G2.setFont(SMALL_FONT);
                 
             	G2.fill(UTIL.rotateTextAroundCenter(G2, ".5 UP", (int) TEXT_POINT.getX(), (int) TEXT_POINT.getY(), 0));
             }
-            if (counter == 15 && alpha <= 0.33*Math.PI && alpha >= Math.PI) {
+            if (counter == 15 && alpha <= 1.33*Math.PI && alpha >= Math.PI) {
             	TEXT_POINT.setLocation(GAUGE_CENTER.getX() + (RADIUS - TEXT_DISTANCE) * sinValue, GAUGE_CENTER.getY() + (RADIUS - TEXT_DISTANCE) * cosValue);
                 G2.setFont(SMALL_FONT);
                 

@@ -72,7 +72,8 @@ public final class Tachometer extends AbstractRadial {
     private BufferedImage rightPointerImage;
     private BufferedImage foregroundImage;
     private BufferedImage disabledImage;
-    private Timeline timeline = new Timeline(this);
+    private Timeline leftTimeline = new Timeline(this);
+    private Timeline rightTimeline = new Timeline(this);
     private final Rectangle2D LCD = new Rectangle2D.Double();
     private final FontRenderContext RENDER_CONTEXT = new FontRenderContext(null, true, true);
     private TextLayout unitLayout;
@@ -258,7 +259,7 @@ public final class Tachometer extends AbstractRadial {
     
     public void setRightValue(final double VALUE) {
     	if (VALUE <= 3500) {
-    		rightRotationAngle = ((1.8 * Math.PI / 4300) * (VALUE+3500)) - Math.PI/1.45;
+    		rightRotationAngle = ((1.8 * Math.PI / 4300) * (VALUE)) - Math.PI/1.45;
 	        this.rightOldValue = VALUE;
 	        if (isValueCoupled()) {
 	            setLcdValue(VALUE);
@@ -268,17 +269,28 @@ public final class Tachometer extends AbstractRadial {
         repaint(getInnerBounds());
     }
 
-    @Override
-    public void setValueAnimated(final double VALUE) {
-        if (timeline.getState() == Timeline.TimelineState.PLAYING_FORWARD || timeline.getState() == Timeline.TimelineState.PLAYING_REVERSE) {
-            timeline.abort();
+    public void setLeftValueAnimated(final double VALUE) {
+        if (leftTimeline.getState() == Timeline.TimelineState.PLAYING_FORWARD || leftTimeline.getState() == Timeline.TimelineState.PLAYING_REVERSE) {
+            leftTimeline.abort();
         }
-        timeline = new Timeline(this);
-        timeline.addPropertyToInterpolate("value", this.leftOldValue, VALUE);
-        timeline.setEase(new Spline(0.5f));
+        leftTimeline = new Timeline(this);
+        leftTimeline.addPropertyToInterpolate("value", this.leftOldValue, VALUE);
+        leftTimeline.setEase(new Spline(0.5f));
 
-        timeline.setDuration(1000);
-        timeline.play();
+        leftTimeline.setDuration(1000);
+        leftTimeline.play();
+    }
+    
+    public void setRightValueAnimated(final double VALUE) {
+        if (rightTimeline.getState() == Timeline.TimelineState.PLAYING_FORWARD || leftTimeline.getState() == Timeline.TimelineState.PLAYING_REVERSE) {
+        	rightTimeline.abort();
+        }
+        rightTimeline = new Timeline(this);
+        rightTimeline.addPropertyToInterpolate("value", this.rightOldValue, VALUE);
+        rightTimeline.setEase(new Spline(0.5f));
+
+        rightTimeline.setDuration(1000);
+        rightTimeline.play();
     }
 
     @Override

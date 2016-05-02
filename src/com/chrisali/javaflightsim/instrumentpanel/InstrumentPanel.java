@@ -143,8 +143,8 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 		});
 		
 		getContentPane().setBackground(Color.DARK_GRAY);
-		setSize(900, 620);
-		setMinimumSize(new Dimension(900, 620));
+		setSize(900, 480);
+		setMinimumSize(new Dimension(900, 480));
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	}
 	
