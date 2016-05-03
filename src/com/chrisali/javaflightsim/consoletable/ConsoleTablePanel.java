@@ -21,6 +21,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 
 import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 public class ConsoleTablePanel extends JFrame {
 
@@ -54,7 +55,7 @@ public class ConsoleTablePanel extends JFrame {
 
 			@Override
 			protected Void doInBackground() throws Exception {
-				while (controller.getSimulation().isRunning()) {
+				while (Integrate6DOFEquations.isRunning()) {
 					consoleTableModel.fireTableDataChanged();
 					Thread.sleep(50);
 				}

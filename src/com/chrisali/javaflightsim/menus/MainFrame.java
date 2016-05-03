@@ -26,6 +26,7 @@ import com.chrisali.javaflightsim.menus.initialconditionspanel.InitialConditions
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.menus.optionspanel.OptionsConfigurationListener;
 import com.chrisali.javaflightsim.menus.optionspanel.OptionsPanel;
+import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.utilities.Utilities;
@@ -196,13 +197,13 @@ public class MainFrame extends JFrame {
 				
 				case KeyEvent.VK_L:
 					if (simulationController.getSimulation() != null 
-							&& simulationController.getSimulation().isRunning() 
+							&& Integrate6DOFEquations.isRunning() 
 							&& !simulationController.isPlotWindowVisible())
 						simulationController.plotSimulation();
 					break;
 					
 				case KeyEvent.VK_Q:
-					if (simulationController.getSimulation().isRunning()) {
+					if (Integrate6DOFEquations.isRunning()) {
 						simulationController.stopSimulation();
 						instrumentPanel.setVisible(false);
 						MainFrame.this.setVisible(true);

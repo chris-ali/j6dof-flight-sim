@@ -77,6 +77,7 @@ public class Integrate6DOFEquations implements Runnable {
 	private double[] y					    = new double[14];
 	private double[] initialConditions      = new double[14]; 
 	private double[] integratorConfig		= new double[3];
+	private double   t;
 	
 	// Aircraft Properties
 	private Aircraft aircraft;
@@ -89,7 +90,7 @@ public class Integrate6DOFEquations implements Runnable {
 	
 	// Options
 	private EnumSet<Options> options;
-	private boolean running;
+	private static boolean running;
 	
 	/**
 	 * Creates the {@link Integrate6DOFEquations} object with an {@link AircraftBuilder object} and a list of run-time options defined
@@ -136,11 +137,14 @@ public class Integrate6DOFEquations implements Runnable {
 		if(options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE))
 			integratorConfig[2] = Double.POSITIVE_INFINITY;
 		
+		// Set up running parameters for integration
+		t = integratorConfig[0];
+		
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
 		integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[1]);
 		
 		// Calculate initial data members' values
-		updateDataMembers(initialConditions, integratorConfig[0]);
+		updateDataMembers(initialConditions, t);
 	}
 	
 	/**
@@ -432,9 +436,10 @@ public class Integrate6DOFEquations implements Runnable {
 	public void run() {
 		// Integration loop
 		try {
+			
 			running = true;
 			
-			for (double t = integratorConfig[0]; t < integratorConfig[2]; t += integratorConfig[1]) {
+			while (t < integratorConfig[2] && running) {
 				// Set pause/reset from within keyboard's updateOptions method if not in analysis mode
 				if (!options.contains(Options.ANALYSIS_MODE))
 					this.options  = hidKeyboard.updateOptions(options);
@@ -465,11 +470,13 @@ public class Integrate6DOFEquations implements Runnable {
 				// if ANALYSIS_MODE is false
 				if (!options.contains(Options.ANALYSIS_MODE))
 					Thread.sleep((long)(integratorConfig[1]*1000));
+				
+				t += integratorConfig[1];
 			}
 			
-			running = false;
-			
-		} catch (InterruptedException e) {}
+		} catch (InterruptedException e) {
+		} finally {running = false;} 
+		
 	}
 	
 	/**
@@ -492,8 +499,16 @@ public class Integrate6DOFEquations implements Runnable {
 	 * 
 	 * @return Running status of integration
 	 */
-	public boolean isRunning() {return running;}
+	public static synchronized boolean isRunning() {return Integrate6DOFEquations.running;}
 	
+	
+	/**
+	 * Lets other objects request to stop the simulation by setting running to false
+	 * 
+	 * @param running
+	 */
+	public static synchronized void setRunning(boolean running) {Integrate6DOFEquations.running = running;}
+
 	/**
 	 * Sets the wind speed (kts), wind direction (deg) and temperature (deg C)  
 	 * 

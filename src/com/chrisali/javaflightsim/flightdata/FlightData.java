@@ -15,6 +15,7 @@ import com.chrisali.javaflightsim.utilities.Utilities;
  */
 public class FlightData implements Runnable {
 	
+	private static boolean running;
 	private List<FlightDataListener> dataListenerList;
 	private Map<FlightDataType, Double> flightData = new EnumMap<FlightDataType, Double>(FlightDataType.class);
 	Integrate6DOFEquations runSim;
@@ -65,11 +66,27 @@ public class FlightData implements Runnable {
 			flightData.put(FlightDataType.RPM_R, simOut.get(SimOuts.RPM_2));
 			
 		} catch (NullPointerException e) {
-			//e.printStackTrace();
 			System.err.println("Null data encountered!");
 		}
 		
 		fireDataArrived();
+	}
+	
+	@Override
+	public void run() {
+		running = true;
+		
+		try {
+			Thread.sleep(250);
+			
+			while (Integrate6DOFEquations.isRunning() && running) {
+				Thread.sleep(12);
+				
+				if(runSim.getSimOut() != null)
+					updateData(runSim.getSimOut());
+			}
+		} catch (InterruptedException e) {
+		} finally {running = false;} 
 	}
 	
 	/**
@@ -93,6 +110,21 @@ public class FlightData implements Runnable {
 		}
 	}
 	
+	/**
+	 * Lets other objects know if the {@link FlightData} thread is running
+	 * 
+	 * @return Running status of flight data
+	 */
+	public static synchronized boolean isRunning() {return running;}
+	
+	
+	/**
+	 * Lets other objects request to stop the the flow of flight data by setting running to false
+	 * 
+	 * @param running
+	 */
+	public static synchronized void setRunning(boolean running) {FlightData.running = running;}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -104,19 +136,5 @@ public class FlightData implements Runnable {
 		sb.append("\n");
 		
 		return sb.toString();
-	}
-
-	@Override
-	public void run() {
-		try {
-			Thread.sleep(250);
-			
-			while (runSim.isRunning()) {
-				Thread.sleep(12);
-				
-				if(runSim.getSimOut() != null)
-					updateData(runSim.getSimOut());
-			}
-		} catch (InterruptedException e) {}
 	}
 }

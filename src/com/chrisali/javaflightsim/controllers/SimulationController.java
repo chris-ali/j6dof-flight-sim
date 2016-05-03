@@ -233,13 +233,13 @@ public class SimulationController {
 	}
 	
 	/**
-	 * Interrupts simulation and flight data (if running) threads and closes the raw data console window
+	 * Stops simulation and flight data (if running) threads, and closes the raw data console window
 	 */
 	public void stopSimulation() {
-		if (runSim != null && runSim.isRunning() && simulationThread != null && simulationThread.isAlive())
-			simulationThread.interrupt();
+		if (runSim != null && Integrate6DOFEquations.isRunning() && simulationThread != null && simulationThread.isAlive())
+			Integrate6DOFEquations.setRunning(false);
 		if (flightDataThread != null && flightDataThread.isAlive())
-			flightDataThread.interrupt();
+			FlightData.setRunning(false);
 		if (consoleTablePanel != null && consoleTablePanel.isVisible())
 			consoleTablePanel.setVisible(false);
 	}
