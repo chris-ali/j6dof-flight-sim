@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JComponent;
 
@@ -29,7 +30,7 @@ public class SimulationPlot extends JComponent {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static EnumMap<PlotType, XYPlot> plotLists = new EnumMap<PlotType, XYPlot>(PlotType.class);
+	private static Map<PlotType, XYPlot> plotLists = new EnumMap<PlotType, XYPlot>(PlotType.class);
 	private ChartPanel chartPanel;
 	
 	// XY series objects for each set of data
@@ -111,7 +112,7 @@ public class SimulationPlot extends JComponent {
 	 * @param logsOut
 	 * @param windowTitle
 	 */
-	public SimulationPlot(List<EnumMap<SimOuts, Double>> logsOut, String windowTitle) {
+	public SimulationPlot(List<Map<SimOuts, Double>> logsOut, String windowTitle) {
 		
 		// Only run makePlotLists() once
 		if(plotLists.isEmpty())
@@ -243,7 +244,7 @@ public class SimulationPlot extends JComponent {
 	 * It first creates {@link XYSeries} objects with data from logsOut, adds those series to {@link XYSeriesCollection}, adds those 
 	 * series collections to {@link XYPlot} objects, and finally puts the XYPlot objects into {@link plotLists}
 	 */
-	private static void makePlotLists(List<EnumMap<SimOuts, Double>> logsOut) {
+	private static void makePlotLists(List<Map<SimOuts, Double>> logsOut) {
 		
 		updateXYSeriesData(logsOut);
 		
@@ -447,7 +448,7 @@ public class SimulationPlot extends JComponent {
 	 * 
 	 * @param logsOut
 	 */
-	protected static void updateXYSeriesData(List<EnumMap<SimOuts, Double>> logsOut) {
+	protected static void updateXYSeriesData(List<Map<SimOuts, Double>> logsOut) {
 		
 		// Clear all data from series
 		
@@ -492,8 +493,8 @@ public class SimulationPlot extends JComponent {
 		
 		// Add data from logsOut to each XYSeries; only notify of a SeriesChangeEvent at the end of the loop
 		
-		for (Iterator<EnumMap<SimOuts, Double>> logsOutItr = logsOut.iterator(); logsOutItr.hasNext();) {
-			EnumMap<SimOuts, Double> simOut = logsOutItr.next();
+		for (Iterator<Map<SimOuts, Double>> logsOutItr = logsOut.iterator(); logsOutItr.hasNext();) {
+			Map<SimOuts, Double> simOut = logsOutItr.next();
 			
 			uData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.U), !logsOutItr.hasNext());
 			vData.add(simOut.get(SimOuts.TIME),simOut.get(SimOuts.V), !logsOutItr.hasNext());

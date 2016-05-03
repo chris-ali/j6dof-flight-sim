@@ -277,7 +277,7 @@ public class Utilities {
 	 * @param logsOut
 	 * @throws IOException
 	 */
-	public static void saveToCSVFile(File file, List<EnumMap<SimOuts, Double>> logsOut) throws IOException {
+	public static void saveToCSVFile(File file, List<Map<SimOuts, Double>> logsOut) throws IOException {
 		
 		BufferedWriter bw = new BufferedWriter(new FileWriter(file.getPath()));
 		
@@ -289,7 +289,7 @@ public class Utilities {
 		bw.write(sb_line1.append("\n").toString());
 		
 		// Subsequent lines contain data
-		for (EnumMap<SimOuts, Double> simOut : logsOut) {
+		for (Map<SimOuts, Double> simOut : logsOut) {
 			StringBuilder sb = new StringBuilder();
 			for (Map.Entry<?,Double> entry : simOut.entrySet()) {
 				sb.append(entry.getValue().toString()).append(",");

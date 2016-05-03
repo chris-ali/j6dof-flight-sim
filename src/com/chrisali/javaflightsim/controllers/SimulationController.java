@@ -7,6 +7,7 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.chrisali.javaflightsim.consoletable.ConsoleTablePanel;
@@ -198,7 +199,7 @@ public class SimulationController {
 	 * @return ArrayList of simulation output data 
 	 * @see SimOuts
 	 */
-	public List<EnumMap<SimOuts, Double>> getLogsOut() {return runSim.getLogsOut();}
+	public List<Map<SimOuts, Double>> getLogsOut() {return runSim.getLogsOut();}
 	
 	/**
 	 * Initializes and starts the simulation (and flight data, if selected) threads.

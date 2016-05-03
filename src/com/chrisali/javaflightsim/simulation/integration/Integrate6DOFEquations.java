@@ -85,8 +85,8 @@ public class Integrate6DOFEquations implements Runnable {
 	private AccelAndMoments accelAndMoments;
 	
 	// Output Logging
-	private ArrayList<EnumMap<SimOuts, Double>> logsOut = new ArrayList<>();
-	private EnumMap<SimOuts, Double> simOut;
+	private List<Map<SimOuts, Double>> logsOut = Collections.synchronizedList(new ArrayList<Map<SimOuts, Double>>());
+	private Map<SimOuts, Double> simOut;
 	
 	// Options
 	private EnumSet<Options> options;
@@ -282,7 +282,6 @@ public class Integrate6DOFEquations implements Runnable {
 	 *  The data calculated in each step of integration is available in the EnumMap {@link Integrate6DOFEquations#getSimOut()} 
 	 */
 	private void logData() {
-		// Make a new EnumMap
 		simOut = new EnumMap<SimOuts, Double>(SimOuts.class);
 		
 		// Assign EnumMap with data members from integration
@@ -471,7 +470,7 @@ public class Integrate6DOFEquations implements Runnable {
 	 * 
 	 * @return logsOut
 	 */
-	public List<EnumMap<SimOuts, Double>> getLogsOut() {return Collections.unmodifiableList(logsOut);}
+	public List<Map<SimOuts, Double>> getLogsOut() {return Collections.unmodifiableList(logsOut);}
 	
 	/**
 	 * Returns an EnumMap of data for a single step of integration accomplished in {@link Integrate6DOFEquations#accelAndMoments#logData(double)}	

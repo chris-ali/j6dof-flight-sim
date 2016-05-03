@@ -7,8 +7,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JFrame;
@@ -33,7 +33,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 
 	private static final long serialVersionUID = -4197697777449504415L;
 	
-	private List<EnumMap<SimOuts, Double>> logsOut;
+	private List<Map<SimOuts, Double>> logsOut;
 	private Set<String> simPlotCategories;
 	
 	private JTabbedPane tabPane;
@@ -54,7 +54,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	 * @param List<EnumMap<SimOuts, Double>> logsOut
 	 * @param Aircraft aircraft
 	 */
-	public PlotWindow(List<EnumMap<SimOuts, Double>> logsOut, 
+	public PlotWindow(List<Map<SimOuts, Double>> logsOut, 
 					 Set<String> simPlotCategories,
 					 Aircraft aircraft) {
 		super(aircraft.getName() + " Plots");
@@ -161,7 +161,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 			@Override
 			protected Void doInBackground() throws Exception {
 				
-				List<EnumMap<SimOuts, Double>> newLogsOut = new ArrayList<EnumMap<SimOuts, Double>>(logsOut);
+				List<Map<SimOuts, Double>> newLogsOut = new ArrayList<Map<SimOuts, Double>>(logsOut);
 				
 				for (String plotTitle : simPlotCategories) {
 					try {Thread.sleep(125);} 
@@ -183,7 +183,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	 * 
 	 * @param logsOut
 	 */
-	public void refreshPlots(List<EnumMap<SimOuts, Double>> logsOut) {
+	public void refreshPlots(List<Map<SimOuts, Double>> logsOut) {
 		progressDialog.setMaximum(plotList.size());
 		progressDialog.setVisible(true);
 		
@@ -212,7 +212,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 				try {Thread.sleep(125);} 
 				catch (InterruptedException e) {}
 				
-				List<EnumMap<SimOuts, Double>> newLogsOut = new ArrayList<EnumMap<SimOuts, Double>>(logsOut);
+				List<Map<SimOuts, Double>> newLogsOut = new ArrayList<Map<SimOuts, Double>>(logsOut);
 				
 				SimulationPlot.updateXYSeriesData(newLogsOut);
 				

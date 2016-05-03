@@ -1,8 +1,8 @@
 package com.chrisali.javaflightsim.consoletable;
 
 import java.text.DecimalFormat;
-import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -12,12 +12,12 @@ public class ConsoleTableModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 4210192628630933689L;
 	
-	private List<EnumMap<SimOuts, Double>> logsOut;
-	private EnumMap<SimOuts, Double> simOut;
+	private List<Map<SimOuts, Double>> logsOut;
+	private Map<SimOuts, Double> simOut;
 	private SimOuts[] columnNames = SimOuts.values();
 	
-	protected void setData(List<EnumMap<SimOuts, Double>> logsOut) {
-		this.logsOut = logsOut;
+	protected void setData(List<Map<SimOuts, Double>> list) {
+		this.logsOut = list;
 	}
 
 	@Override
