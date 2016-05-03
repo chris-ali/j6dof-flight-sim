@@ -279,136 +279,141 @@ public class Integrate6DOFEquations implements Runnable {
 	/**
 	 *  Adds simulation data to the ArrayList {@link Integrate6DOFEquations#getLogsOut()} after each successful step of integration 
 	 *  for plotting and outputs to the console, if set in {@link Integrate6DOFEquations#options}. 
-	 *  The data calculated in each step of integration is available in the EnumMap {@link Integrate6DOFEquations#getSimOut()} 
+	 *  The data calculated in each step of integration is available in the EnumMap {@link Integrate6DOFEquations#getSimOut()}. All
+	 *  collections are synchronized to mitigate data access problems from threading
 	 */
 	private void logData() {
-		simOut = new EnumMap<SimOuts, Double>(SimOuts.class);
+		simOut = Collections.synchronizedMap(new EnumMap<SimOuts, Double>(SimOuts.class));
 		
-		// Assign EnumMap with data members from integration
-		simOut.put(SimOuts.TIME, 		t);
-		
-		//6DOF States
-		simOut.put(SimOuts.U, 		 	linearVelocities[0]);
-		simOut.put(SimOuts.V, 		 	linearVelocities[1]);
-		simOut.put(SimOuts.W, 		 	linearVelocities[2]);
-		simOut.put(SimOuts.NORTH, 	 	NEDPosition[0]);
-		simOut.put(SimOuts.EAST, 		NEDPosition[1]);
-		simOut.put(SimOuts.ALT, 		NEDPosition[2]);
-		simOut.put(SimOuts.PHI, 		eulerAngles[0]);
-		simOut.put(SimOuts.THETA, 	 	eulerAngles[1]);
-		simOut.put(SimOuts.PSI, 		eulerAngles[2]);
-		simOut.put(SimOuts.P, 		 	angularRates[0]);
-		simOut.put(SimOuts.Q, 		 	angularRates[1]);
-		simOut.put(SimOuts.R, 		 	angularRates[2]);
-		
-		// Earth Position/Velocity
-		simOut.put(SimOuts.LAT, 		y[12]);
-		simOut.put(SimOuts.LAT_DOT, 	sixDOFDerivatives[12]);
-		simOut.put(SimOuts.LON, 		y[13]);
-		simOut.put(SimOuts.LON_DOT,		sixDOFDerivatives[13]);
-		
-		// Wind Parameters
-		simOut.put(SimOuts.TAS, 		windParameters[0]);
-		simOut.put(SimOuts.BETA, 		windParameters[1]);
-		simOut.put(SimOuts.ALPHA, 	 	windParameters[2]*-1);
-		
-		simOut.put(SimOuts.ALPHA_DOT,   alphaDot);
-		simOut.put(SimOuts.MACH, 		mach);
-		
-		// Accelerations
-		simOut.put(SimOuts.A_X, 		linearAccelerations[0]);
-		simOut.put(SimOuts.A_Y, 		linearAccelerations[1]);
-		simOut.put(SimOuts.A_Z, 		linearAccelerations[2]);
-		
-		simOut.put(SimOuts.AN_X, 	   (sixDOFDerivatives[0]/gravity));
-		simOut.put(SimOuts.AN_Y, 	   (sixDOFDerivatives[1]/gravity));
-		simOut.put(SimOuts.AN_Z, 	  ((sixDOFDerivatives[2]/gravity)+1.0));
-		
-		// Moments
-		simOut.put(SimOuts.L, 		 	totalMoments[0]);
-		simOut.put(SimOuts.M, 		 	totalMoments[1]);
-		simOut.put(SimOuts.N, 		 	totalMoments[2]);
-		
-		// 6DOF Derivatives
-		simOut.put(SimOuts.U_DOT, 	    sixDOFDerivatives[0]);
-		simOut.put(SimOuts.V_DOT, 	    sixDOFDerivatives[1]);
-		simOut.put(SimOuts.W_DOT, 	    sixDOFDerivatives[2]);
-		simOut.put(SimOuts.NORTH_DOT,   sixDOFDerivatives[3]);
-		simOut.put(SimOuts.EAST_DOT, 	sixDOFDerivatives[4]);
-		simOut.put(SimOuts.ALT_DOT,    (sixDOFDerivatives[5]*60));
-		simOut.put(SimOuts.PHI_DOT, 	sixDOFDerivatives[6]);
-		simOut.put(SimOuts.THETA_DOT,   sixDOFDerivatives[7]);
-		simOut.put(SimOuts.PSI_DOT, 	sixDOFDerivatives[8]);
-		simOut.put(SimOuts.P_DOT, 	 	sixDOFDerivatives[9]);
-		simOut.put(SimOuts.Q_DOT, 	 	sixDOFDerivatives[10]);
-		simOut.put(SimOuts.R_DOT, 	 	sixDOFDerivatives[11]);
-
-		// Engine(s)
-		simOut.put(SimOuts.THRUST_1, 	0.0);
-		simOut.put(SimOuts.RPM_1, 	 	0.0);
-		simOut.put(SimOuts.FUEL_FLOW_1, 0.0);
-		simOut.put(SimOuts.THRUST_2, 	0.0);
-		simOut.put(SimOuts.RPM_2, 	 	0.0);
-		simOut.put(SimOuts.FUEL_FLOW_2, 0.0);
-		simOut.put(SimOuts.THRUST_3, 	0.0);
-		simOut.put(SimOuts.RPM_3, 	 	0.0);
-		simOut.put(SimOuts.FUEL_FLOW_3, 0.0);
-		simOut.put(SimOuts.THRUST_4, 	0.0);
-		simOut.put(SimOuts.RPM_4, 	 	0.0);
-		simOut.put(SimOuts.FUEL_FLOW_4, 0.0);
-
-		for (Engine engine : engineList) {
-			switch(engine.getEngineNumber()) {
-			case 1:
-				simOut.put(SimOuts.THRUST_1, 	engine.getThrust()[0]);
-				simOut.put(SimOuts.RPM_1, 	 	engine.getRPM());
-				simOut.put(SimOuts.FUEL_FLOW_1, engine.getFuelFlow());
-				break;
-			case 2:
-				simOut.put(SimOuts.THRUST_2, 	engine.getThrust()[0]);
-				simOut.put(SimOuts.RPM_2, 	 	engine.getRPM());
-				simOut.put(SimOuts.FUEL_FLOW_2, engine.getFuelFlow());
-				break;
-			case 3:
-				simOut.put(SimOuts.THRUST_3, 	engine.getThrust()[0]);
-				simOut.put(SimOuts.RPM_3, 	 	engine.getRPM());
-				simOut.put(SimOuts.FUEL_FLOW_3, engine.getFuelFlow());
-				break;
-			case 4:
-				simOut.put(SimOuts.THRUST_4, 	engine.getThrust()[0]);
-				simOut.put(SimOuts.RPM_4, 	 	engine.getRPM());
-				simOut.put(SimOuts.FUEL_FLOW_4, engine.getFuelFlow());
-				break;
-			default:
-				break;
+		synchronized (simOut) {
+			// Assign EnumMap with data members from integration
+			simOut.put(SimOuts.TIME, 		t);
+			
+			//6DOF States
+			simOut.put(SimOuts.U, 		 	linearVelocities[0]);
+			simOut.put(SimOuts.V, 		 	linearVelocities[1]);
+			simOut.put(SimOuts.W, 		 	linearVelocities[2]);
+			simOut.put(SimOuts.NORTH, 	 	NEDPosition[0]);
+			simOut.put(SimOuts.EAST, 		NEDPosition[1]);
+			simOut.put(SimOuts.ALT, 		NEDPosition[2]);
+			simOut.put(SimOuts.PHI, 		eulerAngles[0]);
+			simOut.put(SimOuts.THETA, 	 	eulerAngles[1]);
+			simOut.put(SimOuts.PSI, 		eulerAngles[2]);
+			simOut.put(SimOuts.P, 		 	angularRates[0]);
+			simOut.put(SimOuts.Q, 		 	angularRates[1]);
+			simOut.put(SimOuts.R, 		 	angularRates[2]);
+			
+			// Earth Position/Velocity
+			simOut.put(SimOuts.LAT, 		y[12]);
+			simOut.put(SimOuts.LAT_DOT, 	sixDOFDerivatives[12]);
+			simOut.put(SimOuts.LON, 		y[13]);
+			simOut.put(SimOuts.LON_DOT,		sixDOFDerivatives[13]);
+			
+			// Wind Parameters
+			simOut.put(SimOuts.TAS, 		windParameters[0]);
+			simOut.put(SimOuts.BETA, 		windParameters[1]);
+			simOut.put(SimOuts.ALPHA, 	 	windParameters[2]*-1);
+			
+			simOut.put(SimOuts.ALPHA_DOT,   alphaDot);
+			simOut.put(SimOuts.MACH, 		mach);
+			
+			// Accelerations
+			simOut.put(SimOuts.A_X, 		linearAccelerations[0]);
+			simOut.put(SimOuts.A_Y, 		linearAccelerations[1]);
+			simOut.put(SimOuts.A_Z, 		linearAccelerations[2]);
+			
+			simOut.put(SimOuts.AN_X, 	   (sixDOFDerivatives[0]/gravity));
+			simOut.put(SimOuts.AN_Y, 	   (sixDOFDerivatives[1]/gravity));
+			simOut.put(SimOuts.AN_Z, 	  ((sixDOFDerivatives[2]/gravity)+1.0));
+			
+			// Moments
+			simOut.put(SimOuts.L, 		 	totalMoments[0]);
+			simOut.put(SimOuts.M, 		 	totalMoments[1]);
+			simOut.put(SimOuts.N, 		 	totalMoments[2]);
+			
+			// 6DOF Derivatives
+			simOut.put(SimOuts.U_DOT, 	    sixDOFDerivatives[0]);
+			simOut.put(SimOuts.V_DOT, 	    sixDOFDerivatives[1]);
+			simOut.put(SimOuts.W_DOT, 	    sixDOFDerivatives[2]);
+			simOut.put(SimOuts.NORTH_DOT,   sixDOFDerivatives[3]);
+			simOut.put(SimOuts.EAST_DOT, 	sixDOFDerivatives[4]);
+			simOut.put(SimOuts.ALT_DOT,    (sixDOFDerivatives[5]*60));
+			simOut.put(SimOuts.PHI_DOT, 	sixDOFDerivatives[6]);
+			simOut.put(SimOuts.THETA_DOT,   sixDOFDerivatives[7]);
+			simOut.put(SimOuts.PSI_DOT, 	sixDOFDerivatives[8]);
+			simOut.put(SimOuts.P_DOT, 	 	sixDOFDerivatives[9]);
+			simOut.put(SimOuts.Q_DOT, 	 	sixDOFDerivatives[10]);
+			simOut.put(SimOuts.R_DOT, 	 	sixDOFDerivatives[11]);
+	
+			// Engine(s)
+			simOut.put(SimOuts.THRUST_1, 	0.0);
+			simOut.put(SimOuts.RPM_1, 	 	0.0);
+			simOut.put(SimOuts.FUEL_FLOW_1, 0.0);
+			simOut.put(SimOuts.THRUST_2, 	0.0);
+			simOut.put(SimOuts.RPM_2, 	 	0.0);
+			simOut.put(SimOuts.FUEL_FLOW_2, 0.0);
+			simOut.put(SimOuts.THRUST_3, 	0.0);
+			simOut.put(SimOuts.RPM_3, 	 	0.0);
+			simOut.put(SimOuts.FUEL_FLOW_3, 0.0);
+			simOut.put(SimOuts.THRUST_4, 	0.0);
+			simOut.put(SimOuts.RPM_4, 	 	0.0);
+			simOut.put(SimOuts.FUEL_FLOW_4, 0.0);
+	
+			for (Engine engine : engineList) {
+				switch(engine.getEngineNumber()) {
+				case 1:
+					simOut.put(SimOuts.THRUST_1, 	engine.getThrust()[0]);
+					simOut.put(SimOuts.RPM_1, 	 	engine.getRPM());
+					simOut.put(SimOuts.FUEL_FLOW_1, engine.getFuelFlow());
+					break;
+				case 2:
+					simOut.put(SimOuts.THRUST_2, 	engine.getThrust()[0]);
+					simOut.put(SimOuts.RPM_2, 	 	engine.getRPM());
+					simOut.put(SimOuts.FUEL_FLOW_2, engine.getFuelFlow());
+					break;
+				case 3:
+					simOut.put(SimOuts.THRUST_3, 	engine.getThrust()[0]);
+					simOut.put(SimOuts.RPM_3, 	 	engine.getRPM());
+					simOut.put(SimOuts.FUEL_FLOW_3, engine.getFuelFlow());
+					break;
+				case 4:
+					simOut.put(SimOuts.THRUST_4, 	engine.getThrust()[0]);
+					simOut.put(SimOuts.RPM_4, 	 	engine.getRPM());
+					simOut.put(SimOuts.FUEL_FLOW_4, engine.getFuelFlow());
+					break;
+				default:
+					break;
+				}
 			}
+			
+			// Controls
+			simOut.put(SimOuts.ELEVATOR,    controls.get(FlightControls.ELEVATOR));
+			simOut.put(SimOuts.AILERON, 	controls.get(FlightControls.AILERON));
+			simOut.put(SimOuts.RUDDER, 	 	controls.get(FlightControls.RUDDER));
+			simOut.put(SimOuts.THROTTLE_1, 	controls.get(FlightControls.THROTTLE_1));
+			simOut.put(SimOuts.THROTTLE_2, 	controls.get(FlightControls.THROTTLE_2));
+			simOut.put(SimOuts.THROTTLE_3, 	controls.get(FlightControls.THROTTLE_3));
+			simOut.put(SimOuts.THROTTLE_4, 	controls.get(FlightControls.THROTTLE_4));
+			simOut.put(SimOuts.PROPELLER_1, controls.get(FlightControls.PROPELLER_1));
+			simOut.put(SimOuts.PROPELLER_2, controls.get(FlightControls.PROPELLER_2));
+			simOut.put(SimOuts.PROPELLER_3, controls.get(FlightControls.PROPELLER_3));
+			simOut.put(SimOuts.PROPELLER_4, controls.get(FlightControls.PROPELLER_4));
+			simOut.put(SimOuts.MIXTURE_1, 	controls.get(FlightControls.MIXTURE_1));
+			simOut.put(SimOuts.MIXTURE_2, 	controls.get(FlightControls.MIXTURE_2));
+			simOut.put(SimOuts.MIXTURE_3, 	controls.get(FlightControls.MIXTURE_3));
+			simOut.put(SimOuts.MIXTURE_4, 	controls.get(FlightControls.MIXTURE_4));
+			simOut.put(SimOuts.FLAPS, 	 	controls.get(FlightControls.FLAPS));
+			simOut.put(SimOuts.GEAR, 	 	controls.get(FlightControls.GEAR));
 		}
 		
-		// Controls
-		simOut.put(SimOuts.ELEVATOR,    controls.get(FlightControls.ELEVATOR));
-		simOut.put(SimOuts.AILERON, 	controls.get(FlightControls.AILERON));
-		simOut.put(SimOuts.RUDDER, 	 	controls.get(FlightControls.RUDDER));
-		simOut.put(SimOuts.THROTTLE_1, 	controls.get(FlightControls.THROTTLE_1));
-		simOut.put(SimOuts.THROTTLE_2, 	controls.get(FlightControls.THROTTLE_2));
-		simOut.put(SimOuts.THROTTLE_3, 	controls.get(FlightControls.THROTTLE_3));
-		simOut.put(SimOuts.THROTTLE_4, 	controls.get(FlightControls.THROTTLE_4));
-		simOut.put(SimOuts.PROPELLER_1, controls.get(FlightControls.PROPELLER_1));
-		simOut.put(SimOuts.PROPELLER_2, controls.get(FlightControls.PROPELLER_2));
-		simOut.put(SimOuts.PROPELLER_3, controls.get(FlightControls.PROPELLER_3));
-		simOut.put(SimOuts.PROPELLER_4, controls.get(FlightControls.PROPELLER_4));
-		simOut.put(SimOuts.MIXTURE_1, 	controls.get(FlightControls.MIXTURE_1));
-		simOut.put(SimOuts.MIXTURE_2, 	controls.get(FlightControls.MIXTURE_2));
-		simOut.put(SimOuts.MIXTURE_3, 	controls.get(FlightControls.MIXTURE_3));
-		simOut.put(SimOuts.MIXTURE_4, 	controls.get(FlightControls.MIXTURE_4));
-		simOut.put(SimOuts.FLAPS, 	 	controls.get(FlightControls.FLAPS));
-		simOut.put(SimOuts.GEAR, 	 	controls.get(FlightControls.GEAR));
-		
-		// Removes the first entry in logsOut to keep a maximum of 100 sec of flight data in UNLIMITED_FLIGHT
-		if (options.contains(Options.UNLIMITED_FLIGHT) & t >= 100)
-			logsOut.remove(0);
-			
-		// Add output step to logging arrayList
-		logsOut.add(simOut);
+		synchronized (logsOut) {
+			// Removes the first entry in logsOut to keep a maximum of 100 sec of flight data in UNLIMITED_FLIGHT
+			if (options.contains(Options.UNLIMITED_FLIGHT) & t >= 100)
+				logsOut.remove(0);
+				
+			// Add output step to logging arrayList
+			logsOut.add(simOut);	
+		}
 	}
 	
 	/**
@@ -470,14 +475,14 @@ public class Integrate6DOFEquations implements Runnable {
 	 * 
 	 * @return logsOut
 	 */
-	public List<Map<SimOuts, Double>> getLogsOut() {return Collections.unmodifiableList(logsOut);}
+	public synchronized List<Map<SimOuts, Double>> getLogsOut() {return Collections.unmodifiableList(logsOut);}
 	
 	/**
 	 * Returns an EnumMap of data for a single step of integration accomplished in {@link Integrate6DOFEquations#accelAndMoments#logData(double)}	
 	 * 
 	 * @return simOut
 	 */
-	public Map<SimOuts, Double> getSimOut() {return Collections.unmodifiableMap(simOut);}
+	public synchronized Map<SimOuts, Double> getSimOut() {return Collections.unmodifiableMap(simOut);}
 	
 	/**
 	 * Lets other objects know if {@link Integrate6DOFEquations#run()} is currently running
