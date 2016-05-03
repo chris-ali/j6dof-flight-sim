@@ -3,6 +3,7 @@ package com.chrisali.javaflightsim.otw;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.lwjgl.opengl.Display;
@@ -163,16 +164,17 @@ public class RunWorld implements Runnable, FlightDataListener {
 
 	@Override
 	public void onFlightDataReceived(FlightData flightData) {
-		if (ownshipPosition != null) {
-			ownshipPosition.x = (float) ((flightData.getFlightData().get(FlightDataType.NORTH)+800)/20);
-			ownshipPosition.y = (float) (flightData.getFlightData().get(FlightDataType.ALTITUDE)/25);
-			ownshipPosition.z = (float) ((flightData.getFlightData().get(FlightDataType.EAST)+800)/20);
-		}
 		
-		if (ownshipRotation != null) {
-			ownshipRotation.x = (float) (flightData.getFlightData().get(FlightDataType.ROLL)/-1);
-			ownshipRotation.y = (float) (flightData.getFlightData().get(FlightDataType.PITCH)/-1);
-			ownshipRotation.z = (float) (flightData.getFlightData().get(FlightDataType.HEADING)-270); // rotate to follow camera translation
+		Map<FlightDataType, Double> receivedFlightData = flightData.getFlightData();
+		
+		if (!receivedFlightData.containsValue(null) && (ownshipPosition != null || ownshipRotation != null)) {
+			ownshipPosition.x = (float) ((receivedFlightData.get(FlightDataType.NORTH)+800)/20);
+			ownshipPosition.y = (float) (receivedFlightData.get(FlightDataType.ALTITUDE)/25);
+			ownshipPosition.z = (float) ((receivedFlightData.get(FlightDataType.EAST)+800)/20);
+		
+			ownshipRotation.x = (float) (receivedFlightData.get(FlightDataType.ROLL)/-1);
+			ownshipRotation.y = (float) (receivedFlightData.get(FlightDataType.PITCH)/-1);
+			ownshipRotation.z = (float) (receivedFlightData.get(FlightDataType.HEADING)-270); // rotate to follow camera translation
 		}
 	}
 }

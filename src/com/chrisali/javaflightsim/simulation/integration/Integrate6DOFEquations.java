@@ -144,7 +144,7 @@ public class Integrate6DOFEquations implements Runnable {
 		integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[1]);
 		
 		// Calculate initial data members' values
-		updateDataMembers(initialConditions, t);
+		updateDataMembers();
 	}
 	
 	/**
@@ -206,7 +206,7 @@ public class Integrate6DOFEquations implements Runnable {
 	 *  Runs various helper methods to update data members in {@link Integrate6DOFEquations}. It updates the 6DOF states, environment parameters, controls, engine state, and finally 
 	 *  calculates accelerations and moments to be used in {@link Integrate6DOFEquations#updateDerivatives(double[])} 
 	 */
-	private void updateDataMembers(double[] y, double t) {
+	private void updateDataMembers() {
 		// Assign indices in yTemp array to 6DOF state arrays
 		for (int i=0; i<linearVelocities.length; i++) {
 			linearVelocities[i] = y[i];
@@ -277,10 +277,11 @@ public class Integrate6DOFEquations implements Runnable {
 	}
 	
 	/**
-	 *  Adds simulation data to the ArrayList {@link Integrate6DOFEquations#getLogsOut()} after each successful step of integration for plotting and outputs to the console, if set in {@link Integrate6DOFEquations#options}. 
+	 *  Adds simulation data to the ArrayList {@link Integrate6DOFEquations#getLogsOut()} after each successful step of integration 
+	 *  for plotting and outputs to the console, if set in {@link Integrate6DOFEquations#options}. 
 	 *  The data calculated in each step of integration is available in the EnumMap {@link Integrate6DOFEquations#getSimOut()} 
 	 */
-	private void logData(double t) {
+	private void logData() {
 		// Make a new EnumMap
 		simOut = new EnumMap<SimOuts, Double>(SimOuts.class);
 		
@@ -409,21 +410,6 @@ public class Integrate6DOFEquations implements Runnable {
 			
 		// Add output step to logging arrayList
 		logsOut.add(simOut);
-		
-		/*
-		// Prints to console (if desired)
-		if (options.contains(Options.CONSOLE_DISPLAY)) {
-			for (Map.Entry<SimOuts, Double> out : simOut.entrySet())
-				System.out.printf("%9.2f ", out.getValue());
-			
-			System.out.println();
-			
-			for (Map.Entry<SimOuts, Double> out : simOut.entrySet())
-				System.out.printf("%9s ", out.getKey().toString());
-				
-			System.out.println("");
-		}
-		*/
 	}
 	
 	/**
@@ -444,7 +430,7 @@ public class Integrate6DOFEquations implements Runnable {
 				if (!options.contains(Options.ANALYSIS_MODE))
 					this.options  = hidKeyboard.updateOptions(options);
 				
-				// If paused and resed selected, reset initialConditions using IntegrationSetup's method 
+				// If paused and reset selected, reset initialConditions using IntegrationSetup's method 
 				if (options.contains(Options.PAUSED) & options.contains(Options.RESET))				
  					initialConditions = Utilities.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
 				
@@ -457,13 +443,13 @@ public class Integrate6DOFEquations implements Runnable {
 											  t+integratorConfig[1]);     // end time (t+dt)
 					
 					// Update data members' values
-					updateDataMembers(y, t);
+					updateDataMembers();
 					
 					// Update initial conditions for next step of integration
 					initialConditions = y;
 					
 					// Update output log
-					logData(t);
+					logData();
 				}
 				
 				// Pause the integration for dt*1000 milliseconds to emulate real time operation

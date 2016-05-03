@@ -6,6 +6,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -163,23 +164,25 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 	 */
 	@Override
 	public void onFlightDataReceived(FlightData flightData) {
-		if (flightData.getFlightData() != null) {
-			artificalHorizon.setPitch(flightData.getFlightData().get(FlightDataType.PITCH));
-			artificalHorizon.setRoll(flightData.getFlightData().get(FlightDataType.ROLL));
+		Map<FlightDataType, Double> receivedFlightData = flightData.getFlightData();
+		
+		if (!receivedFlightData.containsValue(null)) {
+			artificalHorizon.setPitch(receivedFlightData.get(FlightDataType.PITCH));
+			artificalHorizon.setRoll(receivedFlightData.get(FlightDataType.ROLL));
 			
-			altimeter.setValue(flightData.getFlightData().get(FlightDataType.ALTITUDE));
+			altimeter.setValue(receivedFlightData.get(FlightDataType.ALTITUDE));
 			
-			airspeedIndicator.setValue(flightData.getFlightData().get(FlightDataType.IAS));
+			airspeedIndicator.setValue(receivedFlightData.get(FlightDataType.IAS));
 			
-			directionalGyro.setValue(flightData.getFlightData().get(FlightDataType.HEADING));
+			directionalGyro.setValue(receivedFlightData.get(FlightDataType.HEADING));
 			
-			verticalSpeed.setValue(flightData.getFlightData().get(FlightDataType.VERT_SPEED));
+			verticalSpeed.setValue(receivedFlightData.get(FlightDataType.VERT_SPEED));
 			
-			turnCoordinator.setInclinoValue(flightData.getFlightData().get(FlightDataType.TURN_RATE));
-			turnCoordinator.setCoordValue(flightData.getFlightData().get(FlightDataType.TURN_COORD));
+			turnCoordinator.setInclinoValue(receivedFlightData.get(FlightDataType.TURN_RATE));
+			turnCoordinator.setCoordValue(receivedFlightData.get(FlightDataType.TURN_COORD));
 			
-			tachometer.setLeftValue(flightData.getFlightData().get(FlightDataType.RPM_L));
-			tachometer.setRightValue(flightData.getFlightData().get(FlightDataType.RPM_R));
+			tachometer.setLeftValue(receivedFlightData.get(FlightDataType.RPM_L));
+			tachometer.setRightValue(receivedFlightData.get(FlightDataType.RPM_R));
 		}
 	}
 }
