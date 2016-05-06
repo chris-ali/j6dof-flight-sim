@@ -18,9 +18,9 @@ import com.chrisali.javaflightsim.utilities.Utilities;
 
 /**
  * Aircraft object which consists of {@link StabilityDerivatives} and {@link WingGeometry} to define its aerodynamic properties,
- * and {@link MassProperties} to define its mass and inertia. Used {@link AircraftBuilder} to create a package with a set of {@link Engine}s 
- * to be used in {@link Integrate6DOFEquations} to create a flight simulation. Stability derivatives (1/rad) can be either Double values 
- * or {@link PiecewiseBicubicSplineInterpolatingFunction} 
+ * and {@link MassProperties} to define its mass and inertia, and {@link GroundReaction} to define the landing gear geometry and properties. 
+ * Uses {@link AircraftBuilder} to create a package with a set of {@link Engine}s to be used in {@link Integrate6DOFEquations} to 
+ * create a flight simulation. Stability derivatives (1/rad) can be either Double values or {@link PiecewiseBicubicSplineInterpolatingFunction} 
  */
 public class Aircraft {
 	private String name;
@@ -28,10 +28,11 @@ public class Aircraft {
 	private Map<StabilityDerivatives, Object> stabDerivs;
 	private Map<WingGeometry, Double> 		  wingGeometry;
 	private Map<MassProperties, Double> 	  massProps;
+	private Map<GroundReaction, Double>		  groundReaction;
 	
 	/**
-	 *  Default constructor that gives default values to stability derivatives, wing geometry and mass properties.
-	 *   It uses the Ryan Navion as a baseline. 
+	 *  Default constructor that gives default values to stability derivatives, wing geometry, mass properties and ground reaction.
+	 *  It uses the Ryan Navion as a baseline. 
 	 *   
 	 *   @see https://en.wikipedia.org/wiki/Ryan_Navion
 	 */
@@ -41,9 +42,11 @@ public class Aircraft {
 		// Stability derivative values (either Double or PiecewiseBicubicSplineInterpolatingFunction)
 		// Wing geometry values (Double)
 		// Mass properties		(Double)
+		// Ground reaction      (Double)
 		this.stabDerivs			= new EnumMap<StabilityDerivatives, Object>(StabilityDerivatives.class);
 		this.wingGeometry		= new EnumMap<WingGeometry, Double>(WingGeometry.class);
 		this.massProps			= new EnumMap<MassProperties, Double>(MassProperties.class);
+		this.groundReaction     = new EnumMap<GroundReaction, Double>(GroundReaction.class);
 		
 		// =======================================
 		// Default stability derivatives (Navion)
@@ -128,15 +131,48 @@ public class Aircraft {
 		massProps.put(MassProperties.TOTAL_MASS, ((massProps.get(MassProperties.MAX_WEIGHT_PAYLOAD) * massProps.get(MassProperties.WEIGHT_PAYLOAD)) +
 												  (massProps.get(MassProperties.MAX_WEIGHT_FUEL)    * massProps.get(MassProperties.WEIGHT_FUEL)) +
 												   massProps.get(MassProperties.WEIGHT_EMPTY))      / Environment.getGravity());
+		
+		// =======================================
+		// Default ground reaction (Navion)
+		// =======================================
+		
+		// Landing Gear Geometry (Nose) [ft]
+		groundReaction.put(GroundReaction.NOSE_X,  		 2.0);
+		groundReaction.put(GroundReaction.NOSE_Y,  		 0.0);
+		groundReaction.put(GroundReaction.NOSE_Z,  		 2.0);
+		
+		// Landing Gear Geometry (Left Main) [ft]
+		groundReaction.put(GroundReaction.LEFT_X, 		-2.0);
+		groundReaction.put(GroundReaction.LEFT_Y, 		-3.0);
+		groundReaction.put(GroundReaction.LEFT_Z,  		 2.0);
+		
+		// Landing Gear Geometry (Right Main) [ft]
+		groundReaction.put(GroundReaction.RIGHT_X, 		-2.0);
+		groundReaction.put(GroundReaction.RIGHT_Y,  	 3.0);
+		groundReaction.put(GroundReaction.RIGHT_Z,  	 2.0);
+		
+		// Landing Gear Strut Damping [lbf/sec] //TODO verify units 
+		groundReaction.put(GroundReaction.NOSE_DAMPING,  300.0);
+		groundReaction.put(GroundReaction.LEFT_DAMPING,  300.0);
+		groundReaction.put(GroundReaction.RIGHT_DAMPING, 300.0);
+		
+		// Landing Gear Strut Damping [lbf/ft]
+		groundReaction.put(GroundReaction.NOSE_SPRING,   3600.0);
+		groundReaction.put(GroundReaction.LEFT_SPRING,   3600.0);
+		groundReaction.put(GroundReaction.RIGHT_SPRING,  3600.0);
+		
+		// Braking Force [lbf]
+		groundReaction.put(GroundReaction.BRAKING_FORCE, 80000.0);
 	}
 	
 	/**
 	 * Custom aircraft constructor. It uses files located in <p><br><code>.\Aircraft\</code></br></p>
-	 * to define the stability derivatives, mass properties and wing geometry. These files are: 
+	 * to define the stability derivatives, mass properties, wing geometry and ground reaction. These files are: 
 	 * <p><br><code>Aero.txt</code></br> 
 	 * <br><code>StabilityDerivaticves.txt</code></br>
 	 * <br><code>WingGeometry.txt</code></br>
 	 * <br><code>MassProperties.txt</code></br></p>
+	 * <br><code>GroundReaction.txt</code></br></p>
 	 * 
 	 * These files must be in a folder, whose name matches the aircraftName passed into this constructor.
 	 * 
@@ -154,9 +190,11 @@ public class Aircraft {
 		// Stability derivative values (either Double or PiecewiseBicubicSplineInterpolatingFunction)
 		// Wing geometry values (Double)
 		// Mass properties		(Double)
+		// Ground reaction	    (Double)
 		this.stabDerivs			= new EnumMap<StabilityDerivatives, Object>(StabilityDerivatives.class);
 		this.wingGeometry		= new EnumMap<WingGeometry, Double>(WingGeometry.class);
 		this.massProps			= new EnumMap<MassProperties, Double>(MassProperties.class);
+		this.groundReaction     = new EnumMap<GroundReaction, Double>(GroundReaction.class);
 		
 		// Aerodynamics
 		ArrayList<String[]> readAeroFile = Utilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "Aero");
@@ -194,6 +232,16 @@ public class Aircraft {
 			for (String[] readLine : readWingGeomFile) {
 				if (wingGeoKey.toString().equals(readLine[0]))
 					this.wingGeometry.put(wingGeoKey, Double.parseDouble(readLine[1]));
+			}
+		}
+		
+		// Ground Reaction
+		ArrayList<String[]> readGndReactFile = Utilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "GroundReaction");
+		
+		for(GroundReaction gndReactKey : GroundReaction.values()) {
+			for (String[] readLine : readGndReactFile) {
+				if (gndReactKey.toString().equals(readLine[0]))
+					this.groundReaction.put(gndReactKey, Double.parseDouble(readLine[1]));
 			}
 		}
 	}
@@ -272,6 +320,13 @@ public class Aircraft {
 	public Map<MassProperties, Double> getMassProps() {return massProps;}
 	
 	/**
+	 * Returns the EnumMap associated with the aircraft's {@link GroundReaction}
+	 * 
+	 * @return groundReaction
+	 */
+	public Map<GroundReaction, Double> getGroundReaction() {return groundReaction;}
+
+	/**
 	 * Gets the name of the aircraft
 	 * 
 	 * @return name
@@ -303,6 +358,11 @@ public class Aircraft {
 		
 		for (MassProperties massProp : massProps.keySet())
 			sb.append(massProp.toString()).append(": ").append(massProps.get(massProp)).append("\n");
+		
+		sb.append("\nGround Reaction\n\n");
+		
+		for (GroundReaction gndReact : groundReaction.keySet())
+			sb.append(gndReact.toString()).append(": ").append(groundReaction.get(gndReact)).append("\n");
 		
 		return sb.toString();
 	}

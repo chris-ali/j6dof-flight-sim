@@ -1,0 +1,25 @@
+% Gear Geometry
+nose_x = 2
+nose_y = 0
+nose_z = 2
+
+left_x = -2
+left_y = -3
+left_z = 2
+
+right_x = -2
+right_y = 3
+right_z = 2
+
+% Strut Damping
+nose_damping = 300
+left_damping = 300
+right_damping = 300
+
+% Strut Springs
+nose_spring = 3600
+left_spring = 3600
+right_spring = 3600
+
+% Braking
+braking_force = 8000
