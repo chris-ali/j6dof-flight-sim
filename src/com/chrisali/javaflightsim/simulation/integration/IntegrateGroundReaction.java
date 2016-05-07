@@ -3,10 +3,10 @@ package com.chrisali.javaflightsim.simulation.integration;
 import java.util.Map;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.apache.commons.math3.ode.FirstOrderConverter;
-import org.apache.commons.math3.ode.SecondOrderDifferentialEquations;
+import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
+import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.GroundReaction;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
@@ -37,10 +37,9 @@ public class IntegrateGroundReaction {
 	// Integrator Fields
 	private ClassicalRungeKuttaIntegrator integrator;
 	private double[] integratorConfig		   = new double[3];
-	private double[] groundReactionDerivatives = new double[3]; //"Gear strut force"
-	private double[] y					       = new double[3];
-	private double[] y0					       = new double[3];
-	private double[] yDot				       = new double[3];
+	private double[] groundReactionDerivatives = new double[6]; //"Gear strut force"
+	private double[] y					       = new double[6];
+	private double[] y0					       = new double[6];
 	
 	// 6DOF Integration Results
 	private double[] linearVelocities 		  = new double[3];
@@ -50,11 +49,12 @@ public class IntegrateGroundReaction {
 	
 	private double t;
 	
-	public IntegrateGroundReaction(double[] linearVelocities, 
+	public IntegrateGroundReaction(double[] linearVelocities,
 								   double[] NEDPosition,
-								   double[] eulerAngles, 
+								   double[] eulerAngles,
 								   double[] angularRates,
 								   double[] integratorConfig,
+								   Aircraft aircraft,
 								   Map<FlightControls, Double> controls,
 								   double terrainHeight) {
 
@@ -65,40 +65,53 @@ public class IntegrateGroundReaction {
 		
 		this.terrainHeight = terrainHeight;
 		this.controls = controls;
+		this.groundReaction = aircraft.getGroundReaction();
 		
 		this.integratorConfig = integratorConfig;
+		
+		for (int i = 0; i < y0.length; i++)
+			y0[i] = 0.0;
+		
 		integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
 		t = integratorConfig[0];
 		
-		updateDerivatives(y, yDot);
+		updateDerivatives(y);
 	}
 	
-	private class GroundReactionEquations implements SecondOrderDifferentialEquations {
+	private class GroundReactionEquations implements FirstOrderDifferentialEquations {
 		@Override
-		public void computeSecondDerivatives(double t, double[] y, double[] yDot, double[] yDDot) {
+		public void computeDerivatives(double t, double[] y, double[] yDot) {
 			for (int i = 0; i < groundReactionDerivatives.length; i++)
-				yDDot[i] = groundReactionDerivatives[i];			
+				yDot[i] = groundReactionDerivatives[i];			
 		}
 
 		@Override
-		public int getDimension() {return 3;}
+		public int getDimension() {return 6;}
 	}
 	
-	private void updateDerivatives(double[] y, double[] yDot) {
-		double[] yDDot = new double[3];
+	private void updateDerivatives(double[] y) {
+		double[] yDot = new double[6];
 		
 		// If tire position > 0, tire is still airborne and no forces should be applied 
-		for (int i = 0; i < y.length; i++)
-			if (tirePosition[i] > 0) yDot[i] = y[i] = 0;
+		for (int i = 0; i < tirePosition.length; i++)
+			if (tirePosition[i] > 0) yDot[2*i+1] = y[2*i+1] = 0;
 		
-		yDDot[0] = (- groundReaction.get(GroundReaction.NOSE_DAMPING)  * yDot[0]) 
+		// Nose
+		yDot[0] = y[1];
+		yDot[1] = (- groundReaction.get(GroundReaction.NOSE_DAMPING)  * y[1]) 
 				 	- (groundReaction.get(GroundReaction.NOSE_SPRING)  * y[0])
 				 	+ noseGroundForces[2];
-		yDDot[1] = (- groundReaction.get(GroundReaction.LEFT_DAMPING)  * yDot[1]) 
-				 	- (groundReaction.get(GroundReaction.LEFT_SPRING)  * y[1])
+		
+		// Left Main
+		yDot[2] = y[3];
+		yDot[3] = (- groundReaction.get(GroundReaction.LEFT_DAMPING)  * y[3]) 
+				 	- (groundReaction.get(GroundReaction.LEFT_SPRING)  * y[2])
 				 	+ leftGroundForces[2];
-		yDDot[2] = (- groundReaction.get(GroundReaction.RIGHT_DAMPING) * yDot[2]) 
-				 	- (groundReaction.get(GroundReaction.RIGHT_SPRING) * y[2])
+		
+		// Right Main
+		yDot[4] = y[5];
+		yDot[5] = (- groundReaction.get(GroundReaction.RIGHT_DAMPING) * y[5]) 
+				 	- (groundReaction.get(GroundReaction.RIGHT_SPRING) * y[4])
 				 	+ rightGroundForces[2];
 	}
 	
@@ -146,7 +159,7 @@ public class IntegrateGroundReaction {
 			gearUvwVelocity[2] = linearVelocities[2] + tangentialVelocity[2];
 			
 			// 3rd row of body2Ned matrix (D) minus terrain height is the height of the landing gear above ground
-			tirePosition[i]  =  (gearUvwPostion[0]*dirCosMat[2][0]+gearUvwPostion[1]*dirCosMat[2][1]+gearUvwPostion[2]*dirCosMat[2][2]) - terrainHeight;   // D (ft)
+			tirePosition[i]  = -(gearUvwPostion[0]*dirCosMat[2][0]+gearUvwPostion[1]*dirCosMat[2][1]+gearUvwPostion[2]*dirCosMat[2][2]) - terrainHeight;   // D (ft)
 			tireVelocity[i]  = -(gearUvwVelocity[0]*dirCosMat[2][0]+gearUvwVelocity[1]*dirCosMat[2][1]+gearUvwVelocity[2]*dirCosMat[2][2]);                // D (ft/sec)
 		}
 	}
@@ -234,13 +247,14 @@ public class IntegrateGroundReaction {
 	public void integrateStep() {
 		calculateTirePositionsAndVelocities();
 		
-		updateDerivatives(y, yDot);
+		updateDerivatives(y);
+		
 		
 		// Run a single step of integration
-		y = integrator.singleStep(new FirstOrderConverter(new GroundReactionEquations()), 	  // derivatives
-								  t, 		  				// start time
-								  y0, 		  				// initial conditions
-								  t+integratorConfig[1]);   // end time (t+dt)
+		y = integrator.singleStep(new GroundReactionEquations(), // derivatives
+								  t, 		  					 // start time
+								  y0, 		  					 // initial conditions
+								  t+integratorConfig[1]);   	 // end time (t+dt)
 		
 		calculateTotalGroundForces();
 		calculateTotalGroundMoments();
