@@ -8,15 +8,17 @@ import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.GroundReaction;
+import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
 
 public class IntegrateGroundReaction {
-	
+	// Tire Properties
 	private static final double TIRE_STATIC_FRICTION  = 0.8;
 	private static final double TIRE_ROLLING_FRICTION = 0.01;
 	
-	private double brakingForce;
+	// Aircraft Properties
+	private double mass;
 	private Map<FlightControls, Double> controls;
 	private Map<GroundReaction, Double> groundReaction;
 	
@@ -36,18 +38,18 @@ public class IntegrateGroundReaction {
 	
 	// Integrator Fields
 	private ClassicalRungeKuttaIntegrator integrator;
+	private double t;
 	private double[] integratorConfig		   = new double[3];
-	private double[] groundReactionDerivatives = new double[6]; //"Gear strut force"
+	private double[] groundReactionDerivatives = new double[6];
 	private double[] y					       = new double[6];
 	private double[] y0					       = new double[6];
+	
 	
 	// 6DOF Integration Results
 	private double[] linearVelocities 		  = new double[3];
 	private double[] NEDPosition      		  = new double[3];
 	private double[] eulerAngles      		  = new double[3];
 	private double[] angularRates     		  = new double[3];
-	
-	private double t;
 	
 	public IntegrateGroundReaction(double[] linearVelocities,
 								   double[] NEDPosition,
@@ -64,11 +66,14 @@ public class IntegrateGroundReaction {
 		this.angularRates = angularRates;
 		
 		this.terrainHeight = terrainHeight;
+		
 		this.controls = controls;
 		this.groundReaction = aircraft.getGroundReaction();
+		this.mass = aircraft.getMassProps().get(MassProperties.TOTAL_MASS);
 		
 		this.integratorConfig = integratorConfig;
 		
+		// "Initial conditions"
 		for (int i = 0; i < y0.length; i++)
 			y0[i] = 0.0;
 		
@@ -89,30 +94,34 @@ public class IntegrateGroundReaction {
 		public int getDimension() {return 6;}
 	}
 	
-	private void updateDerivatives(double[] y) {
+	private double[] updateDerivatives(double[] y) {
 		double[] yDot = new double[6];
 		
 		// If tire position > 0, tire is still airborne and no forces should be applied 
-		for (int i = 0; i < tirePosition.length; i++)
-			if (tirePosition[i] > 0) yDot[2*i+1] = y[2*i+1] = 0;
+		for (int i = 0; i < tirePosition.length; i++) {
+			if (tirePosition[i] > 0) 
+				yDot[2*i+1] = y[2*i+1] = 0;
+		}
 		
 		// Nose
 		yDot[0] = y[1];
-		yDot[1] = (- groundReaction.get(GroundReaction.NOSE_DAMPING)  * y[1]) 
-				 	- (groundReaction.get(GroundReaction.NOSE_SPRING)  * y[0])
-				 	+ noseGroundForces[2];
+		yDot[1] =  (- groundReaction.get(GroundReaction.NOSE_DAMPING)/mass  * y[1]) 
+				 	- (groundReaction.get(GroundReaction.NOSE_SPRING)/mass  * y[0])
+				 	+ noseGroundForces[2]/mass;
 		
 		// Left Main
 		yDot[2] = y[3];
-		yDot[3] = (- groundReaction.get(GroundReaction.LEFT_DAMPING)  * y[3]) 
-				 	- (groundReaction.get(GroundReaction.LEFT_SPRING)  * y[2])
-				 	+ leftGroundForces[2];
+		yDot[3] =  (- groundReaction.get(GroundReaction.LEFT_DAMPING)/mass  * y[3]) 
+				 	- (groundReaction.get(GroundReaction.LEFT_SPRING)/mass  * y[2])
+				 	+ leftGroundForces[2]/mass;
 		
 		// Right Main
 		yDot[4] = y[5];
-		yDot[5] = (- groundReaction.get(GroundReaction.RIGHT_DAMPING) * y[5]) 
-				 	- (groundReaction.get(GroundReaction.RIGHT_SPRING) * y[4])
-				 	+ rightGroundForces[2];
+		yDot[5] =  (- groundReaction.get(GroundReaction.RIGHT_DAMPING)/mass * y[5]) 
+				 	- (groundReaction.get(GroundReaction.RIGHT_SPRING)/mass * y[4])
+				 	+ rightGroundForces[2]/mass;
+		
+		return yDot;
 	}
 	
 	private void calculateTirePositionsAndVelocities() {
@@ -160,36 +169,35 @@ public class IntegrateGroundReaction {
 			
 			// 3rd row of body2Ned matrix (D) minus terrain height is the height of the landing gear above ground
 			tirePosition[i]  = -(gearUvwPostion[0]*dirCosMat[2][0]+gearUvwPostion[1]*dirCosMat[2][1]+gearUvwPostion[2]*dirCosMat[2][2]) - terrainHeight;   // D (ft)
-			tireVelocity[i]  = -(gearUvwVelocity[0]*dirCosMat[2][0]+gearUvwVelocity[1]*dirCosMat[2][1]+gearUvwVelocity[2]*dirCosMat[2][2]);                // D (ft/sec)
+			tireVelocity[i]  =  (gearUvwVelocity[0]*dirCosMat[2][0]+gearUvwVelocity[1]*dirCosMat[2][1]+gearUvwVelocity[2]*dirCosMat[2][2]);                // D (ft/sec)
 		}
 	}
 	
 	private void calculateTotalGroundForces() {
-		
 		// X Forces
 		// Use static coefficient of friction if forward velocity is near 0 
 		if (linearVelocities[0] > 0.5) {
-			leftGroundForces[0]  = - groundReactionDerivatives[1] * TIRE_STATIC_FRICTION;
-			rightGroundForces[0] = - groundReactionDerivatives[2] * TIRE_STATIC_FRICTION;
+			leftGroundForces[0]  = - groundReactionDerivatives[3] * TIRE_STATIC_FRICTION * mass;
+			rightGroundForces[0] = - groundReactionDerivatives[5] * TIRE_STATIC_FRICTION * mass;
 		} else {
-			leftGroundForces[0]  = - groundReactionDerivatives[1] * TIRE_ROLLING_FRICTION;
-			rightGroundForces[0] = - groundReactionDerivatives[2] * TIRE_ROLLING_FRICTION;
+			leftGroundForces[0]  = - groundReactionDerivatives[3] * TIRE_ROLLING_FRICTION * mass;
+			rightGroundForces[0] = - groundReactionDerivatives[5] * TIRE_ROLLING_FRICTION * mass;
 		}
 		
 		if (controls.get(FlightControls.BRAKE_L) > 0)
-			leftGroundForces[0] += brakingForce * controls.get(FlightControls.BRAKE_L);
+			leftGroundForces[0]  += groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControls.BRAKE_L);
 		
 		if (controls.get(FlightControls.BRAKE_R) > 0)
-			rightGroundForces[0] += brakingForce * controls.get(FlightControls.BRAKE_R);
+			rightGroundForces[0] += groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControls.BRAKE_R);
 		
 		// Y Forces		
-		leftGroundForces[1]  = - groundReactionDerivatives[1] * TIRE_STATIC_FRICTION;
-		rightGroundForces[1] = - groundReactionDerivatives[2] * TIRE_STATIC_FRICTION;
+		leftGroundForces[1]  = - groundReactionDerivatives[3] * TIRE_STATIC_FRICTION * mass;
+		rightGroundForces[1] =   groundReactionDerivatives[5] * TIRE_STATIC_FRICTION * mass;
 		
 		// Z Forces
-		noseGroundForces[2] = groundReactionDerivatives[0];
-		leftGroundForces[2] = groundReactionDerivatives[1];
-		rightGroundForces[2] = groundReactionDerivatives[2];
+		noseGroundForces[2]  = groundReactionDerivatives[1] * mass;
+		leftGroundForces[2]  = groundReactionDerivatives[3] * mass;
+		rightGroundForces[2] = groundReactionDerivatives[5] * mass;
 		
 		// Summation of Forces
 		for (int i = 0; i < 3; i ++)
@@ -236,20 +244,12 @@ public class IntegrateGroundReaction {
 		totalGroundMoments = tempTotalGroundMoments;
 	}
 	
-	public double[] getTotalGroundForces() {
-		return totalGroundForces;
-	}
-
-	public double[] getTotalGroundMoments() {
-		return totalGroundMoments;
-	}
-
 	public void integrateStep() {
 		calculateTirePositionsAndVelocities();
 		
-		updateDerivatives(y);
-		
-		
+		groundReactionDerivatives = updateDerivatives(new double[] {tireVelocity[0],tirePosition[0],
+																	tireVelocity[1],tirePosition[1],
+																	tireVelocity[2],tirePosition[2]});
 		// Run a single step of integration
 		y = integrator.singleStep(new GroundReactionEquations(), // derivatives
 								  t, 		  					 // start time
@@ -261,4 +261,8 @@ public class IntegrateGroundReaction {
 		
 		t += integratorConfig[1];
 	}
+	
+	public double[] getTotalGroundForces() {return totalGroundForces;}
+
+	public double[] getTotalGroundMoments() {return totalGroundMoments;}
 }

@@ -18,7 +18,7 @@ public class GroundReactionTest {
 	private Map<FlightControls, Double> controls = IntegrationSetup.gatherInitialControls("InitialControls");
 	
 	// 6DOF Integration Results
-	private double[] linearVelocities 		  = new double[]{5,0,-2};
+	private double[] linearVelocities 		  = new double[]{5,0,0};
 	private double[] NEDPosition      		  = new double[]{0,0,0};
 	private double[] eulerAngles      		  = new double[]{0,0,0};
 	private double[] angularRates     		  = new double[]{0,0,0};
@@ -43,21 +43,20 @@ public class GroundReactionTest {
 													 ab.getAircraft(),
 													 controls, 
 													 terrainHeight);
-		
 	}
 	
 	private void run() {
 		
 		while (t <= integratorConfig[2]) {
 			
-			NEDPosition[2] = -t;
+			NEDPosition[2] = -t/100;
 		
 			groundReaction.integrateStep();
 			
 			StringBuilder sb = new StringBuilder();
 			sb.append("Ground Forces: [");
 			for (int i = 0; i < 3; i++) {
-				sb.append(groundReaction.getTotalGroundForces()[i]);
+				sb.append((int) groundReaction.getTotalGroundForces()[i]);
 				if (i < 2)
 					sb.append(", ");
 			}
@@ -65,7 +64,7 @@ public class GroundReactionTest {
 			
 			sb.append("Ground Moments: [");
 			for (int i = 0; i < 3; i++) {
-				sb.append(groundReaction.getTotalGroundMoments()[i]);
+				sb.append((int) groundReaction.getTotalGroundMoments()[i]);
 				if (i < 2)
 					sb.append(", ");
 			}
