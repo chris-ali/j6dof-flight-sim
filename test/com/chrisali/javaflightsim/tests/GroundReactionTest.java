@@ -47,13 +47,15 @@ public class GroundReactionTest {
 	
 	private void run() {
 		
-		while (t <= integratorConfig[2]) {
+		while (t <= (integratorConfig[2]-80)) {
 			
-			NEDPosition[2] = -t/100;
+			NEDPosition[2] = 1.75;
 		
 			groundReaction.integrateStep();
 			
 			StringBuilder sb = new StringBuilder();
+			sb.append("Z Position: ").append(NEDPosition[2]).append("\n");
+			
 			sb.append("Ground Forces: [");
 			for (int i = 0; i < 3; i++) {
 				sb.append((int) groundReaction.getTotalGroundForces()[i]);

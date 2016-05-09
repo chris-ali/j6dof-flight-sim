@@ -3,23 +3,23 @@ nose_x = 2
 nose_y = 0
 nose_z = 2
 
-left_x = -2
+left_x = -1
 left_y = -3
 left_z = 2
 
-right_x = -2
+right_x = -1
 right_y = 3
 right_z = 2
 
 % Strut Damping
-nose_damping = 300
-left_damping = 300
-right_damping = 300
+nose_damping = 75
+left_damping = 75
+right_damping = 75
 
 % Strut Springs
-nose_spring = 3600
-left_spring = 3600
-right_spring = 3600
+nose_spring = 800
+left_spring = 800
+right_spring = 800
 
 % Braking
-braking_force = 8000
+braking_force = 250
