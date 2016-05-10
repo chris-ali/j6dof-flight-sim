@@ -47,32 +47,15 @@ public class GroundReactionTest {
 	
 	private void run() {
 		
-		while (t <= (integratorConfig[2]-80)) {
+		while (t <= (integratorConfig[2]-95)) {
 			
 			NEDPosition[2] = 1.75;
-		
+			//controls.put(FlightControls.BRAKE_L, 0.8);
+			controls.put(FlightControls.RUDDER, -0.0);
+			
 			groundReaction.integrateStep();
 			
-			StringBuilder sb = new StringBuilder();
-			sb.append("Z Position: ").append(NEDPosition[2]).append("\n");
-			
-			sb.append("Ground Forces: [");
-			for (int i = 0; i < 3; i++) {
-				sb.append((int) groundReaction.getTotalGroundForces()[i]);
-				if (i < 2)
-					sb.append(", ");
-			}
-			sb.append("]\n");
-			
-			sb.append("Ground Moments: [");
-			for (int i = 0; i < 3; i++) {
-				sb.append((int) groundReaction.getTotalGroundMoments()[i]);
-				if (i < 2)
-					sb.append(", ");
-			}
-			sb.append("]");
-			
-			System.out.println(sb.toString());
+			System.out.println(groundReaction.toString());
 			
 			t += integratorConfig[1];
 		}

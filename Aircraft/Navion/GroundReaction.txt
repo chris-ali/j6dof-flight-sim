@@ -22,4 +22,4 @@ left_spring = 800
 right_spring = 800
 
 % Braking
-braking_force = 250
+braking_force = 1000

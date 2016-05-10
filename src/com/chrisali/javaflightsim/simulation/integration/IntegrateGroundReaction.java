@@ -51,12 +51,11 @@ public class IntegrateGroundReaction {
 	
 	// Integrator Fields
 	private ClassicalRungeKuttaIntegrator integrator;
-	private double t;
+	private double   t;
 	private double[] integratorConfig		   = new double[3];
 	private double[] groundReactionDerivatives = new double[6];
 	private double[] y					       = new double[6];
 	private double[] y0					       = new double[6];
-	
 	
 	// 6DOF Integration Results
 	private double[] linearVelocities 		  = new double[3];
@@ -229,13 +228,16 @@ public class IntegrateGroundReaction {
 			rightGroundForces[0] = - groundReactionDerivatives[5] * TIRE_ROLLING_FRICTION * mass;
 		}
 		
+		// Braking
 		if (controls.get(FlightControls.BRAKE_L) > 0)
-			leftGroundForces[0]  += groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControls.BRAKE_L);
-		
+			leftGroundForces[0]  -= groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControls.BRAKE_L);
+
 		if (controls.get(FlightControls.BRAKE_R) > 0)
-			rightGroundForces[0] += groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControls.BRAKE_R);
+			rightGroundForces[0] -= groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControls.BRAKE_R);
 		
-		// Y Forces		
+		// Y Forces				// Nosewheel steering friction force based on a fraction of the rudder deflection to the maximum deflection
+		noseGroundForces[1]  =   groundReactionDerivatives[1] * TIRE_STATIC_FRICTION * mass 
+							  * (controls.get(FlightControls.RUDDER)/FlightControls.RUDDER.getMaximum());  
 		leftGroundForces[1]  = - groundReactionDerivatives[3] * TIRE_STATIC_FRICTION * mass;
 		rightGroundForces[1] =   groundReactionDerivatives[5] * TIRE_STATIC_FRICTION * mass;
 		
@@ -291,6 +293,46 @@ public class IntegrateGroundReaction {
 		}
 		
 		totalGroundMoments = tempTotalGroundMoments;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Z Position: ").append(NEDPosition[2]).append("\n");
+		
+		sb.append("Tire Positions {n, l, r}: [");
+		for (int i = 0; i < 3; i++) {
+			sb.append(tirePosition[i]);
+			if (i < 2)
+				sb.append(", ");
+		}
+		sb.append("]\n");
+		
+		sb.append("Tire Velocities {n, l, r}: [");
+		for (int i = 0; i < 3; i++) {
+			sb.append(tireVelocity[i]);
+			if (i < 2)
+				sb.append(", ");
+		}
+		sb.append("]\n");
+		
+		sb.append("Ground Forces {Fx, Fy, Fz}: [");
+		for (int i = 0; i < 3; i++) {
+			sb.append((int) getTotalGroundForces()[i]);
+			if (i < 2)
+				sb.append(", ");
+		}
+		sb.append("]\n");
+		
+		sb.append("Ground Moments {L, M, N}: [");
+		for (int i = 0; i < 3; i++) {
+			sb.append((int) getTotalGroundMoments()[i]);
+			if (i < 2)
+				sb.append(", ");
+		}
+		sb.append("]");
+		
+		return sb.toString();
 	}
 	
 	/**
