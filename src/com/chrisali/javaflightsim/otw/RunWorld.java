@@ -29,6 +29,7 @@ import com.chrisali.javaflightsim.otw.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.otw.renderengine.Loader;
 import com.chrisali.javaflightsim.otw.renderengine.MasterRenderer;
 import com.chrisali.javaflightsim.otw.renderengine.OBJLoader;
+import com.chrisali.javaflightsim.otw.terrain.Terrain;
 import com.chrisali.javaflightsim.otw.terrain.TerrainCollection;
 import com.chrisali.javaflightsim.otw.textures.ModelTexture;
 
@@ -160,6 +161,18 @@ public class RunWorld implements Runnable, FlightDataListener {
 		FontType font = new FontType(loader.loadTexture("arial", "Fonts"), new File("Resources\\Fonts\\arial.fnt"));
 		text = new GUIText("", 1, font, new Vector2f(0, 0), 1f, true);
 		
+	}
+	
+	/**
+	 * @return Height of terrain at the ownship's current position
+	 */
+	public synchronized float getTerrainHeight() {
+		Terrain[][] terrainArray = terrainCollection.getTerrainArray();
+		Vector3f position = ownship.getPosition();
+		
+		return Terrain
+				.getCurrentTerrain(terrainArray, position.x, position.z)
+				.getTerrainHeight(position.x, position.z);
 	}
 
 	@Override
