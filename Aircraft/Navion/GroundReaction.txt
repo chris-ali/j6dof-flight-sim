@@ -17,9 +17,9 @@ left_damping = 75
 right_damping = 75
 
 % Strut Springs
-nose_spring = 800
-left_spring = 800
-right_spring = 800
+nose_spring = 200
+left_spring = 200
+right_spring = 200
 
 % Braking
 braking_force = 1000

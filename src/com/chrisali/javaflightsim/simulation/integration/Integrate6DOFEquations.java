@@ -62,11 +62,15 @@ public class Integrate6DOFEquations implements Runnable {
 	private double   alphaDot 				= 0.0f;
 	private double   mach     				= 0.0f;
 	
+	// Ground Reaction
+	private IntegrateGroundReaction groundReaction;
+	private double   terrainHeight;
+	
 	// Forces and Moments
 	private double[] linearAccelerations    = new double[3];
 	private double[] totalMoments     		= new double[3];
 	
-	// Simulation controls (Joystick, Keyboard, etc.)
+	// Simulation Controls (Joystick, Keyboard, etc.)
 	private EnumMap<FlightControls, Double> controls;
 	private AbstractController hidController;
 	private Keyboard hidKeyboard;
@@ -103,9 +107,10 @@ public class Integrate6DOFEquations implements Runnable {
 								  EnumSet<Options> runOptions) {
 		aircraft 		   = builtAircraft.getAircraft();
 		engineList   	   = builtAircraft.getEngineList();
-		accelAndMoments    = new AccelAndMoments(aircraft);
 		options		       = runOptions;
+		terrainHeight      = 0.0; // To be added as constructor arg
 		
+		accelAndMoments    = new AccelAndMoments(aircraft);
 		controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
 		
 		// If TRIM_MODE enabled, use the initial conditions/controls from the trim method
@@ -142,6 +147,12 @@ public class Integrate6DOFEquations implements Runnable {
 		
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
 		integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[1]);
+		
+		// Set up ground reaction integration
+		groundReaction = new IntegrateGroundReaction(integratorConfig, 
+													 aircraft, 
+													 controls, 
+													 terrainHeight);
 		
 		// Calculate initial data members' values
 		updateDataMembers();
@@ -244,6 +255,15 @@ public class Integrate6DOFEquations implements Runnable {
 		// Update mach
 		mach = SixDOFUtilities.calculateMach(windParameters, environmentParameters);
 		
+		// Integrate another step of ground reaction only if within 10 ft of ground
+		if ((NEDPosition[2] - terrainHeight) < 10)
+			groundReaction.integrateStep(linearVelocities, 
+										 NEDPosition, 
+										 eulerAngles, 
+										 angularRates);
+		
+		System.out.println(groundReaction);
+		
 		// Update accelerations
 		linearAccelerations = accelAndMoments.calculateLinearAccelerations(windParameters,
 																		   angularRates,
@@ -251,7 +271,8 @@ public class Integrate6DOFEquations implements Runnable {
 																		   controls,
 																		   alphaDot,
 																		   engineList,
-																		   aircraft);
+																		   aircraft,
+																		   groundReaction);
 		// Update moments
 		totalMoments = accelAndMoments.calculateTotalMoments(windParameters,
 														 	 angularRates,
@@ -259,7 +280,8 @@ public class Integrate6DOFEquations implements Runnable {
 															 controls,
 															 alphaDot,
 															 engineList,
-															 aircraft);
+															 aircraft,
+															 groundReaction);
 				
 		// Recalculates derivatives for next step
 		sixDOFDerivatives = updateDerivatives(new double[] {linearVelocities[0],
@@ -426,7 +448,6 @@ public class Integrate6DOFEquations implements Runnable {
 	public void run() {
 		// Integration loop
 		try {
-			
 			running = true;
 			
 			while (t < integratorConfig[2] && running) {

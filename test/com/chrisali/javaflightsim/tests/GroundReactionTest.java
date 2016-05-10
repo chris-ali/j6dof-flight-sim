@@ -27,33 +27,29 @@ public class GroundReactionTest {
 		GroundReactionTest test = new GroundReactionTest();
 		test.setup();
 		test.run();
-
 	}
 	
 	private void setup() {
-		
 		terrainHeight = 0;
 		t = 0;
 		
-		groundReaction = new IntegrateGroundReaction(linearVelocities,
-													 NEDPosition,
-													 eulerAngles,
-													 angularRates,
-													 integratorConfig,
+		groundReaction = new IntegrateGroundReaction(integratorConfig,
 													 ab.getAircraft(),
 													 controls, 
 													 terrainHeight);
 	}
 	
 	private void run() {
-		
 		while (t <= (integratorConfig[2]-95)) {
 			
 			NEDPosition[2] = 1.75;
 			//controls.put(FlightControls.BRAKE_L, 0.8);
 			controls.put(FlightControls.RUDDER, -0.0);
 			
-			groundReaction.integrateStep();
+			groundReaction.integrateStep(linearVelocities,
+										 NEDPosition,
+										 eulerAngles,
+										 angularRates);
 			
 			System.out.println(groundReaction.toString());
 			

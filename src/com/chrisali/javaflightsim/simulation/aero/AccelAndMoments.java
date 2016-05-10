@@ -10,6 +10,7 @@ import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.integration.IntegrateGroundReaction;
 import com.chrisali.javaflightsim.simulation.integration.SaturationLimits;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.utilities.Utilities;
@@ -45,6 +46,7 @@ public class AccelAndMoments {
 	 * @param alphaDot
 	 * @param engineList
 	 * @param aircraft
+	 * @param groundReaction
 	 * @return linearAccelerations
 	 */
 	public double[] calculateLinearAccelerations(double[] windParameters,
@@ -53,19 +55,27 @@ public class AccelAndMoments {
 										         EnumMap<FlightControls, Double> controls,
 										         double alphaDot,
 										         Set<Engine> engineList,
-										         Aircraft aircraft) {
+										         Aircraft aircraft,
+										         IntegrateGroundReaction groundReaction) {
 		
 		Vector3D aeroForceVector = new Vector3D(aero.calculateBodyForces(windParameters, 
 																	     angularRates, 
 																	     environmentParameters, 
 																	     controls, 
 																	     alphaDot));
+		
+		Vector3D groundForceVector = new Vector3D(groundReaction.getTotalGroundForces());
+		
 		// Create a vector of engine force, iterate through engineList and add the thrust of each engine in list
 		Vector3D engineForce = new Vector3D(0, 0, 0);
 		for (Engine engine : engineList)
 			engineForce = engineForce.add(new Vector3D(engine.getThrust()));
 
-		double[] tempLinearAccel = aeroForceVector.add(engineForce).scalarMultiply(1/aircraft.getMassProperty(MassProperties.TOTAL_MASS)).toArray(); 
+		double[] tempLinearAccel = aeroForceVector
+										.add(engineForce)
+										.add(groundForceVector)
+										.scalarMultiply(1/aircraft.getMassProperty(MassProperties.TOTAL_MASS))
+										.toArray(); 
 		
 		return SaturationLimits.limitLinearAccelerations(tempLinearAccel);
 	}
@@ -80,6 +90,7 @@ public class AccelAndMoments {
 	 * @param alphaDot
 	 * @param engineList
 	 * @param aircraft
+	 * @param groundReaction
 	 * @return totalMoments
 	 */
 	public double[] calculateTotalMoments(double[] windParameters,
@@ -88,7 +99,8 @@ public class AccelAndMoments {
 										  EnumMap<FlightControls, Double> controls,
 										  double alphaDot,
 										  Set<Engine> engineList,
-										  Aircraft aircraft) {
+										  Aircraft aircraft,
+										  IntegrateGroundReaction groundReaction) {
 
 		Vector3D aeroForceVector = new Vector3D(aero.calculateBodyForces(windParameters, 
 																	     angularRates, 
@@ -108,12 +120,18 @@ public class AccelAndMoments {
 																		   controls, 
 																		   alphaDot)); 
 		
+		Vector3D groundMomentVector = new Vector3D(groundReaction.getTotalGroundMoments());
+		
 		// Create a vector of engine moment, iterate through engineList and add the moment of each engine in list
 		Vector3D engineMoment = new Vector3D(0, 0, 0);
 		for (Engine engine : engineList)
 			engineMoment = engineMoment.add(new Vector3D(engine.getEngineMoment()));
 		
-		double[] tempTotalMoments = aeroMomentVector.add(engineMoment).add(aeroForceCrossProd).toArray();
+		double[] tempTotalMoments = aeroMomentVector
+										.add(engineMoment)
+										.add(aeroForceCrossProd)
+										.add(groundMomentVector)
+										.toArray();
 		
 		return SaturationLimits.limitTotalMoments(tempTotalMoments); 
 	}
