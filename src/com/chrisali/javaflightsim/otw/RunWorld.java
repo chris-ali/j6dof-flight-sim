@@ -56,11 +56,15 @@ public class RunWorld implements Runnable, FlightDataListener {
 	private Camera camera;
 	
 	private GUIText text;
+	
+	private float terrainHeight = 0.0f;
+	private static boolean running = false;
 
 	public RunWorld() {}	
 	
 	@Override
 	public void run() {
+		running = true;
 		
 		//=================================== Set Up ==========================================================
 		
@@ -103,6 +107,8 @@ public class RunWorld implements Runnable, FlightDataListener {
 			
 			DisplayManager.updateDisplay();
 		}
+		
+		running = false;
 		
 		//================================ Clean Up ==========================================================
 		
@@ -170,10 +176,18 @@ public class RunWorld implements Runnable, FlightDataListener {
 		Terrain[][] terrainArray = terrainCollection.getTerrainArray();
 		Vector3f position = ownship.getPosition();
 		
-		return Terrain
-				.getCurrentTerrain(terrainArray, position.x, position.z)
-				.getTerrainHeight(position.x, position.z);
+		terrainHeight = running ? Terrain.getCurrentTerrain(terrainArray, position.x, position.z)
+										 .getTerrainHeight(position.x, position.z) 
+								 : 0.0f;
+		
+		return terrainHeight;
 	}
+	
+	
+	/**
+	 * @return If out the window display is running
+	 */
+	public static synchronized boolean isRunning() {return running;}
 
 	@Override
 	public void onFlightDataReceived(FlightData flightData) {
@@ -181,13 +195,13 @@ public class RunWorld implements Runnable, FlightDataListener {
 		Map<FlightDataType, Double> receivedFlightData = flightData.getFlightData();
 		
 		if (!receivedFlightData.containsValue(null) && (ownshipPosition != null || ownshipRotation != null)) {
-			ownshipPosition.x = (float) ((receivedFlightData.get(FlightDataType.NORTH)+800)/20);
-			ownshipPosition.y = (float) (receivedFlightData.get(FlightDataType.ALTITUDE)/25);
-			ownshipPosition.z = (float) ((receivedFlightData.get(FlightDataType.EAST)+800)/20);
+			ownshipPosition.x = (float)  ((receivedFlightData.get(FlightDataType.NORTH)+800)/20);
+			ownshipPosition.y = (float)   (receivedFlightData.get(FlightDataType.ALTITUDE)  /25);
+			ownshipPosition.z = (float)  ((receivedFlightData.get(FlightDataType.EAST)+800) /20);
 		
-			ownshipRotation.x = (float) (receivedFlightData.get(FlightDataType.ROLL)/-1);
-			ownshipRotation.y = (float) (receivedFlightData.get(FlightDataType.PITCH)/-1);
-			ownshipRotation.z = (float) (receivedFlightData.get(FlightDataType.HEADING)-270); // rotate to follow camera translation
+			ownshipRotation.x = (float)  -(receivedFlightData.get(FlightDataType.ROLL));
+			ownshipRotation.y = (float)  -(receivedFlightData.get(FlightDataType.PITCH));
+			ownshipRotation.z = (float)   (receivedFlightData.get(FlightDataType.HEADING)-270); // rotate to follow camera translation
 		}
 	}
 }

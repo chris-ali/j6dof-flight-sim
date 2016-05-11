@@ -209,7 +209,7 @@ public class SimulationController {
 	 * @param panel
 	 */
 	public void startSimulation(InstrumentPanel panel) {
-		runSim = new Integrate6DOFEquations(ab, simulationOptions);
+		runSim = new Integrate6DOFEquations(ab, simulationOptions, 0.0);
 		
 		simulationThread = new Thread(runSim);
 		simulationThread.start();

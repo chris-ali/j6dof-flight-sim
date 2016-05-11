@@ -33,7 +33,11 @@ public class GroundReactionTest {
 		terrainHeight = 0;
 		t = 0;
 		
-		groundReaction = new IntegrateGroundReaction(integratorConfig,
+		groundReaction = new IntegrateGroundReaction(linearVelocities,
+													 NEDPosition,
+													 eulerAngles,
+													 angularRates,
+													 integratorConfig,
 													 ab.getAircraft(),
 													 controls, 
 													 terrainHeight);
@@ -46,10 +50,7 @@ public class GroundReactionTest {
 			//controls.put(FlightControls.BRAKE_L, 0.8);
 			controls.put(FlightControls.RUDDER, -0.0);
 			
-			groundReaction.integrateStep(linearVelocities,
-										 NEDPosition,
-										 eulerAngles,
-										 angularRates);
+			groundReaction.integrateStep();
 			
 			System.out.println(groundReaction.toString());
 			

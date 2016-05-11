@@ -22,7 +22,8 @@ public class InstrumentPanelTest {
 
 	private static void runApp() {
 		Integrate6DOFEquations runSim = new Integrate6DOFEquations(new AircraftBuilder("LookupNavion"),
-																   EnumSet.of(Options.UNLIMITED_FLIGHT, Options.USE_CH_CONTROLS));
+																   EnumSet.of(Options.UNLIMITED_FLIGHT, Options.USE_CH_CONTROLS),
+																   0.0);
 		FlightData flightData = new FlightData(runSim);
 
 		new Thread(runSim).start();

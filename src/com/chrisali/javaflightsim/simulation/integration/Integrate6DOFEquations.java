@@ -11,6 +11,7 @@ import java.util.Set;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
+import com.chrisali.javaflightsim.otw.RunWorld;
 import com.chrisali.javaflightsim.simulation.aero.AccelAndMoments;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
@@ -97,18 +98,20 @@ public class Integrate6DOFEquations implements Runnable {
 	private static boolean running;
 	
 	/**
-	 * Creates the {@link Integrate6DOFEquations} object with an {@link AircraftBuilder object} and a list of run-time options defined
-	 * in the {@link Options} EnumSet
+	 * Creates the {@link Integrate6DOFEquations} object with an {@link AircraftBuilder object}, a list of run-time options defined
+	 * in the {@link Options} EnumSet and the terrain height received from the {@link RunWorld} out-the-window display
 	 * 
 	 * @param builtAircraft
 	 * @param runOptions
+	 * @param otwTerrainHeight
 	 */
 	public Integrate6DOFEquations(AircraftBuilder builtAircraft,
-								  EnumSet<Options> runOptions) {
+								  EnumSet<Options> runOptions,
+								  double otwTerrainHeight) {
 		aircraft 		   = builtAircraft.getAircraft();
 		engineList   	   = builtAircraft.getEngineList();
 		options		       = runOptions;
-		terrainHeight      = 0.0; // To be added as constructor arg
+		terrainHeight      = otwTerrainHeight;
 		
 		accelAndMoments    = new AccelAndMoments(aircraft);
 		controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
@@ -149,7 +152,11 @@ public class Integrate6DOFEquations implements Runnable {
 		integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[1]);
 		
 		// Set up ground reaction integration
-		groundReaction = new IntegrateGroundReaction(integratorConfig, 
+		groundReaction = new IntegrateGroundReaction(linearVelocities, 
+													 NEDPosition, 
+													 eulerAngles, 
+													 angularRates,
+													 integratorConfig, 
 													 aircraft, 
 													 controls, 
 													 terrainHeight);
@@ -228,7 +235,8 @@ public class Integrate6DOFEquations implements Runnable {
 
 		// Implement saturation and (2)pi bounding to keep states within realistic limits
 		linearVelocities = SaturationLimits.limitLinearVelocities(linearVelocities);
-		eulerAngles      = SaturationLimits.piBounding(eulerAngles);
+		NEDPosition      = SaturationLimits.limitNEDPosition(NEDPosition, terrainHeight, groundReaction.isWeightOnWheels());
+		eulerAngles      = SaturationLimits.piBounding(eulerAngles, groundReaction.isWeightOnWheels());
 		angularRates     = SaturationLimits.limitAngularRates(angularRates);
 		
 		// Update wind parameters
@@ -257,10 +265,7 @@ public class Integrate6DOFEquations implements Runnable {
 		
 		// Integrate another step of ground reaction only if within 10 ft of ground
 		if ((NEDPosition[2] - terrainHeight) < 10)
-			groundReaction.integrateStep(linearVelocities, 
-										 NEDPosition, 
-										 eulerAngles, 
-										 angularRates);
+			groundReaction.integrateStep();
 		
 		System.out.println(groundReaction);
 		

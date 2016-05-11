@@ -20,9 +20,11 @@ public class SaturationLimits {
 	/**
 	 * Binds pitch and bank angles between +/- Pi, and heading between 0 and 2*Pi. In addition, pitch is prevented from reaching +/- Pi/2, 
 	 * as this would cause a singularity in the calculation of heading in {@link Integrate6DOFEquations}
+	 * @param eulerAngles
+	 * @param isWeightOnWheels
 	 * @return eulerAngles
 	 */
-	public static double[] piBounding(double[] eulerAngles) {
+	public static double[] piBounding(double[] eulerAngles, boolean isWeightOnWheels) {
 		double phi   = eulerAngles[0];
 		double theta = eulerAngles[1];
 		double psi   = eulerAngles[2];
@@ -36,6 +38,7 @@ public class SaturationLimits {
 			phi %= Math.PI;
 		}
 		
+		// Airborne limits
 		if (eulerAngles[1] > Math.PI ) {
 			theta -= 2*Math.PI;
 			theta %= Math.PI;
@@ -43,20 +46,38 @@ public class SaturationLimits {
 			theta += 2*Math.PI;
 			theta %= Math.PI;
 		} else if (eulerAngles[1] ==  Math.PI/2) {
-			theta = Math.PI*0.52; // Prevent theta from reaching PI/2, which would cause singularity in Euler angles
+			theta = Math.PI*0.52; // Prevent theta from reaching PI/2, which would cause singularity
 		} else if (eulerAngles[1] == -Math.PI/2) {
 			theta = -Math.PI*0.52;
+		}
+		
+		// Ground limits
+		if (isWeightOnWheels) {
+			if (eulerAngles[0] > Math.PI/4)
+				phi = Math.PI/4;
+			else if (eulerAngles[0] < -Math.PI/4)
+				phi = -Math.PI/4;
+			
+			if (eulerAngles[1] > Math.PI/4)
+				theta = Math.PI/4;
+			else if (eulerAngles[1] < -Math.PI/4)
+				theta = -Math.PI/4;
 		}
 		
 		// Return only positive values of psi between 0 and 2*pi
 		psi += 2*Math.PI;
 		psi %= 2*Math.PI;
 		
-		return new double[] {phi,theta,psi};
+		eulerAngles[0] = phi;
+		eulerAngles[1] = theta;
+		eulerAngles[2] = psi;
+		
+		return eulerAngles;
 	}
 	
 	/**
 	 *  Limits u, v and w velocities; u is restricted to 0.5-1000 ft/sec, while v and w are restricted to -1000-1000 ft/sec
+	 *  @param linearVelocities
 	 *  @return linearVelocities
 	 */
 	public static double[] limitLinearVelocities(double[] linearVelocities) {
@@ -79,11 +100,16 @@ public class SaturationLimits {
 		else if (linearVelocities[2] > 1000)
 			w = 1000;
 		
-		return new double[] {u,v,w};
+		linearVelocities[0] = u;
+		linearVelocities[1] = v;
+		linearVelocities[2] = w;
+		
+		return linearVelocities;
 	}
 	
 	/**
 	 *  Limits angular rates for p, q and r to -10-10 rad/sec
+	 *  @return angularRates
 	 *  @return angularRates
 	 */
 	public static double[] limitAngularRates(double[] angularRates) {
@@ -106,11 +132,16 @@ public class SaturationLimits {
 		else if (angularRates[2] > 10)
 			r = 10;
 		
-		return new double[] {p,q,r};
+		angularRates[0] = p;
+		angularRates[1] = q;
+		angularRates[2] = r;
+		
+		return angularRates;
 	}
 	
 	/**
 	 *  Limits accelerations in all directions to -1000-1000 ft/sec^2
+	 *  @param linearAccelerations
 	 *  @return linearAccelerations
 	 */
 	public static double[] limitLinearAccelerations(double[] linearAccelerations) {
@@ -133,11 +164,16 @@ public class SaturationLimits {
 		else if (linearAccelerations[2] > 1000)
 			a_z = 1000;
 		
-		return new double[] {a_x,a_y,a_z};
+		linearAccelerations[0] = a_x;
+		linearAccelerations[1] = a_y;
+		linearAccelerations[2] = a_z;
+		
+		return linearAccelerations;
 	}
 	
 	/**
 	 *  Limits moments in all directions to -100000-100000 lb*ft
+	 *  @return linearMoments
 	 *  @return linearMoments
 	 */
 	public static double[] limitTotalMoments(double[] totalMoments) {
@@ -160,11 +196,16 @@ public class SaturationLimits {
 		else if (totalMoments[2] > 100000)
 			m_z = 100000;
 		
-		return new double[] {m_x,m_y,m_z};
+		totalMoments[0] = m_x;
+		totalMoments[1] = m_y;
+		totalMoments[2] = m_z;
+		
+		return totalMoments;
 	}
 	
 	/**
 	 *  Limits true airspeed to 0.5-1000 ft/sec, beta to -Pi/4-Pi/4 and alpha to -Pi/16-Pi/16 
+	 *  @param windParameters
 	 *  @return windParameters
 	 */
 	public static double[] limitWindParameters(double[] windParameters) {
@@ -187,7 +228,28 @@ public class SaturationLimits {
 		else if (windParameters[2] > Math.PI/16)
 			alpha = Math.PI/16;
 		
-		return new double[] {vTrue,beta,alpha};
+		windParameters[0] = vTrue;
+		windParameters[1] = beta;
+		windParameters[2] = alpha;
+		
+		return windParameters;
+	}
+	
+	/**
+	 * Prevents sinking below ground if the aircraft is on the ground
+	 * 
+	 * @param NEDPosition
+	 * @param terrainHeight
+	 * @param isWeightOnWheels
+	 * @return NEDPosition
+	 */
+	public static double[] limitNEDPosition(double[] NEDPosition, 
+											double terrainHeight, 
+											boolean isWeightOnWheels) {
+		if (isWeightOnWheels && (NEDPosition[2]-terrainHeight) < - 5)
+			NEDPosition[2] = -5;
+		
+		return NEDPosition;
 	}
 	
 }

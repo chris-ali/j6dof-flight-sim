@@ -68,16 +68,28 @@ public class IntegrateGroundReaction {
 	 * Constructor for ground reaction integrator; uses references to integrated states from 
 	 * {@link Integrate6DOFEquations} as well as terrain height received from the 
 	 * out-the-window display view ({@link RunWorld})
-	 * 
+	 * @param linearVelocities
+	 * @param NEDPosition
+	 * @param eulerAngles
+	 * @param angularRates
 	 * @param integratorConfig
 	 * @param aircraft
 	 * @param controls
 	 * @param terrainHeight
 	 */
-	public IntegrateGroundReaction(double[] integratorConfig,
+	public IntegrateGroundReaction(double[] linearVelocities,
+								   double[] NEDPosition,
+								   double[] eulerAngles,
+								   double[] angularRates,
+								   double[] integratorConfig,
 								   Aircraft aircraft,
 								   Map<FlightControls, Double> controls,
 								   double terrainHeight) {
+		
+		this.NEDPosition = NEDPosition;
+		this.linearVelocities = linearVelocities;
+		this.eulerAngles = eulerAngles;
+		this.angularRates = angularRates;
 		
 		this.terrainHeight = terrainHeight;
 		
@@ -89,7 +101,7 @@ public class IntegrateGroundReaction {
 		
 		// "Initial conditions" are zeroed for now; on ground trimming needs pre-loading of gear
 		for (int i = 0; i < y0.length; i++)
-			y0[i] = -5.0;
+			y0[i] = 0.0;
 		
 		integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
 		t = integratorConfig[0];
@@ -365,21 +377,10 @@ public class IntegrateGroundReaction {
 	 * Calculates the positions and velocities of each landing gear on the aircraft, calculates derivatives for
 	 * the next step of integration, runs the next step of integration and then calculates ground forces and moments
 	 * based on the results 
-	 * 
-	 * @param linearVelocities
-	 * @param NEDPosition
-	 * @param eulerAngles
-	 * @param angularRates
 	 */
-	public void integrateStep(double[] linearVelocities,
-							  double[] NEDPosition,
-							  double[] eulerAngles,
-							  double[] angularRates) {
+	public void integrateStep() {
 		
-		this.NEDPosition = NEDPosition;
-		this.linearVelocities = linearVelocities;
-		this.eulerAngles = eulerAngles;
-		this.angularRates = angularRates;
+		
 		
 		calculateTirePositionsAndVelocities();
 		
