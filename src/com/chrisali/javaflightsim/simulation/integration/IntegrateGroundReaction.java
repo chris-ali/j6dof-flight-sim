@@ -27,13 +27,14 @@ import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
  */
 public class IntegrateGroundReaction {
 	// Tire Properties
-	private static final double TIRE_STATIC_FRICTION  = 0.8;
+	private static final double TIRE_STATIC_FRICTION  = 0.6;
 	private static final double TIRE_ROLLING_FRICTION = 0.1;
 	
 	// Aircraft Properties
 	private double mass;
 	private Map<FlightControls, Double> controls;
 	private Map<GroundReaction, Double> groundReaction;
+	private boolean weightOnWheels = false;
 	
 	// Positions
 	private double   terrainHeight;
@@ -88,7 +89,7 @@ public class IntegrateGroundReaction {
 		
 		// "Initial conditions" are zeroed for now; on ground trimming needs pre-loading of gear
 		for (int i = 0; i < y0.length; i++)
-			y0[i] = 0.0;
+			y0[i] = -5.0;
 		
 		integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
 		t = integratorConfig[0];
@@ -146,6 +147,10 @@ public class IntegrateGroundReaction {
 						rightGroundForces[j] = 0;
 					break;
 				}
+				
+				weightOnWheels = false;
+			} else {
+				weightOnWheels = true;
 			}
 		}
 		
@@ -218,10 +223,10 @@ public class IntegrateGroundReaction {
 			// Saturate tire positions/velocities from compressing/moving too far/fast
 			if (tirePosition[i] < -gearRelativeCG[2])
 				tirePosition[i] = -gearRelativeCG[2];
-			if (tireVelocity[i] > 20)
-				tireVelocity[i] = 20;
-			else if (tireVelocity[i] < -20)
-				tireVelocity[i] = -20;
+			if (tireVelocity[i] > 5)
+				tireVelocity[i] = 5;
+			else if (tireVelocity[i] < -5)
+				tireVelocity[i] = -5;
 		}
 	}
 	
@@ -233,8 +238,8 @@ public class IntegrateGroundReaction {
 		// X Forces
 		// Use static coefficient of friction if forward velocity is near 0 
 		if (Math.abs(linearVelocities[0]) < 5) {
-			leftGroundForces[0]  = - groundReactionDerivatives[3] * TIRE_STATIC_FRICTION * mass/1000;
-			rightGroundForces[0] = - groundReactionDerivatives[5] * TIRE_STATIC_FRICTION * mass/1000;
+			leftGroundForces[0]  = - groundReactionDerivatives[3] * TIRE_STATIC_FRICTION * mass/10;
+			rightGroundForces[0] = - groundReactionDerivatives[5] * TIRE_STATIC_FRICTION * mass/10;
 		} else {
 			leftGroundForces[0]  = - groundReactionDerivatives[3] * TIRE_ROLLING_FRICTION * mass;
 			rightGroundForces[0] = - groundReactionDerivatives[5] * TIRE_ROLLING_FRICTION * mass;
@@ -274,23 +279,24 @@ public class IntegrateGroundReaction {
 		
 		for (int i = 0; i < 3; i++) {
 			// Assign body gear force and arm vectors depending on stage of loop
+			// Scale down moments by scaling the arm lengths (negative sign produces realistic braking moments)
 			switch(i) {
 			case 0:
 				gearRelativeCGVector = new Vector3D(new double[]{groundReaction.get(GroundReaction.NOSE_X),
 																 groundReaction.get(GroundReaction.NOSE_Y),
-																 groundReaction.get(GroundReaction.NOSE_Z)});
+																 groundReaction.get(GroundReaction.NOSE_Z)*-0.0125});
 				forceVector = new Vector3D(noseGroundForces);
 				break;
 			case 1:
 				gearRelativeCGVector = new Vector3D(new double[]{groundReaction.get(GroundReaction.LEFT_X),
-																 groundReaction.get(GroundReaction.LEFT_Y),
-																 groundReaction.get(GroundReaction.LEFT_Z)});
+																 groundReaction.get(GroundReaction.LEFT_Y)*0.125,
+																 groundReaction.get(GroundReaction.LEFT_Z)*-0.0125});
 				forceVector = new Vector3D(leftGroundForces);
 				break;
 			case 2:
 				gearRelativeCGVector = new Vector3D(new double[]{groundReaction.get(GroundReaction.RIGHT_X),
-																 groundReaction.get(GroundReaction.RIGHT_Y),
-																 groundReaction.get(GroundReaction.RIGHT_Z)});
+																 groundReaction.get(GroundReaction.RIGHT_Y)*0.125,
+																 groundReaction.get(GroundReaction.RIGHT_Z)*-0.0125});
 				forceVector = new Vector3D(rightGroundForces);
 				break;
 			default:
@@ -392,6 +398,12 @@ public class IntegrateGroundReaction {
 		t += integratorConfig[1];
 	}
 	
+	
+	/**
+	 * @return If aircraft is on ground
+	 */
+	public boolean isWeightOnWheels() {return weightOnWheels;}
+
 	/**
 	 * @return Array of total forces due to ground reaction  
 	 */
