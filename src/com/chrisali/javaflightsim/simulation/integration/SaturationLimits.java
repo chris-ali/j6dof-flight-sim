@@ -76,15 +76,18 @@ public class SaturationLimits {
 	}
 	
 	/**
-	 *  Limits u, v and w velocities; u is restricted to 0.5-1000 ft/sec, while v and w are restricted to -1000-1000 ft/sec
+	 *  Limits u, v and w velocities; u is restricted to 0.5-1000 ft/sec, while v and w are restricted to -1000-1000 ft/sec.
+	 *  On ground v is restricted to -3-3 ft/sec
 	 *  @param linearVelocities
+	 *  @param isWeightOnWheels
 	 *  @return linearVelocities
 	 */
-	public static double[] limitLinearVelocities(double[] linearVelocities) {
+	public static double[] limitLinearVelocities(double[] linearVelocities, boolean isWeightOnWheels) {
 		double u = linearVelocities[0];
 		double v = linearVelocities[1];
 		double w = linearVelocities[2];
 		
+		// Airborne limits
 		if (linearVelocities[0] < 0.5)
 			u = 0.5;
 		else if (linearVelocities[0] > 1000)
@@ -99,6 +102,14 @@ public class SaturationLimits {
 			w = -1000;
 		else if (linearVelocities[2] > 1000)
 			w = 1000;
+		
+		// Ground limits
+		if (isWeightOnWheels) {
+			if (linearVelocities[1] < -5)
+				v = -5;
+			else if (linearVelocities[1] > 5)
+				v = 5;
+		}
 		
 		linearVelocities[0] = u;
 		linearVelocities[1] = v;
@@ -246,8 +257,8 @@ public class SaturationLimits {
 	public static double[] limitNEDPosition(double[] NEDPosition, 
 											double terrainHeight, 
 											boolean isWeightOnWheels) {
-		if (isWeightOnWheels && (NEDPosition[2]-terrainHeight) < - 5)
-			NEDPosition[2] = -5;
+		if (isWeightOnWheels && (NEDPosition[2]-terrainHeight) < -3)
+			NEDPosition[2] = -3;
 		
 		return NEDPosition;
 	}

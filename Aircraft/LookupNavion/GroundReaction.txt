@@ -12,14 +12,14 @@ right_y = -3
 right_z = 2
 
 % Strut Damping
-nose_damping = 22
-left_damping = 22
-right_damping = 22
+nose_damping = 10
+left_damping = 10
+right_damping = 10
 
 % Strut Springs
-nose_spring = 2000
-left_spring = 2000
-right_spring = 2000
+nose_spring = 1800
+left_spring = 1800
+right_spring = 1800
 
 % Braking
-braking_force = 600
+braking_force = 1000

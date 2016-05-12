@@ -219,7 +219,7 @@ public class SimulationController {
 		if (simulationOptions.contains(Options.ANALYSIS_MODE)) {
 			plotSimulation();
 		} else {
-			outTheWindow = new RunWorld();
+			outTheWindow = new RunWorld(displayOptions);
 			
 			flightData = new FlightData(runSim);
 			flightData.addFlightDataListener(panel);

@@ -234,7 +234,7 @@ public class Integrate6DOFEquations implements Runnable {
 		}
 
 		// Implement saturation and (2)pi bounding to keep states within realistic limits
-		linearVelocities = SaturationLimits.limitLinearVelocities(linearVelocities);
+		linearVelocities = SaturationLimits.limitLinearVelocities(linearVelocities, groundReaction.isWeightOnWheels());
 		NEDPosition      = SaturationLimits.limitNEDPosition(NEDPosition, terrainHeight, groundReaction.isWeightOnWheels());
 		eulerAngles      = SaturationLimits.piBounding(eulerAngles, groundReaction.isWeightOnWheels());
 		angularRates     = SaturationLimits.limitAngularRates(angularRates);

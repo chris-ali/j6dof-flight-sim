@@ -14,6 +14,7 @@ import org.lwjgl.util.vector.Vector4f;
 import com.chrisali.javaflightsim.flightdata.FlightData;
 import com.chrisali.javaflightsim.flightdata.FlightDataListener;
 import com.chrisali.javaflightsim.flightdata.FlightDataType;
+import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.otw.entities.Camera;
 import com.chrisali.javaflightsim.otw.entities.EntityCollections;
 import com.chrisali.javaflightsim.otw.entities.Light;
@@ -45,6 +46,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 	private Loader loader;
 	private MasterRenderer masterRenderer;
 	private List<Light> lights;
+	private Map<DisplayOptions, Integer> displayOptions;
 	
 	private TerrainCollection terrainCollection;
 	private EntityCollections entities;
@@ -60,7 +62,9 @@ public class RunWorld implements Runnable, FlightDataListener {
 	private float terrainHeight = 0.0f;
 	private static boolean running = false;
 
-	public RunWorld() {}	
+	public RunWorld(Map<DisplayOptions, Integer> displayOptions) {
+		this.displayOptions = displayOptions;
+	}	
 	
 	@Override
 	public void run() {
@@ -69,8 +73,8 @@ public class RunWorld implements Runnable, FlightDataListener {
 		//=================================== Set Up ==========================================================
 		
 		DisplayManager.createDisplay();
-		DisplayManager.setHeight(900);
-		DisplayManager.setWidth(1440);
+		DisplayManager.setHeight(displayOptions.get(DisplayOptions.DISPLAY_HEIGHT));
+		DisplayManager.setWidth(displayOptions.get(DisplayOptions.DISPLAY_WIDTH));
 		
 		loader = new Loader();
 		
