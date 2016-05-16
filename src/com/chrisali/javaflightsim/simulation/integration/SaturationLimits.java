@@ -53,15 +53,15 @@ public class SaturationLimits {
 		
 		// Ground limits
 		if (isWeightOnWheels) {
-			if (eulerAngles[0] > Math.PI/4)
-				phi = Math.PI/4;
-			else if (eulerAngles[0] < -Math.PI/4)
-				phi = -Math.PI/4;
+			if (eulerAngles[0] > Math.PI/8)
+				phi = Math.PI/8;
+			else if (eulerAngles[0] < -Math.PI/8)
+				phi = -Math.PI/8;
 			
-			if (eulerAngles[1] > Math.PI/4)
-				theta = Math.PI/4;
-			else if (eulerAngles[1] < -Math.PI/4)
-				theta = -Math.PI/4;
+			if (eulerAngles[1] > Math.PI/8)
+				theta = Math.PI/8;
+			else if (eulerAngles[1] < -Math.PI/8)
+				theta = -Math.PI/8;
 		}
 		
 		// Return only positive values of psi between 0 and 2*pi

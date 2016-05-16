@@ -239,9 +239,12 @@ public class IntegrateGroundReaction {
 			// Saturate tire positions/velocities from compressing/moving too far/fast
 			tirePosition[i] = (tirePosition[i] < -gearRelativeCG[2]) ? -gearRelativeCG[2] : tirePosition[i];
 			
-			tireVelocity[i] = (tireVelocity[i] >  1) ? tireVelocity[i] =  1 : 
-							  (tireVelocity[i] < -1) ? tireVelocity[i] = -1 : 
+			tireVelocity[i] = (tireVelocity[i] >  1/10) ? tireVelocity[i] =  1/10 : 
+							  (tireVelocity[i] < -1/10) ? tireVelocity[i] = -1/10 : 
 							   tireVelocity[i];
+			
+			// Stop vertical tire velocity at slow forward speeds 
+			tireVelocity[i] = (linearVelocities[0] >  10) ? tireVelocity[i] : 0;
 		}
 	}
 	
