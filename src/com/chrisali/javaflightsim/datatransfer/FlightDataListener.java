@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.flightdata;
+package com.chrisali.javaflightsim.datatransfer;
 
 import java.util.EventListener;
 

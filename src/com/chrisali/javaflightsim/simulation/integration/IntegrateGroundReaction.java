@@ -102,7 +102,7 @@ public class IntegrateGroundReaction {
 		
 		// "Initial conditions" are zeroed for now; on ground trimming needs pre-loading of gear
 		for (int i = 0; i < y0.length/2; i++) {
-			y0[2*i] = -5.0;
+			y0[2*i] = -3.0;
 			y0[2*i+1] = 0.0;
 		}
 		
@@ -172,22 +172,20 @@ public class IntegrateGroundReaction {
 		yDot[0] = y[1];
 		yDot[1] =  (- groundReaction.get(GroundReaction.NOSE_DAMPING)/mass * y[1]) 
 				 	- (groundReaction.get(GroundReaction.NOSE_SPRING)/mass * y[0])
-				 	+ noseGroundForces[2]/mass;
+				 	+ noseGroundForces[2]/(mass*1.125);
 		
 		// Left Main
 		yDot[2] = y[3];
 		yDot[3] =  (- groundReaction.get(GroundReaction.LEFT_DAMPING)/mass * y[3]) 
 				 	- (groundReaction.get(GroundReaction.LEFT_SPRING)/mass * y[2])
-				 	+ leftGroundForces[2]/mass;
+				 	+ leftGroundForces[2]/(mass*1.125);
 		
 		// Right Main
 		yDot[4] = y[5];
 		yDot[5] =  (- groundReaction.get(GroundReaction.RIGHT_DAMPING)/mass * y[5]) 
 				 	- (groundReaction.get(GroundReaction.RIGHT_SPRING)/mass * y[4])
-				 	+ rightGroundForces[2]/mass;
-		
-		//System.out.println(printDerivatives(y, yDot));
-		
+				 	+ rightGroundForces[2]/(mass*1.125);
+
 		return yDot;
 	}
 	
@@ -259,9 +257,17 @@ public class IntegrateGroundReaction {
 		rightGroundForces[2] = - groundReactionDerivatives[5] * mass;
 		
 		// Limit strut forces
-		noseGroundForces[2] = (noseGroundForces[2] > 500) ? 500 : 
-							  (noseGroundForces[2] < -5000) ? -5000 : 
-							   noseGroundForces[2];
+		noseGroundForces[2]  = (noseGroundForces[2] > 500) ? 500 : 
+							   (noseGroundForces[2] < -2000) ? -2000 : 
+							    noseGroundForces[2];
+		
+		leftGroundForces[2]  = (leftGroundForces[2] > 500) ? 500 : 
+							   (leftGroundForces[2] < -2000) ? -2000 : 
+							    leftGroundForces[2];
+		
+		rightGroundForces[2] = (rightGroundForces[2] > 500) ? 500 : 
+							   (rightGroundForces[2] < -2000) ? -2000 : 
+							    rightGroundForces[2];
 		
 		// X Forces
 		// Use static coefficient of friction if near stand still; taper force off as forward velocity nears 0 
@@ -290,8 +296,8 @@ public class IntegrateGroundReaction {
 			noseGroundForces[1]  =   Math.abs(noseGroundForces[2]) * TIRE_ROLLING_FRICTION 
 								  * (controls.get(FlightControls.RUDDER)/FlightControls.RUDDER.getMaximum());
 									// Create side force to yaw aircraft in direction of velocity vector
-			leftGroundForces[1]  = - Math.abs(leftGroundForces[2])  * TIRE_STATIC_FRICTION * linearVelocities[1]/1000; 
-			rightGroundForces[1] =   Math.abs(rightGroundForces[2]) * TIRE_STATIC_FRICTION * linearVelocities[1]/1000;
+			leftGroundForces[1]  = - Math.abs(leftGroundForces[2])  * TIRE_STATIC_FRICTION * linearVelocities[1]/100; 
+			rightGroundForces[1] =   Math.abs(rightGroundForces[2]) * TIRE_STATIC_FRICTION * linearVelocities[1]/100;
 		}
 		
 		// Summation of Forces
@@ -370,7 +376,7 @@ public class IntegrateGroundReaction {
 	public String toString() {
 		DecimalFormat df = new DecimalFormat("####.##");
 		StringBuilder sb = new StringBuilder();
-		sb.append("Z Position: ").append(NEDPosition[2]).append("\n");
+		sb.append("Height Above Ground: ").append(NEDPosition[2]-terrainHeight).append("\n");
 		
 		sb.append("Linear Velocities {u, v, w}: [");
 		for (int i = 0; i < 3; i++) {

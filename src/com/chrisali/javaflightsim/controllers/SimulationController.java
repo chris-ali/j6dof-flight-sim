@@ -11,7 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import com.chrisali.javaflightsim.consoletable.ConsoleTablePanel;
-import com.chrisali.javaflightsim.flightdata.FlightData;
+import com.chrisali.javaflightsim.datatransfer.EnvironmentData;
+import com.chrisali.javaflightsim.datatransfer.FlightData;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.otw.RunWorld;
@@ -33,6 +34,7 @@ import com.chrisali.javaflightsim.utilities.Utilities;
  * <p>Plotting of the simulation states and data ({@link PlotWindow})</p>
  * <p>Raw data display of simulation states ({@link ConsoleTablePanel})</p>
  * <p>Transmission of flight data to the instrument panel and out the window display ({@link FlightData})</p>
+ * <p>Transmission of environment data to the simulation ({@link EnvironmentData})</p>
  * 
  * @author Christopher Ali
  *
@@ -70,6 +72,8 @@ public class SimulationController {
 	// Out the Window
 	private RunWorld outTheWindow;
 	private Thread outTheWindowThread;
+	private Thread environmentDataThread;
+	private EnvironmentData environmentData;
 	
 	/**
 	 * Constructor for the controller that initializes initial settings, configurations and conditions
@@ -202,14 +206,14 @@ public class SimulationController {
 	public List<Map<SimOuts, Double>> getLogsOut() {return runSim.getLogsOut();}
 	
 	/**
-	 * Initializes and starts the simulation (and flight data, if selected) threads.
-	 * Depending on options specified, a console panel, plot window and instrument panel
-	 * will also be initialized and opened 
+	 * Initializes and starts the simulation (and flight and environment data, if selected) threads.
+	 * Depending on options specified, a console panel, plot window, instrument panel
+	 * and out the window display window will also be initialized and opened 
 	 * 
 	 * @param panel
 	 */
 	public void startSimulation(InstrumentPanel panel) {
-		runSim = new Integrate6DOFEquations(ab, simulationOptions, 0.0);
+		runSim = new Integrate6DOFEquations(ab, simulationOptions);
 		
 		simulationThread = new Thread(runSim);
 		simulationThread.start();
@@ -220,6 +224,12 @@ public class SimulationController {
 			plotSimulation();
 		} else {
 			outTheWindow = new RunWorld(displayOptions);
+			
+			environmentData = new EnvironmentData(outTheWindow);
+			environmentData.addEnvironmentDataListener(runSim);
+			
+			environmentDataThread = new Thread(environmentData);
+			environmentDataThread.start();
 			
 			flightData = new FlightData(runSim);
 			flightData.addFlightDataListener(panel);

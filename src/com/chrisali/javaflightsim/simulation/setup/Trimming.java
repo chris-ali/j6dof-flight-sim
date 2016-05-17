@@ -39,7 +39,7 @@ public class Trimming {
 			writeNextInitialConditions(new EnumMap<InitialConditions, Double>(InitialConditions.class));
 			writeNextInitialControls(new EnumMap<FlightControls, Double>(FlightControls.class));
 			
-			Integrate6DOFEquations runSim = new Integrate6DOFEquations(ab,EnumSet.of(Options.TRIM_MODE), 0.0);
+			Integrate6DOFEquations runSim = new Integrate6DOFEquations(ab,EnumSet.of(Options.TRIM_MODE));
 
 			EnumMap<InitialConditions, Double> nextInitialConditions = new EnumMap<InitialConditions, Double>(InitialConditions.class);
 			nextInitialConditions.put(InitialConditions.INITU,     	runSim.getSimOut().get(SimOuts.U));

@@ -20,7 +20,7 @@ public class SimulationTest {
 		//AircraftBuilder ab = new AircraftBuilder("LookupNavion"); // Navion with lookup tables and Lycoming IO-360
 		//AircraftBuilder ab = new AircraftBuilder("TwinNavion"); // Twin Navion with 2 Lycoming IO-360
 		
-		Integrate6DOFEquations runSim = new Integrate6DOFEquations(ab, runOptions, 0.0);
+		Integrate6DOFEquations runSim = new Integrate6DOFEquations(ab, runOptions);
 		Thread simulationThread = new Thread(runSim);
 		simulationThread.start();
 		

@@ -11,9 +11,9 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-import com.chrisali.javaflightsim.flightdata.FlightData;
-import com.chrisali.javaflightsim.flightdata.FlightDataListener;
-import com.chrisali.javaflightsim.flightdata.FlightDataType;
+import com.chrisali.javaflightsim.datatransfer.FlightData;
+import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
+import com.chrisali.javaflightsim.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.otw.entities.Camera;
 import com.chrisali.javaflightsim.otw.entities.EntityCollections;
@@ -59,7 +59,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 	
 	private GUIText text;
 	
-	private float terrainHeight = 0.0f;
+	private float terrainHeight;
 	private static boolean running = false;
 
 	public RunWorld(Map<DisplayOptions, Integer> displayOptions) {
@@ -68,7 +68,6 @@ public class RunWorld implements Runnable, FlightDataListener {
 	
 	@Override
 	public void run() {
-		running = true;
 		
 		//=================================== Set Up ==========================================================
 		
@@ -87,6 +86,8 @@ public class RunWorld implements Runnable, FlightDataListener {
 		TextMaster.init(loader);
 		
 		loadAssets();
+		
+		running = true;
 
 		//=============================== Main Loop ==========================================================
 
@@ -163,8 +164,8 @@ public class RunWorld implements Runnable, FlightDataListener {
 		ParticleTexture clouds = new ParticleTexture(loader.loadTexture("clouds", "Particles"), 4, true);
 		
 		Random random = new Random();
-		for (int i = 0; i < 1000; i++)
-			new Cloud(clouds, new Vector3f(random.nextInt(800*10), 150, i*10), new Vector3f(0, 0, 0), 0, 200);
+		for (int i = 0; i < 2000; i++)
+			new Cloud(clouds, new Vector3f(random.nextInt(800*10), 225, i*10), new Vector3f(0, 0, 0), 0, 300);
 		
 		//=============================== Interface ==========================================================
 		
@@ -177,12 +178,15 @@ public class RunWorld implements Runnable, FlightDataListener {
 	 * @return Height of terrain at the ownship's current position
 	 */
 	public synchronized float getTerrainHeight() {
-		Terrain[][] terrainArray = terrainCollection.getTerrainArray();
-		Vector3f position = ownship.getPosition();
+		terrainHeight = 0.0f;
 		
-		terrainHeight = running ? Terrain.getCurrentTerrain(terrainArray, position.x, position.z)
-										 .getTerrainHeight(position.x, position.z) 
-								 : 0.0f;
+		if (running) {
+			Terrain[][] terrainArray = terrainCollection.getTerrainArray();
+			Vector3f position = ownship.getPosition();
+			
+			terrainHeight = Terrain.getCurrentTerrain(terrainArray, position.x, position.z)
+											 		.getTerrainHeight(position.x, position.z);
+		}
 		
 		return terrainHeight;
 	}
@@ -199,9 +203,9 @@ public class RunWorld implements Runnable, FlightDataListener {
 		Map<FlightDataType, Double> receivedFlightData = flightData.getFlightData();
 		
 		if (!receivedFlightData.containsValue(null) && (ownshipPosition != null || ownshipRotation != null)) {
-			ownshipPosition.x = (float)  ((receivedFlightData.get(FlightDataType.NORTH)+800)/20);
-			ownshipPosition.y = (float)   (receivedFlightData.get(FlightDataType.ALTITUDE)  /25);
-			ownshipPosition.z = (float)  ((receivedFlightData.get(FlightDataType.EAST)+800) /20);
+			ownshipPosition.x = (float)  ((receivedFlightData.get(FlightDataType.NORTH)+800)/15);
+			ownshipPosition.y = (float)   (receivedFlightData.get(FlightDataType.ALTITUDE)  /15);
+			ownshipPosition.z = (float)  ((receivedFlightData.get(FlightDataType.EAST)+800) /15);
 		
 			ownshipRotation.x = (float)  -(receivedFlightData.get(FlightDataType.ROLL));
 			ownshipRotation.y = (float)  -(receivedFlightData.get(FlightDataType.PITCH));

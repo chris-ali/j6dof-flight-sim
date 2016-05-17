@@ -11,7 +11,9 @@ import java.util.Set;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
-import com.chrisali.javaflightsim.otw.RunWorld;
+import com.chrisali.javaflightsim.datatransfer.EnvironmentData;
+import com.chrisali.javaflightsim.datatransfer.EnvironmentDataListener;
+import com.chrisali.javaflightsim.datatransfer.EnvironmentDataType;
 import com.chrisali.javaflightsim.simulation.aero.AccelAndMoments;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
@@ -49,7 +51,7 @@ import com.chrisali.javaflightsim.utilities.Utilities;
  * @see AircraftBuilder
  * @see Options
  */
-public class Integrate6DOFEquations implements Runnable {
+public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener {
 	// 6DOF Integration Results
 	private double[] linearVelocities 		= new double[3];
 	private double[] NEDPosition      		= new double[3];
@@ -65,7 +67,7 @@ public class Integrate6DOFEquations implements Runnable {
 	
 	// Ground Reaction
 	private IntegrateGroundReaction groundReaction;
-	private double   terrainHeight;
+	private double   terrainHeight			= 0.0f;
 	
 	// Forces and Moments
 	private double[] linearAccelerations    = new double[3];
@@ -99,19 +101,16 @@ public class Integrate6DOFEquations implements Runnable {
 	
 	/**
 	 * Creates the {@link Integrate6DOFEquations} object with an {@link AircraftBuilder object}, a list of run-time options defined
-	 * in the {@link Options} EnumSet and the terrain height received from the {@link RunWorld} out-the-window display
+	 * in the {@link Options} EnumSet
 	 * 
 	 * @param builtAircraft
 	 * @param runOptions
-	 * @param otwTerrainHeight
 	 */
 	public Integrate6DOFEquations(AircraftBuilder builtAircraft,
-								  EnumSet<Options> runOptions,
-								  double otwTerrainHeight) {
+								  EnumSet<Options> runOptions) {
 		aircraft 		   = builtAircraft.getAircraft();
 		engineList   	   = builtAircraft.getEngineList();
 		options		       = runOptions;
-		terrainHeight      = otwTerrainHeight;
 		
 		accelAndMoments    = new AccelAndMoments(aircraft);
 		controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
@@ -126,7 +125,7 @@ public class Integrate6DOFEquations implements Runnable {
 		}
 
 		// If USE_JOYSTICK/USE_MOUSE enabled, use joystick/mouse if ANALYSIS_MODE not enabled
-		if (options.contains(Options.USE_JOYSTICK) & !options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE))
+		if (options.contains(Options.USE_JOYSTICK) & !options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE))
 			hidController = new Joystick(controls);
 		else if (options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE))
 			hidController = new Mouse(controls);
@@ -264,7 +263,7 @@ public class Integrate6DOFEquations implements Runnable {
 		mach = SixDOFUtilities.calculateMach(windParameters, environmentParameters);
 		
 		// Integrate another step of ground reaction only if within 10 ft of ground
-		if ((NEDPosition[2] - terrainHeight) < 10)
+		//if ((NEDPosition[2] - terrainHeight) < 10)
 			groundReaction.integrateStep();
 		
 		System.out.println(groundReaction);
@@ -530,12 +529,21 @@ public class Integrate6DOFEquations implements Runnable {
 	 * 
 	 * @param windSpeed
 	 * @param windDir
-	 * @param
+	 * @param temperature
 	 */
 	public void setEnvironment(double windSpeed, double windDir, double temperature) {
 		Environment.setWindDir(windDir);
 		Environment.setWindSpeed(windSpeed);
 		// Subtract standard temperature from argument to get deviation from standard, then convert C deg to F deg 
 		Environment.setDeltaIsa((temperature-15)*9/5);
+	}
+
+	@Override
+	public void onEnvironmentDataReceived(EnvironmentData environmentData) {
+		Map<EnvironmentDataType, Double> receivedEnvironmentData = environmentData.getEnvironmentData();
+		
+		if (environmentData != null) {
+			terrainHeight = receivedEnvironmentData.get(EnvironmentDataType.TERRAIN_HEIGHT);
+		}
 	}
 }

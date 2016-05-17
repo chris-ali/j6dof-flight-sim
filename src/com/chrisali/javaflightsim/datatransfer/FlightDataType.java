@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.flightdata;
+package com.chrisali.javaflightsim.datatransfer;
 
 /**
  *	Used by {@link FlightData} as the key to its flightData EnumMap
