@@ -292,7 +292,7 @@ public class IntegrateGroundReaction {
 		}
 		
 		// Y Forces				// Nosewheel steering friction force based on a fraction of the rudder deflection to the maximum deflection
-		if (linearVelocities[0] > 1) {
+		if (linearVelocities[0] > 20) {
 			noseGroundForces[1]  =   Math.abs(noseGroundForces[2]) * TIRE_ROLLING_FRICTION 
 								  * (controls.get(FlightControls.RUDDER)/FlightControls.RUDDER.getMaximum());
 									// Create side force to yaw aircraft in direction of velocity vector
@@ -326,13 +326,13 @@ public class IntegrateGroundReaction {
 				break;
 			case 1:
 				gearRelativeCGVector = new Vector3D(new double[]{groundReaction.get(GroundReaction.LEFT_X),
-																 groundReaction.get(GroundReaction.LEFT_Y)*0.0125,
+																 groundReaction.get(GroundReaction.LEFT_Y)*0.125,
 																 groundReaction.get(GroundReaction.LEFT_Z)*-0.0125});
 				forceVector = new Vector3D(leftGroundForces);
 				break;
 			case 2:
 				gearRelativeCGVector = new Vector3D(new double[]{groundReaction.get(GroundReaction.RIGHT_X),
-																 groundReaction.get(GroundReaction.RIGHT_Y)*0.0125,
+																 groundReaction.get(GroundReaction.RIGHT_Y)*0.125,
 																 groundReaction.get(GroundReaction.RIGHT_Z)*-0.0125});
 				forceVector = new Vector3D(rightGroundForces);
 				break;

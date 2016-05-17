@@ -11,7 +11,7 @@ public class TerrainCollection {
 	public TerrainCollection(int numTerrains, Loader loader) {
 		terrainArray = new Terrain[numTerrains/2][numTerrains/2];
 
-		TerrainTexturePack texturePack = createTexturePack("grassy3", "dirt", "mud", "mossPath256", loader);
+		TerrainTexturePack texturePack = createTexturePack("fields", "town", "forest", "water", loader);
 		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap", "Terrain"));
 	
 		for (int i = 0; i < terrainArray.length; i++) {

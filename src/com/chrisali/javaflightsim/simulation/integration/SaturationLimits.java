@@ -257,8 +257,8 @@ public class SaturationLimits {
 	public static double[] limitNEDPosition(double[] NEDPosition, 
 											double terrainHeight, 
 											boolean isWeightOnWheels) {
-		if (isWeightOnWheels && (NEDPosition[2]-terrainHeight) < -3)
-			NEDPosition[2] = -3;
+		if (isWeightOnWheels && (NEDPosition[2] < -terrainHeight-3))
+			NEDPosition[2] = terrainHeight-3;
 		
 		return NEDPosition;
 	}

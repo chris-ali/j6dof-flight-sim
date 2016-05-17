@@ -41,7 +41,7 @@ public class EnvironmentData implements Runnable {
 	 */
 	public void updateData(float terrainHeight) {
 		synchronized (environmentData) {
-			environmentData.put(EnvironmentDataType.TERRAIN_HEIGHT, (double) terrainHeight+10);
+			environmentData.put(EnvironmentDataType.TERRAIN_HEIGHT, (double) terrainHeight);
 		}
 		fireDataArrived();
 	}
