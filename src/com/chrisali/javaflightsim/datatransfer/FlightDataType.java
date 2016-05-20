@@ -12,12 +12,14 @@ public enum FlightDataType {
 	TURN_RATE	 ("Turn Rate", "deg/sec"),
 	TURN_COORD	 ("Lateral Acceleration", "g"),
 	ALTITUDE	 ("Altitude", "ft"),
-	LATITUDE	 ("Latitude","deg"),
-	LONGITUDE	 ("Longitude","deg"),
-	NORTH	 	 ("North","ft"),
-	EAST	 	 ("East","ft"),
-	RPM_L		 ("Left RPM","1/min"),
-	RPM_R		 ("Right RPM","1/min");
+	LATITUDE	 ("Latitude", "deg"),
+	LONGITUDE	 ("Longitude", "deg"),
+	NORTH	 	 ("North", "ft"),
+	EAST	 	 ("East", "ft"),
+	RPM_L		 ("Left RPM", "1/min"),
+	RPM_R		 ("Right RPM", "1/min"),
+	GEAR		 ("Gear Position", "norm"),
+	FLAPS		 ("Flaps Position", "deg");
 	
 	private final String dataType;
 	private final String unit;

@@ -66,6 +66,9 @@ public class FlightData implements Runnable {
 			
 			flightData.put(FlightDataType.RPM_L, simOut.get(SimOuts.RPM_1));
 			flightData.put(FlightDataType.RPM_R, simOut.get(SimOuts.RPM_2));
+			
+			flightData.put(FlightDataType.GEAR, simOut.get(SimOuts.GEAR));
+			flightData.put(FlightDataType.FLAPS, Math.toDegrees(simOut.get(SimOuts.FLAPS)));
 		}
 		fireDataArrived();
 	}

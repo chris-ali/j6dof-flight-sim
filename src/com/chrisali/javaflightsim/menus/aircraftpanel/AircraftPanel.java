@@ -43,6 +43,7 @@ public class AircraftPanel extends JPanel {
 	private JComboBox<String> aircraftComboBox;
 	private DefaultComboBoxModel<String> aircraftComboBoxModel;
 	private JTextArea descriptionArea;
+	private JScrollPane descriptionScroll;
 	private JLabel pictureArea;
 	private JButton weightButton;
 	
@@ -155,10 +156,13 @@ public class AircraftPanel extends JPanel {
 		gc.gridheight = 1;
 		descriptionArea = new JTextArea();
 		descriptionArea.setText(createDescriptionText((String)aircraftComboBox.getSelectedItem(), "Description.txt"));
-		descriptionArea.setPreferredSize(new Dimension(300, 200));
+		
 		descriptionArea.setLineWrap(true);
+		descriptionArea.setWrapStyleWord(true);
 		descriptionArea.setEditable(false);
-		controlsPanel.add(new JScrollPane(descriptionArea), gc);
+		descriptionScroll = new JScrollPane(descriptionArea);
+		descriptionScroll.setPreferredSize(new Dimension(300, 200));
+		controlsPanel.add(descriptionScroll, gc);
 		
 		//--------------- Weight Dialog --------------------------
 
