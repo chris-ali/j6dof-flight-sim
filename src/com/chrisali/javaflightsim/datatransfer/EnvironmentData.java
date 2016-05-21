@@ -51,9 +51,10 @@ public class EnvironmentData implements Runnable {
 		running = true;
 		
 		try {
-			Thread.sleep(2500);
+			while (!RunWorld.isRunning()) 
+				Thread.sleep(1);
 			
-			while (RunWorld.isRunning() && running) {
+			while (running) {
 				Thread.sleep(12);
 				
 				if(outTheWindow != null)

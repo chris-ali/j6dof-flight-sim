@@ -197,7 +197,7 @@ public final class TurnCoordinator extends AbstractRadial {
         }
         
         // Draw Inclinometer and Ball
-        G2.drawImage(coordinatorBallImage, 0, 0, null);
+        G2.drawImage(coordinatorBallImage, (int) coordValue, 0, null);
         G2.translate(coordValue, 0);
         
         G2.setTransform(OLD_TRANSFORM);
@@ -258,7 +258,7 @@ public final class TurnCoordinator extends AbstractRadial {
     public void setCoordValue(final double VALUE) {
         if (isEnabled()) {
         	if (Math.abs(VALUE) <= 50) {
-        		this.coordValue = VALUE*100;
+        		this.coordValue = VALUE*50;
         	}
             fireStateChanged();
             repaint();

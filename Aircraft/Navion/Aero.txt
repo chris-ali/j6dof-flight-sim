@@ -1,7 +1,7 @@
 %Navion Data
 
 %CL
-CL_alpha = 4.44
+CL_alpha = lookup
 CL_0 = 0.41
 CL_q = 3.8
 CL_alpha_dot = 0
@@ -27,7 +27,7 @@ Croll_d_ail = -0.134
 Croll_d_rud = -0.000107
 
 %CM
-CM_alpha = -0.683
+CM_alpha = lookup
 CM_0 = 0.02
 CM_q = -9.96
 CM_alpha_dot = -4.36
