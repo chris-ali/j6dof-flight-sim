@@ -172,19 +172,19 @@ public class IntegrateGroundReaction {
 		yDot[0] = y[1];
 		yDot[1] =  (- groundReaction.get(GroundReaction.NOSE_DAMPING)/mass * y[1]) 
 				 	- (groundReaction.get(GroundReaction.NOSE_SPRING)/mass * y[0])
-				 	+ noseGroundForces[2]/(mass*1.125);
+				 	+ noseGroundForces[2]/(mass*1.25);
 		
 		// Left Main
 		yDot[2] = y[3];
 		yDot[3] =  (- groundReaction.get(GroundReaction.LEFT_DAMPING)/mass * y[3]) 
 				 	- (groundReaction.get(GroundReaction.LEFT_SPRING)/mass * y[2])
-				 	+ leftGroundForces[2]/(mass*1.125);
+				 	+ leftGroundForces[2]/(mass*1.25);
 		
 		// Right Main
 		yDot[4] = y[5];
 		yDot[5] =  (- groundReaction.get(GroundReaction.RIGHT_DAMPING)/mass * y[5]) 
 				 	- (groundReaction.get(GroundReaction.RIGHT_SPRING)/mass * y[4])
-				 	+ rightGroundForces[2]/(mass*1.125);
+				 	+ rightGroundForces[2]/(mass*1.25);
 
 		return yDot;
 	}
@@ -292,12 +292,12 @@ public class IntegrateGroundReaction {
 		}
 		
 		// Y Forces				// Nosewheel steering friction force based on a fraction of the rudder deflection to the maximum deflection
-		if (linearVelocities[0] > 20) {
+		if (linearVelocities[0] > 40) {
 			noseGroundForces[1]  =   Math.abs(noseGroundForces[2]) * TIRE_ROLLING_FRICTION 
-								  * (controls.get(FlightControls.RUDDER)/FlightControls.RUDDER.getMaximum());
+								  * (controls.get(FlightControls.RUDDER)/FlightControls.RUDDER.getMaximum())/10;
 									// Create side force to yaw aircraft in direction of velocity vector
-			leftGroundForces[1]  = - Math.abs(leftGroundForces[2])  * TIRE_STATIC_FRICTION * linearVelocities[1]/100; 
-			rightGroundForces[1] =   Math.abs(rightGroundForces[2]) * TIRE_STATIC_FRICTION * linearVelocities[1]/100;
+			leftGroundForces[1]  = - Math.abs(leftGroundForces[2])  * TIRE_STATIC_FRICTION * linearVelocities[1]/1000; 
+			rightGroundForces[1] =   Math.abs(rightGroundForces[2]) * TIRE_STATIC_FRICTION * linearVelocities[1]/1000;
 		}
 		
 		// Summation of Forces
@@ -321,19 +321,19 @@ public class IntegrateGroundReaction {
 			case 0:
 				gearRelativeCGVector = new Vector3D(new double[]{groundReaction.get(GroundReaction.NOSE_X),
 																 groundReaction.get(GroundReaction.NOSE_Y),
-																 groundReaction.get(GroundReaction.NOSE_Z)*-0.0125});
+																 groundReaction.get(GroundReaction.NOSE_Z)*-0.125});
 				forceVector = new Vector3D(noseGroundForces);
 				break;
 			case 1:
 				gearRelativeCGVector = new Vector3D(new double[]{groundReaction.get(GroundReaction.LEFT_X),
-																 groundReaction.get(GroundReaction.LEFT_Y)*0.125,
-																 groundReaction.get(GroundReaction.LEFT_Z)*-0.0125});
+																 groundReaction.get(GroundReaction.LEFT_Y)*0.25,
+																 groundReaction.get(GroundReaction.LEFT_Z)*-0.125});
 				forceVector = new Vector3D(leftGroundForces);
 				break;
 			case 2:
 				gearRelativeCGVector = new Vector3D(new double[]{groundReaction.get(GroundReaction.RIGHT_X),
-																 groundReaction.get(GroundReaction.RIGHT_Y)*0.125,
-																 groundReaction.get(GroundReaction.RIGHT_Z)*-0.0125});
+																 groundReaction.get(GroundReaction.RIGHT_Y)*0.25,
+																 groundReaction.get(GroundReaction.RIGHT_Z)*-0.125});
 				forceVector = new Vector3D(rightGroundForces);
 				break;
 			default:

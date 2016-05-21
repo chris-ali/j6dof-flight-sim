@@ -14,17 +14,17 @@ CY_d_rud = 0.157
 
 %CD
 CD_alpha = 0.33
-CD_0 = 0.025
+CD_0 = 0.0375
 CD_d_elev = 0.001
-CD_d_flap = 0.02
-CD_d_gear = 0.008
+CD_d_flap = 0.10
+CD_d_gear = 0.028
 
 %CL - Roll
 Croll_beta = -0.074
 Croll_p = -0.410
 Croll_r = 0.107
 Croll_d_ail = -0.134
-Croll_d_rud = -0.107
+Croll_d_rud = -0.000107
 
 %CM
 CM_alpha = -0.683
@@ -38,5 +38,5 @@ CM_d_flap = -0.050
 CN_beta = 0.071
 CN_p = -0.0575
 CN_r = -0.125
-CN_d_ail = -0.0035
+CN_d_ail = 0.035
 CN_d_rud = -0.072

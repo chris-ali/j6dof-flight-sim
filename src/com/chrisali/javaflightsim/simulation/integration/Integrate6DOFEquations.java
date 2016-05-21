@@ -514,7 +514,6 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	 */
 	public static synchronized boolean isRunning() {return Integrate6DOFEquations.running;}
 	
-	
 	/**
 	 * Lets other objects request to stop the simulation by setting running to false
 	 * 
@@ -541,7 +540,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		Map<EnvironmentDataType, Double> receivedEnvironmentData = environmentData.getEnvironmentData();
 		
 		if (environmentData != null) {
-			terrainHeight = receivedEnvironmentData.get(EnvironmentDataType.TERRAIN_HEIGHT)+10;
+			terrainHeight = receivedEnvironmentData.get(EnvironmentDataType.TERRAIN_HEIGHT)+5;
 		}
 	}
 }
