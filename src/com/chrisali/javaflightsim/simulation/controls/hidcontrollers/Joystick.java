@@ -79,7 +79,24 @@ public class Joystick extends AbstractController {
 				if(componentIdentifier.getName().matches("^[0-9]*$")) { // If the component identifier contains only numbers, it is a button
 					if(component.getPollData() == 1.0f) {
 						// Button index (nothing implemented yet)
-						switch(component.getIdentifier().toString()) {}
+						switch(component.getIdentifier().toString()) {
+						case "0":
+							controls.put(FlightControls.BRAKE_L, negativeSquare(FlightControls.BRAKE_L.getMaximum()));
+							controls.put(FlightControls.BRAKE_R, negativeSquare(FlightControls.BRAKE_R.getMaximum()));
+							break;
+						case "4":
+							controls.put(FlightControls.GEAR, FlightControls.GEAR.getMaximum());
+							break;
+						case "5":
+							controls.put(FlightControls.GEAR, FlightControls.GEAR.getMinimum());
+							break;
+						case "6":
+							if (flaps >= FlightControls.FLAPS.getMinimum())	controls.put(FlightControls.FLAPS, (flaps -= 0.004));
+							break;
+						case "7":
+							if (flaps <= FlightControls.FLAPS.getMaximum()) controls.put(FlightControls.FLAPS, (flaps += 0.004));
+							break;
+						}
 					}
 					continue; // Go to next component
 				}
