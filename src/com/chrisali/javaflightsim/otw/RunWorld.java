@@ -78,7 +78,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		loader = new Loader();
 		
 		masterRenderer = new MasterRenderer();
-		MasterRenderer.setSkyColor(new Vector3f(0.0f, 0.85f, 1.0f));
+		MasterRenderer.setSkyColor(new Vector3f(0.70f, 0.90f, 1.0f));
 		MasterRenderer.setFogDensity(0.0005f);
 		MasterRenderer.setFogGradient(3.5f);
 		

@@ -21,7 +21,7 @@ public class Particle {
 	
 	private Vector2f textureOffset1 = new Vector2f();
 	private Vector2f textureOffset2 = new Vector2f();
-	private float textureBlend;
+	protected float textureBlend;
 	
 	private float elapsedTime = 0;
 	private float distaceFromCamera;

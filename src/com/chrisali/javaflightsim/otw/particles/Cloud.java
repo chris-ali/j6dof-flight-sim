@@ -22,6 +22,8 @@ public class Cloud extends Particle {
 		int index1 = textureIndex;
 		int index2 = index1 < textureIndices - 1 ? index1 + 1 : index1;
 		
+		this.textureBlend = 1.0f;
+		
 		setTextureOffset(getTextureOffset1(), index1);
 		setTextureOffset(getTextureOffset2(), index2);
 	}

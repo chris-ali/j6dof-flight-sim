@@ -13,13 +13,13 @@ out float visibility;
 
 uniform float density;
 uniform float gradient;
+uniform mat4 transformationMatrix;
 uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
 uniform float numberOfAtlasRows;
 
-void main(void){
-
-	vec3 positionRelativeToCam = vec3(modelViewMatrix[3][0], modelViewMatrix[3][1], modelViewMatrix[3][2]);
-
+void main(void) {
+	
 	vec2 textureCoordinates = position + vec2(0.5, 0.5);
 	textureCoordinates.y = 1.0 - textureCoordinates.y;
 	textureCoordinates /= numberOfAtlasRows;
@@ -30,7 +30,7 @@ void main(void){
 
 	gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 0.0, 1.0);
 	
-	float distance = length(positionRelativeToCam);
+	float distance = length(gl_Position.xyz);
 	visibility = exp(-pow((distance*density), gradient));
 	visibility = clamp(visibility, 0.0, 1.0);
 }
