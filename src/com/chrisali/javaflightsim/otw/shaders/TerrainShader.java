@@ -12,8 +12,8 @@ import com.chrisali.javaflightsim.utilities.RenderingUtilities;
 
 public class TerrainShader extends ShaderProgram {
 	
-	private static final String VERTEX_FILE = SHADER_ROOT_PATH + "shaders\\terrainVertexShader.txt";
-	private static final String FRAGMENT_FILE = SHADER_ROOT_PATH + "shaders\\terrainFragmentShader.txt";
+	private static final String VERTEX_FILE = SHADER_ROOT_PATH + "terrainVertexShader.txt";
+	private static final String FRAGMENT_FILE = SHADER_ROOT_PATH + "terrainFragmentShader.txt";
 	
 	private int location_transformationMatrix;
 	private int location_projectionMatrix;

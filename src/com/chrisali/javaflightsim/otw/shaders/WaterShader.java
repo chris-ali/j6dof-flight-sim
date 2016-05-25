@@ -8,8 +8,8 @@ import com.chrisali.javaflightsim.utilities.RenderingUtilities;
 
 public class WaterShader extends ShaderProgram {
 
-	private final static String VERTEX_FILE = SHADER_ROOT_PATH + "shaders\\waterVertexShader.txt";
-	private final static String FRAGMENT_FILE = SHADER_ROOT_PATH + "shaders\\waterFragmentShader.txt";
+	private final static String VERTEX_FILE = SHADER_ROOT_PATH + "waterVertexShader.txt";
+	private final static String FRAGMENT_FILE = SHADER_ROOT_PATH + "waterFragmentShader.txt";
 
 	private int location_modelMatrix;
 	private int location_viewMatrix;
