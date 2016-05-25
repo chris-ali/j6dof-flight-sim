@@ -142,6 +142,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		//================================= Entities ==========================================================
 		
 		entities = new EntityCollections(lights, terrainCollection.getTerrainArray(), loader);
+		//entities.createAutogenImageEntities("autogen", "Terrain");
 		entities.createRandomStaticEntities();
 		
 		//================================= Ownship ===========================================================
@@ -149,8 +150,8 @@ public class RunWorld implements Runnable, FlightDataListener {
 		TexturedModel bunny =  new TexturedModel(OBJLoader.loadObjModel("bunny", "Entities", loader), 
 			    								new ModelTexture(loader.loadTexture("bunny", "Entities")));
 		
-		ownshipPosition = new Vector3f(800, 10, 800);
-		ownshipRotation = new Vector3f(0, 0, 0);
+		ownshipPosition = new Vector3f(800, 150, 800);
+		ownshipRotation = new Vector3f(0, 0, 135);
 		ownship = new Ownship(bunny, ownshipPosition, ownshipRotation.z, ownshipRotation.z, ownshipRotation.x, 0.000f);
 		
 		entities.addToStaticEntities(ownship);

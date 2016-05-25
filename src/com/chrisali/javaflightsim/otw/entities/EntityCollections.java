@@ -1,8 +1,14 @@
 package com.chrisali.javaflightsim.otw.entities;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import javax.imageio.ImageIO;
 
 import org.lwjgl.util.vector.Vector3f;
 
@@ -85,6 +91,85 @@ public class EntityCollections {
 					0, random.nextFloat()*360, 0, random.nextFloat()* 1 + 5));
 			}
 		}
+	}
+	
+	/**
+	 * Creates static entities from an autogen image file that maps specifically what type of entity should
+	 * be generated at a given location. The image file should be filled in black with the exception of 
+	 * red, green or blue pixels, which each determine buildings, trees and airports, respectively.
+	 * 
+	 * <p>Each pixel adds a new object, so they should be added to the autogen image (autogen.png) judiciously
+	 * 
+	 * @param fileName
+	 * @param directory
+	 */
+	public void createAutogenImageEntities(String fileName, String directory) {
+		
+		BufferedImage image = null;
+		
+		try {image = ImageIO.read(new File("Resources\\" + directory + "\\" + fileName + ".png"));} 
+		catch (IOException e) {System.err.println("Could not load autogen file: " + fileName + ".png");}
+		
+		float imageScale = Terrain.getSize()/image.getHeight();
+		float scaledX, scaledZ;
+		Color readColor;
+		
+		for (int x = 0; x < image.getWidth(); x+=16) {
+			for (int z = 0; z < image.getHeight(); z+=16) {
+				readColor = new Color(image.getRGB(x, z));
+				scaledX = x * imageScale;
+				scaledZ = z * imageScale;
+				
+				if(readColor.getRed() > 250) {
+					// Create buildings here
+				} else if(readColor.getGreen() > 250) {
+					createRandomTrees(scaledX, scaledZ);
+				} else if(readColor.getBlue() > 250) {
+					// Create airport here
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Creates a random group of trees at the specified x and z position
+	 * 
+	 * @param x
+	 * @param z
+	 */
+	public void createRandomTrees(float x, float z) {
+//		TexturedModel planatusforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
+//											new ModelTexture(loader.loadTexture("platanusforest", "Entities")));
+		TexturedModel pineforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
+											new ModelTexture(loader.loadTexture("pineforest", "Entities")));
+//		TexturedModel oakforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
+//											new ModelTexture(loader.loadTexture("oakforest", "Entities")));
+		
+//		planatusforest.getTexture().setHasTransparency(true);
+//		planatusforest.getTexture().setUseFakeLighting(true);
+		pineforest.getTexture().setHasTransparency(true);
+		pineforest.getTexture().setUseFakeLighting(true);
+//		oakforest.getTexture().setHasTransparency(true);
+//		oakforest.getTexture().setUseFakeLighting(true);
+		
+		Random random = new Random();
+		float y = Terrain.getCurrentTerrain(terrainArray, x, z).getTerrainHeight(x, z);
+		
+		staticEntities.add(new Entity(pineforest, new Vector3f(x, y-2, z), 
+				0, random.nextFloat()*360, 0, random.nextFloat() + 6));
+		
+		/*
+		if (random.nextInt(100) % 3 == 0) {
+			staticEntities.add(new Entity(pineforest, new Vector3f(x, y-2, z), 
+				0, random.nextFloat()*360, 0, random.nextFloat() + 6));
+		} else if (random.nextInt(100) % 9 == 0) {
+			staticEntities.add(new Entity(oakforest, new Vector3f(x, y-2, z), 
+				0, random.nextFloat()*360, 0, random.nextFloat()* 1 + 5));
+		} else if (random.nextInt(100) % 10 == 0) {
+			staticEntities.add(new Entity(oakforest, new Vector3f(x, y-2, z), 
+				0, random.nextFloat()*360, 0, random.nextFloat()* 1 + 5));
+		}
+		*/
 	}
 	
 	/**
