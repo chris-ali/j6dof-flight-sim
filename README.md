@@ -10,7 +10,7 @@ One day I'd like to tie objectives or a scoring element into the simulation to m
  
 -The aircraft is a rigid body, with a constant mass.
 
--No ground reaction model has been included yet, so landing is not possible. 
+-A simple ground reaction model is implemented, but currently doesn't receive data about the height of terrain above sea level  
 
 -Only a simple propeller engine model is implemented for now. No engine effects (fuel burn, propeller effects) are modeled yet
 
@@ -19,7 +19,7 @@ One day I'd like to tie objectives or a scoring element into the simulation to m
 ##Future Ideas
 -Selectable starting locations (in air or on ground)
 
--Moving map support in a Swing GUI or Android app
+-Configurable weather and time of day
 
 ##Libraries
 -This program makes use of the Apache Commons Math libraries to do the numerical integration (Runge-Kutta) necessary to make the program tick.
