@@ -1,5 +1,8 @@
 /.settings/
 /bin/
+/Release/
+*.jar
+*.exe
 *.classpath
 *.project
 *.log
