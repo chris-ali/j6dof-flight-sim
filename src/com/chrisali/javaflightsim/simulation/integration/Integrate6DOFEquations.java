@@ -234,7 +234,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 
 		// Implement saturation and (2)pi bounding to keep states within realistic limits
 		linearVelocities = SaturationLimits.limitLinearVelocities(linearVelocities, groundReaction.isWeightOnWheels());
-		NEDPosition      = SaturationLimits.limitNEDPosition(NEDPosition, terrainHeight, groundReaction.isWeightOnWheels());
+		NEDPosition      = SaturationLimits.limitNEDPosition(NEDPosition, terrainHeight);
 		eulerAngles      = SaturationLimits.piBounding(eulerAngles, groundReaction.isWeightOnWheels());
 		angularRates     = SaturationLimits.limitAngularRates(angularRates);
 		
@@ -540,7 +540,9 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		Map<EnvironmentDataType, Double> receivedEnvironmentData = environmentData.getEnvironmentData();
 		
 		if (environmentData != null) {
-			terrainHeight = receivedEnvironmentData.get(EnvironmentDataType.TERRAIN_HEIGHT)*0;
+			terrainHeight = receivedEnvironmentData.get(EnvironmentDataType.TERRAIN_HEIGHT)*-1;
+			System.out.println(terrainHeight + " " + NEDPosition[2]);
+			
 		}
 	}
 }

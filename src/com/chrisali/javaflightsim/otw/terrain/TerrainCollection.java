@@ -4,10 +4,22 @@ import com.chrisali.javaflightsim.otw.renderengine.Loader;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexture;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexturePack;
 
+/**
+ * An array of {@link Terrain} objects used to model out the world 
+ * 
+ * @author Christopher Ali
+ *
+ */
 public class TerrainCollection {
 	
 	private Terrain[][] terrainArray;
 	
+	/**
+	 * Creates an array of {@link Terrain} objects, with texture blending and height maps
+	 * 
+	 * @param numTerrains
+	 * @param loader
+	 */
 	public TerrainCollection(int numTerrains, Loader loader) {
 		terrainArray = new Terrain[numTerrains/2][numTerrains/2];
 
@@ -21,6 +33,17 @@ public class TerrainCollection {
 		}
 	}
 	
+	/**
+	 * Creates a texture blending "pack," which creates a blend map to paint the terrain with 4 texture types
+	 * assigned to black, red, green and blue colors
+	 * 
+	 * @param backgroundTextureName
+	 * @param rTextureName
+	 * @param gTextureName
+	 * @param bTextureName
+	 * @param loader
+	 * @return
+	 */
 	private TerrainTexturePack createTexturePack(String backgroundTextureName, 
 							String rTextureName, String gTextureName, String bTextureName, Loader loader) {
 		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture(backgroundTextureName, "Terrain"));

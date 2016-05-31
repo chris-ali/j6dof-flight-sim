@@ -253,6 +253,8 @@ public class SimulationController {
 			FlightData.setRunning(false);
 		if (consoleTablePanel != null && consoleTablePanel.isVisible())
 			consoleTablePanel.setVisible(false);
+		if (outTheWindowThread != null && outTheWindowThread.isAlive())
+			EnvironmentData.setRunning(false);
 	}
 	
 	//=============================== Plotting =============================================================

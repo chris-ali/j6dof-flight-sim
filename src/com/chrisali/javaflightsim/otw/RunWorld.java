@@ -137,7 +137,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		//================================= Terrain ==========================================================
 		
-		terrainCollection = new TerrainCollection(12, loader);
+		terrainCollection = new TerrainCollection(6, loader);
 		
 		//================================= Entities ==========================================================
 		

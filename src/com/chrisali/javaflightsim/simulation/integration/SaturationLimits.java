@@ -247,18 +247,16 @@ public class SaturationLimits {
 	}
 	
 	/**
-	 * Prevents sinking below ground if the aircraft is on the ground
+	 * Prevents sinking below ground
 	 * 
 	 * @param NEDPosition
 	 * @param terrainHeight
-	 * @param isWeightOnWheels
 	 * @return NEDPosition
 	 */
 	public static double[] limitNEDPosition(double[] NEDPosition, 
-											double terrainHeight, 
-											boolean isWeightOnWheels) {
-		if (isWeightOnWheels && (NEDPosition[2] < -terrainHeight-3))
-			NEDPosition[2] = terrainHeight-3;
+											double terrainHeight) {
+		if (NEDPosition[2] < terrainHeight)
+			NEDPosition[2] = terrainHeight;
 		
 		return NEDPosition;
 	}
