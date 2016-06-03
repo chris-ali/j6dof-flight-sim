@@ -44,6 +44,7 @@ public class SimulationController {
 	// Paths
 	private static final String SIM_CONFIG_PATH = ".\\SimConfig\\";
 	private static final String AIRCRAFT_PATH = ".\\Aircraft\\";
+	private static final String RESOURCES_PATH = ".\\Resources\\";
 	
 	// Configuration
 	private EnumMap<DisplayOptions, Integer> displayOptions;
@@ -138,7 +139,7 @@ public class SimulationController {
 		massProperties.put(MassProperties.WEIGHT_FUEL, fuelWeight);
 		massProperties.put(MassProperties.WEIGHT_PAYLOAD, payloadWeight);
 		
-		Utilities.writeConfigFile("MassProperties", AIRCRAFT_PATH + aircraftName + "\\", massProperties);
+		Utilities.writeConfigFile(AIRCRAFT_PATH, aircraftName + "\\MassProperties", massProperties);
 	}
 	
 	/**
@@ -206,13 +207,14 @@ public class SimulationController {
 	public List<Map<SimOuts, Double>> getLogsOut() {return runSim.getLogsOut();}
 	
 	/**
-	 * Initializes and starts the simulation (and flight and environment data, if selected) threads.
+	 * Initializes, trims and starts the simulation (and flight and environment data, if selected) threads.
 	 * Depending on options specified, a console panel, plot window, instrument panel
 	 * and out the window display window will also be initialized and opened 
 	 * 
 	 * @param panel
 	 */
 	public void startSimulation(InstrumentPanel panel) {
+		//Trimming.trimSim(ab, false);
 		runSim = new Integrate6DOFEquations(ab, simulationOptions);
 		
 		simulationThread = new Thread(runSim);
@@ -303,5 +305,19 @@ public class SimulationController {
 	 */
 	public void saveConsoleOutput(File file) throws IOException {
 		Utilities.saveToCSVFile(file, runSim.getLogsOut());
+	}
+	
+	//================================ Paths ==============================================================
+	
+	public static String getSimConfigPath() {
+		return SIM_CONFIG_PATH;
+	}
+
+	public static String getAircraftPath() {
+		return AIRCRAFT_PATH;
+	}
+
+	public static String getResourcesPath() {
+		return RESOURCES_PATH;
 	}
 }

@@ -115,17 +115,11 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		accelAndMoments    = new AccelAndMoments(aircraft);
 		controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
 		
-		// If TRIM_MODE enabled, use the initial conditions/controls from the trim method
-		if (options.contains(Options.TRIM_MODE)) {
-			initialConditions = Utilities.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("nextStepInitialConditions"));
-			integratorConfig  = Utilities.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("nextStepIntegratorConfig"));
-		} else {
-			initialConditions = Utilities.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
-			integratorConfig  = Utilities.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
-		}
+		initialConditions = Utilities.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
+		integratorConfig  = Utilities.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
 
 		// If USE_JOYSTICK/USE_MOUSE enabled, use joystick/mouse if ANALYSIS_MODE not enabled
-		if (options.contains(Options.USE_JOYSTICK) & !options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE))
+		if (options.contains(Options.USE_JOYSTICK) & !options.contains(Options.ANALYSIS_MODE))
 			hidController = new Joystick(controls);
 		else if (options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE))
 			hidController = new Mouse(controls);
@@ -141,7 +135,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 			hidKeyboard = null;
 		
 		// Lets simulation run forever when UNLIMITED_FLIGHT enabled, and ANALYSIS_MODE and TRIM_MODE are disabled
-		if(options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE))
+		if(options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.ANALYSIS_MODE))
 			integratorConfig[2] = Double.POSITIVE_INFINITY;
 		
 		// Set up running parameters for integration
@@ -245,10 +239,10 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		environmentParameters = Environment.updateEnvironmentParams(NEDPosition);
 		
 		// Update controls with joystick, keyboard or mouse; if in analysis mode, create a series of doublets (aileron, rudder and then elevator)
-		if (!options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE)) {
+		if (!options.contains(Options.ANALYSIS_MODE)) {
 			controls = hidController.updateFlightControls(controls);
 			controls = hidKeyboard.updateFlightControls(controls);
-		} else if (options.contains(Options.ANALYSIS_MODE) & !options.contains(Options.TRIM_MODE)) {	
+		} else if (options.contains(Options.ANALYSIS_MODE)) {	
 			controls = FlightControlsUtilities.doubletSeries(controls, t);
 		}
 		

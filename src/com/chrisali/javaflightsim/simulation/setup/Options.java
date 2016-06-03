@@ -10,7 +10,6 @@ import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
  * 
  *	<p>ANALYSIS_MODE - Removes real-time aspect of the simulation, generates 3 doublets (aileron, rudder and elevator) using {@link FlightControlsUtilities#doubletSeries(java.util.EnumMap, double)} 
  *  into controls, and generates plots at the end of the run; used to analyze transient dynamics of the aircraft </p>
- *	<p>TRIM_MODE - Removes real-time aspect of the simulation and runs the simulation without plotting or control doublets; used for trimming the controls for straight-and-level flight</p>
  *	<p>UNLIMITED_FLIGHT - Removes the end of the simulation to allow for infinite flight; data logging is limited to the last 100 seconds of simulation</p>
  *	<p>PAUSED - Pauses the integration and therefore the simulation; used in combination with RESET to return the simulation to initial conditions</p>
  *	<p>RESET - Resets the integration to initial conditions using {@link IntegrationSetup#gatherInitialConditions(String)}</p>
@@ -21,7 +20,6 @@ import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
  */
 public enum Options {
 	ANALYSIS_MODE     ("Analysis Mode"),
-	TRIM_MODE		  ("Trimming Mode"),
 	UNLIMITED_FLIGHT  ("Unlimited Flight"),
 	PAUSED			  ("Paused"),
 	RESET			  ("Reset"),

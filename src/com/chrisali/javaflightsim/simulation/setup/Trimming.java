@@ -1,110 +1,143 @@
 package com.chrisali.javaflightsim.simulation.setup;
 
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.Map;
+import java.util.Set;
 
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
-
+import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
+import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
+import com.chrisali.javaflightsim.simulation.aero.WingGeometry;
+import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
-import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.simulation.integration.SimOuts;
+import com.chrisali.javaflightsim.simulation.enviroment.Environment;
+import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
+import com.chrisali.javaflightsim.simulation.propulsion.Engine;
+import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
+import com.chrisali.javaflightsim.utilities.Utilities;
 
 /**
- * @see R. Hall and S. ANstee, Trim Calculation Methods for a Dynamical Model of
- *      the REMUS 100 Autonomous Underwater Vehicle (DSTO-TR-2576)
+ * Simple rudimentary method of longitudinally trimming an aircraft by statically equating forces and moments.
+ * This calculates trim deflections of throttle and elevator needed for level flight. For trim pitch, flight path
+ * angle and angle of attack are considered by using the following equation:
+ * 
+ *  <p>Angle of Attack = Pitch Angle + Flight Path Angle</p>
+ * 
+ * @author Christopher Ali
+ * @see Introduction to Aircraft Stability and Control Course Notes for M&AE 5070 - David A. Caughey, Cornell University (pg 37)
+ *  <p> https://courses.cit.cornell.edu/mae5070/Caughey_2011_04.pdf </p> 
  */
 public class Trimming {
-	private static double perturb;
-	private static double error;
-	private static double tolerance;
-	private static int count;
-	private static RealMatrix jacobian;
-
-	public static void trimSim(AircraftBuilder ab) {
-		perturb = 0.001;
-		error = 100.0;
-		tolerance = 1E-10;
-		count = 1;
-
-		while ((error > tolerance) & (count < 15)) {
-			// Create copies of initial control/condition EnumMaps as "nextStepInitial*" text files for Integrate6DOFEquations 
-			writeNextInitialConditions(new EnumMap<InitialConditions, Double>(InitialConditions.class));
-			writeNextInitialControls(new EnumMap<FlightControls, Double>(FlightControls.class));
-			
-			Integrate6DOFEquations runSim = new Integrate6DOFEquations(ab,EnumSet.of(Options.TRIM_MODE));
-
-			EnumMap<InitialConditions, Double> nextInitialConditions = new EnumMap<InitialConditions, Double>(InitialConditions.class);
-			nextInitialConditions.put(InitialConditions.INITU,     	runSim.getSimOut().get(SimOuts.U));
-			nextInitialConditions.put(InitialConditions.INITV, 	  	runSim.getSimOut().get(SimOuts.V));
-			nextInitialConditions.put(InitialConditions.INITW, 	  	runSim.getSimOut().get(SimOuts.W));
-			nextInitialConditions.put(InitialConditions.INITPHI,   	runSim.getSimOut().get(SimOuts.PHI));
-			nextInitialConditions.put(InitialConditions.INITTHETA, 	runSim.getSimOut().get(SimOuts.THETA));
-			nextInitialConditions.put(InitialConditions.INITP, 	  	runSim.getSimOut().get(SimOuts.P));
-			nextInitialConditions.put(InitialConditions.INITQ, 	  	runSim.getSimOut().get(SimOuts.Q));
-			nextInitialConditions.put(InitialConditions.INITR, 	  	runSim.getSimOut().get(SimOuts.R));
-
-			EnumMap<FlightControls, Double> nextInitialControls = new EnumMap<FlightControls, Double>(FlightControls.class);
-			nextInitialControls.put(FlightControls.ELEVATOR,   runSim.getSimOut().get(SimOuts.ELEVATOR));
-			nextInitialControls.put(FlightControls.AILERON,    runSim.getSimOut().get(SimOuts.AILERON));
-			nextInitialControls.put(FlightControls.RUDDER, 	   runSim.getSimOut().get(SimOuts.RUDDER));
-			nextInitialControls.put(FlightControls.THROTTLE_1, runSim.getSimOut().get(SimOuts.THROTTLE_1));
-			nextInitialControls.put(FlightControls.THROTTLE_2, runSim.getSimOut().get(SimOuts.THROTTLE_1));
-			nextInitialControls.put(FlightControls.THROTTLE_3, runSim.getSimOut().get(SimOuts.THROTTLE_1));
-			nextInitialControls.put(FlightControls.THROTTLE_4, runSim.getSimOut().get(SimOuts.THROTTLE_1));
-
-			jacobian = MatrixUtils.createRealMatrix(new double[nextInitialConditions.size()][nextInitialConditions.size()]); 
-
-			// Create "nextStepInitial*" text files for next step of trimming
-			writeNextInitialConditions(nextInitialConditions);
-			writeNextInitialControls(nextInitialControls);
-			
-			count++;
+	
+	private static EnumMap<InitialConditions, Double> initialConditions;
+	private static EnumMap<FlightControls, Double> initialControls;
+	private static EnumMap<EnvironmentParameters, Double> environmentParams;
+	private static Aircraft aircraft;
+	private static Aerodynamics aero;
+	
+	/**
+	 * Trims an aircraft longitudinally for a forward velocity and altitude specified in 
+	 * 
+	 * <p> ./SimConfig/InitialConditions.txt </p>
+	 * 
+	 * by setting the elevator, throttle and pitch attitude. These values are calculated by statically equating forces and moments.
+	 * If unable to reach a given trim condition, the method will return the maximum values for each control and pitch attitude.
+	 * These values are then saved to 
+	 * 
+	 * <p> ./SimConfig/InitialConditions.txt </p>
+	 * and 
+	 * <p> ./SimConfig/InitialControls.txt </p>
+	 * 
+	 * as long as the test mode boolean flag is false; otherwise the results will be displayed in the console
+	 * 
+	 * @param ab
+	 * @param testMode
+	 */
+	public static void trimSim(AircraftBuilder ab, boolean testMode) {
+		aircraft = ab.getAircraft();
+		aero = new Aerodynamics(aircraft);
+		initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
+		initialControls = IntegrationSetup.gatherInitialControls("InitialControls");
+		environmentParams = Environment.updateEnvironmentParams(new double[]{0,0,initialConditions.get(InitialConditions.INITD)});
+		
+		double[] windParameters = SixDOFUtilities.calculateWindParameters(new double[] {initialConditions.get(InitialConditions.INITU),
+																						initialConditions.get(InitialConditions.INITV),
+																						initialConditions.get(InitialConditions.INITW)});
+		// Get max thrust from each engine, equate it with drag of aircraft to find trim throttle
+		double maxThrust = 0.0;
+		Set<Engine> engines = ab.getEngineList();
+		for (Engine engine : engines) {
+			engine.updateEngineState(initialControls, environmentParams, windParameters);
+			maxThrust += engine.getThrust()[0]/initialControls.get(FlightControls.THROTTLE_1);
+		}
+		
+		double drag = aero.calculateBodyForces(windParameters, new double[] {0, 0, 0}, environmentParams, initialControls, 0)[0];
+		
+		// Calculate trim throttle, limiting if necessary
+		double throttleTrim = (Math.abs(drag))/(maxThrust);
+		throttleTrim = throttleTrim > FlightControls.THROTTLE_1.getMaximum() ? FlightControls.THROTTLE_1.getMaximum() : 
+			           throttleTrim < FlightControls.THROTTLE_1.getMinimum() ? FlightControls.THROTTLE_1.getMinimum() : throttleTrim;
+		
+		// Update initialControls with new trim throttle
+		initialControls.put(FlightControls.THROTTLE_1, throttleTrim);
+		initialControls.put(FlightControls.THROTTLE_2, throttleTrim);
+		initialControls.put(FlightControls.THROTTLE_3, throttleTrim);
+		initialControls.put(FlightControls.THROTTLE_4, throttleTrim);
+		
+		// Aerodynamic parameters for trim alpha and elevator deflection 
+		double q = environmentParams.get(EnvironmentParameters.RHO)*Math.pow(windParameters[0], 2)/2;
+		double CL_trim = (aircraft.getMassProperty(MassProperties.TOTAL_MASS) * Environment.getGravity())/(q * aircraft.getWingGeometry(WingGeometry.S_WING));
+		
+		double CL_alpha = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CL_ALPHA);
+		double CL_d_elev = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CL_D_ELEV);
+		
+		double CM_alpha = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CM_ALPHA);
+		double CM_d_elev = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_ELEV);
+		double CM_0 = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CM_0);
+		
+		double delta = ((CM_alpha * CL_d_elev) - (CL_alpha * CM_d_elev));
+		
+		// Calculate trim deflections, limiting if necessary
+		double elevTrim = ((CM_alpha * CL_trim) + (CM_0 * CL_alpha) ) / delta;
+		elevTrim = elevTrim > FlightControls.ELEVATOR.getMaximum() ? FlightControls.ELEVATOR.getMaximum() : 
+				   elevTrim < FlightControls.ELEVATOR.getMinimum() ? FlightControls.ELEVATOR.getMinimum() : elevTrim;
+		
+		// Calculate trim pitch by using relation between flight path angle and angle of attack
+		double alphaTrim = (-(CL_d_elev * CM_0) - (CM_d_elev * CL_trim) ) / delta;
+		alphaTrim = alphaTrim > 0.18 ? 0.18 :
+					alphaTrim < 0.0 ? 0.0 : alphaTrim;
+		
+		// Flight path angle should be zero for level flight
+		double flightPathAngleTrim = Math.atan(0/initialConditions.get(InitialConditions.INITU));
+		
+		// Update initialControls and initialConditions
+		initialControls.put(FlightControls.ELEVATOR, elevTrim);
+		initialConditions.put(InitialConditions.INITTHETA, (alphaTrim-flightPathAngleTrim));
+		
+		if (!testMode) {
+			Utilities.writeConfigFile(SimulationController.getSimConfigPath(), "InitialConditions", initialConditions);
+			Utilities.writeConfigFile(SimulationController.getSimConfigPath(), "InitialControls", initialControls);
+		} else {
+			System.out.println(Trimming.outputTrimValues());
 		}
 	}
-
-	private static void writeNextInitialConditions(EnumMap<InitialConditions, Double> nextInitialConditions) {
-		// Use InitialConditions EnumMap as a base; nextStepInitialConditions will update its dependent values
-		EnumMap<InitialConditions, Double> initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
-		
-		// nextStepInitialConditions only contains part of the whole initialConditions EnumMap, because
-		// the other states are position values that don't influence the trim results - loop through the
-		// the states that do influence trimming, and assign them to initialConditions 
-		for (Map.Entry<InitialConditions, Double> entry : nextInitialConditions.entrySet())
-			initialConditions.put(entry.getKey(), entry.getValue());
-			
-		writeFile(initialConditions, "nextStepInitialConditions");
-	}
-
-	private static void writeNextInitialControls(EnumMap<FlightControls, Double> nextInitialControls) {
-		EnumMap<FlightControls, Double> initialControls = IntegrationSetup.gatherInitialControls("InitialControls");
-		
-		for (Map.Entry<FlightControls, Double> entry : nextInitialControls.entrySet())
-			initialControls.put(entry.getKey(), entry.getValue());
-		
-		writeFile(initialControls, "nextStepInitialControls");
-	}
 	
-	private static void copyFile(String fileName) {
-		
-	}
-	
-	private static void writeFile(EnumMap<?, Double> initEnumMap, String fileName) {
+	public static String outputTrimValues() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(IntegrationSetup.FILE_PATH).append(fileName).append(".txt");
 		
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sb.toString()))) {
-			for(Enum<?> entry : initEnumMap.keySet())
-				bw.write(entry.toString() + " = " + initEnumMap.get(entry));
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + ".txt!");}
-		catch (IOException e) {System.err.println("Could not read: " + fileName + ".txt!");}
-		catch (NullPointerException e) {System.err.println("Bad reference to: " + fileName + ".txt!");} 
+		sb.append("======================\n");
+		sb.append(aircraft.getName()).append(" Trim Values:\n");
+		sb.append("======================\n\n");
+		
+		sb.append(InitialConditions.INITTHETA.toString()).append(": ").append(initialConditions.get(InitialConditions.INITTHETA)).append("\n\n");
+	
+		sb.append(FlightControls.ELEVATOR.toString()).append(": ").append(initialControls.get(FlightControls.ELEVATOR)).append("\n\n");
+		sb.append(FlightControls.THROTTLE_1.toString()).append(": ").append(initialControls.get(FlightControls.THROTTLE_1)).append("\n");
+		sb.append(FlightControls.THROTTLE_2.toString()).append(": ").append(initialControls.get(FlightControls.THROTTLE_2)).append("\n");
+		sb.append(FlightControls.THROTTLE_3.toString()).append(": ").append(initialControls.get(FlightControls.THROTTLE_3)).append("\n");
+		sb.append(FlightControls.THROTTLE_4.toString()).append(": ").append(initialControls.get(FlightControls.THROTTLE_4)).append("\n");
+		
+		return sb.toString();
 	}
 }

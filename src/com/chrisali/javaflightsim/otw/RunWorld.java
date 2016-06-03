@@ -59,7 +59,6 @@ public class RunWorld implements Runnable, FlightDataListener {
 	
 	private GUIText text;
 	
-	private float terrainHeight;
 	private static boolean running = false;
 
 	public RunWorld(Map<DisplayOptions, Integer> displayOptions) {
@@ -166,7 +165,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		Random random = new Random();
 		for (int i = 0; i < 2000; i++)
-			new Cloud(clouds, new Vector3f(random.nextInt(800*10), 300, i*10), new Vector3f(0, 0, 0), 0, 300);
+			new Cloud(clouds, new Vector3f(random.nextInt(800*10), 300, i*10), new Vector3f(0, 0, 0), 0, 200);
 		
 		//=============================== Interface ==========================================================
 		
@@ -179,19 +178,16 @@ public class RunWorld implements Runnable, FlightDataListener {
 	 * @return Height of terrain at the ownship's current position
 	 */
 	public synchronized float getTerrainHeight() {
-		terrainHeight = 0.0f;
-		
 		if (running) {
 			Terrain[][] terrainArray = terrainCollection.getTerrainArray();
 			Vector3f position = ownship.getPosition();
 			
-			terrainHeight = Terrain.getCurrentTerrain(terrainArray, position.x, position.z)
-											 		.getTerrainHeight(position.x, position.z);
+			return Terrain.getCurrentTerrain(terrainArray, position.x, position.z)
+									 		.getTerrainHeight(position.x, position.z);
+		} else { 
+			return 0.0f; 
 		}
-		
-		return terrainHeight;
 	}
-	
 	
 	/**
 	 * @return If out the window display is running
