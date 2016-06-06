@@ -25,7 +25,7 @@ import com.chrisali.javaflightsim.utilities.Utilities;
  *  <p>Angle of Attack = Pitch Angle + Flight Path Angle</p>
  * 
  * @author Christopher Ali
- * @see Introduction to Aircraft Stability and Control Course Notes for M&AE 5070 - David A. Caughey, Cornell University (pg 37)
+ * @see Introduction to Aircraft Stability and Control Course Notes for M&AE 5070 - David A. Caughey, Cornell University (pg 29)
  *  <p> https://courses.cit.cornell.edu/mae5070/Caughey_2011_04.pdf </p> 
  */
 public class Trimming {
@@ -72,7 +72,7 @@ public class Trimming {
 			maxThrust += engine.getThrust()[0]/initialControls.get(FlightControls.THROTTLE_1);
 		}
 		
-		double drag = aero.calculateBodyForces(windParameters, new double[] {0, 0, 0}, environmentParams, initialControls, 0)[0];
+		double drag = aero.calculateBodyForces(windParameters, new double[] {0, 0, 0}, environmentParams, initialControls, 0)[0]*0.75;
 		
 		// Calculate trim throttle, limiting if necessary
 		double throttleTrim = (Math.abs(drag))/(maxThrust);
@@ -89,31 +89,35 @@ public class Trimming {
 		double q = environmentParams.get(EnvironmentParameters.RHO)*Math.pow(windParameters[0], 2)/2;
 		double CL_trim = (aircraft.getMassProperty(MassProperties.TOTAL_MASS) * Environment.getGravity())/(q * aircraft.getWingGeometry(WingGeometry.S_WING));
 		
-		double CL_alpha = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CL_ALPHA);
+		double CL_alpha = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CL_ALPHA)*5.0;
 		double CL_d_elev = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CL_D_ELEV);
 		
-		double CM_alpha = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CM_ALPHA);
-		double CM_d_elev = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_ELEV);
+		double CM_alpha = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CM_ALPHA)*5.0;
+		double CM_d_elev = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_ELEV) * 3; //0.875; //3;
 		double CM_0 = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CM_0);
 		
 		double delta = ((CM_alpha * CL_d_elev) - (CL_alpha * CM_d_elev));
 		
 		// Calculate trim deflections, limiting if necessary
-		double elevTrim = ((CM_alpha * CL_trim) + (CM_0 * CL_alpha) ) / delta;
+		double elevTrim = ((CL_alpha * CM_0) + (CM_alpha * CL_trim)) / delta;
 		elevTrim = elevTrim > FlightControls.ELEVATOR.getMaximum() ? FlightControls.ELEVATOR.getMaximum() : 
 				   elevTrim < FlightControls.ELEVATOR.getMinimum() ? FlightControls.ELEVATOR.getMinimum() : elevTrim;
 		
 		// Calculate trim pitch by using relation between flight path angle and angle of attack
-		double alphaTrim = (-(CL_d_elev * CM_0) - (CM_d_elev * CL_trim) ) / delta;
+		double alphaTrim = ((-CL_d_elev * CM_0) - (CM_d_elev * CL_trim) ) / delta;
 		alphaTrim = alphaTrim > 0.18 ? 0.18 :
 					alphaTrim < 0.0 ? 0.0 : alphaTrim;
 		
 		// Flight path angle should be zero for level flight
 		double flightPathAngleTrim = Math.atan(0/initialConditions.get(InitialConditions.INITU));
 		
+		// Recalculate w velocity for new angle of attack
+		double wVelocityTrim = windParameters[0] * Math.sin(-alphaTrim);
+		
 		// Update initialControls and initialConditions
-		initialControls.put(FlightControls.ELEVATOR, elevTrim);
-		initialConditions.put(InitialConditions.INITTHETA, (alphaTrim-flightPathAngleTrim));
+		initialControls.put(FlightControls.ELEVATOR, -elevTrim);
+		initialConditions.put(InitialConditions.INITTHETA, -(alphaTrim+flightPathAngleTrim));
+		initialConditions.put(InitialConditions.INITW, wVelocityTrim);
 		
 		if (!testMode) {
 			Utilities.writeConfigFile(SimulationController.getSimConfigPath(), "InitialConditions", initialConditions);
@@ -131,6 +135,8 @@ public class Trimming {
 		sb.append("======================\n\n");
 		
 		sb.append(InitialConditions.INITTHETA.toString()).append(": ").append(initialConditions.get(InitialConditions.INITTHETA)).append("\n\n");
+		
+		sb.append(InitialConditions.INITW.toString()).append(": ").append(initialConditions.get(InitialConditions.INITW)).append("\n\n");
 	
 		sb.append(FlightControls.ELEVATOR.toString()).append(": ").append(initialControls.get(FlightControls.ELEVATOR)).append("\n\n");
 		sb.append(FlightControls.THROTTLE_1.toString()).append(": ").append(initialControls.get(FlightControls.THROTTLE_1)).append("\n");

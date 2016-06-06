@@ -10,6 +10,7 @@ import com.chrisali.javaflightsim.plotting.PlotWindow;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.Trimming;
 
 public class SimulationTest {
 	public static void main(String[] args) {
@@ -19,7 +20,7 @@ public class SimulationTest {
 		//AircraftBuilder ab = new AircraftBuilder("Navion"); // Custom Navion with Lycoming IO-360
 		AircraftBuilder ab = new AircraftBuilder("TwinNavion"); // Twin Navion with 2 Lycoming IO-360
 		
-		//Trimming.trimSim(ab, false);
+		Trimming.trimSim(ab, false);
 		Integrate6DOFEquations runSim = new Integrate6DOFEquations(ab, runOptions);
 		Thread simulationThread = new Thread(runSim);
 		simulationThread.start();
