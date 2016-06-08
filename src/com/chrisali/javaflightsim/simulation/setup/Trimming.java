@@ -59,9 +59,9 @@ public class Trimming {
 		initialControls = IntegrationSetup.gatherInitialControls("InitialControls");
 		environmentParams = Environment.updateEnvironmentParams(new double[]{0,0,initialConditions.get(InitialConditions.INITD)});
 		
-		double alphaMin = -0.18, alphaMax = 0.18, 
+		double alphaMin = -0.18, alphaMax = 0.18, throttleMin = 0.0, throttleMax = 1.0,
 			   alphaTrim = 0.0, thetaTrim = 0.0, elevTrim = 0.0, throttleTrim = 0.0, wVelocityTrim = 0.0, 
-			   lift = 0.0, drag = 0.0, zForce = 100.0;
+			   lift = 0.0, drag = 0.0, totalThrust = 0.0, zForce = 100.0;
 		
 		double trueAirspeed = Math.sqrt(Math.pow(initialConditions.get(InitialConditions.INITU), 2) +
 				  			  			Math.pow(initialConditions.get(InitialConditions.INITW), 2));
@@ -77,7 +77,7 @@ public class Trimming {
 			
 			// Break out of loop if trim condition not satisfied after 100 attempts
 			if(counter == 100) {
-				System.err.println("Unable to trim for given conditions!");
+				System.err.println("Unable to trim elevator and pitch for given conditions!");
 				break;
 			}
 		
@@ -126,31 +126,47 @@ public class Trimming {
 
 		//==================================================== Throttle ============================================================
 		
-		// Get max thrust from each engine, equate it with drag of aircraft to find trim throttle
-		double maxThrust = 0.0;
 		Set<Engine> engines = ab.getEngineList();
-		for (Engine engine : engines) {
-			engine.updateEngineState(initialControls, environmentParams, new double[]{trueAirspeed,0,0});
-			maxThrust += engine.getThrust()[0]/initialControls.get(FlightControls.THROTTLE_1);
-		}
 		
-		drag = aero.calculateBodyForces(new double[]{trueAirspeed,0,0}, new double[] {0, 0, 0}, environmentParams, initialControls, 0)[0]*1.00;
+		drag = (drag * Math.cos(alphaTrim)) - (lift * Math.sin(alphaTrim)) + (weight * Math.sin(thetaTrim));
 		
-		// Calculate trim throttle, limiting if necessary
-		throttleTrim = (Math.abs(drag))/(maxThrust);
-		throttleTrim = throttleTrim > FlightControls.THROTTLE_1.getMaximum() ? FlightControls.THROTTLE_1.getMaximum() : 
-			           throttleTrim < FlightControls.THROTTLE_1.getMinimum() ? FlightControls.THROTTLE_1.getMinimum() : throttleTrim;
+		counter = 0;
+		
+		do {
+			throttleTrim = (throttleMin + throttleMax) / 2;
+			
+			// Break out of loop if trim condition not satisfied after 100 attempts
+			if(counter == 100) {
+				System.err.println("Unable to trim throttle for given conditions!");
+				break;
+			}
+			
+			initialControls.put(FlightControls.THROTTLE_1, throttleTrim);
+			initialControls.put(FlightControls.THROTTLE_2, throttleTrim);
+			initialControls.put(FlightControls.THROTTLE_3, throttleTrim);
+			initialControls.put(FlightControls.THROTTLE_4, throttleTrim);
+			
+			// Get total thrust, equate it with drag of aircraft to find trim throttle
+			totalThrust = 0.0;
+			for (Engine engine : engines) {
+				engine.updateEngineState(initialControls, environmentParams, new double[]{trueAirspeed,0,0});
+				totalThrust += engine.getThrust()[0];
+			}
+			
+			if (totalThrust < drag)
+				throttleMin = throttleTrim;
+			else
+				throttleMax = throttleTrim;
+			
+			counter++;
+			
+		} while (Math.abs(totalThrust - drag) > 1);
 		
 		// Update initialControls and initialConditions
 		initialConditions.put(InitialConditions.INITTHETA, thetaTrim);
 		initialConditions.put(InitialConditions.INITW, wVelocityTrim);
 		
 		initialControls.put(FlightControls.ELEVATOR, -elevTrim);
-		
-		initialControls.put(FlightControls.THROTTLE_1, throttleTrim);
-		initialControls.put(FlightControls.THROTTLE_2, throttleTrim);
-		initialControls.put(FlightControls.THROTTLE_3, throttleTrim);
-		initialControls.put(FlightControls.THROTTLE_4, throttleTrim);
 		
 		if (!testMode) {
 			Utilities.writeConfigFile(SimulationController.getSimConfigPath(), "InitialConditions", initialConditions);
