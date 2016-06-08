@@ -14,7 +14,6 @@ import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
-import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
 import com.chrisali.javaflightsim.utilities.Utilities;
 
 /**
@@ -25,8 +24,7 @@ import com.chrisali.javaflightsim.utilities.Utilities;
  *  <p>Angle of Attack = Pitch Angle + Flight Path Angle</p>
  * 
  * @author Christopher Ali
- * @see Introduction to Aircraft Stability and Control Course Notes for M&AE 5070 - David A. Caughey, Cornell University (pg 29)
- *  <p> https://courses.cit.cornell.edu/mae5070/Caughey_2011_04.pdf </p> 
+ * @see Principles of Flight Simulation - David Allerton (pp 170-1)
  */
 public class Trimming {
 	
@@ -61,60 +59,90 @@ public class Trimming {
 		initialControls = IntegrationSetup.gatherInitialControls("InitialControls");
 		environmentParams = Environment.updateEnvironmentParams(new double[]{0,0,initialConditions.get(InitialConditions.INITD)});
 		
-		//=============================================== Elevator and Pitch ===========================================================
+		double alphaMin = -0.18, alphaMax = 0.18, 
+			   alphaTrim = 0.0, thetaTrim = 0.0, elevTrim = 0.0, throttleTrim = 0.0, wVelocityTrim = 0.0, 
+			   lift = 0.0, drag = 0.0, zForce = 100.0;
 		
-		double[] windParameters = SixDOFUtilities.calculateWindParameters(new double[] {initialConditions.get(InitialConditions.INITU),
-																						initialConditions.get(InitialConditions.INITV),
-																						initialConditions.get(InitialConditions.INITW)});
+		double trueAirspeed = Math.sqrt(Math.pow(initialConditions.get(InitialConditions.INITU), 2) +
+				  			  			Math.pow(initialConditions.get(InitialConditions.INITW), 2));
 		
-		// Aerodynamic parameters 
-		double drag = aero.calculateBodyForces(windParameters, new double[] {0, 0, 0}, environmentParams, initialControls, 0)[0]*0.75;
+		double weight = aircraft.getMassProperty(MassProperties.TOTAL_MASS) * Environment.getGravity();
+		double q = environmentParams.get(EnvironmentParameters.RHO)*Math.pow(trueAirspeed, 2)/2;
+		double s = aircraft.getWingGeometry(WingGeometry.S_WING);
 		
-		double q = environmentParams.get(EnvironmentParameters.RHO)*Math.pow(windParameters[0], 2)/2;
-		double CL_trim = (aircraft.getMassProperty(MassProperties.TOTAL_MASS) * Environment.getGravity())/
-						 (q * aircraft.getWingGeometry(WingGeometry.S_WING));
+		int counter = 0;
+
+		do {
+			alphaTrim = (alphaMin + alphaMax) / 2;
+			
+			// Break out of loop if trim condition not satisfied after 100 attempts
+			if(counter == 100) {
+				System.err.println("Unable to trim for given conditions!");
+				break;
+			}
 		
-		double CL_alpha = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CL_ALPHA)*5.0;
-		double CL_d_elev = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CL_D_ELEV);
-		
-		double CM_alpha = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CM_ALPHA)*5.0;
-		double CM_d_elev = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_ELEV) * 3; //0.875; //3;
-		double CM_0 = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CM_0);
-		
-		double delta = ((CM_alpha * CL_d_elev) - (CL_alpha * CM_d_elev));
-		
-		// Calculate trim deflections, limiting if necessary
-		double elevTrim = ((CL_alpha * CM_0) + (CM_alpha * CL_trim)) / delta;
-		elevTrim = elevTrim > FlightControls.ELEVATOR.getMaximum() ? FlightControls.ELEVATOR.getMaximum() : 
-				   elevTrim < FlightControls.ELEVATOR.getMinimum() ? FlightControls.ELEVATOR.getMinimum() : elevTrim;
-		
-		// Calculate trim pitch by using relation between flight path angle and angle of attack (theta = alpha + FPA)
-		double alphaTrim = ((-CL_d_elev * CM_0) - (CM_d_elev * CL_trim) ) / delta;
-		alphaTrim = alphaTrim > 0.18 ? 0.18 :
-					alphaTrim < 0.0 ? 0.0 : alphaTrim;
-		 
-		double thetaTrim = alphaTrim + 0; // Zero for level flight
-		
-		// Recalculate w velocity for new angle of attack
-		double wVelocityTrim = windParameters[0] * Math.sin(-alphaTrim);
-		
-		//==================================================== Throttle ==============================================================
+			//=============================================== Pitch ================================================================
+			
+			// Calculate trim pitch by using (theta = alpha + FPA)
+			thetaTrim = alphaTrim + 0; // Zero for level flight
+			
+			double[] windParameters = new double[] {trueAirspeed, 0, alphaTrim};
+			
+			double CL_alpha = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CL_ALPHA);
+			double CL_0 = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CL_0);
+			
+			lift = q * s * ((CL_alpha * alphaTrim) + CL_0);
+			
+			double CD_alpha = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CD_ALPHA);
+			double CD_0 = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CD_0);
+			
+			drag = q * s * ((CD_alpha * alphaTrim) + CD_0);
+			
+			// Calculate zForce to find trim alpha to zero forces
+			zForce = (-lift * Math.cos(alphaTrim)) - (drag * Math.sin(alphaTrim)) + (weight * Math.cos(thetaTrim));
+			
+			if (zForce  > 0)
+				alphaMin = alphaTrim;
+			else
+				alphaMax = alphaTrim;
+					
+			// Recalculate w velocity for new angle of attack
+			wVelocityTrim = windParameters[0] * Math.sin(alphaTrim);
+			
+			//==================================================== Elevator ========================================================
+			
+			// Calculate trim elevator, limiting if necessary
+			double CM_alpha = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CM_ALPHA);
+			double CM_d_elev = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_ELEV);
+			double CM_0 = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CM_0);
+			
+			elevTrim = (CM_0 + (CM_alpha * alphaTrim)) / CM_d_elev;
+			elevTrim = elevTrim > FlightControls.ELEVATOR.getMaximum() ? FlightControls.ELEVATOR.getMaximum() : 
+					   elevTrim < FlightControls.ELEVATOR.getMinimum() ? FlightControls.ELEVATOR.getMinimum() : elevTrim;
+					   
+			counter++;
+					   
+		} while (Math.abs(zForce) > 1);
+
+		//==================================================== Throttle ============================================================
 		
 		// Get max thrust from each engine, equate it with drag of aircraft to find trim throttle
 		double maxThrust = 0.0;
 		Set<Engine> engines = ab.getEngineList();
 		for (Engine engine : engines) {
-			engine.updateEngineState(initialControls, environmentParams, windParameters);
+			engine.updateEngineState(initialControls, environmentParams, new double[]{trueAirspeed,0,0});
 			maxThrust += engine.getThrust()[0]/initialControls.get(FlightControls.THROTTLE_1);
 		}
 		
+		drag = aero.calculateBodyForces(new double[]{trueAirspeed,0,0}, new double[] {0, 0, 0}, environmentParams, initialControls, 0)[0]*1.00;
+		
 		// Calculate trim throttle, limiting if necessary
-		double throttleTrim = (Math.abs(drag))/(maxThrust);
+		throttleTrim = (Math.abs(drag))/(maxThrust);
 		throttleTrim = throttleTrim > FlightControls.THROTTLE_1.getMaximum() ? FlightControls.THROTTLE_1.getMaximum() : 
 			           throttleTrim < FlightControls.THROTTLE_1.getMinimum() ? FlightControls.THROTTLE_1.getMinimum() : throttleTrim;
 		
 		// Update initialControls and initialConditions
-		initialConditions.put(InitialConditions.INITTHETA, -thetaTrim);
+		initialConditions.put(InitialConditions.INITTHETA, thetaTrim);
 		initialConditions.put(InitialConditions.INITW, wVelocityTrim);
 		
 		initialControls.put(FlightControls.ELEVATOR, -elevTrim);
