@@ -61,33 +61,18 @@ public class Trimming {
 		initialControls = IntegrationSetup.gatherInitialControls("InitialControls");
 		environmentParams = Environment.updateEnvironmentParams(new double[]{0,0,initialConditions.get(InitialConditions.INITD)});
 		
+		//=============================================== Elevator and Pitch ===========================================================
+		
 		double[] windParameters = SixDOFUtilities.calculateWindParameters(new double[] {initialConditions.get(InitialConditions.INITU),
 																						initialConditions.get(InitialConditions.INITV),
 																						initialConditions.get(InitialConditions.INITW)});
-		// Get max thrust from each engine, equate it with drag of aircraft to find trim throttle
-		double maxThrust = 0.0;
-		Set<Engine> engines = ab.getEngineList();
-		for (Engine engine : engines) {
-			engine.updateEngineState(initialControls, environmentParams, windParameters);
-			maxThrust += engine.getThrust()[0]/initialControls.get(FlightControls.THROTTLE_1);
-		}
 		
+		// Aerodynamic parameters 
 		double drag = aero.calculateBodyForces(windParameters, new double[] {0, 0, 0}, environmentParams, initialControls, 0)[0]*0.75;
 		
-		// Calculate trim throttle, limiting if necessary
-		double throttleTrim = (Math.abs(drag))/(maxThrust);
-		throttleTrim = throttleTrim > FlightControls.THROTTLE_1.getMaximum() ? FlightControls.THROTTLE_1.getMaximum() : 
-			           throttleTrim < FlightControls.THROTTLE_1.getMinimum() ? FlightControls.THROTTLE_1.getMinimum() : throttleTrim;
-		
-		// Update initialControls with new trim throttle
-		initialControls.put(FlightControls.THROTTLE_1, throttleTrim);
-		initialControls.put(FlightControls.THROTTLE_2, throttleTrim);
-		initialControls.put(FlightControls.THROTTLE_3, throttleTrim);
-		initialControls.put(FlightControls.THROTTLE_4, throttleTrim);
-		
-		// Aerodynamic parameters for trim alpha and elevator deflection 
 		double q = environmentParams.get(EnvironmentParameters.RHO)*Math.pow(windParameters[0], 2)/2;
-		double CL_trim = (aircraft.getMassProperty(MassProperties.TOTAL_MASS) * Environment.getGravity())/(q * aircraft.getWingGeometry(WingGeometry.S_WING));
+		double CL_trim = (aircraft.getMassProperty(MassProperties.TOTAL_MASS) * Environment.getGravity())/
+						 (q * aircraft.getWingGeometry(WingGeometry.S_WING));
 		
 		double CL_alpha = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CL_ALPHA)*5.0;
 		double CL_d_elev = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CL_D_ELEV);
@@ -103,21 +88,41 @@ public class Trimming {
 		elevTrim = elevTrim > FlightControls.ELEVATOR.getMaximum() ? FlightControls.ELEVATOR.getMaximum() : 
 				   elevTrim < FlightControls.ELEVATOR.getMinimum() ? FlightControls.ELEVATOR.getMinimum() : elevTrim;
 		
-		// Calculate trim pitch by using relation between flight path angle and angle of attack
+		// Calculate trim pitch by using relation between flight path angle and angle of attack (theta = alpha + FPA)
 		double alphaTrim = ((-CL_d_elev * CM_0) - (CM_d_elev * CL_trim) ) / delta;
 		alphaTrim = alphaTrim > 0.18 ? 0.18 :
 					alphaTrim < 0.0 ? 0.0 : alphaTrim;
-		
-		// Flight path angle should be zero for level flight
-		double flightPathAngleTrim = Math.atan(0/initialConditions.get(InitialConditions.INITU));
+		 
+		double thetaTrim = alphaTrim + 0; // Zero for level flight
 		
 		// Recalculate w velocity for new angle of attack
 		double wVelocityTrim = windParameters[0] * Math.sin(-alphaTrim);
 		
+		//==================================================== Throttle ==============================================================
+		
+		// Get max thrust from each engine, equate it with drag of aircraft to find trim throttle
+		double maxThrust = 0.0;
+		Set<Engine> engines = ab.getEngineList();
+		for (Engine engine : engines) {
+			engine.updateEngineState(initialControls, environmentParams, windParameters);
+			maxThrust += engine.getThrust()[0]/initialControls.get(FlightControls.THROTTLE_1);
+		}
+		
+		// Calculate trim throttle, limiting if necessary
+		double throttleTrim = (Math.abs(drag))/(maxThrust);
+		throttleTrim = throttleTrim > FlightControls.THROTTLE_1.getMaximum() ? FlightControls.THROTTLE_1.getMaximum() : 
+			           throttleTrim < FlightControls.THROTTLE_1.getMinimum() ? FlightControls.THROTTLE_1.getMinimum() : throttleTrim;
+		
 		// Update initialControls and initialConditions
-		initialControls.put(FlightControls.ELEVATOR, -elevTrim);
-		initialConditions.put(InitialConditions.INITTHETA, -(alphaTrim+flightPathAngleTrim));
+		initialConditions.put(InitialConditions.INITTHETA, -thetaTrim);
 		initialConditions.put(InitialConditions.INITW, wVelocityTrim);
+		
+		initialControls.put(FlightControls.ELEVATOR, -elevTrim);
+		
+		initialControls.put(FlightControls.THROTTLE_1, throttleTrim);
+		initialControls.put(FlightControls.THROTTLE_2, throttleTrim);
+		initialControls.put(FlightControls.THROTTLE_3, throttleTrim);
+		initialControls.put(FlightControls.THROTTLE_4, throttleTrim);
 		
 		if (!testMode) {
 			Utilities.writeConfigFile(SimulationController.getSimConfigPath(), "InitialConditions", initialConditions);
