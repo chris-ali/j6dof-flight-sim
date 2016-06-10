@@ -5,6 +5,9 @@ import java.util.Map;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
+import com.chrisali.javaflightsim.otw.RunWorld;
+
 /**
  * Static class that contains a repository of sounds to be played by triggering certain events, such
  * as control surface deflections, engine properties or change in airspeed
@@ -34,11 +37,12 @@ public class SoundCollection {
 		GEAR,
 		STALL,
 		WIND,
-		GYRO;
+		GYRO,
+		RPM_1;
 	}
 	
 	private static Map<SoundEvent, SoundSource> soundSources = new EnumMap<>(SoundEvent.class);
-	private static float previousControlValue = 0.0f;
+	private static double previousControlValue = 0.0f;
 	
 	/**
 	 *	Fills soundSources EnumMap with {@link SoundSource} objects, which are references to audio
@@ -82,8 +86,9 @@ public class SoundCollection {
 		soundSources.get(SoundEvent.STALL).setLooping(true);
 		
 		soundSources.put(SoundEvent.GYRO, new SoundSource("Audio", "gyroLoop"));
-		soundSources.get(SoundEvent.GYRO).setVolume(0.25f);
+		soundSources.get(SoundEvent.GYRO).setVolume(0.125f);
 		soundSources.get(SoundEvent.GYRO).setLooping(true);
+		soundSources.get(SoundEvent.GYRO).play();
 		
 		//================================ Environment ======================================
 		
@@ -96,12 +101,27 @@ public class SoundCollection {
 	}
 	
 	/**
-	 * Sounds the stall warning if angle of attack passes a specified threshold (radians)
+	 * Wrapper method to call setRPM(), setControl(), setWind() and setStallHorn() at once;
+	 * uses an EnumMap of {@link SoundEvent} enums to set the double values retrieved by 
+	 * {@link FlightDataListener} in {@link RunWorld}
+	 * 
+	 * @param soundValues
+	 */
+	public static void update(Map<SoundEvent, Double> soundValues) {
+		setRPM(soundValues.get(SoundEvent.RPM_1));
+		setControl(SoundEvent.FLAPS, soundValues.get(SoundEvent.FLAPS));
+		setControl(SoundEvent.GEAR, soundValues.get(SoundEvent.GEAR));
+		setWind(soundValues.get(SoundEvent.WIND));
+		setStallHorn(soundValues.get(SoundEvent.STALL), 0.16);
+	}
+	
+	/**
+	 * Sounds the stall warning if angle of attack (radians) passes a specified threshold (radians)
 	 * 
 	 * @param alpha
 	 * @param threshold
 	 */
-	public static void setStallHorn(float alpha, float threshold) {
+	public static void setStallHorn(double alpha, double threshold) {
 		if ((alpha > threshold) && !(soundSources.get(SoundEvent.STALL).isPlaying()))
 			soundSources.get(SoundEvent.STALL).play();
 		else if ((alpha < threshold) && (soundSources.get(SoundEvent.STALL).isPlaying()))
@@ -115,9 +135,13 @@ public class SoundCollection {
 	 * @param event
 	 * @param control
 	 */
-	public static void setControl(SoundEvent event, float control) {
-		if ((Math.abs(control-previousControlValue) > 0) && !soundSources.get(event).isPlaying())
+	public static void setControl(SoundEvent event, double control) {
+		boolean dXdt = (Math.abs(control-previousControlValue) > 0);
+		
+		if (dXdt && !soundSources.get(event).isPlaying())
 			soundSources.get(event).play();
+		else if (!dXdt && soundSources.get(event).isPlaying())
+			soundSources.get(event).stop();
 		
 		previousControlValue = control;
 	}
@@ -127,7 +151,7 @@ public class SoundCollection {
 	 * 
 	 * @param trueAirspeed
 	 */
-	public static void setWind(float trueAirspeed) {
+	public static void setWind(double trueAirspeed) {
 		float gainWind = (float) ((trueAirspeed >  50 && trueAirspeed < 300) ? ((2.0-0.25)*(trueAirspeed-50))/(300-50) + 0.25 : 0);
 		soundSources.get(SoundEvent.WIND).setVolume(gainWind);
 	}
@@ -138,7 +162,7 @@ public class SoundCollection {
 	 * 
 	 * @param RPM
 	 */
-	public static void setRPM(float RPM) {
+	public static void setRPM(double RPM) {
 		float gainLow  = (float) ((RPM >  300 && RPM < 1800) ? Math.cos((RPM-600)/500) : 0);
 		float pitchLow = (float) ((RPM >  300 && RPM < 1800) ? ((1.5-0.75)*(RPM-300))/(1800-300) + 0.75 : 0);
 		soundSources.get(SoundEvent.ENGINE_1_LOW).setVolume(gainLow);

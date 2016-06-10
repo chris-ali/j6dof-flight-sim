@@ -2,6 +2,7 @@ package com.chrisali.javaflightsim.otw;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -15,6 +16,9 @@ import com.chrisali.javaflightsim.datatransfer.FlightData;
 import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
+import com.chrisali.javaflightsim.otw.audio.AudioMaster;
+import com.chrisali.javaflightsim.otw.audio.SoundCollection;
+import com.chrisali.javaflightsim.otw.audio.SoundCollection.SoundEvent;
 import com.chrisali.javaflightsim.otw.entities.Camera;
 import com.chrisali.javaflightsim.otw.entities.EntityCollections;
 import com.chrisali.javaflightsim.otw.entities.Light;
@@ -47,6 +51,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 	private MasterRenderer masterRenderer;
 	private List<Light> lights;
 	private Map<DisplayOptions, Integer> displayOptions;
+	private Map<SoundEvent, Double> soundValues = new EnumMap<>(SoundEvent.class);
 	
 	private TerrainCollection terrainCollection;
 	private EntityCollections entities;
@@ -81,6 +86,9 @@ public class RunWorld implements Runnable, FlightDataListener {
 		MasterRenderer.setFogDensity(0.0005f);
 		MasterRenderer.setFogGradient(3.5f);
 		
+		AudioMaster.init();
+		AudioMaster.setListenerData(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0));
+		
 		ParticleMaster.init(loader, masterRenderer.getProjectionMatrix());
 		TextMaster.init(loader);
 		
@@ -99,6 +107,9 @@ public class RunWorld implements Runnable, FlightDataListener {
 			//--------- Particles ---------------
 			ParticleMaster.update(camera);
 			
+			//--------- Audio--------------------
+			SoundCollection.update(soundValues);
+			
 			//----------- UI --------------------
 			text.setTextString(String.valueOf(ownship.getPosition().y));
 			TextMaster.loadText(text);
@@ -116,6 +127,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		//================================ Clean Up ==========================================================
 		
+		AudioMaster.cleanUp();
 		ParticleMaster.cleanUp();
 		TextMaster.cleanUp();
 		masterRenderer.cleanUp();
@@ -172,6 +184,10 @@ public class RunWorld implements Runnable, FlightDataListener {
 		FontType font = new FontType(loader.loadTexture("arial", "Fonts"), new File("Resources\\Fonts\\arial.fnt"));
 		text = new GUIText("", 1, font, new Vector2f(0, 0), 1f, true);
 		
+		//==================================== Audio =========================================================
+		
+		SoundCollection.initializeSounds();
+		
 	}
 	
 	/**
@@ -207,6 +223,12 @@ public class RunWorld implements Runnable, FlightDataListener {
 			ownshipRotation.x = (float)  -(receivedFlightData.get(FlightDataType.ROLL));
 			ownshipRotation.y = (float)  -(receivedFlightData.get(FlightDataType.PITCH));
 			ownshipRotation.z = (float)   (receivedFlightData.get(FlightDataType.HEADING)-270); // rotate to follow camera translation
+			
+			soundValues.put(SoundEvent.RPM_1, receivedFlightData.get(FlightDataType.RPM_1));
+			soundValues.put(SoundEvent.WIND, receivedFlightData.get(FlightDataType.TAS));
+			soundValues.put(SoundEvent.FLAPS, receivedFlightData.get(FlightDataType.FLAPS));
+			soundValues.put(SoundEvent.GEAR, receivedFlightData.get(FlightDataType.GEAR));
+			soundValues.put(SoundEvent.STALL, receivedFlightData.get(FlightDataType.AOA));
 		}
 	}
 }

@@ -26,6 +26,7 @@ import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.Trimming;
 import com.chrisali.javaflightsim.utilities.Utilities;
 
 /**
@@ -214,7 +215,7 @@ public class SimulationController {
 	 * @param panel
 	 */
 	public void startSimulation(InstrumentPanel panel) {
-		//Trimming.trimSim(ab, false);
+		Trimming.trimSim(ab, false);
 		runSim = new Integrate6DOFEquations(ab, simulationOptions);
 		
 		simulationThread = new Thread(runSim);

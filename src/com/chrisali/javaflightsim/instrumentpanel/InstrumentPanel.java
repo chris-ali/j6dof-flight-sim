@@ -264,8 +264,8 @@ public class InstrumentPanel extends JFrame implements FlightDataListener {
 			turnCoordinator.setInclinoValue(receivedFlightData.get(FlightDataType.TURN_RATE));
 			turnCoordinator.setCoordValue(receivedFlightData.get(FlightDataType.TURN_COORD));
 			
-			tachometer.setLeftValue(receivedFlightData.get(FlightDataType.RPM_L));
-			tachometer.setRightValue(receivedFlightData.get(FlightDataType.RPM_R));
+			tachometer.setLeftValue(receivedFlightData.get(FlightDataType.RPM_1));
+			tachometer.setRightValue(receivedFlightData.get(FlightDataType.RPM_2));
 			
 			flapsIndicator.setText(String.valueOf(df.format(receivedFlightData.get(FlightDataType.FLAPS))));
 			gearIndicator.setLedOn(receivedFlightData.get(FlightDataType.GEAR) == 1.0);

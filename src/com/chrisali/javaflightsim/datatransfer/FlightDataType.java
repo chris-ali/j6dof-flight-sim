@@ -7,6 +7,7 @@ public enum FlightDataType {
 	PITCH        ("Pitch Angle", "deg"),
 	ROLL		 ("Roll Angle", "deg"),
 	IAS			 ("Indicated Airspeed", "kts"),
+	TAS			 ("True Airspeed", "kts"),
 	VERT_SPEED	 ("Vertical Speed", "ft/min"),
 	HEADING		 ("Heading Angle", "deg"),
 	TURN_RATE	 ("Turn Rate", "deg/sec"),
@@ -16,10 +17,11 @@ public enum FlightDataType {
 	LONGITUDE	 ("Longitude", "deg"),
 	NORTH	 	 ("North", "ft"),
 	EAST	 	 ("East", "ft"),
-	RPM_L		 ("Left RPM", "1/min"),
-	RPM_R		 ("Right RPM", "1/min"),
+	RPM_1		 ("Engine 1 RPM", "1/min"),
+	RPM_2		 ("Engine 2 RPM", "1/min"),
 	GEAR		 ("Gear Position", "norm"),
-	FLAPS		 ("Flaps Position", "deg");
+	FLAPS		 ("Flaps Position", "deg"),
+	AOA			 ("Angle of Attack", "deg");
 	
 	private final String dataType;
 	private final String unit;

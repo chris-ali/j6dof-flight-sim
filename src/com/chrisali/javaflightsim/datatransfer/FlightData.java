@@ -45,6 +45,7 @@ public class FlightData implements Runnable {
 		
 		synchronized (flightData) {
 			flightData.put(FlightDataType.IAS, Utilities.toKnots(simOut.get(SimOuts.TAS)*TAS_TO_IAS));
+			flightData.put(FlightDataType.TAS, Utilities.toKnots(simOut.get(SimOuts.TAS)));
 			
 			flightData.put(FlightDataType.VERT_SPEED, simOut.get(SimOuts.ALT_DOT));
 			
@@ -64,11 +65,13 @@ public class FlightData implements Runnable {
 			flightData.put(FlightDataType.NORTH, simOut.get(SimOuts.NORTH));
 			flightData.put(FlightDataType.EAST, simOut.get(SimOuts.EAST));
 			
-			flightData.put(FlightDataType.RPM_L, simOut.get(SimOuts.RPM_1));
-			flightData.put(FlightDataType.RPM_R, simOut.get(SimOuts.RPM_2));
+			flightData.put(FlightDataType.RPM_1, simOut.get(SimOuts.RPM_1));
+			flightData.put(FlightDataType.RPM_2, simOut.get(SimOuts.RPM_2));
 			
 			flightData.put(FlightDataType.GEAR, simOut.get(SimOuts.GEAR));
 			flightData.put(FlightDataType.FLAPS, Math.toDegrees(simOut.get(SimOuts.FLAPS)));
+			
+			flightData.put(FlightDataType.AOA, Math.abs(simOut.get(SimOuts.ALPHA)));
 		}
 		fireDataArrived();
 	}

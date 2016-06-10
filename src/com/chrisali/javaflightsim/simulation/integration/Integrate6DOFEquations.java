@@ -535,8 +535,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		
 		if (environmentData != null) {
 			terrainHeight = receivedEnvironmentData.get(EnvironmentDataType.TERRAIN_HEIGHT)*-1;
-			System.out.println(terrainHeight + " " + NEDPosition[2]);
-			
+			//System.out.println(terrainHeight + " " + NEDPosition[2]);
 		}
 	}
 }
