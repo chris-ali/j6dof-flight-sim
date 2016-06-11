@@ -18,7 +18,7 @@ import com.chrisali.javaflightsim.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.otw.audio.AudioMaster;
 import com.chrisali.javaflightsim.otw.audio.SoundCollection;
-import com.chrisali.javaflightsim.otw.audio.SoundCollection.SoundEvent;
+import com.chrisali.javaflightsim.otw.audio.SoundCollection.SoundCategory;
 import com.chrisali.javaflightsim.otw.entities.Camera;
 import com.chrisali.javaflightsim.otw.entities.EntityCollections;
 import com.chrisali.javaflightsim.otw.entities.Light;
@@ -51,7 +51,9 @@ public class RunWorld implements Runnable, FlightDataListener {
 	private MasterRenderer masterRenderer;
 	private List<Light> lights;
 	private Map<DisplayOptions, Integer> displayOptions;
-	private Map<SoundEvent, Double> soundValues = new EnumMap<>(SoundEvent.class);
+	
+	private Map<SoundCategory, Double> soundValues = new EnumMap<>(SoundCategory.class);
+	private boolean recordPrev = true; // Used in FlightDataListener to record soundValues data to PREV_STEP_* enums
 	
 	private TerrainCollection terrainCollection;
 	private EntityCollections entities;
@@ -224,11 +226,16 @@ public class RunWorld implements Runnable, FlightDataListener {
 			ownshipRotation.y = (float)  -(receivedFlightData.get(FlightDataType.PITCH));
 			ownshipRotation.z = (float)   (receivedFlightData.get(FlightDataType.HEADING)-270); // rotate to follow camera translation
 			
-			soundValues.put(SoundEvent.RPM_1, receivedFlightData.get(FlightDataType.RPM_1));
-			soundValues.put(SoundEvent.WIND, receivedFlightData.get(FlightDataType.TAS));
-			soundValues.put(SoundEvent.FLAPS, receivedFlightData.get(FlightDataType.FLAPS));
-			soundValues.put(SoundEvent.GEAR, receivedFlightData.get(FlightDataType.GEAR));
-			soundValues.put(SoundEvent.STALL, receivedFlightData.get(FlightDataType.AOA));
+			soundValues.put(SoundCategory.RPM_1, receivedFlightData.get(FlightDataType.RPM_1));
+			soundValues.put(SoundCategory.WIND, receivedFlightData.get(FlightDataType.TAS));
+			soundValues.put(SoundCategory.FLAPS, receivedFlightData.get(FlightDataType.FLAPS));
+			soundValues.put(SoundCategory.GEAR, receivedFlightData.get(FlightDataType.GEAR));
+			soundValues.put(SoundCategory.STALL_HORN, receivedFlightData.get(FlightDataType.AOA));
+			
+			if (recordPrev) { // record every other step to ensure a difference between previous and current values
+				soundValues.put(SoundCategory.PREV_STEP_FLAPS, receivedFlightData.get(FlightDataType.FLAPS));
+				soundValues.put(SoundCategory.PREV_STEP_GEAR, receivedFlightData.get(FlightDataType.GEAR));
+			} recordPrev ^= true; 
 		}
 	}
 }

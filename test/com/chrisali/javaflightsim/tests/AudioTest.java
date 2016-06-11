@@ -1,6 +1,7 @@
 package com.chrisali.javaflightsim.tests;
 
 import java.io.IOException;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.otw.audio.AudioMaster;
 import com.chrisali.javaflightsim.otw.audio.SoundCollection;
+import com.chrisali.javaflightsim.otw.audio.SoundCollection.SoundCategory;
 import com.chrisali.javaflightsim.otw.audio.SoundCollection.SoundEvent;
 import com.chrisali.javaflightsim.otw.audio.SoundSource;
 
@@ -34,7 +36,8 @@ public class AudioTest {
 	private Vector3f sourcePosition = new Vector3f(8, 0, 2);
 	private Vector3f sourceVelocity = new Vector3f(-0.02f, 0, 0);
 	
-	Map<String, SoundSource> soundSources = new HashMap<>();
+	private Map<String, SoundSource> soundSources = new HashMap<>();
+	private Map<SoundCategory, Double> soundValues = new EnumMap<>(SoundCategory.class);
 	
 	private AudioTest() {
 		AudioMaster.init();
@@ -45,6 +48,11 @@ public class AudioTest {
 		
 		soundSources.put("windHigh", new SoundSource("Audio", "wind"));
 		soundSources.get("windHigh").setPitch(2);
+		
+		soundValues.put(SoundCategory.FLAPS, 0.0);
+		soundValues.put(SoundCategory.PREV_STEP_FLAPS, 0.0);
+		soundValues.put(SoundCategory.GEAR, 0.0);
+		soundValues.put(SoundCategory.PREV_STEP_GEAR, 0.0);
 	}
 	
 	private void AudioTestLoop() {
@@ -148,16 +156,22 @@ public class AudioTest {
 		
 		SoundCollection.initializeSounds();
 		
-		float gear = 1.0f;
+		soundValues.put(SoundCategory.PREV_STEP_GEAR, 0.0);
+		soundValues.put(SoundCategory.GEAR, 1.0);
 		
-		SoundCollection.setControl(SoundEvent.GEAR, gear);
+		SoundCollection.setControl(SoundEvent.GEAR, soundValues);
+		
+		soundValues.put(SoundCategory.PREV_STEP_GEAR, 1.0);
 		
 		try {Thread.sleep(5000);} 
 		catch (InterruptedException e) {}
 		
-		gear = 0.0f;
+		soundValues.put(SoundCategory.PREV_STEP_GEAR, 1.0);
+		soundValues.put(SoundCategory.GEAR, 0.0);
 		
-		SoundCollection.setControl(SoundEvent.GEAR, gear);
+		SoundCollection.setControl(SoundEvent.GEAR, soundValues);
+		
+		soundValues.put(SoundCategory.PREV_STEP_GEAR, 0.0);
 		
 		SoundCollection.cleanUp();
 		
@@ -169,22 +183,36 @@ public class AudioTest {
 		
 		SoundCollection.initializeSounds();
 		
-		for (float flaps = 0; flaps < 30; flaps += 1.0) {
-			SoundCollection.setControl(SoundEvent.FLAPS, flaps);
+		for (double flaps = 0; flaps < 30; flaps += 1.0) {
+			
+			soundValues.put(SoundCategory.FLAPS, flaps);
+			
+			SoundCollection.setControl(SoundEvent.FLAPS, soundValues);
+			
+			soundValues.put(SoundCategory.PREV_STEP_FLAPS, flaps-1.0);
 			
 			try {Thread.sleep(200);} 
 			catch (InterruptedException e) {}
 		}
+		
+		soundValues.put(SoundCategory.PREV_STEP_FLAPS, 30.0);
 		
 		try {Thread.sleep(1000);} 
 		catch (InterruptedException e) {}
 		
-		for (float flaps = 30; flaps > 0; flaps -= 1.0) {
-			SoundCollection.setControl(SoundEvent.FLAPS, flaps);
+		for (double flaps = 30; flaps > 0; flaps -= 1.0) {
+
+			soundValues.put(SoundCategory.FLAPS, flaps);
+			
+			SoundCollection.setControl(SoundEvent.FLAPS, soundValues);
+			
+			soundValues.put(SoundCategory.PREV_STEP_FLAPS, flaps+1.0);
 			
 			try {Thread.sleep(200);} 
 			catch (InterruptedException e) {}
 		}
+		
+		soundValues.put(SoundCategory.PREV_STEP_FLAPS, 0.0);
 		
 		SoundCollection.cleanUp();
 		

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import com.chrisali.javaflightsim.datatransfer.FlightData;
 import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.otw.RunWorld;
 
@@ -37,12 +38,29 @@ public class SoundCollection {
 		GEAR,
 		STALL,
 		WIND,
-		GYRO,
-		RPM_1;
+		GYRO;
+	}
+	
+	/**
+	 * Inner Enum used with the soundValues EnumMap, which is used to store values from {@link FlightData}
+	 * to be used with setting sound properties
+	 * 
+	 * @author Christopher Ali
+	 *
+	 */
+	public static enum SoundCategory {
+		RPM_1,
+		RPM_2,
+		FLAPS,
+		PREV_STEP_FLAPS,
+		GEAR,
+		PREV_STEP_GEAR,
+		STALL_HORN,
+		WIND,
+		GYRO;
 	}
 	
 	private static Map<SoundEvent, SoundSource> soundSources = new EnumMap<>(SoundEvent.class);
-	private static double previousControlValue = 0.0f;
 	
 	/**
 	 *	Fills soundSources EnumMap with {@link SoundSource} objects, which are references to audio
@@ -86,7 +104,7 @@ public class SoundCollection {
 		soundSources.get(SoundEvent.STALL).setLooping(true);
 		
 		soundSources.put(SoundEvent.GYRO, new SoundSource("Audio", "gyroLoop"));
-		soundSources.get(SoundEvent.GYRO).setVolume(0.125f);
+		soundSources.get(SoundEvent.GYRO).setVolume(0.25f);
 		soundSources.get(SoundEvent.GYRO).setLooping(true);
 		soundSources.get(SoundEvent.GYRO).play();
 		
@@ -102,17 +120,17 @@ public class SoundCollection {
 	
 	/**
 	 * Wrapper method to call setRPM(), setControl(), setWind() and setStallHorn() at once;
-	 * uses an EnumMap of {@link SoundEvent} enums to set the double values retrieved by 
+	 * uses an EnumMap of {@link SoundCategory} enums to set the double values retrieved by 
 	 * {@link FlightDataListener} in {@link RunWorld}
 	 * 
 	 * @param soundValues
 	 */
-	public static void update(Map<SoundEvent, Double> soundValues) {
-		setRPM(soundValues.get(SoundEvent.RPM_1));
-		setControl(SoundEvent.FLAPS, soundValues.get(SoundEvent.FLAPS));
-		setControl(SoundEvent.GEAR, soundValues.get(SoundEvent.GEAR));
-		setWind(soundValues.get(SoundEvent.WIND));
-		setStallHorn(soundValues.get(SoundEvent.STALL), 0.16);
+	public static void update(Map<SoundCategory, Double> soundValues) {
+		setRPM(soundValues.get(SoundCategory.RPM_1));
+		setControl(SoundEvent.FLAPS, soundValues);
+		setControl(SoundEvent.GEAR, soundValues);
+		setWind(soundValues.get(SoundCategory.WIND));
+		setStallHorn(soundValues.get(SoundCategory.STALL_HORN), 0.16);
 	}
 	
 	/**
@@ -133,17 +151,30 @@ public class SoundCollection {
 	 * and the previously received value is greater than 0, indicating a change in deflection over the integration step
 	 * 
 	 * @param event
-	 * @param control
+	 * @param controls
 	 */
-	public static void setControl(SoundEvent event, double control) {
-		boolean dXdt = (Math.abs(control-previousControlValue) > 0);
+	public static void setControl(SoundEvent event, Map<SoundCategory, Double> controls) {
+		double currentControlValue = 0.0, previousControlValue = 0.0;
+		
+		switch(event) {
+		case FLAPS:
+			currentControlValue = controls.get(SoundCategory.FLAPS);
+			previousControlValue = controls.get(SoundCategory.PREV_STEP_FLAPS);
+			break;
+		case GEAR:
+			currentControlValue = controls.get(SoundCategory.GEAR);
+			previousControlValue = controls.get(SoundCategory.PREV_STEP_GEAR);
+			break;
+		default:
+			break;
+		}
+		
+		boolean dXdt = (Math.abs(currentControlValue-previousControlValue) > 0);
 		
 		if (dXdt && !soundSources.get(event).isPlaying())
 			soundSources.get(event).play();
 		else if (!dXdt && soundSources.get(event).isPlaying())
 			soundSources.get(event).stop();
-		
-		previousControlValue = control;
 	}
 	
 	/**
