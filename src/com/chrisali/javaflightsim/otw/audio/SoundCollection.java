@@ -169,7 +169,7 @@ public class SoundCollection {
 			setControl(SoundEvent.FLAPS, soundValues);
 			setControl(SoundEvent.GEAR, soundValues);
 			setWind(soundValues.get(SoundCategory.WIND));
-			setStallHorn(soundValues.get(SoundCategory.STALL_HORN), 0.16);
+			setStallHorn(soundValues.get(SoundCategory.STALL_HORN), Math.PI/17);
 		}
 	}
 	

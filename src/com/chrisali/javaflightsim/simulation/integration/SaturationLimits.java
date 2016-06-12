@@ -234,10 +234,10 @@ public class SaturationLimits {
 		else if (windParameters[1] > Math.PI/4)
 			beta = Math.PI/4;
 		
-		if (windParameters[2] < -Math.PI/16)
-			alpha = -Math.PI/16;
-		else if (windParameters[2] > Math.PI/16)
-			alpha = Math.PI/16;
+		if (windParameters[2] < -Math.PI/12)
+			alpha = -Math.PI/12;
+		else if (windParameters[2] > Math.PI/12)
+			alpha = Math.PI/12;
 		
 		windParameters[0] = vTrue;
 		windParameters[1] = beta;
