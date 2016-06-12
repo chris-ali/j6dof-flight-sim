@@ -37,6 +37,7 @@ import com.chrisali.javaflightsim.otw.renderengine.OBJLoader;
 import com.chrisali.javaflightsim.otw.terrain.Terrain;
 import com.chrisali.javaflightsim.otw.terrain.TerrainCollection;
 import com.chrisali.javaflightsim.otw.textures.ModelTexture;
+import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 
 /**
  * Runner class for out the window display for Java Flight Sim. It utilizes LWJGL to create a 3D world in OpenGL. 
@@ -54,6 +55,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 	
 	private Map<SoundCategory, Double> soundValues = new EnumMap<>(SoundCategory.class);
 	private boolean recordPrev = true; // Used in FlightDataListener to record soundValues data to PREV_STEP_* enums
+	private AircraftBuilder ab;
 	
 	private TerrainCollection terrainCollection;
 	private EntityCollections entities;
@@ -68,8 +70,9 @@ public class RunWorld implements Runnable, FlightDataListener {
 	
 	private static boolean running = false;
 
-	public RunWorld(Map<DisplayOptions, Integer> displayOptions) {
+	public RunWorld(Map<DisplayOptions, Integer> displayOptions, AircraftBuilder ab) {
 		this.displayOptions = displayOptions;
+		this.ab = ab;
 	}	
 	
 	@Override
@@ -110,7 +113,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 			ParticleMaster.update(camera);
 			
 			//--------- Audio--------------------
-			SoundCollection.update(soundValues);
+			SoundCollection.update(soundValues, ab);
 			
 			//----------- UI --------------------
 			text.setTextString(String.valueOf(ownship.getPosition().y));
@@ -188,7 +191,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		//==================================== Audio =========================================================
 		
-		SoundCollection.initializeSounds();
+		SoundCollection.initializeSounds(ab);
 		
 	}
 	
@@ -227,6 +230,9 @@ public class RunWorld implements Runnable, FlightDataListener {
 			ownshipRotation.z = (float)   (receivedFlightData.get(FlightDataType.HEADING)-270); // rotate to follow camera translation
 			
 			soundValues.put(SoundCategory.RPM_1, receivedFlightData.get(FlightDataType.RPM_1));
+			soundValues.put(SoundCategory.RPM_2, receivedFlightData.get(FlightDataType.RPM_2));
+			soundValues.put(SoundCategory.RPM_3, receivedFlightData.get(FlightDataType.RPM_3));
+			soundValues.put(SoundCategory.RPM_4, receivedFlightData.get(FlightDataType.RPM_4));
 			soundValues.put(SoundCategory.WIND, receivedFlightData.get(FlightDataType.TAS));
 			soundValues.put(SoundCategory.FLAPS, receivedFlightData.get(FlightDataType.FLAPS));
 			soundValues.put(SoundCategory.GEAR, receivedFlightData.get(FlightDataType.GEAR));

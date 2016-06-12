@@ -19,6 +19,8 @@ public enum FlightDataType {
 	EAST	 	 ("East", "ft"),
 	RPM_1		 ("Engine 1 RPM", "1/min"),
 	RPM_2		 ("Engine 2 RPM", "1/min"),
+	RPM_3		 ("Engine 3 RPM", "1/min"),
+	RPM_4		 ("Engine 4 RPM", "1/min"),
 	GEAR		 ("Gear Position", "norm"),
 	FLAPS		 ("Flaps Position", "deg"),
 	AOA			 ("Angle of Attack", "deg");

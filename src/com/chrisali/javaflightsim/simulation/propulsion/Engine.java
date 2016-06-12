@@ -88,6 +88,11 @@ public abstract class Engine {
 	
 	public int getEngineNumber() {return engineNumber;}
 	
+	/**
+	 * @return engine position relative to aircraft CG [x, y, z] (ft)
+	 */
+	public double[] getEnginePosition() {return enginePosition;}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

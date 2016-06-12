@@ -2,12 +2,15 @@ package com.chrisali.javaflightsim.otw.audio;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.datatransfer.FlightData;
 import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.otw.RunWorld;
+import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 
 /**
  * Static class that contains a repository of sounds to be played by triggering certain events, such
@@ -34,6 +37,14 @@ public class SoundCollection {
 		ENGINE_2_MED,
 		ENGINE_2_HIGH,
 		ENGINE_2_MAX,
+		ENGINE_3_LOW,
+		ENGINE_3_MED,
+		ENGINE_3_HIGH,
+		ENGINE_3_MAX,
+		ENGINE_4_LOW,
+		ENGINE_4_MED,
+		ENGINE_4_HIGH,
+		ENGINE_4_MAX,
 		FLAPS,
 		GEAR,
 		STALL,
@@ -51,6 +62,8 @@ public class SoundCollection {
 	public static enum SoundCategory {
 		RPM_1,
 		RPM_2,
+		RPM_3,
+		RPM_4,
 		FLAPS,
 		PREV_STEP_FLAPS,
 		GEAR,
@@ -64,32 +77,57 @@ public class SoundCollection {
 	
 	/**
 	 *	Fills soundSources EnumMap with {@link SoundSource} objects, which are references to audio
-	 *  files in .Resources/Audio, and sets their initial properties
+	 *  files in .Resources/Audio, and sets their initial properties. Takes an {@link AircraftBuilder}
+	 *  object as an argument to determine how many engines to assign sounds to and where to position 
+	 *  them relative to the listener
+	 *  
+	 *  @param ab
 	 */
-	public static void initializeSounds() {
+	public static void initializeSounds(AircraftBuilder ab) {
 		
 		//================================ Engine =========================================
 		
-		soundSources.put(SoundEvent.ENGINE_1_LOW, new SoundSource("Audio", "engineLow"));
-		soundSources.get(SoundEvent.ENGINE_1_LOW).setVolume(0);
-		soundSources.get(SoundEvent.ENGINE_1_LOW).setLooping(true);
-		soundSources.get(SoundEvent.ENGINE_1_LOW).play();
+		Vector3f enginePosVector = new Vector3f();
+		int engineNumber;
+		double[] enginePosition;
+		Set<Engine> engineList = ab.getEngineList();
+				
+		for (Engine engine : engineList) {
+			engineNumber    = engine.getEngineNumber(); 
+			enginePosition  = engine.getEnginePosition();
+			enginePosVector = new Vector3f((float) enginePosition[0]/5, (float) enginePosition[1]/5, (float) enginePosition[2]/5);
+			
+			SoundEvent engLow  = Enum.valueOf(SoundEvent.class, "ENGINE_" + engineNumber + "_LOW");
+			SoundEvent engMed  = Enum.valueOf(SoundEvent.class, "ENGINE_" + engineNumber + "_MED");
+			SoundEvent engHigh = Enum.valueOf(SoundEvent.class, "ENGINE_" + engineNumber + "_HIGH");
+			SoundEvent engMax  = Enum.valueOf(SoundEvent.class, "ENGINE_" + engineNumber + "_MAX");
+			
+			soundSources.put(engLow, new SoundSource("Audio", "engineLow"));
+			soundSources.get(engLow).setVolume(0);
+			soundSources.get(engLow).setLooping(true);
+			soundSources.get(engLow).play();
+			soundSources.get(engLow).setPosition(enginePosVector);
+			
+			soundSources.put(engMed, new SoundSource("Audio", "engineMed"));
+			soundSources.get(engMed).setVolume(0);
+			soundSources.get(engMed).setLooping(true);
+			soundSources.get(engMed).play();
+			soundSources.get(engMed).setPosition(enginePosVector);
+			
+			soundSources.put(engHigh, new SoundSource("Audio", "engineHigh"));
+			soundSources.get(engHigh).setVolume(0);
+			soundSources.get(engHigh).setLooping(true);
+			soundSources.get(engHigh).play();
+			soundSources.get(engHigh).setPosition(enginePosVector);
+			
+			soundSources.put(engMax, new SoundSource("Audio", "engineMax"));
+			soundSources.get(engMax).setVolume(0);
+			soundSources.get(engMax).setLooping(true);
+			soundSources.get(engMax).play();
+			soundSources.get(engMax).setPosition(enginePosVector);
+		}
+			
 		
-		soundSources.put(SoundEvent.ENGINE_1_MED, new SoundSource("Audio", "engineMed"));
-		soundSources.get(SoundEvent.ENGINE_1_MED).setVolume(0);
-		soundSources.get(SoundEvent.ENGINE_1_MED).setLooping(true);
-		soundSources.get(SoundEvent.ENGINE_1_MED).play();
-		
-		soundSources.put(SoundEvent.ENGINE_1_HIGH, new SoundSource("Audio", "engineHigh"));
-		soundSources.get(SoundEvent.ENGINE_1_HIGH).setVolume(0);
-		soundSources.get(SoundEvent.ENGINE_1_HIGH).setLooping(true);
-		soundSources.get(SoundEvent.ENGINE_1_HIGH).play();
-		
-		soundSources.put(SoundEvent.ENGINE_1_MAX, new SoundSource("Audio", "engineMax"));
-		soundSources.get(SoundEvent.ENGINE_1_MAX).setVolume(0);
-		soundSources.get(SoundEvent.ENGINE_1_MAX).setLooping(true);
-		soundSources.get(SoundEvent.ENGINE_1_MAX).play();
-
 		//================================ Systems =========================================
 		
 		soundSources.put(SoundEvent.FLAPS, new SoundSource("Audio", "flap"));
@@ -115,7 +153,6 @@ public class SoundCollection {
 		soundSources.get(SoundEvent.WIND).setLooping(true);
 		soundSources.get(SoundEvent.WIND).play();
 		
-		// Add new sounds here; can set looping/position properties etc
 	}
 	
 	/**
@@ -124,13 +161,16 @@ public class SoundCollection {
 	 * {@link FlightDataListener} in {@link RunWorld}
 	 * 
 	 * @param soundValues
+	 * @param ab
 	 */
-	public static void update(Map<SoundCategory, Double> soundValues) {
-		setRPM(soundValues.get(SoundCategory.RPM_1));
-		setControl(SoundEvent.FLAPS, soundValues);
-		setControl(SoundEvent.GEAR, soundValues);
-		setWind(soundValues.get(SoundCategory.WIND));
-		setStallHorn(soundValues.get(SoundCategory.STALL_HORN), 0.16);
+	public static void update(Map<SoundCategory, Double> soundValues, AircraftBuilder ab) {
+		if (!soundValues.isEmpty()) {
+			setRPM(ab, soundValues);
+			setControl(SoundEvent.FLAPS, soundValues);
+			setControl(SoundEvent.GEAR, soundValues);
+			setWind(soundValues.get(SoundCategory.WIND));
+			setStallHorn(soundValues.get(SoundCategory.STALL_HORN), 0.16);
+		}
 	}
 	
 	/**
@@ -191,28 +231,47 @@ public class SoundCollection {
 	 * Uses sound blending with cosine and linear functions with volume and pitch properties, respectively 
 	 * to mesh together engine sounds as a function of RPM
 	 * 
+	 * @param ab
 	 * @param RPM
 	 */
-	public static void setRPM(double RPM) {
-		float gainLow  = (float) ((RPM >  300 && RPM < 1800) ? Math.cos((RPM-600)/500) : 0);
-		float pitchLow = (float) ((RPM >  300 && RPM < 1800) ? ((1.5-0.75)*(RPM-300))/(1800-300) + 0.75 : 0);
-		soundSources.get(SoundEvent.ENGINE_1_LOW).setVolume(gainLow);
-		soundSources.get(SoundEvent.ENGINE_1_LOW).setPitch(pitchLow);
+	public static void setRPM(AircraftBuilder ab, Map<SoundCategory, Double> soundValues) {
+		float gainLow, pitchLow, gainMed, pitchMed, gainHi, pitchHi, gainMax, pitchMax;
+		double RPM;
+		int engineNumber;
+		Set<Engine> engineList = ab.getEngineList();
+				
+		for (Engine engine : engineList) {
+			engineNumber = engine.getEngineNumber(); 
 		
-		float gainMed 	= (float) ((RPM > 600 && RPM < 2000) ? Math.cos((RPM-1500)/400) : 0);
-		float pitchMed  = (float) ((RPM > 600 && RPM < 2000) ? ((1.5-0.75)*(RPM-600))/(2000-600) + 0.75 : 0);
-		soundSources.get(SoundEvent.ENGINE_1_MED).setVolume(gainMed);
-		soundSources.get(SoundEvent.ENGINE_1_MED).setPitch(pitchMed);
-		
-		float gainHi   = (float) ((RPM > 1500 && RPM < 2500) ? Math.cos((RPM-2000)/300) : 0);
-		float pitchHi  = (float) ((RPM > 1500 && RPM < 2500) ? ((1.5-0.75)*(RPM-1500))/(2500-1500) + 0.75 : 0);
-		soundSources.get(SoundEvent.ENGINE_1_HIGH).setVolume(gainHi);		
-		soundSources.get(SoundEvent.ENGINE_1_HIGH).setPitch(pitchHi);
-		
-		float gainMax  = (float) ((RPM > 1900 && RPM < 3000) ? Math.cos((RPM-2600)/400)*2 : 0);
-		float pitchMax = (float) ((RPM > 1900 && RPM < 3000) ? ((1.25-0.95)*(RPM-1900))/(3000-1900) + 0.95 : 0);
-		soundSources.get(SoundEvent.ENGINE_1_MAX).setVolume(gainMax);
-		soundSources.get(SoundEvent.ENGINE_1_MAX).setPitch(pitchMax);
+			SoundEvent engLow  = Enum.valueOf(SoundEvent.class, "ENGINE_" + engineNumber + "_LOW");
+			SoundEvent engMed  = Enum.valueOf(SoundEvent.class, "ENGINE_" + engineNumber + "_MED");
+			SoundEvent engHigh = Enum.valueOf(SoundEvent.class, "ENGINE_" + engineNumber + "_HIGH");
+			SoundEvent engMax  = Enum.valueOf(SoundEvent.class, "ENGINE_" + engineNumber + "_MAX");
+			
+			SoundCategory rpmEnum = Enum.valueOf(SoundCategory.class, "RPM_" + engineNumber);
+			
+			RPM = soundValues.get(rpmEnum);
+			
+			gainLow  = (float) ((RPM >  300 && RPM < 1800) ? Math.cos((RPM-600)/500) : 0);
+			pitchLow = (float) ((RPM >  300 && RPM < 1800) ? ((1.5-0.75)*(RPM-300))/(1800-300) + 0.75 : 0);
+			soundSources.get(engLow).setVolume(gainLow);
+			soundSources.get(engLow).setPitch(pitchLow);
+			
+			gainMed  = (float) ((RPM > 600 && RPM < 2000) ? Math.cos((RPM-1500)/400) : 0);
+			pitchMed = (float) ((RPM > 600 && RPM < 2000) ? ((1.5-0.75)*(RPM-600))/(2000-600) + 0.75 : 0);
+			soundSources.get(engMed).setVolume(gainMed);
+			soundSources.get(engMed).setPitch(pitchMed);
+			
+			gainHi   = (float) ((RPM > 1500 && RPM < 2500) ? Math.cos((RPM-2000)/300) : 0);
+			pitchHi  = (float) ((RPM > 1500 && RPM < 2500) ? ((1.5-0.75)*(RPM-1500))/(2500-1500) + 0.75 : 0);
+			soundSources.get(engHigh).setVolume(gainHi);		
+			soundSources.get(engHigh).setPitch(pitchHi);
+			
+			gainMax  = (float) ((RPM > 1900 && RPM < 3000) ? Math.cos((RPM-2600)/400)*2 : 0);
+			pitchMax = (float) ((RPM > 1900 && RPM < 3000) ? ((1.25-0.95)*(RPM-1900))/(3000-1900) + 0.95 : 0);
+			soundSources.get(engMax).setVolume(gainMax);
+			soundSources.get(engMax).setPitch(pitchMax);
+		}
 	}
 
 	public static void play(SoundEvent event) {

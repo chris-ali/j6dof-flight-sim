@@ -378,30 +378,11 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 			simOut.put(SimOuts.FUEL_FLOW_4, 0.0);
 	
 			for (Engine engine : engineList) {
-				switch(engine.getEngineNumber()) {
-				case 1:
-					simOut.put(SimOuts.THRUST_1, 	engine.getThrust()[0]);
-					simOut.put(SimOuts.RPM_1, 	 	engine.getRPM());
-					simOut.put(SimOuts.FUEL_FLOW_1, engine.getFuelFlow());
-					break;
-				case 2:
-					simOut.put(SimOuts.THRUST_2, 	engine.getThrust()[0]);
-					simOut.put(SimOuts.RPM_2, 	 	engine.getRPM());
-					simOut.put(SimOuts.FUEL_FLOW_2, engine.getFuelFlow());
-					break;
-				case 3:
-					simOut.put(SimOuts.THRUST_3, 	engine.getThrust()[0]);
-					simOut.put(SimOuts.RPM_3, 	 	engine.getRPM());
-					simOut.put(SimOuts.FUEL_FLOW_3, engine.getFuelFlow());
-					break;
-				case 4:
-					simOut.put(SimOuts.THRUST_4, 	engine.getThrust()[0]);
-					simOut.put(SimOuts.RPM_4, 	 	engine.getRPM());
-					simOut.put(SimOuts.FUEL_FLOW_4, engine.getFuelFlow());
-					break;
-				default:
-					break;
-				}
+				int engineNumber = engine.getEngineNumber();
+				
+				simOut.put(Enum.valueOf(SimOuts.class, "THRUST_" + engineNumber), 	 engine.getThrust()[0]);
+				simOut.put(Enum.valueOf(SimOuts.class, "RPM_" + engineNumber), 	 	 engine.getRPM());
+				simOut.put(Enum.valueOf(SimOuts.class, "FUEL_FLOW_" + engineNumber), engine.getFuelFlow());
 			}
 			
 			// Controls
