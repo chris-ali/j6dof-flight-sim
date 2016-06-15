@@ -143,17 +143,17 @@ public class SoundCollection {
 		
 		soundSources.put(SoundEvent.FLAPS, new SoundSource("Audio", "flap"));
 		soundSources.get(SoundEvent.FLAPS).setLooping(true);
-		soundSources.get(SoundEvent.FLAPS).setVolume(0.25f);
+		soundSources.get(SoundEvent.FLAPS).setVolume(0.5f*systemsVolume);
 		
 		soundSources.put(SoundEvent.GEAR, new SoundSource("Audio", "gear"));
-		soundSources.get(SoundEvent.GEAR).setVolume(0.125f);
+		soundSources.get(SoundEvent.GEAR).setVolume(0.5f*systemsVolume);
 		
 		soundSources.put(SoundEvent.STALL, new SoundSource("Audio", "stall"));
-		soundSources.get(SoundEvent.STALL).setVolume(0.5f);
+		soundSources.get(SoundEvent.STALL).setVolume(0.5f*systemsVolume);
 		soundSources.get(SoundEvent.STALL).setLooping(true);
 		
 		soundSources.put(SoundEvent.GYRO, new SoundSource("Audio", "gyroLoop"));
-		soundSources.get(SoundEvent.GYRO).setVolume(0.25f);
+		soundSources.get(SoundEvent.GYRO).setVolume(0.25f*systemsVolume);
 		soundSources.get(SoundEvent.GYRO).setLooping(true);
 		soundSources.get(SoundEvent.GYRO).play();
 		
@@ -235,7 +235,7 @@ public class SoundCollection {
 	 */
 	public static void setWind(double trueAirspeed) {
 		float gainWind = (float) ((trueAirspeed >  50 && trueAirspeed < 300) ? ((2.0-0.25)*(trueAirspeed-50))/(300-50) + 0.25 : 0);
-		soundSources.get(SoundEvent.WIND).setVolume(gainWind);
+		soundSources.get(SoundEvent.WIND).setVolume(gainWind*=environmentVolume);
 	}
 	
 	/**
@@ -265,22 +265,22 @@ public class SoundCollection {
 			
 			gainLow  = (float) ((RPM >  300 && RPM < 1800) ? Math.cos((RPM-600)/500) : 0);
 			pitchLow = (float) ((RPM >  300 && RPM < 1800) ? ((1.5-0.75)*(RPM-300))/(1800-300) + 0.75 : 0);
-			soundSources.get(engLow).setVolume(gainLow);
+			soundSources.get(engLow).setVolume(gainLow*=engineVolume);
 			soundSources.get(engLow).setPitch(pitchLow);
 			
 			gainMed  = (float) ((RPM > 600 && RPM < 2000) ? Math.cos((RPM-1500)/400) : 0);
 			pitchMed = (float) ((RPM > 600 && RPM < 2000) ? ((1.5-0.75)*(RPM-600))/(2000-600) + 0.75 : 0);
-			soundSources.get(engMed).setVolume(gainMed);
+			soundSources.get(engMed).setVolume(gainMed*=engineVolume);
 			soundSources.get(engMed).setPitch(pitchMed);
 			
 			gainHi   = (float) ((RPM > 1500 && RPM < 2500) ? Math.cos((RPM-2000)/300) : 0);
 			pitchHi  = (float) ((RPM > 1500 && RPM < 2500) ? ((1.5-0.75)*(RPM-1500))/(2500-1500) + 0.75 : 0);
-			soundSources.get(engHigh).setVolume(gainHi);		
+			soundSources.get(engHigh).setVolume(gainHi*=engineVolume);		
 			soundSources.get(engHigh).setPitch(pitchHi);
 			
 			gainMax  = (float) ((RPM > 1900 && RPM < 3000) ? Math.cos((RPM-2600)/400)*2 : 0);
 			pitchMax = (float) ((RPM > 1900 && RPM < 3000) ? ((1.25-0.95)*(RPM-1900))/(3000-1900) + 0.95 : 0);
-			soundSources.get(engMax).setVolume(gainMax);
+			soundSources.get(engMax).setVolume(gainMax*=engineVolume);
 			soundSources.get(engMax).setPitch(pitchMax);
 		}
 	}
