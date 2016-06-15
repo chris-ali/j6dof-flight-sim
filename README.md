@@ -14,8 +14,6 @@ One day I'd like to tie objectives or a scoring element into the simulation to m
 
 -Only a simple propeller engine model is implemented for now. No engine effects (fuel burn, propeller effects) are modeled yet
 
--No trim method is implemented yet.
-
 ##Future Ideas
 -Selectable starting locations (in air or on ground)
 
@@ -32,6 +30,8 @@ One day I'd like to tie objectives or a scoring element into the simulation to m
 https://github.com/HanSolo/SteelSeries-Swing 
 
 -LWJGL is used to create the out the window display using OpenGL
+
+-OpenAL generates the sounds for the simulation 
 
 ##Reference
 -The 6DOF state equations come from *Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.*
