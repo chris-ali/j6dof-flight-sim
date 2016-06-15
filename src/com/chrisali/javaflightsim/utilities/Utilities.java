@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
@@ -160,8 +161,7 @@ public class Utilities {
 	 * Parses the DisplaySetup.txt file in .\SimConfig\ and returns an EnumMap with {@link DisplayOptions}
 	 * as the keys
 	 * 
-	 * @param aircraftName
-	 * @return massProperties EnumMap
+	 * @return displayOptions EnumMap
 	 */
 	public static EnumMap<DisplayOptions, Integer> parseDisplaySetup() {
 		EnumMap<DisplayOptions, Integer> displayOptions = new EnumMap<DisplayOptions, Integer>(DisplayOptions.class);
@@ -177,6 +177,28 @@ public class Utilities {
 		}
 
 		return displayOptions;
+	}
+	
+	/**
+	 * Parses the AudioSetup.txt file in .\SimConfig\ and returns an EnumMap with {@link DisplayOptions}
+	 * as the keys
+	 * 
+	 * @return audioOptions EnumMap
+	 */
+	public static EnumMap<AudioOptions, Float> parseAudioSetup() {
+		EnumMap<AudioOptions, Float> audioOptions = new EnumMap<AudioOptions, Float>(AudioOptions.class);
+		
+		// Display options
+		ArrayList<String[]> readAudioSetupFile = readFileAndSplit("AudioSetup", ".\\SimConfig\\");
+		
+		for(AudioOptions audioOptionsKey : AudioOptions.values()) {
+			for (String[] readLine : readAudioSetupFile) {
+				if (audioOptionsKey.toString().equals(readLine[0]))
+					audioOptions.put(audioOptionsKey, Float.valueOf(readLine[1]));
+			}
+		}
+
+		return audioOptions;
 	}
 	
 	/**

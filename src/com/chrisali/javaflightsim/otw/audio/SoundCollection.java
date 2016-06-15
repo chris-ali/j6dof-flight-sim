@@ -8,6 +8,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.datatransfer.FlightData;
 import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
+import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.otw.RunWorld;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
@@ -73,17 +74,27 @@ public class SoundCollection {
 		GYRO;
 	}
 	
+	private static float engineVolume;
+	private static float systemsVolume;
+	private static float environmentVolume;
+	
 	private static Map<SoundEvent, SoundSource> soundSources = new EnumMap<>(SoundEvent.class);
 	
 	/**
 	 *	Fills soundSources EnumMap with {@link SoundSource} objects, which are references to audio
 	 *  files in .Resources/Audio, and sets their initial properties. Takes an {@link AircraftBuilder}
 	 *  object as an argument to determine how many engines to assign sounds to and where to position 
-	 *  them relative to the listener
+	 *  them relative to the listener. Uses Map of audio options to set the volumes of various types of
+	 *  sounds
 	 *  
 	 *  @param ab
+	 *  @param audioOptions
 	 */
-	public static void initializeSounds(AircraftBuilder ab) {
+	public static void initializeSounds(AircraftBuilder ab, Map<AudioOptions, Float> audioOptions) {
+		
+		engineVolume = audioOptions.get(AudioOptions.ENGINE_VOLUME);
+		systemsVolume = audioOptions.get(AudioOptions.SYSTEMS_VOLUME);
+		environmentVolume = audioOptions.get(AudioOptions.ENVIRONMENT_VOLUME);
 		
 		//================================ Engine =========================================
 		

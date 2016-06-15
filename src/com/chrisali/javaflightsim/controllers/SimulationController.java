@@ -14,6 +14,7 @@ import com.chrisali.javaflightsim.consoletable.ConsoleTablePanel;
 import com.chrisali.javaflightsim.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.datatransfer.FlightData;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
+import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.otw.RunWorld;
 import com.chrisali.javaflightsim.plotting.PlotWindow;
@@ -49,6 +50,7 @@ public class SimulationController {
 	
 	// Configuration
 	private EnumMap<DisplayOptions, Integer> displayOptions;
+	private EnumMap<AudioOptions, Float> audioOptions;
 	private EnumSet<Options> simulationOptions;
 	private EnumMap<InitialConditions, Double> initialConditions;
 	private EnumMap<IntegratorConfig, Double> integratorConfig;
@@ -84,6 +86,7 @@ public class SimulationController {
 	public SimulationController() {
 		simulationOptions = EnumSet.noneOf(Options.class);
 		displayOptions = new EnumMap<DisplayOptions, Integer>(DisplayOptions.class);
+		audioOptions = new EnumMap<AudioOptions, Float>(AudioOptions.class);
 		
 		initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
 		integratorConfig = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");
@@ -103,21 +106,30 @@ public class SimulationController {
 	public EnumMap<DisplayOptions, Integer> getDisplayOptions() {return displayOptions;}
 	
 	/**
+	 * @return audioOptions EnumMap
+	 */
+	public EnumMap<AudioOptions, Float> getAudioOptions() {return audioOptions;}
+	
+	/**
 	 * Updates simulation and display options and then saves the configurations to text files using either
 	 * <p>{@link Utilities#writeConfigFile(String, String, Set, String)}</p>
 	 * <br/>or
-	 * <p>{@link Utilities#writeConfigFile(String, String, Set, String)}</p>
+	 * <p>{@link Utilities#writeConfigFile(String, String, Map, String)}</p>
 	 * 
 	 * @param newOptions
 	 * @param newDisplayOptions
+	 * @param newAudioOptions
 	 */
-	public void updateOptions(EnumSet<Options> newOptions, EnumMap<DisplayOptions, Integer> newDisplayOptions) {
+	public void updateOptions(EnumSet<Options> newOptions, EnumMap<DisplayOptions, Integer> newDisplayOptions,
+							  EnumMap<AudioOptions, Float> newAudioOptions) {
 		simulationOptions = EnumSet.copyOf(newOptions);
 		displayOptions = newDisplayOptions;
+		audioOptions = newAudioOptions;
 		
 		if (ab != null)
 			Utilities.writeConfigFile(SIM_CONFIG_PATH, "SimulationSetup", simulationOptions, ab.getAircraft().getName());
 		Utilities.writeConfigFile(SIM_CONFIG_PATH, "DisplaySetup", newDisplayOptions);
+		Utilities.writeConfigFile(SIM_CONFIG_PATH, "AudioSetup", newAudioOptions);
 	}
 	
 	/**
@@ -226,7 +238,7 @@ public class SimulationController {
 		if (simulationOptions.contains(Options.ANALYSIS_MODE)) {
 			plotSimulation();
 		} else {
-			outTheWindow = new RunWorld(displayOptions, ab);
+			outTheWindow = new RunWorld(displayOptions, ab, audioOptions);
 			
 			environmentData = new EnvironmentData(outTheWindow);
 			environmentData.addEnvironmentDataListener(runSim);

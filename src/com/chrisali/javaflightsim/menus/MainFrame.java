@@ -23,6 +23,7 @@ import com.chrisali.javaflightsim.menus.aircraftpanel.AircraftPanel;
 import com.chrisali.javaflightsim.menus.aircraftpanel.WeightConfiguredListener;
 import com.chrisali.javaflightsim.menus.initialconditionspanel.InitialConditionsConfigurationListener;
 import com.chrisali.javaflightsim.menus.initialconditionspanel.InitialConditionsPanel;
+import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.menus.optionspanel.OptionsConfigurationListener;
 import com.chrisali.javaflightsim.menus.optionspanel.OptionsPanel;
@@ -107,10 +108,11 @@ public class MainFrame extends JFrame {
 		optionsPanel.setOptionsConfigurationListener(new OptionsConfigurationListener() {
 			@Override
 			public void simulationOptionsConfigured(EnumSet<Options> options, int stepSize, 
-													EnumMap<DisplayOptions, Integer> displayOptions) {
+													EnumMap<DisplayOptions, Integer> displayOptions,
+													EnumMap<AudioOptions, Float> audioOptions) {
 				buttonPanel.setOptionsLabel(options, stepSize);
 				simulationController.updateIntegratorConfig(stepSize);
-				simulationController.updateOptions(options, displayOptions);
+				simulationController.updateOptions(options, displayOptions, audioOptions);
 				
 				setSize(dims);
 				cardPanel.setVisible(false);
@@ -245,7 +247,9 @@ public class MainFrame extends JFrame {
 	
 	private void setOptionsAndText() {
 		try {
-			simulationController.updateOptions(Utilities.parseSimulationSetup(), Utilities.parseDisplaySetup());
+			simulationController.updateOptions(Utilities.parseSimulationSetup(), 
+											   Utilities.parseDisplaySetup(),
+											   Utilities.parseAudioSetup());
 			simulationController.updateAircraft(Utilities.parseSimulationSetupForAircraft());
 		} catch (IllegalArgumentException e) {
 			JOptionPane.showMessageDialog(this, "Unable to read SimulationSetup.txt!", 
@@ -260,6 +264,7 @@ public class MainFrame extends JFrame {
 		
 		aircraftPanel.setAircraftPanel(aircrafName);
 		optionsPanel.setAllOptions(simulationController.getSimulationOptions(), stepSize, 
-									simulationController.getDisplayOptions());
+									simulationController.getDisplayOptions(),
+									simulationController.getAudioOptions());
 	}
 }

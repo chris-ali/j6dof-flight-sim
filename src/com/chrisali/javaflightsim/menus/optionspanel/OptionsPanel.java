@@ -21,6 +21,7 @@ public class OptionsPanel extends JPanel {
 	
 	private SimulationOptionsTab simulationOptionsTab;
 	private DisplayOptionsTab displayOptionsTab;
+	private AudioOptionsTab audioOptionsTab;
 	private JButton okButton;
 	private JButton cancelButton;
 	
@@ -58,6 +59,11 @@ public class OptionsPanel extends JPanel {
 		displayOptionsTab = new DisplayOptionsTab();
 		optionsTabs.add(displayOptionsTab, "Display");
 		
+		//-------------- Audio Options Tab ---------------------
+		
+		audioOptionsTab = new AudioOptionsTab();
+		optionsTabs.add(audioOptionsTab, "Audio");
+		
 		//----------------- OK Button ----------------------------
 		
 		okButton = new JButton("OK");
@@ -69,7 +75,8 @@ public class OptionsPanel extends JPanel {
 				
 				if (optionsConfigurationListener != null) {
 					optionsConfigurationListener.simulationOptionsConfigured(simulationOptionsTab.getSimulationOptions(), stepSize,
-																			displayOptionsTab.getDisplayOptions());
+																			displayOptionsTab.getDisplayOptions(),
+																			audioOptionsTab.getAudioOptions());
 				}
 			}
 		});
@@ -96,10 +103,13 @@ public class OptionsPanel extends JPanel {
 	}
 	
 	public void setAllOptions(EnumSet<Options> simulationOptions, int stepSize, 
-									EnumMap<DisplayOptions, Integer> displayOptions) {
+									EnumMap<DisplayOptions, Integer> displayOptions,
+									EnumMap<AudioOptions, Float> audioOptions) {
 		this.stepSize = stepSize;
 		simulationOptionsTab.setOptionsTab(simulationOptions, stepSize);
 		displayOptionsTab.setOptionsTab(displayOptions);
+		audioOptionsTab.setOptionsTab(audioOptions);
+		
 	}
 	
 	public void setCancelButtonListener(CancelButtonListener cancelButtonListener) {
