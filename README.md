@@ -19,6 +19,8 @@ One day I'd like to tie objectives or a scoring element into the simulation to m
 
 -Configurable weather and time of day
 
+-Use of USAF Digital DATCOM to calculate stability derivatives for creating custom and/or more accurate aircraft
+
 ##Libraries
 -This program makes use of the Apache Commons Math libraries to do the numerical integration (Runge-Kutta) necessary to make the program tick.
 
@@ -35,3 +37,5 @@ https://github.com/HanSolo/SteelSeries-Swing
 
 ##Reference
 -The 6DOF state equations come from *Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.*
+
+-Trimming method and other simulation strategies come from *Principles of Flight Simulation, Allerton David* 
