@@ -149,6 +149,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 													 NEDPosition, 
 													 eulerAngles, 
 													 angularRates,
+													 sixDOFDerivatives,
 													 integratorConfig, 
 													 aircraft, 
 													 controls, 
@@ -182,7 +183,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	 * @return ydot[]
 	 * @see Source: <i>Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
 	 */
-	private double[] updateDerivatives(double[] y) {
+	private void updateDerivatives(double[] y) {
 		double[]   yDot          = new double[14];
 		double[][] dirCosMat     = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([column][row])
 		double[]   inertiaCoeffs = SixDOFUtilities.calculateInertiaCoeffs(Utilities.unboxDoubleArray(aircraft.getInertiaValues()));
@@ -191,26 +192,24 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 												environmentParameters.get(EnvironmentParameters.WIND_SPEED_E),
 												environmentParameters.get(EnvironmentParameters.WIND_SPEED_D)};
 		
-		yDot[0]  = (y[11]*y[1])-(y[10]*y[2])-(gravity*Math.sin(y[7]))               +linearAccelerations[0];    // u (ft/sec)
-		yDot[1]  = (y[9]* y[2])-(y[11]*y[0])+(gravity*Math.sin(y[6])*Math.cos(y[7]))+linearAccelerations[1];    // v (ft/sec)
-		yDot[2]  = (y[10]*y[0])-(y[9]* y[1])+(gravity*Math.cos(y[6])*Math.cos(y[7]))+linearAccelerations[2];    // w (ft/sec)
+		sixDOFDerivatives[0]  = (y[11]*y[1])-(y[10]*y[2])-(gravity*Math.sin(y[7]))               +linearAccelerations[0];    // u (ft/sec)
+		sixDOFDerivatives[1]  = (y[9]* y[2])-(y[11]*y[0])+(gravity*Math.sin(y[6])*Math.cos(y[7]))+linearAccelerations[1];    // v (ft/sec)
+		sixDOFDerivatives[2]  = (y[10]*y[0])-(y[9]* y[1])+(gravity*Math.cos(y[6])*Math.cos(y[7]))+linearAccelerations[2];    // w (ft/sec)
 		
-		yDot[3]  =    (y[0]*dirCosMat[0][0]+y[1]*dirCosMat[0][1]+y[2]*dirCosMat[0][2])+windSpdNED[0];    // N (ft)
-		yDot[4]  =    (y[0]*dirCosMat[1][0]+y[1]*dirCosMat[1][1]+y[2]*dirCosMat[1][2])+windSpdNED[1];    // E (ft)
-		yDot[5]  = -1*(y[0]*dirCosMat[2][0]+y[1]*dirCosMat[2][1]+y[2]*dirCosMat[2][2])+windSpdNED[2];    // D (ft)
+		sixDOFDerivatives[3]  =    (y[0]*dirCosMat[0][0]+y[1]*dirCosMat[0][1]+y[2]*dirCosMat[0][2])+windSpdNED[0];    // N (ft)
+		sixDOFDerivatives[4]  =    (y[0]*dirCosMat[1][0]+y[1]*dirCosMat[1][1]+y[2]*dirCosMat[1][2])+windSpdNED[1];    // E (ft)
+		sixDOFDerivatives[5]  = -1*(y[0]*dirCosMat[2][0]+y[1]*dirCosMat[2][1]+y[2]*dirCosMat[2][2])+windSpdNED[2];    // D (ft)
 		
-		yDot[6]  =   y[9]+(Math.tan(y[7])*((y[10]*Math.sin(y[6]))+(y[11]*Math.cos(y[6])))); // phi (rad)
-		yDot[7]  =  (y[10]*Math.cos(y[6]))-(y[11]*Math.sin(y[6]));     			            // theta (rad)
-		yDot[8]  = ((y[10]*Math.sin(y[6]))+(y[11]*Math.cos(y[6])))/Math.cos(y[7]);          // psi (rad)
+		sixDOFDerivatives[6]  =   y[9]+(Math.tan(y[7])*((y[10]*Math.sin(y[6]))+(y[11]*Math.cos(y[6])))); // phi (rad)
+		sixDOFDerivatives[7]  =  (y[10]*Math.cos(y[6]))-(y[11]*Math.sin(y[6]));     			            // theta (rad)
+		sixDOFDerivatives[8]  = ((y[10]*Math.sin(y[6]))+(y[11]*Math.cos(y[6])))/Math.cos(y[7]);          // psi (rad)
 		
-		yDot[9]  = ((inertiaCoeffs[1]*y[9]*y[10]) - (inertiaCoeffs[0]*y[10])*y[11]) + (inertiaCoeffs[2]*totalMoments[0])+(inertiaCoeffs[3]*totalMoments[2]);     // p (rad/sec)
-		yDot[10] =  (inertiaCoeffs[4]*y[9]*y[11]) - (inertiaCoeffs[5]*((y[9]*y[9])-(y[11]*y[11])))                      +(inertiaCoeffs[6]*totalMoments[1]);     // q (rad/sec)
-		yDot[11] = ((inertiaCoeffs[7]*y[9]*y[10]) - (inertiaCoeffs[1]*y[10]*y[11])) + (inertiaCoeffs[3]*totalMoments[0])+(inertiaCoeffs[8]*totalMoments[2]);     // r (rad/sec)
+		sixDOFDerivatives[9]  = ((inertiaCoeffs[1]*y[9]*y[10]) - (inertiaCoeffs[0]*y[10])*y[11]) + (inertiaCoeffs[2]*totalMoments[0])+(inertiaCoeffs[3]*totalMoments[2]);     // p (rad/sec)
+		sixDOFDerivatives[10] =  (inertiaCoeffs[4]*y[9]*y[11]) - (inertiaCoeffs[5]*((y[9]*y[9])-(y[11]*y[11])))                      +(inertiaCoeffs[6]*totalMoments[1]);     // q (rad/sec)
+		sixDOFDerivatives[11] = ((inertiaCoeffs[7]*y[9]*y[10]) - (inertiaCoeffs[1]*y[10]*y[11])) + (inertiaCoeffs[3]*totalMoments[0])+(inertiaCoeffs[8]*totalMoments[2]);     // r (rad/sec)
 		
-		yDot[12] = yDot[3]*ned2LLA[0]; // Latitude  (rad)
-		yDot[13] = yDot[4]*ned2LLA[1]; // Longitude (rad)
-		
-		return yDot;
+		sixDOFDerivatives[12] = yDot[3]*ned2LLA[0]; // Latitude  (rad)
+		sixDOFDerivatives[13] = yDot[4]*ned2LLA[1]; // Longitude (rad)
 	}
 	
 	/**
@@ -227,9 +226,9 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		}
 
 		// Implement saturation and (2)pi bounding to keep states within realistic limits
-		linearVelocities = SaturationLimits.limitLinearVelocities(linearVelocities, groundReaction.isWeightOnWheels());
+		linearVelocities = SaturationLimits.limitLinearVelocities(linearVelocities);
 		NEDPosition      = SaturationLimits.limitNEDPosition(NEDPosition, terrainHeight);
-		eulerAngles      = SaturationLimits.piBounding(eulerAngles, groundReaction.isWeightOnWheels());
+		eulerAngles      = SaturationLimits.piBounding(eulerAngles);
 		angularRates     = SaturationLimits.limitAngularRates(angularRates);
 		
 		// Update wind parameters
@@ -260,6 +259,8 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		if ((NEDPosition[2] - terrainHeight) < 100)
 			groundReaction.integrateStep();
 		
+		System.out.println(groundReaction);
+		
 		// Update accelerations
 		linearAccelerations = accelAndMoments.calculateLinearAccelerations(windParameters,
 																		   angularRates,
@@ -280,18 +281,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 															 groundReaction);
 				
 		// Recalculates derivatives for next step
-		sixDOFDerivatives = updateDerivatives(new double[] {linearVelocities[0],
-															linearVelocities[1],
-															linearVelocities[2],
-															NEDPosition[0],
-															NEDPosition[1],
-															NEDPosition[2],
-															eulerAngles[0],
-															eulerAngles[1],
-															eulerAngles[2],
-															angularRates[0],
-															angularRates[1],
-															angularRates[2]});
+		updateDerivatives(y);
 	}
 	
 	/**

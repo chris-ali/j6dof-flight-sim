@@ -23,6 +23,8 @@ import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
  * and moments are fed back into the 6DOF integrator to calculate the total accelerations and moments for
  * the aircraft. 
  * 
+ * <p> Equations and theory used in this class can be found in: <i>Principles of Flight Simulation, Allerton, D.</i></p>
+ * 
  * @author Christopher Ali
  *
  */
@@ -65,6 +67,8 @@ public class IntegrateGroundReaction {
 	private double[] eulerAngles      		   = new double[3];
 	private double[] angularRates     		   = new double[3];
 	
+	private double[] sixDOFDerivatives		   = new double[14];
+	
 	/**
 	 * Constructor for ground reaction integrator; uses references to integrated states from 
 	 * {@link Integrate6DOFEquations} as well as terrain height received from the 
@@ -73,6 +77,7 @@ public class IntegrateGroundReaction {
 	 * @param NEDPosition
 	 * @param eulerAngles
 	 * @param angularRates
+	 * @param sixDOFDerivatives
 	 * @param integratorConfig
 	 * @param aircraft
 	 * @param controls
@@ -82,6 +87,7 @@ public class IntegrateGroundReaction {
 								   double[] NEDPosition,
 								   double[] eulerAngles,
 								   double[] angularRates,
+								   double[] sixDOFDerivatives,
 								   double[] integratorConfig,
 								   Aircraft aircraft,
 								   Map<FlightControls, Double> controls,
@@ -91,6 +97,8 @@ public class IntegrateGroundReaction {
 		this.linearVelocities = linearVelocities;
 		this.eulerAngles = eulerAngles;
 		this.angularRates = angularRates;
+		
+		this.sixDOFDerivatives = sixDOFDerivatives;
 		
 		this.terrainHeight = terrainHeight;
 		
@@ -172,19 +180,19 @@ public class IntegrateGroundReaction {
 		yDot[0] = y[1];
 		yDot[1] =  (- groundReaction.get(GroundReaction.NOSE_DAMPING)/mass * y[1]) 
 				 	- (groundReaction.get(GroundReaction.NOSE_SPRING)/mass * y[0])
-				 	+ noseGroundForces[2]/(mass*1.25);
+				 	+ noseGroundForces[2]/mass;
 		
 		// Left Main
 		yDot[2] = y[3];
 		yDot[3] =  (- groundReaction.get(GroundReaction.LEFT_DAMPING)/mass * y[3]) 
 				 	- (groundReaction.get(GroundReaction.LEFT_SPRING)/mass * y[2])
-				 	+ leftGroundForces[2]/(mass*1.25);
+				 	+ leftGroundForces[2]/mass;
 		
 		// Right Main
 		yDot[4] = y[5];
 		yDot[5] =  (- groundReaction.get(GroundReaction.RIGHT_DAMPING)/mass * y[5]) 
 				 	- (groundReaction.get(GroundReaction.RIGHT_SPRING)/mass * y[4])
-				 	+ rightGroundForces[2]/(mass*1.25);
+				 	+ rightGroundForces[2]/mass;
 
 		return yDot;
 	}
@@ -195,7 +203,6 @@ public class IntegrateGroundReaction {
 	 */
 	private void calculateTirePositionsAndVelocities() {
 		double[][] dirCosMat = SixDOFUtilities.body2Ned(eulerAngles);
-		double[] gearUvwVelocity = new double[3];
 		double[] gearRelativeCG; // Position of {nose, left, right} gear relative to CG position
 		
 		for (int i = 0; i < 3; i++) {
@@ -221,28 +228,20 @@ public class IntegrateGroundReaction {
 				break;
 			}
 			
-			// Take the cross product of angularRates and gear position relative to CG and add them to linear velocities
-			Vector3D angularRatesVector = new Vector3D(angularRates);
-			Vector3D gearRelativeCGVector = new Vector3D(gearRelativeCG);
-			double[] tangentialVelocity = Vector3D.crossProduct(angularRatesVector, gearRelativeCGVector).toArray();
-			
-			gearUvwVelocity[0] = linearVelocities[0] + tangentialVelocity[0];
-			gearUvwVelocity[1] = linearVelocities[1] + tangentialVelocity[1];
-			gearUvwVelocity[2] = linearVelocities[2] + tangentialVelocity[2];
-			
 			// 3rd row of body2Ned matrix (D) plus (altitude minus terrain height) is the height of the landing gear above ground
-			tirePosition[i]  =  (gearRelativeCG[0]*dirCosMat[2][0]+gearRelativeCG[1]*dirCosMat[2][1]+gearRelativeCG[2]*dirCosMat[2][2]) + (NEDPosition[2]-terrainHeight);   // D (ft)
-			tireVelocity[i]  = -(gearUvwVelocity[0]*dirCosMat[2][0]+gearUvwVelocity[1]*dirCosMat[2][1]+gearUvwVelocity[2]*dirCosMat[2][2]); // D (ft/sec)
+			tirePosition[i]  = (gearRelativeCG[0]*dirCosMat[2][0]+gearRelativeCG[1]*dirCosMat[2][1]+gearRelativeCG[2]*dirCosMat[2][2]) + (NEDPosition[2]-terrainHeight);   // eq 3.134
+			
+			tireVelocity[i]  = (gearRelativeCG[0] * (angularRates[1]*Math.cos(eulerAngles[1]))) + 
+							   (gearRelativeCG[1] * (angularRates[1]*Math.sin(eulerAngles[0])*Math.sin(eulerAngles[1]) - angularRates[0]*Math.cos(eulerAngles[0])*Math.cos(eulerAngles[1]))) +
+							   (gearRelativeCG[2] * (angularRates[1]*Math.sin(eulerAngles[1])*Math.cos(eulerAngles[0]) + angularRates[0]*Math.sin(eulerAngles[1])*Math.sin(eulerAngles[0]))) +
+							   sixDOFDerivatives[5]; // eq 3.135
 			
 			// Saturate tire positions/velocities from compressing/moving too far/fast
 			tirePosition[i] = (tirePosition[i] < -gearRelativeCG[2]) ? -gearRelativeCG[2] : tirePosition[i];
 			
-			tireVelocity[i] = (tireVelocity[i] >  1/10) ? tireVelocity[i] =  1/10 : 
-							  (tireVelocity[i] < -1/10) ? tireVelocity[i] = -1/10 : 
+			tireVelocity[i] = (tireVelocity[i] >  30) ? tireVelocity[i] =  30 : 
+							  (tireVelocity[i] < -30) ? tireVelocity[i] = -30 : 
 							   tireVelocity[i];
-			
-			// Stop vertical tire velocity at slow forward speeds 
-			tireVelocity[i] = (linearVelocities[0] >  10) ? tireVelocity[i] : 0;
 		}
 	}
 	
@@ -257,16 +256,16 @@ public class IntegrateGroundReaction {
 		rightGroundForces[2] = - groundReactionDerivatives[5] * mass;
 		
 		// Limit strut forces
-		noseGroundForces[2]  = (noseGroundForces[2] > 500) ? 500 : 
-							   (noseGroundForces[2] < -2000) ? -2000 : 
+		noseGroundForces[2]  = (noseGroundForces[2] >  8000) ? 8000 : 
+							   (noseGroundForces[2] < -8000) ? -8000 : 
 							    noseGroundForces[2];
 		
-		leftGroundForces[2]  = (leftGroundForces[2] > 500) ? 500 : 
-							   (leftGroundForces[2] < -2000) ? -2000 : 
+		leftGroundForces[2]  = (leftGroundForces[2] >  8000) ? 8000 : 
+							   (leftGroundForces[2] < -8000) ? -8000 : 
 							    leftGroundForces[2];
 		
-		rightGroundForces[2] = (rightGroundForces[2] > 500) ? 500 : 
-							   (rightGroundForces[2] < -2000) ? -2000 : 
+		rightGroundForces[2] = (rightGroundForces[2] >  8000) ? 8000 : 
+							   (rightGroundForces[2] < -8000) ? -8000 : 
 							    rightGroundForces[2];
 		
 		// X Forces
@@ -321,19 +320,19 @@ public class IntegrateGroundReaction {
 			case 0:
 				gearRelativeCGVector = new Vector3D(new double[]{groundReaction.get(GroundReaction.NOSE_X),
 																 groundReaction.get(GroundReaction.NOSE_Y),
-																 groundReaction.get(GroundReaction.NOSE_Z)*-0.125});
+																-groundReaction.get(GroundReaction.NOSE_Z)*0.125});
 				forceVector = new Vector3D(noseGroundForces);
 				break;
 			case 1:
 				gearRelativeCGVector = new Vector3D(new double[]{groundReaction.get(GroundReaction.LEFT_X),
 																 groundReaction.get(GroundReaction.LEFT_Y)*0.25,
-																 groundReaction.get(GroundReaction.LEFT_Z)*-0.125});
+																-groundReaction.get(GroundReaction.LEFT_Z)*0.125});
 				forceVector = new Vector3D(leftGroundForces);
 				break;
 			case 2:
 				gearRelativeCGVector = new Vector3D(new double[]{groundReaction.get(GroundReaction.RIGHT_X),
 																 groundReaction.get(GroundReaction.RIGHT_Y)*0.25,
-																 groundReaction.get(GroundReaction.RIGHT_Z)*-0.125});
+																-groundReaction.get(GroundReaction.RIGHT_Z)*0.125});
 				forceVector = new Vector3D(rightGroundForces);
 				break;
 			default:

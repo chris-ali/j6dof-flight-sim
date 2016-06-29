@@ -23,6 +23,8 @@ public class GroundReactionTest {
 	private double[] eulerAngles      		  = new double[]{0,0,0};
 	private double[] angularRates     		  = new double[]{0,0,0};
 	
+	private double[] sixDOFDerivatives		  = new double[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	
 	public static void main(String[] args) {
 		GroundReactionTest test = new GroundReactionTest();
 		test.setup();
@@ -38,6 +40,7 @@ public class GroundReactionTest {
 													 eulerAngles,
 													 angularRates,
 													 integratorConfig,
+													 sixDOFDerivatives,
 													 ab.getAircraft(),
 													 controls, 
 													 terrainHeight);

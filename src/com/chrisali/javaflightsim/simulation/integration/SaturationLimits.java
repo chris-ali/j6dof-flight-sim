@@ -24,7 +24,7 @@ public class SaturationLimits {
 	 * @param isWeightOnWheels
 	 * @return eulerAngles
 	 */
-	public static double[] piBounding(double[] eulerAngles, boolean isWeightOnWheels) {
+	public static double[] piBounding(double[] eulerAngles) {
 		double phi   = eulerAngles[0];
 		double theta = eulerAngles[1];
 		double psi   = eulerAngles[2];
@@ -38,7 +38,6 @@ public class SaturationLimits {
 			phi %= Math.PI;
 		}
 		
-		// Airborne limits
 		if (eulerAngles[1] > Math.PI ) {
 			theta -= 2*Math.PI;
 			theta %= Math.PI;
@@ -49,19 +48,6 @@ public class SaturationLimits {
 			theta = Math.PI*0.52; // Prevent theta from reaching PI/2, which would cause singularity
 		} else if (eulerAngles[1] == -Math.PI/2) {
 			theta = -Math.PI*0.52;
-		}
-		
-		// Ground limits
-		if (isWeightOnWheels) {
-			if (eulerAngles[0] > Math.PI/8)
-				phi = Math.PI/8;
-			else if (eulerAngles[0] < -Math.PI/8)
-				phi = -Math.PI/8;
-			
-			if (eulerAngles[1] > Math.PI/8)
-				theta = Math.PI/8;
-			else if (eulerAngles[1] < -Math.PI/8)
-				theta = -Math.PI/8;
 		}
 		
 		// Return only positive values of psi between 0 and 2*pi
@@ -82,7 +68,7 @@ public class SaturationLimits {
 	 *  @param isWeightOnWheels
 	 *  @return linearVelocities
 	 */
-	public static double[] limitLinearVelocities(double[] linearVelocities, boolean isWeightOnWheels) {
+	public static double[] limitLinearVelocities(double[] linearVelocities) {
 		double u = linearVelocities[0];
 		double v = linearVelocities[1];
 		double w = linearVelocities[2];
@@ -102,14 +88,6 @@ public class SaturationLimits {
 			w = -1000;
 		else if (linearVelocities[2] > 1000)
 			w = 1000;
-		
-		// Ground limits
-		if (isWeightOnWheels) {
-			if (linearVelocities[1] < -5)
-				v = -5;
-			else if (linearVelocities[1] > 5)
-				v = 5;
-		}
 		
 		linearVelocities[0] = u;
 		linearVelocities[1] = v;
@@ -247,7 +225,7 @@ public class SaturationLimits {
 	}
 	
 	/**
-	 * Prevents sinking below ground
+	 * Prevents from sinking too far below ground
 	 * 
 	 * @param NEDPosition
 	 * @param terrainHeight
@@ -255,8 +233,8 @@ public class SaturationLimits {
 	 */
 	public static double[] limitNEDPosition(double[] NEDPosition, 
 											double terrainHeight) {
-		if (NEDPosition[2] < terrainHeight)
-			NEDPosition[2] = terrainHeight;
+		if (NEDPosition[2] < terrainHeight-10)
+			NEDPosition[2] = terrainHeight-10;
 		
 		return NEDPosition;
 	}
