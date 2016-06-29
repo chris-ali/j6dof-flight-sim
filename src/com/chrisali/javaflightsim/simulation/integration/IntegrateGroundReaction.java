@@ -30,8 +30,8 @@ import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
  */
 public class IntegrateGroundReaction {
 	// Tire Properties
-	private static final double TIRE_STATIC_FRICTION  = 0.7;
-	private static final double TIRE_ROLLING_FRICTION = 0.07;
+	private static final double TIRE_STATIC_FRICTION  = 0.6;
+	private static final double TIRE_ROLLING_FRICTION = 0.06;
 	
 	// Aircraft Properties
 	private double mass;
@@ -247,37 +247,33 @@ public class IntegrateGroundReaction {
 	
 	/**
 	 * Calculates each component of force for each landing gear on the aircraft, which is then used to calculate
-	 * ground reaction derivatives and moments
+	 * ground reaction derivatives and moments. Uses equations 3.137-143 in Principles of Flight Simulation (Allerton) 
 	 */
 	private void calculateTotalGroundForces() {
 		// Z Forces (Landing Gear Struts)
-		noseGroundForces[2]  = - groundReactionDerivatives[1] * mass;
-		leftGroundForces[2]  = - groundReactionDerivatives[3] * mass;
-		rightGroundForces[2] = - groundReactionDerivatives[5] * mass;
-		
 		// Limit strut forces
 		noseGroundForces[2]  = (noseGroundForces[2] >  8000) ? 8000 : 
 							   (noseGroundForces[2] < -8000) ? -8000 : 
-							    noseGroundForces[2];
+							   - (groundReactionDerivatives[1] * mass) * (1 + eulerAngles[1]);
 		
 		leftGroundForces[2]  = (leftGroundForces[2] >  8000) ? 8000 : 
 							   (leftGroundForces[2] < -8000) ? -8000 : 
-							    leftGroundForces[2];
+							   - (groundReactionDerivatives[3] * mass) * (1 + eulerAngles[1]);
 		
 		rightGroundForces[2] = (rightGroundForces[2] >  8000) ? 8000 : 
 							   (rightGroundForces[2] < -8000) ? -8000 : 
-							    rightGroundForces[2];
+							   - (groundReactionDerivatives[5] * mass) * (1 + eulerAngles[1]);
 		
 		// X Forces
 		// Use static coefficient of friction if near stand still; taper force off as forward velocity nears 0 
 		if (linearVelocities[0] < 5) {
-			noseGroundForces[0]  = noseGroundForces[2]  * TIRE_STATIC_FRICTION * linearVelocities[0]/10;
-			leftGroundForces[0]  = leftGroundForces[2]  * TIRE_STATIC_FRICTION * linearVelocities[0]/10;
-			rightGroundForces[0] = rightGroundForces[2] * TIRE_STATIC_FRICTION * linearVelocities[0]/10;
+			noseGroundForces[0]  = noseGroundForces[2]  * (TIRE_STATIC_FRICTION * linearVelocities[0]/5 + eulerAngles[1]);
+			leftGroundForces[0]  = leftGroundForces[2]  * (TIRE_STATIC_FRICTION * linearVelocities[0]/5 + eulerAngles[1]);
+			rightGroundForces[0] = rightGroundForces[2] * (TIRE_STATIC_FRICTION * linearVelocities[0]/5 + eulerAngles[1]);
 		} else {
-			noseGroundForces[0]  = noseGroundForces[2]  * TIRE_ROLLING_FRICTION;
-			leftGroundForces[0]  = leftGroundForces[2]  * TIRE_ROLLING_FRICTION;
-			rightGroundForces[0] = rightGroundForces[2] * TIRE_ROLLING_FRICTION;
+			noseGroundForces[0]  = noseGroundForces[2]  * (TIRE_ROLLING_FRICTION + eulerAngles[1]);
+			leftGroundForces[0]  = leftGroundForces[2]  * (TIRE_ROLLING_FRICTION + eulerAngles[1]);
+			rightGroundForces[0] = rightGroundForces[2] * (TIRE_ROLLING_FRICTION + eulerAngles[1]);
 		}
 		
 		// Braking
@@ -290,7 +286,8 @@ public class IntegrateGroundReaction {
 			rightGroundForces[0] -= groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControls.BRAKE_R);
 		}
 		
-		// Y Forces				// Nosewheel steering friction force based on a fraction of the rudder deflection to the maximum deflection
+		// Y Forces
+		// Nosewheel steering friction force based on a fraction of the rudder deflection to the maximum deflection
 		if (linearVelocities[0] > 40) {
 			noseGroundForces[1]  =   Math.abs(noseGroundForces[2]) * TIRE_ROLLING_FRICTION 
 								  * (controls.get(FlightControls.RUDDER)/FlightControls.RUDDER.getMaximum())/10;
