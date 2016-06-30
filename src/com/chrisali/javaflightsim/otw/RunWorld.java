@@ -124,7 +124,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 			TextMaster.loadText(text);
 
 			//------ Render Everything -----------
-			masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainArray(), 
+			masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainMap(), 
 											lights, camera, new Vector4f(0, 1, 0, 0));
 			ParticleMaster.renderParticles(camera);
 			TextMaster.render();
@@ -161,7 +161,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		//================================= Entities ==========================================================
 		
-		entities = new EntityCollections(lights, terrainCollection.getTerrainArray(), loader);
+		entities = new EntityCollections(lights, terrainCollection.getTerrainMap(), loader);
 		//entities.createAutogenImageEntities("autogen", "Terrain");
 		//entities.createRandomStaticEntities();
 		
@@ -204,10 +204,10 @@ public class RunWorld implements Runnable, FlightDataListener {
 	 */
 	public synchronized float getTerrainHeight() {
 		if (running) {
-			Terrain[][] terrainArray = terrainCollection.getTerrainArray();
+			Map<String, Terrain> terrainMap = terrainCollection.getTerrainMap();
 			Vector3f position = ownship.getPosition();
 			
-			return Terrain.getCurrentTerrain(terrainArray, position.x, position.z)
+			return Terrain.getCurrentTerrain(terrainMap, position.x, position.z)
 									 		.getTerrainHeight(position.x, position.z);
 		} else { 
 			return 0.0f; 

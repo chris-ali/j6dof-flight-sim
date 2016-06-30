@@ -1,5 +1,7 @@
 package com.chrisali.javaflightsim.otw.entities;
 
+import java.util.Map;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -33,9 +35,9 @@ public class Player extends Entity {
 	/**
 	 * Simple physics to move the player around the world while being tied to the ground
 	 * 
-	 * @param terrainArray
+	 * @param terrainMap
 	 */
-	public void move(Terrain[][] terrainArray) {
+	public void move(Map<String, Terrain> terrainMap) {
 		checkInputs();
 		
 		super.increaseRotation(0, currentTurnSpeed * DisplayManager.getFrameTimeSeconds(), 0);
@@ -48,7 +50,7 @@ public class Player extends Entity {
 		currentVerticalSpeed += GRAVITY * DisplayManager.getFrameTimeSeconds();
 		super.increasePosition(0, currentVerticalSpeed * DisplayManager.getFrameTimeSeconds(), 0);
 		
-		Terrain terrain = Terrain.getCurrentTerrain(terrainArray, super.getPosition().x, super.getPosition().z);
+		Terrain terrain = Terrain.getCurrentTerrain(terrainMap, super.getPosition().x, super.getPosition().z);
 		float terrainHeight = terrain.getTerrainHeight(super.getPosition().x, super.getPosition().z);
 		
 		if (super.getPosition().y < terrainHeight) {

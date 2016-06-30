@@ -60,18 +60,15 @@ public class MasterRenderer {
 		GL11.glDisable(GL11.GL_CULL_FACE);
 	}
 	
-	public void renderWholeScene(EntityCollections entities, Terrain[][] terrainArray, List<Light> lights, Camera camera, Vector4f clippingPlane) {
+	public void renderWholeScene(EntityCollections entities, Map<String, Terrain> terrainMap, List<Light> lights, Camera camera, Vector4f clippingPlane) {
 		for(Entity entity : entities.getStaticEntities())
 			processEntity(entity);
 		
 		for(Entity entity : entities.getLitEntities())
 			processEntity(entity);
 		
-		for (int i = 0; i < terrainArray.length; i++) {
-			for (int j = 0; j < terrainArray.length; j++) {
-				processTerrain(terrainArray[i][j]);
-			}
-		}
+		for (Map.Entry<String, Terrain> terrain : terrainMap.entrySet())
+			processTerrain(terrain.getValue());
 		
 		render(lights, camera, clippingPlane);
 	}

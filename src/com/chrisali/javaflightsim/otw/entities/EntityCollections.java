@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -32,11 +33,11 @@ public class EntityCollections {
 	private List<Entity> litEntities = new ArrayList<>();
 	private List<Light> lights;
 	
-	private Terrain[][] terrainArray;
+	private Map<String, Terrain> terrainMap;
 	private Loader loader;
 	
-	public EntityCollections(List<Light> lights, Terrain[][] terrainArray, Loader loader) {
-		this.terrainArray = terrainArray;
+	public EntityCollections(List<Light> lights, Map<String, Terrain> terrainMap, Loader loader) {
+		this.terrainMap = terrainMap;
 		this.loader = loader;
 		this.lights = lights;
 	}
@@ -64,28 +65,30 @@ public class EntityCollections {
 		for (int i=0; i<9600; i++) {
 			float x, y, z;
 			
+			int terrainMapWidth = (int)Math.sqrt(terrainMap.size());
+			
 			if (i % 7 == 0) {
-				x = random.nextFloat() * Terrain.getSize()*terrainArray.length;
-				z = random.nextFloat() * Terrain.getSize()*terrainArray.length;
-				y = Terrain.getCurrentTerrain(terrainArray, x, z).getTerrainHeight(x, z);
+				x = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
+				z = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
+				y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 				
 				staticEntities.add(new Entity(pineforest, new Vector3f(x, y-2, z), 
 					0, random.nextFloat()*360, 0, random.nextFloat() + 6));
 			}
 			
 			if (i % 5 == 0) {
-				x = random.nextFloat() * Terrain.getSize()*terrainArray.length;
-				z = random.nextFloat() * Terrain.getSize()*terrainArray.length;
-				y = Terrain.getCurrentTerrain(terrainArray, x, z).getTerrainHeight(x, z);
+				x = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
+				z = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
+				y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 				
 				staticEntities.add(new Entity(oakforest, new Vector3f(x, y-2, z), 
 					0, random.nextFloat()*360, 0, random.nextFloat()* 1 + 5));
 			}
 			
 			if (i % 8 == 0) {
-				x = random.nextFloat() * Terrain.getSize()*terrainArray.length;
-				z = random.nextFloat() * Terrain.getSize()*terrainArray.length;
-				y = Terrain.getCurrentTerrain(terrainArray, x, z).getTerrainHeight(x, z);
+				x = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
+				z = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
+				y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 				
 				staticEntities.add(new Entity(oakforest, new Vector3f(x, y-2, z), 
 					0, random.nextFloat()*360, 0, random.nextFloat()* 1 + 5));
@@ -153,7 +156,7 @@ public class EntityCollections {
 //		oakforest.getTexture().setUseFakeLighting(true);
 		
 		Random random = new Random();
-		float y = Terrain.getCurrentTerrain(terrainArray, x, z).getTerrainHeight(x, z);
+		float y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 		
 		staticEntities.add(new Entity(pineforest, new Vector3f(x, y-2, z), 
 				0, random.nextFloat()*360, 0, random.nextFloat() + 6));
@@ -184,21 +187,21 @@ public class EntityCollections {
 		
 		x = 185;
 		z = 293;	
-		y = Terrain.getCurrentTerrain(terrainArray, x, z).getTerrainHeight(x, z);
+		y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 		
 		litEntities.add(new Entity(lamp, new Vector3f(x, y, z), 0, 0, 0, 1));
 		lights.add(new Light(new Vector3f(x, y + 15, z), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
 		
 		x = 370;
 		z = 300;	
-		y = Terrain.getCurrentTerrain(terrainArray, x, z).getTerrainHeight(x, z);
+		y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 		
 		litEntities.add(new Entity(lamp, new Vector3f(x, y, z), 0, 0, 0, 1));
 		lights.add(new Light(new Vector3f(x, y + 15, z), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
 		
 		x = 100;
 		z = 200;	
-		y = Terrain.getCurrentTerrain(terrainArray, x, z).getTerrainHeight(x, z);
+		y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 		
 		litEntities.add(new Entity(lamp, new Vector3f(x, y, z), 0, 0, 0, 1));
 		lights.add(new Light(new Vector3f(x, y + 15, z), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
@@ -235,7 +238,7 @@ public class EntityCollections {
 	public void createStaticEntity(String entityName, float xPos, float zPos, float yRot, float scale) {
 		TexturedModel staticEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, "Entities", loader), 
 														new ModelTexture(loader.loadTexture(entityName, "Entities")));
-		float yPos = Terrain.getCurrentTerrain(terrainArray, xPos, zPos).getTerrainHeight(xPos, zPos);
+		float yPos = Terrain.getCurrentTerrain(terrainMap, xPos, zPos).getTerrainHeight(xPos, zPos);
 		Vector3f position = new Vector3f(xPos, yPos, zPos);
 		
 		staticEntities.add(new Entity(staticEntity, position, 0, yRot, 0, scale));
@@ -301,7 +304,7 @@ public class EntityCollections {
 								 Vector3f color, Vector3f attenuation, Vector3f lightPosOffset) {
 		TexturedModel litEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, "Entities", loader), 
 													 new ModelTexture(loader.loadTexture(entityName, "Entities")));
-		float yPos = Terrain.getCurrentTerrain(terrainArray, xPos, zPos).getTerrainHeight(xPos, zPos);
+		float yPos = Terrain.getCurrentTerrain(terrainMap, xPos, zPos).getTerrainHeight(xPos, zPos);
 		Vector3f position = new Vector3f(xPos, yPos, zPos);
 		
 		litEntities.add(new Entity(litEntity, position, 0, yRot, 0, scale));

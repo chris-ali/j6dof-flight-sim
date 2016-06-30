@@ -3,6 +3,7 @@ package com.chrisali.javaflightsim.otw.terrain;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -207,15 +208,20 @@ public class Terrain {
 	}
 	
 	/**
-	 * Returns the Terrain object from a Terrain array that the player is currently standing on 
+	 * Returns the Terrain object from a Terrain map that the player is currently standing on 
 	 * 
-	 * @param terrainArray
+	 * @param terrainMap
 	 * @param worldX
 	 * @param worldZ
 	 * @return terrain object that the player is standing on
 	 */
-	public static Terrain getCurrentTerrain(Terrain[][] terrainArray, float worldX, float worldZ) {
-		return terrainArray[(int)(worldX/Terrain.SIZE)][(int)(worldZ/Terrain.SIZE)];
+	public static Terrain getCurrentTerrain(Map<String, Terrain> terrainMap, float worldX, float worldZ) {
+		// Floor divide player's absolute (world) x and z coordinates to get the grid indices that this terrain object lies in  
+		int xGrid = Math.floorDiv((int)worldX, (int)Terrain.SIZE);
+		int zGrid = Math.floorDiv((int)worldZ, (int)Terrain.SIZE);
+		
+		// "xGrid-zGrid" comprises each key to the map of terrains
+		return terrainMap.get(xGrid + "-" + zGrid);
 	}
 	
 	public float getX() {
