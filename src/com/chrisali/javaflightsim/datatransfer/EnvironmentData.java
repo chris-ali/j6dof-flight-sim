@@ -52,10 +52,10 @@ public class EnvironmentData implements Runnable {
 		
 		try {
 			while (!RunWorld.isRunning()) 
-				Thread.sleep(1);
+				Thread.sleep(25);
 			
 			while (running) {
-				Thread.sleep(12);
+				Thread.sleep(10);
 				
 				if(outTheWindow != null)
 					updateData(outTheWindow.getTerrainHeight());

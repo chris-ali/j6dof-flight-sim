@@ -194,14 +194,14 @@ public class Terrain {
 		float terrainHeight;
 		if (xCoord <= (1-zCoord)) {
 			terrainHeight = RenderingUtilities.barycentric(new Vector3f(0, heightArray[gridX][gridZ], 0), 
-												   new Vector3f(1, heightArray[gridX + 1][gridZ], 0), 
-												   new Vector3f(0, heightArray[gridX][gridZ + 1], 1), 
-												   new Vector2f(xCoord, zCoord));
+														   new Vector3f(1, heightArray[gridX + 1][gridZ], 0), 
+														   new Vector3f(0, heightArray[gridX][gridZ + 1], 1), 
+														   new Vector2f(xCoord, zCoord));
 		} else {
 			terrainHeight = RenderingUtilities.barycentric(new Vector3f(1, heightArray[gridX + 1][gridZ], 0), 
-												   new Vector3f(1, heightArray[gridX + 1][gridZ + 1], 1), 
-												   new Vector3f(0, heightArray[gridX][gridZ + 1], 1), 
-												   new Vector2f(xCoord, zCoord));
+														   new Vector3f(1, heightArray[gridX + 1][gridZ + 1], 1), 
+														   new Vector3f(0, heightArray[gridX][gridZ + 1], 1), 
+														   new Vector2f(xCoord, zCoord));
 		}
 		
 		return terrainHeight;			

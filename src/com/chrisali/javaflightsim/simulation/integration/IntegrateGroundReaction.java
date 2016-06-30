@@ -40,7 +40,7 @@ public class IntegrateGroundReaction {
 	private boolean weightOnWheels = false;
 	
 	// Positions
-	private double   terrainHeight;
+	private double   terrainHeight			   = 0.0;
 	
 	private double[] tirePosition			   = new double[3]; //{nose, left, right} [ft]
 	private double[] tireVelocity			   = new double[3]; //{nose, left, right} [ft/sec]
@@ -67,6 +67,8 @@ public class IntegrateGroundReaction {
 	private double[] eulerAngles      		   = new double[3];
 	private double[] angularRates     		   = new double[3];
 	
+	private double[] windParameters			   = new double[3];
+	
 	private double[] sixDOFDerivatives		   = new double[14];
 	
 	/**
@@ -81,26 +83,24 @@ public class IntegrateGroundReaction {
 	 * @param integratorConfig
 	 * @param aircraft
 	 * @param controls
-	 * @param terrainHeight
 	 */
 	public IntegrateGroundReaction(double[] linearVelocities,
 								   double[] NEDPosition,
 								   double[] eulerAngles,
 								   double[] angularRates,
+								   double[] windParameters,
 								   double[] sixDOFDerivatives,
 								   double[] integratorConfig,
 								   Aircraft aircraft,
-								   Map<FlightControls, Double> controls,
-								   double terrainHeight) {
+								   Map<FlightControls, Double> controls) {
 		
 		this.NEDPosition = NEDPosition;
 		this.linearVelocities = linearVelocities;
 		this.eulerAngles = eulerAngles;
 		this.angularRates = angularRates;
+		this.windParameters = windParameters;
 		
 		this.sixDOFDerivatives = sixDOFDerivatives;
-		
-		this.terrainHeight = terrainHeight;
 		
 		this.controls = controls;
 		this.groundReaction = aircraft.getGroundReaction();
@@ -141,20 +141,17 @@ public class IntegrateGroundReaction {
 	}
 	
 	/**
-	 * Calculates the derivatives for each landing gear using second order simple spring-mass-damper
+	 * Recalculates the derivatives for each landing gear using second order simple spring-mass-damper
 	 * ODEs converted to first order ODEs in state space form 
 	 * 
 	 * @param y
-	 * @return yDot[] First order converted spring mass equations represented as state space equations
 	 */
-	private double[] updateDerivatives(double[] y) {
-		double[] yDot = new double[6];
-		
+	private void updateDerivatives(double[] y) {
 		// If tire position > 0, tire is still airborne and no forces should be applied 
 		for (int i = 0; i < tirePosition.length; i++) {
 			if (tirePosition[i] > 0.01) { 
-				yDot[2*i+1] = y[2*i+1] = 0;
-				yDot[2*i]   = y[2*i]   = 0;
+				groundReactionDerivatives[2*i+1] = y[2*i+1] = 0;
+				groundReactionDerivatives[2*i]   = y[2*i]   = 0;
 				
 				switch(i) {
 				case 0:
@@ -177,24 +174,22 @@ public class IntegrateGroundReaction {
 		}
 		
 		// Nose
-		yDot[0] = y[1];
-		yDot[1] =  (- groundReaction.get(GroundReaction.NOSE_DAMPING)/mass * y[1]) 
-				 	- (groundReaction.get(GroundReaction.NOSE_SPRING)/mass * y[0])
-				 	+ noseGroundForces[2]/mass;
+		groundReactionDerivatives[0] = y[1];
+		groundReactionDerivatives[1] =  (- groundReaction.get(GroundReaction.NOSE_DAMPING)/mass * y[1]) 
+									 	- (groundReaction.get(GroundReaction.NOSE_SPRING)/mass * y[0])
+									 	+ noseGroundForces[2]/mass;
 		
 		// Left Main
-		yDot[2] = y[3];
-		yDot[3] =  (- groundReaction.get(GroundReaction.LEFT_DAMPING)/mass * y[3]) 
-				 	- (groundReaction.get(GroundReaction.LEFT_SPRING)/mass * y[2])
-				 	+ leftGroundForces[2]/mass;
+		groundReactionDerivatives[2] = y[3];
+		groundReactionDerivatives[3] =  (- groundReaction.get(GroundReaction.LEFT_DAMPING)/mass * y[3]) 
+									 	- (groundReaction.get(GroundReaction.LEFT_SPRING)/mass * y[2])
+									 	+ leftGroundForces[2]/mass;
 		
 		// Right Main
-		yDot[4] = y[5];
-		yDot[5] =  (- groundReaction.get(GroundReaction.RIGHT_DAMPING)/mass * y[5]) 
-				 	- (groundReaction.get(GroundReaction.RIGHT_SPRING)/mass * y[4])
-				 	+ rightGroundForces[2]/mass;
-
-		return yDot;
+		groundReactionDerivatives[4] = y[5];
+		groundReactionDerivatives[5] =  (- groundReaction.get(GroundReaction.RIGHT_DAMPING)/mass * y[5]) 
+									 	- (groundReaction.get(GroundReaction.RIGHT_SPRING)/mass * y[4])
+									 	+ rightGroundForces[2]/mass;
 	}
 	
 	/**
@@ -205,6 +200,7 @@ public class IntegrateGroundReaction {
 		double[][] dirCosMat = SixDOFUtilities.body2Ned(eulerAngles);
 		double[] gearRelativeCG; // Position of {nose, left, right} gear relative to CG position
 		
+		// i=0 (nose), i=1 (left main), i=2 (right main)
 		for (int i = 0; i < 3; i++) {
 			// Assign body gear positions depending on stage of loop
 			switch(i) {
@@ -252,16 +248,16 @@ public class IntegrateGroundReaction {
 	private void calculateTotalGroundForces() {
 		// Z Forces (Landing Gear Struts)
 		// Limit strut forces
-		noseGroundForces[2]  = (noseGroundForces[2] >  8000) ? 8000 : 
-							   (noseGroundForces[2] < -8000) ? -8000 : 
+		noseGroundForces[2]  = (noseGroundForces[2] >  10000) ? 10000 : 
+							   (noseGroundForces[2] < -10000) ? -10000 : 
 							   - (groundReactionDerivatives[1] * mass) * (1 + eulerAngles[1]);
 		
-		leftGroundForces[2]  = (leftGroundForces[2] >  8000) ? 8000 : 
-							   (leftGroundForces[2] < -8000) ? -8000 : 
+		leftGroundForces[2]  = (leftGroundForces[2] >  10000) ? 10000 : 
+							   (leftGroundForces[2] < -10000) ? -10000 : 
 							   - (groundReactionDerivatives[3] * mass) * (1 + eulerAngles[1]);
 		
-		rightGroundForces[2] = (rightGroundForces[2] >  8000) ? 8000 : 
-							   (rightGroundForces[2] < -8000) ? -8000 : 
+		rightGroundForces[2] = (rightGroundForces[2] >  10000) ? 10000 : 
+							   (rightGroundForces[2] < -10000) ? -10000 : 
 							   - (groundReactionDerivatives[5] * mass) * (1 + eulerAngles[1]);
 		
 		// X Forces
@@ -288,12 +284,12 @@ public class IntegrateGroundReaction {
 		
 		// Y Forces
 		// Nosewheel steering friction force based on a fraction of the rudder deflection to the maximum deflection
-		if (linearVelocities[0] > 40) {
+		if (linearVelocities[0] > 20) {
 			noseGroundForces[1]  =   Math.abs(noseGroundForces[2]) * TIRE_ROLLING_FRICTION 
 								  * (controls.get(FlightControls.RUDDER)/FlightControls.RUDDER.getMaximum())/10;
 									// Create side force to yaw aircraft in direction of velocity vector
-			leftGroundForces[1]  = - Math.abs(leftGroundForces[2])  * TIRE_STATIC_FRICTION * linearVelocities[1]/1000; 
-			rightGroundForces[1] =   Math.abs(rightGroundForces[2]) * TIRE_STATIC_FRICTION * linearVelocities[1]/1000;
+			leftGroundForces[1]  = - Math.abs(leftGroundForces[2])  * TIRE_STATIC_FRICTION * windParameters[1]; 
+			rightGroundForces[1] =   Math.abs(rightGroundForces[2]) * TIRE_STATIC_FRICTION * windParameters[1];
 		}
 		
 		// Summation of Forces
@@ -346,33 +342,53 @@ public class IntegrateGroundReaction {
 		totalGroundMoments = tempTotalGroundMoments;
 	}
 	
-	protected String printDerivatives(double[] y, double[] yDot) {
-		DecimalFormat df = new DecimalFormat("####.##");
-		StringBuilder sb = new StringBuilder();
-		sb.append("y: [");
-		for (int i = 0; i < y.length; i++) {
-			sb.append(df.format(y[i]));
-			if (i < y.length-1)
-				sb.append(", ");
-		}
-		sb.append("]\n");
+	/**
+	 * Calculates the positions and velocities of each landing gear on the aircraft, calculates derivatives for
+	 * the next step of integration, runs the next step of integration and then calculates ground forces and moments
+	 * based on the results 
+	 */
+	public void integrateStep(double terrainHeight) {
+		this.terrainHeight = terrainHeight;
 		
-		sb.append("yDot: [");
-		for (int i = 0; i < yDot.length; i++) {
-			sb.append(df.format(yDot[i]));
-			if (i < yDot.length-1)
-				sb.append(", ");
-		}
-		sb.append("]\n\n");
+		calculateTirePositionsAndVelocities();
 		
-		return sb.toString();
+		updateDerivatives(new double[] {tirePosition[0],tireVelocity[0],
+										tirePosition[1],tireVelocity[1],
+										tirePosition[2],tireVelocity[2]});
+		// Run a single step of integration
+		y = integrator.singleStep(new GroundReactionEquations(), // derivatives
+								  t, 		  					 // start time
+								  y0, 		  					 // initial conditions
+								  t+integratorConfig[1]);   	 // end time (t+dt)
+		
+		calculateTotalGroundForces();
+		calculateTotalGroundMoments();
+		
+		t += integratorConfig[1];
 	}
+	
+	/**
+	 * @return If aircraft is on ground
+	 */
+	public boolean isWeightOnWheels() {return weightOnWheels;}
+
+	/**
+	 * @return Array of total forces due to ground reaction  
+	 */
+	public double[] getTotalGroundForces() {return totalGroundForces;}
+
+	/**
+	 * @return Array of total moments due to ground reaction  
+	 */
+	public double[] getTotalGroundMoments() {return totalGroundMoments;}
 	
 	@Override
 	public String toString() {
 		DecimalFormat df = new DecimalFormat("####.##");
 		StringBuilder sb = new StringBuilder();
-		sb.append("Height Above Ground: ").append(NEDPosition[2]-terrainHeight).append("\n");
+		sb.append("Height Above Ground: ").append(df.format(NEDPosition[2]-terrainHeight)).append("\n");
+		
+		sb.append("Terrain Height: ").append(df.format(terrainHeight)).append("\n");
 		
 		sb.append("Linear Velocities {u, v, w}: [");
 		for (int i = 0; i < 3; i++) {
@@ -412,46 +428,8 @@ public class IntegrateGroundReaction {
 			if (i < 2)
 				sb.append(", ");
 		}
-		sb.append("]");
+		sb.append("]\n");
 		
 		return sb.toString();
 	}
-	
-	/**
-	 * Calculates the positions and velocities of each landing gear on the aircraft, calculates derivatives for
-	 * the next step of integration, runs the next step of integration and then calculates ground forces and moments
-	 * based on the results 
-	 */
-	public void integrateStep() {
-		calculateTirePositionsAndVelocities();
-		
-		groundReactionDerivatives = updateDerivatives(new double[] {tirePosition[0],tireVelocity[0],
-																	tirePosition[1],tireVelocity[1],
-																	tirePosition[2],tireVelocity[2]});
-		// Run a single step of integration
-		y = integrator.singleStep(new GroundReactionEquations(), // derivatives
-								  t, 		  					 // start time
-								  y0, 		  					 // initial conditions
-								  t+integratorConfig[1]);   	 // end time (t+dt)
-		
-		calculateTotalGroundForces();
-		calculateTotalGroundMoments();
-		
-		t += integratorConfig[1];
-	}
-	
-	/**
-	 * @return If aircraft is on ground
-	 */
-	public boolean isWeightOnWheels() {return weightOnWheels;}
-
-	/**
-	 * @return Array of total forces due to ground reaction  
-	 */
-	public double[] getTotalGroundForces() {return totalGroundForces;}
-
-	/**
-	 * @return Array of total moments due to ground reaction  
-	 */
-	public double[] getTotalGroundMoments() {return totalGroundMoments;}
 }

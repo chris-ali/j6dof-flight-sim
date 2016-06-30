@@ -22,6 +22,7 @@ public class GroundReactionTest {
 	private double[] NEDPosition      		  = new double[]{0,0,0};
 	private double[] eulerAngles      		  = new double[]{0,0,0};
 	private double[] angularRates     		  = new double[]{0,0,0};
+	private double[] windParameters			  = new double[]{0,0,0};
 	
 	private double[] sixDOFDerivatives		  = new double[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	
@@ -39,11 +40,11 @@ public class GroundReactionTest {
 													 NEDPosition,
 													 eulerAngles,
 													 angularRates,
+													 windParameters,
 													 integratorConfig,
 													 sixDOFDerivatives,
 													 ab.getAircraft(),
-													 controls, 
-													 terrainHeight);
+													 controls);
 	}
 	
 	private void run() {
@@ -53,7 +54,7 @@ public class GroundReactionTest {
 			//controls.put(FlightControls.BRAKE_L, 0.8);
 			controls.put(FlightControls.RUDDER, -0.0);
 			
-			groundReaction.integrateStep();
+			groundReaction.integrateStep(terrainHeight);
 			
 			System.out.println(groundReaction.toString());
 			

@@ -149,11 +149,11 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 													 NEDPosition, 
 													 eulerAngles, 
 													 angularRates,
+													 windParameters,
 													 sixDOFDerivatives,
 													 integratorConfig, 
 													 aircraft, 
-													 controls, 
-													 terrainHeight);
+													 controls);
 		
 		// Calculate initial data members' values
 		updateDataMembers();
@@ -180,11 +180,9 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	/**
 	 * Recalculates the 14 (12 6DOF + 2 lat/lon) state derivatives based on the newly calculated accelerations and moments accomplished in {@link Integrate6DOFEquations#updateDataMembers(double[], double)}.
 	 * The equations are calculated with the help of methods in {@link SixDOFUtilities} to convert coordinate frames and calculate inertia parameters
-	 * @return ydot[]
 	 * @see Source: <i>Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
 	 */
 	private void updateDerivatives(double[] y) {
-		double[]   yDot          = new double[14];
 		double[][] dirCosMat     = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([column][row])
 		double[]   inertiaCoeffs = SixDOFUtilities.calculateInertiaCoeffs(Utilities.unboxDoubleArray(aircraft.getInertiaValues()));
 		double[]   ned2LLA       = SixDOFUtilities.ned2LLA(y);
@@ -208,8 +206,8 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		sixDOFDerivatives[10] =  (inertiaCoeffs[4]*y[9]*y[11]) - (inertiaCoeffs[5]*((y[9]*y[9])-(y[11]*y[11])))                      +(inertiaCoeffs[6]*totalMoments[1]);     // q (rad/sec)
 		sixDOFDerivatives[11] = ((inertiaCoeffs[7]*y[9]*y[10]) - (inertiaCoeffs[1]*y[10]*y[11])) + (inertiaCoeffs[3]*totalMoments[0])+(inertiaCoeffs[8]*totalMoments[2]);     // r (rad/sec)
 		
-		sixDOFDerivatives[12] = yDot[3]*ned2LLA[0]; // Latitude  (rad)
-		sixDOFDerivatives[13] = yDot[4]*ned2LLA[1]; // Longitude (rad)
+		sixDOFDerivatives[12] = sixDOFDerivatives[3]*ned2LLA[0]; // Latitude  (rad)
+		sixDOFDerivatives[13] = sixDOFDerivatives[4]*ned2LLA[1]; // Longitude (rad)
 	}
 	
 	/**
@@ -257,7 +255,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		
 		// Integrate another step of ground reaction only if within 100 ft of ground
 		if ((NEDPosition[2] - terrainHeight) < 100)
-			groundReaction.integrateStep();
+			groundReaction.integrateStep(terrainHeight);
 		
 		System.out.println(groundReaction);
 		
@@ -504,9 +502,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	public void onEnvironmentDataReceived(EnvironmentData environmentData) {
 		Map<EnvironmentDataType, Double> receivedEnvironmentData = environmentData.getEnvironmentData();
 		
-		if (environmentData != null) {
-			terrainHeight = receivedEnvironmentData.get(EnvironmentDataType.TERRAIN_HEIGHT)*-1;
-			//System.out.println(terrainHeight + " " + NEDPosition[2]);
-		}
+		if (environmentData != null)
+			terrainHeight = (receivedEnvironmentData.get(EnvironmentDataType.TERRAIN_HEIGHT)*15)+5;
 	}
 }
