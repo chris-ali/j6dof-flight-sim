@@ -220,6 +220,16 @@ public class SimulationController {
 	public List<Map<SimOuts, Double>> getLogsOut() {return runSim.getLogsOut();}
 	
 	/**
+	 * @return if runSim was able to clear simulation data kept in logsOut
+	 */
+	public boolean clearLogsOut() {
+		if(runSim != null)
+			return runSim.clearLogsOut();
+		else
+			return false;
+	}
+	
+	/**
 	 * Initializes, trims and starts the simulation (and flight and environment data, if selected) threads.
 	 * Depending on options specified, a console panel, plot window, instrument panel
 	 * and out the window display window will also be initialized and opened 

@@ -464,6 +464,13 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	public synchronized List<Map<SimOuts, Double>> getLogsOut() {return Collections.unmodifiableList(logsOut);}
 	
 	/**
+	 * Clears logsOut list of past data in preparation for recording a new maneuver 
+	 * 
+	 * @return If logsOut list was successfully deleted
+	 */
+	public synchronized boolean clearLogsOut() {return logsOut.removeAll(logsOut);}
+	
+	/**
 	 * Returns an EnumMap of data for a single step of integration accomplished in {@link Integrate6DOFEquations#accelAndMoments#logData(double)}	
 	 * 
 	 * @return simOut
