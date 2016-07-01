@@ -22,6 +22,7 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.chrisali.javaflightsim.controllers.SimulationController;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
@@ -42,8 +43,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	private SwingWorker<Void, Integer> refreshPlotWorker;
 	private ProgressDialog progressDialog;
 	
-	private PlotCloseListener plotCloseListener;
-	private PlotRefreshListener plotRefreshListener;
+	private SimulationController controller;
 	
 	/**
 	 * Plots data from the simulation in a Swing window. It loops through 
@@ -53,16 +53,19 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	 * @param String simPlotCetegories
 	 * @param List<EnumMap<SimOuts, Double>> logsOut
 	 * @param Aircraft aircraft
+	 * @param SimulationController controller
 	 */
 	public PlotWindow(List<Map<SimOuts, Double>> logsOut, 
 					 Set<String> simPlotCategories,
-					 Aircraft aircraft) {
+					 Aircraft aircraft,
+					 SimulationController controller) {
 		super(aircraft.getName() + " Plots");
 		setLayout(new BorderLayout());
 		
 		plotList = new ArrayList<>();
 		this.logsOut = logsOut;
 		this.simPlotCategories = simPlotCategories;
+		this.controller = controller;
 		
 		//------------------ Tab Pane ------------------------------
 		
@@ -99,9 +102,6 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 					refreshPlotWorker.cancel(true);
 				if (tabPaneWorker != null)
 					tabPaneWorker.cancel(true);
-				
-				if (plotCloseListener != null)
-					plotCloseListener.plotWindowClosed();
 			}
 		});
 		
@@ -124,8 +124,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 		refreshItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent ev) {
-				if(plotRefreshListener != null)
-					plotRefreshListener.refeshPlotsSelected();
+				controller.plotSimulation();
 			}
 		});
 		fileMenu.add(refreshItem);
@@ -231,13 +230,5 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	@Override
 	public void ProgressDialogCancelled() {
 		refreshPlotWorker.cancel(true);
-	}
-	
-	public void setPlotCloseListener (PlotCloseListener plotCloseListener) {
-		this.plotCloseListener = plotCloseListener;
-	}
-	
-	public void setPlotRefreshListener (PlotRefreshListener plotRefreshListener) {
-		this.plotRefreshListener = plotRefreshListener;
 	}
 }

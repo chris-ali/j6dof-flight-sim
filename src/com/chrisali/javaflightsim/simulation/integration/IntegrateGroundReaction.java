@@ -30,8 +30,8 @@ import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
  */
 public class IntegrateGroundReaction {
 	// Tire Properties
-	private static final double TIRE_STATIC_FRICTION  = 0.6;
-	private static final double TIRE_ROLLING_FRICTION = 0.06;
+	private static final double TIRE_STATIC_FRICTION  = 0.7;
+	private static final double TIRE_ROLLING_FRICTION = 0.07;
 	
 	// Aircraft Properties
 	private double mass;
@@ -148,6 +148,7 @@ public class IntegrateGroundReaction {
 	 */
 	private void updateDerivatives(double[] y) {
 		// If tire position > 0, tire is still airborne and no forces should be applied 
+		// i=0 (nose), i=1 (left main), i=2 (right main)
 		for (int i = 0; i < tirePosition.length; i++) {
 			if (tirePosition[i] > 0.01) { 
 				groundReactionDerivatives[2*i+1] = y[2*i+1] = 0;
@@ -248,15 +249,15 @@ public class IntegrateGroundReaction {
 	private void calculateTotalGroundForces() {
 		// Z Forces (Landing Gear Struts)
 		// Limit strut forces
-		noseGroundForces[2]  = (noseGroundForces[2] >  10000) ? 10000 : 
+		noseGroundForces[2]  = (noseGroundForces[2] >  10000) ?  10000 : 
 							   (noseGroundForces[2] < -10000) ? -10000 : 
 							   - (groundReactionDerivatives[1] * mass) * (1 + eulerAngles[1]);
 		
-		leftGroundForces[2]  = (leftGroundForces[2] >  10000) ? 10000 : 
+		leftGroundForces[2]  = (leftGroundForces[2] >  10000) ?  10000 : 
 							   (leftGroundForces[2] < -10000) ? -10000 : 
 							   - (groundReactionDerivatives[3] * mass) * (1 + eulerAngles[1]);
 		
-		rightGroundForces[2] = (rightGroundForces[2] >  10000) ? 10000 : 
+		rightGroundForces[2] = (rightGroundForces[2] >  10000) ?  10000 : 
 							   (rightGroundForces[2] < -10000) ? -10000 : 
 							   - (groundReactionDerivatives[5] * mass) * (1 + eulerAngles[1]);
 		
@@ -306,6 +307,7 @@ public class IntegrateGroundReaction {
 		Vector3D forceVector;
 		Vector3D gearRelativeCGVector;
 		
+		// i=0 (nose), i=1 (left main), i=2 (right main)
 		for (int i = 0; i < 3; i++) {
 			// Assign body gear force and arm vectors depending on stage of loop
 			// Scale down moments by scaling the arm lengths (negative sign produces realistic braking moments)
@@ -337,6 +339,21 @@ public class IntegrateGroundReaction {
 			// Take the cross product of force and arm vectors and add them to total moments 
 			for (int j = 0; j < tempTotalGroundMoments.length; j ++)
 				tempTotalGroundMoments[j] += Vector3D.crossProduct(forceVector, gearRelativeCGVector).toArray()[j];
+		}
+		
+		// Saturate ground moments if airspeed is less than 10 ft/sec
+		if (windParameters[0] < 10) {
+			tempTotalGroundMoments[0] = (tempTotalGroundMoments[0] >  100) ?  100 : 
+								   		(tempTotalGroundMoments[0] < -100) ? -100 : 
+									     tempTotalGroundMoments[0];
+
+			tempTotalGroundMoments[1] = (tempTotalGroundMoments[1] >  100) ?  100 : 
+								   		(tempTotalGroundMoments[1] < -100) ? -100 : 
+									     tempTotalGroundMoments[1];
+			
+			tempTotalGroundMoments[2] = (tempTotalGroundMoments[1] >  100) ?  100 : 
+								   		(tempTotalGroundMoments[1] < -100) ? -100 : 
+								   		 tempTotalGroundMoments[1];
 		}
 		
 		totalGroundMoments = tempTotalGroundMoments;

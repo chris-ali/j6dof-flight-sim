@@ -27,7 +27,8 @@ public class SimulationTest {
 		
 		PlotWindow plots = new PlotWindow(runSim.getLogsOut(), 
 										  new HashSet<String>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous")),
-						 				  ab.getAircraft());
+						 				  ab.getAircraft(),
+						 				  null);
 		plots.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 }

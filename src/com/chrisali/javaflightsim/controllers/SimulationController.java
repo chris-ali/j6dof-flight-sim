@@ -279,7 +279,7 @@ public class SimulationController {
 	 */
 	public void plotSimulation() {
 		if(plotWindow == null)
-			plotWindow = new PlotWindow(runSim.getLogsOut(), plotCategories, ab.getAircraft());
+			plotWindow = new PlotWindow(runSim.getLogsOut(), plotCategories, ab.getAircraft(), this);
 		else
 			plotWindow.refreshPlots(runSim.getLogsOut());
 	}
