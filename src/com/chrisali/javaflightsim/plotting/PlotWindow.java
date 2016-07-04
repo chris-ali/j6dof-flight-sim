@@ -116,19 +116,6 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 		JMenu fileMenu = new JMenu("File");
 		fileMenu.setMnemonic(KeyEvent.VK_F);
 		
-		//------------------- Refresh Item -------------------------------
-		
-		JMenuItem refreshItem = new JMenuItem("Refresh");
-		refreshItem.setMnemonic(KeyEvent.VK_R);
-		refreshItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));
-		refreshItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent ev) {
-				controller.plotSimulation();
-			}
-		});
-		fileMenu.add(refreshItem);
-		
 		//----------------------- Close Item -------------------------------
 		
 		JMenuItem closeItem = new JMenuItem("Close");
@@ -142,12 +129,45 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 		});
 		fileMenu.add(closeItem);
 		
+		//+++++++++++++++++++++++++ Plots Menu ++++++++++++++++++++++++++++++++++++++++++
+		
+		JMenu plotsMenu = new JMenu("Plots");
+		plotsMenu.setMnemonic(KeyEvent.VK_P);
+
+		//------------------- Refresh Item -------------------------------
+		
+		JMenuItem refreshItem = new JMenuItem("Refresh");
+		refreshItem.setMnemonic(KeyEvent.VK_R);
+		refreshItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));
+		refreshItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent ev) {
+				controller.plotSimulation();
+			}
+		});
+		plotsMenu.add(refreshItem);
+		
+		//------------------- Refresh Item -------------------------------
+		
+		JMenuItem clearPlotsItem = new JMenuItem("Clear Plots");
+		clearPlotsItem.setMnemonic(KeyEvent.VK_E);
+		clearPlotsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
+		clearPlotsItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent ev) {
+				controller.clearLogsOut();
+				controller.plotSimulation();
+			}
+		});
+		plotsMenu.add(clearPlotsItem);
+		
 		//===========================================================================
 		//                              Menu Bar
 		//===========================================================================
 		
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.add(fileMenu);
+		menuBar.add(plotsMenu);
 		
 		return menuBar;
 	}
