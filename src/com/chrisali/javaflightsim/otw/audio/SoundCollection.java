@@ -142,7 +142,6 @@ public class SoundCollection {
 		//================================ Systems =========================================
 		
 		soundSources.put(SoundEvent.FLAPS, new SoundSource("Audio", "flap"));
-		soundSources.get(SoundEvent.FLAPS).setLooping(true);
 		soundSources.get(SoundEvent.FLAPS).setVolume(0.5f*systemsVolume);
 		
 		soundSources.put(SoundEvent.GEAR, new SoundSource("Audio", "gear"));
@@ -224,8 +223,6 @@ public class SoundCollection {
 		
 		if (dXdt && !soundSources.get(event).isPlaying())
 			soundSources.get(event).play();
-		else if (!dXdt && soundSources.get(event).isPlaying())
-			soundSources.get(event).stop();
 	}
 	
 	/**

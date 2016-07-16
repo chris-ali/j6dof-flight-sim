@@ -257,8 +257,8 @@ public final class TurnCoordinator extends AbstractRadial {
      */
     public void setCoordValue(final double VALUE) {
         if (isEnabled()) {
-        	if (Math.abs(VALUE) <= 50) {
-        		this.coordValue = VALUE*50;
+        	if (Math.abs(VALUE) <= 12.5) {
+        		this.coordValue = VALUE*12.5;
         	}
             fireStateChanged();
             repaint();

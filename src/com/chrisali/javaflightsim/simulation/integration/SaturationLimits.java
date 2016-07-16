@@ -218,7 +218,7 @@ public class SaturationLimits {
 			alpha = Math.PI/12;
 		
 		// At slow speeds zero alpha and beta to prevent incorrectly large values of alpha and beta
-		if (windParameters[0] < 20) {
+		if (windParameters[0] < 30) {
 			beta = 0.0;
 			alpha = 0.0;
 		}

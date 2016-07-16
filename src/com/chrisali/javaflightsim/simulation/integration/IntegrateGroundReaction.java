@@ -30,8 +30,8 @@ import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
  */
 public class IntegrateGroundReaction {
 	// Tire Properties
-	private static final double TIRE_STATIC_FRICTION  = 0.7;
-	private static final double TIRE_ROLLING_FRICTION = 0.07;
+	private static final double TIRE_STATIC_FRICTION  = 0.5;
+	private static final double TIRE_ROLLING_FRICTION = 0.06;
 	
 	// Aircraft Properties
 	private double mass;
@@ -341,18 +341,18 @@ public class IntegrateGroundReaction {
 				tempTotalGroundMoments[j] += Vector3D.crossProduct(forceVector, gearRelativeCGVector).toArray()[j];
 		}
 		
-		// Saturate ground moments if airspeed is less than 10 ft/sec
-		if (windParameters[0] < 10) {
-			tempTotalGroundMoments[0] = (tempTotalGroundMoments[0] >  10) ?  10 : 
-								   		(tempTotalGroundMoments[0] < -10) ? -10 : 
+		// Saturate ground moments if forward speed is less than 10 ft/sec
+		if (linearVelocities[0] < 10) {
+			tempTotalGroundMoments[0] = (tempTotalGroundMoments[0] >  100) ?  100 : 
+								   		(tempTotalGroundMoments[0] < -100) ? -100 : 
 									     tempTotalGroundMoments[0];
 
-			tempTotalGroundMoments[1] = (tempTotalGroundMoments[1] >  10) ?  10 : 
-								   		(tempTotalGroundMoments[1] < -10) ? -10 : 
+			tempTotalGroundMoments[1] = (tempTotalGroundMoments[1] >  100) ?  100 : 
+								   		(tempTotalGroundMoments[1] < -100) ? -100 : 
 									     tempTotalGroundMoments[1];
 			
-			tempTotalGroundMoments[2] = (tempTotalGroundMoments[1] >  10) ?  10 : 
-								   		(tempTotalGroundMoments[1] < -10) ? -10 : 
+			tempTotalGroundMoments[2] = (tempTotalGroundMoments[1] >  100) ?  100 : 
+								   		(tempTotalGroundMoments[1] < -100) ? -100 : 
 								   		 tempTotalGroundMoments[1];
 		}
 		

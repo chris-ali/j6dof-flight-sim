@@ -234,8 +234,8 @@ public final class AirspeedIndicator extends AbstractRadial {
     @Override
     public void setValue(final double VALUE) {
     	if (VALUE <= 200) {
-    		if (VALUE < 10)
-    			rotationAngle = (2.0 * Math.PI / 200) * VALUE;
+    		if (VALUE < 30)
+    			rotationAngle = (2.0 * Math.PI / 200) * (VALUE/3); // Change scale so that gauge points up at 0 kts
     		else
     			rotationAngle = (2.0 * Math.PI / 200) * (VALUE-20);
 	        this.oldValue = VALUE;

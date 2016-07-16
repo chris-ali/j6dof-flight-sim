@@ -208,9 +208,9 @@ public class RunWorld implements Runnable, FlightDataListener {
 		if (running) {
 			Map<String, Terrain> terrainMap = terrainCollection.getTerrainMap();
 			Vector3f position = ownship.getPosition();
-			
-			return Terrain.getCurrentTerrain(terrainMap, position.x, position.z)
-									 		.getTerrainHeight(position.x, position.z);
+			Terrain currentTerrain = Terrain.getCurrentTerrain(terrainMap, position.x, position.z);
+			// If outside world bounds, return 0 as terrain height
+			return (currentTerrain == null) ? 0.0f : currentTerrain.getTerrainHeight(position.x, position.z);
 		} else { 
 			return 0.0f; 
 		}

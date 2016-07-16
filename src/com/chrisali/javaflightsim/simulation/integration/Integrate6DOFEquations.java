@@ -232,14 +232,14 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		// Update environment		
 		environmentParameters = Environment.updateEnvironmentParams(NEDPosition);
 		
-		// Update controls with joystick, keyboard or mouse; if in analysis mode, create a series of doublets (aileron, rudder and then elevator)
-		if (!options.contains(Options.ANALYSIS_MODE)) {
+		// Update flight controls with joystick/keyboard/mouse unless in analysis mode;
+		// otherwise create a series of doublets (aileron, rudder and then elevator)
+		if (options.contains(Options.ANALYSIS_MODE)) {	
+			controls = FlightControlsUtilities.doubletSeries(controls, t);
+		} else {
 			controls = hidController.updateFlightControls(controls);
 			controls = hidKeyboard.updateFlightControls(controls);
-		} else if (options.contains(Options.ANALYSIS_MODE)) {	
-			controls = FlightControlsUtilities.doubletSeries(controls, t);
 		}
-		
 		// Update all engines in engine list
 		for(Engine engine : engineList)
 			 engine.updateEngineState(controls, environmentParameters, windParameters);
