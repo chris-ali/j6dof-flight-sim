@@ -20,7 +20,7 @@ import javax.swing.border.EtchedBorder;
 import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
-import com.chrisali.javaflightsim.utilities.Utilities;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 public class ButtonPanel extends JPanel {
 
@@ -178,7 +178,7 @@ public class ButtonPanel extends JPanel {
 		  .append(parOpen).append("Longitude: ").append(Math.toDegrees(initialConditions.get(InitialConditions.INITLON))).append(" deg").append(parClose)
 		  .append(parOpen).append("Heading: ").append(Math.toDegrees(initialConditions.get(InitialConditions.INITPSI))).append(" deg").append(parClose)
 		  .append(parOpen).append("Altitude: ").append(initialConditions.get(InitialConditions.INITD)).append(" ft").append(parClose)
-		  .append(parOpen).append("Airspeed: ").append(Utilities.toKnots(initialConditions.get(InitialConditions.INITU))).append(" kts").append(parClose);
+		  .append(parOpen).append("Airspeed: ").append(FileUtilities.toKnots(initialConditions.get(InitialConditions.INITU))).append(" kts").append(parClose);
 		
 		initialConditonsLabel.setText(htmlBodyOpen + "<b>Starting Condtions:</b> " + sb.toString() + htmlBodyClose);
 	}

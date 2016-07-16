@@ -24,7 +24,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
-import com.chrisali.javaflightsim.utilities.Utilities;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 public class WeightDialog extends JDialog {
 
@@ -229,7 +229,7 @@ public class WeightDialog extends JDialog {
 	}
 	
 	protected void updateFields() {
-		massProperties = Utilities.parseMassProperties(aircraftName);
+		massProperties = FileUtilities.parseMassProperties(aircraftName);
 		fuelFraction = massProperties.get(MassProperties.WEIGHT_FUEL);
 		payloadFraction = massProperties.get(MassProperties.WEIGHT_PAYLOAD);
 		

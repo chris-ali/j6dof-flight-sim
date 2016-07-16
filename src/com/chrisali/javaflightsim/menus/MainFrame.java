@@ -30,7 +30,7 @@ import com.chrisali.javaflightsim.menus.optionspanel.OptionsPanel;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
-import com.chrisali.javaflightsim.utilities.Utilities;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 public class MainFrame extends JFrame {
 
@@ -247,10 +247,10 @@ public class MainFrame extends JFrame {
 	
 	private void setOptionsAndText() {
 		try {
-			simulationController.updateOptions(Utilities.parseSimulationSetup(), 
-											   Utilities.parseDisplaySetup(),
-											   Utilities.parseAudioSetup());
-			simulationController.updateAircraft(Utilities.parseSimulationSetupForAircraft());
+			simulationController.updateOptions(FileUtilities.parseSimulationSetup(), 
+											   FileUtilities.parseDisplaySetup(),
+											   FileUtilities.parseAudioSetup());
+			simulationController.updateAircraft(FileUtilities.parseSimulationSetupForAircraft());
 		} catch (IllegalArgumentException e) {
 			JOptionPane.showMessageDialog(this, "Unable to read SimulationSetup.txt!", 
 					"Error Reading File", JOptionPane.ERROR_MESSAGE);

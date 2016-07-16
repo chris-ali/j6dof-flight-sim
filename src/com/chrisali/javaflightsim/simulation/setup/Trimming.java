@@ -14,7 +14,7 @@ import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
-import com.chrisali.javaflightsim.utilities.Utilities;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 /**
  * Simple rudimentary method of longitudinally trimming an aircraft by statically equating forces and moments.
@@ -169,8 +169,8 @@ public class Trimming {
 		initialControls.put(FlightControls.ELEVATOR, -elevTrim);
 		
 		if (!testMode) {
-			Utilities.writeConfigFile(SimulationController.getSimConfigPath(), "InitialConditions", initialConditions);
-			Utilities.writeConfigFile(SimulationController.getSimConfigPath(), "InitialControls", initialControls);
+			FileUtilities.writeConfigFile(SimulationController.getSimConfigPath(), "InitialConditions", initialConditions);
+			FileUtilities.writeConfigFile(SimulationController.getSimConfigPath(), "InitialControls", initialControls);
 		} else {
 			System.out.println(Trimming.outputTrimValues());
 		}

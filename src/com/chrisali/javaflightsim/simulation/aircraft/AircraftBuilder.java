@@ -23,7 +23,7 @@ import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.propulsion.EngineParameters;
 import com.chrisali.javaflightsim.simulation.propulsion.FixedPitchPropEngine;
-import com.chrisali.javaflightsim.utilities.Utilities;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 /**
  * Wrapper class to build a complete aircraft with a "body" ({@link Aircraft}) and a LinkedHashSet of {@link Engine}(s). This object is used by {@link Integrate6DOFEquations}
@@ -53,7 +53,7 @@ public class AircraftBuilder {
 	public AircraftBuilder(String aircraftName) {
 		this.aircraft = new Aircraft(aircraftName);
 		
-		List<String[]> readPropulsionFile = Utilities.readFileAndSplit(aircraftName, FILE_PATH, "Propulsion");
+		List<String[]> readPropulsionFile = FileUtilities.readFileAndSplit(aircraftName, FILE_PATH, "Propulsion");
 
 		// Gets the number of engines on the aircraft from the first line of the
 		// String[] ArrayList

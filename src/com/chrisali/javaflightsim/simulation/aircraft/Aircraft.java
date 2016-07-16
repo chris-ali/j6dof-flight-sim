@@ -14,7 +14,7 @@ import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
-import com.chrisali.javaflightsim.utilities.Utilities;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 /**
  * Aircraft object which consists of {@link StabilityDerivatives} and {@link WingGeometry} to define its aerodynamic properties,
@@ -197,7 +197,7 @@ public class Aircraft {
 		this.groundReaction     = new EnumMap<GroundReaction, Double>(GroundReaction.class);
 		
 		// Aerodynamics
-		ArrayList<String[]> readAeroFile = Utilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "Aero");
+		ArrayList<String[]> readAeroFile = FileUtilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "Aero");
 		
 		// Override constant stability derivative values with the keyword "lookup" in Aero.txt; need to then 
 		// supply text file with lookup table and break points
@@ -212,7 +212,7 @@ public class Aircraft {
 		}
 		
 		// Mass Properties
-		ArrayList<String[]> readMassPropFile = Utilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "MassProperties");
+		ArrayList<String[]> readMassPropFile = FileUtilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "MassProperties");
 		
 		for(MassProperties massPropKey : MassProperties.values()) {
 			for (String[] readLine : readMassPropFile) {
@@ -226,7 +226,7 @@ public class Aircraft {
 												   massProps.get(MassProperties.WEIGHT_EMPTY))      / Environment.getGravity());
 		
 		// Wing Geometry
-		ArrayList<String[]> readWingGeomFile = Utilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "WingGeometry");
+		ArrayList<String[]> readWingGeomFile = FileUtilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "WingGeometry");
 		
 		for(WingGeometry wingGeoKey : WingGeometry.values()) {
 			for (String[] readLine : readWingGeomFile) {
@@ -236,7 +236,7 @@ public class Aircraft {
 		}
 		
 		// Ground Reaction
-		ArrayList<String[]> readGndReactFile = Utilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "GroundReaction");
+		ArrayList<String[]> readGndReactFile = FileUtilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "GroundReaction");
 		
 		for(GroundReaction gndReactKey : GroundReaction.values()) {
 			for (String[] readLine : readGndReactFile) {
@@ -252,7 +252,7 @@ public class Aircraft {
 	 * 
 	 * @return centerOfGravity
 	 */
-	public Double[] getCenterOfGravity() {return new Double[] {massProps.get(MassProperties.CG_X),
+	public double[] getCenterOfGravity() {return new double[] {massProps.get(MassProperties.CG_X),
 															   massProps.get(MassProperties.CG_Y),
 															   massProps.get(MassProperties.CG_Z)};}
 	
@@ -263,7 +263,7 @@ public class Aircraft {
 	 * 
 	 * @return centerOfGravity
 	 */
-	public Double[] getAerodynamicCenter() {return new Double[] {wingGeometry.get(WingGeometry.AC_X),
+	public double[] getAerodynamicCenter() {return new double[] {wingGeometry.get(WingGeometry.AC_X),
 																 wingGeometry.get(WingGeometry.AC_Y),
 																 wingGeometry.get(WingGeometry.AC_Z)};}
 	
@@ -273,7 +273,7 @@ public class Aircraft {
 	 * 
 	 * @return centerOfGravity
 	 */
-	public Double[] getInertiaValues() {return new Double[] {massProps.get(MassProperties.J_X),
+	public double[] getInertiaValues() {return new double[] {massProps.get(MassProperties.J_X),
 														     massProps.get(MassProperties.J_Y),
 														     massProps.get(MassProperties.J_Z),
 														     massProps.get(MassProperties.J_XZ)};}
@@ -294,7 +294,7 @@ public class Aircraft {
 	 * @param wingGeom
 	 * @return value of key in wingGeometry
 	 */
-	public Double getWingGeometry(WingGeometry wingGeom) {return wingGeometry.get(wingGeom);}
+	public double getWingGeometry(WingGeometry wingGeom) {return wingGeometry.get(wingGeom);}
 	
 	/**
 	 * Returns the value held by the {@link MassProperties} key in the massProps EnumMap
@@ -302,7 +302,7 @@ public class Aircraft {
 	 * @param massProp
 	 * @return value of key in massProps
 	 */
-	public Double getMassProperty(MassProperties massProp) {return massProps.get(massProp);}
+	public double getMassProperty(MassProperties massProp) {return massProps.get(massProp);}
 	
 	/**
 	 * Updates the value held by the {@link MassProperties} key in the massProps EnumMap

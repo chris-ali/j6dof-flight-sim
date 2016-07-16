@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
-import com.chrisali.javaflightsim.utilities.Utilities;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 public class WriteFileTest {
 	
@@ -16,7 +16,7 @@ public class WriteFileTest {
 	public static void main(String[] args) {
 		Map<IntegratorConfig, Double> simConfig = IntegrationSetup.gatherIntegratorConfig(OLD_CONFIG_FILE_NAME);
 		
-		Utilities.writeConfigFile(NEW_CONFIG_FILE_NAME, FILE_PATH, simConfig);
+		FileUtilities.writeConfigFile(NEW_CONFIG_FILE_NAME, FILE_PATH, simConfig);
 		
 		Map<IntegratorConfig, Double> newSimConfig = IntegrationSetup.gatherIntegratorConfig(NEW_CONFIG_FILE_NAME);
 		

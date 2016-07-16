@@ -14,7 +14,7 @@ import com.chrisali.javaflightsim.otw.audio.SoundCollection.SoundCategory;
 import com.chrisali.javaflightsim.otw.audio.SoundCollection.SoundEvent;
 import com.chrisali.javaflightsim.otw.audio.SoundSource;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
-import com.chrisali.javaflightsim.utilities.Utilities;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 public class AudioTest {
 
@@ -39,7 +39,7 @@ public class AudioTest {
 	private Vector3f sourcePosition = new Vector3f(8, 0, 2);
 	private Vector3f sourceVelocity = new Vector3f(-0.02f, 0, 0);
 	
-	private Map<AudioOptions, Float> audioOptions = Utilities.parseAudioSetup();
+	private Map<AudioOptions, Float> audioOptions = FileUtilities.parseAudioSetup();
 	
 	private Map<String, SoundSource> soundSources = new HashMap<>();
 	private Map<SoundCategory, Double> soundValues = new EnumMap<>(SoundCategory.class);

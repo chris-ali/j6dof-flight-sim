@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
-import com.chrisali.javaflightsim.utilities.Utilities;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 /**
  *	Interacts with {@link Integrate6DOFEquations} and any registered listeners to pass flight data from the simulation
@@ -44,8 +44,8 @@ public class FlightData implements Runnable {
 		final Double TAS_TO_IAS = 1/(1+((simOut.get(SimOuts.ALT)/1000)*0.02));
 		
 		synchronized (flightData) {
-			flightData.put(FlightDataType.IAS, Utilities.toKnots(simOut.get(SimOuts.TAS)*TAS_TO_IAS));
-			flightData.put(FlightDataType.TAS, Utilities.toKnots(simOut.get(SimOuts.TAS)));
+			flightData.put(FlightDataType.IAS, FileUtilities.toKnots(simOut.get(SimOuts.TAS)*TAS_TO_IAS));
+			flightData.put(FlightDataType.TAS, FileUtilities.toKnots(simOut.get(SimOuts.TAS)));
 			
 			flightData.put(FlightDataType.VERT_SPEED, simOut.get(SimOuts.ALT_DOT));
 			

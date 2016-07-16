@@ -17,44 +17,13 @@ import java.util.Set;
 import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
-import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
 /**
- * Contains various static methods for unboxing arrays into primitive types and reading and parsing text files into lists
+ * Contains various static methods for reading and parsing text files into lists
  */
-public class Utilities {
-
-	//===================================================================================================
-	//										Data Manipulation
-	//===================================================================================================	
-	
-	/**
-	 * Unboxes Double[] array into a double[] array; {@link Integrate6DOFEquations} needs primitive arrays, 
-	 * necessitating this method
-	 * @param map
-	 * @return Unboxed double[] array
-	 */
-	public static double[] unboxDoubleArray(EnumMap<?, Double> map) {
-		double[] unboxedArray = new double[map.values().size()]; 
-		for (int i = 0; i < unboxedArray.length; i++)
-			unboxedArray[i] = map.values().toArray(new Double[unboxedArray.length])[i];
-		return unboxedArray;
-	}
-	
-	/**
-	 * Unboxes Double[] array into a double[] array; {@link Integrate6DOFEquations} needs primitive arrays, 
-	 * necessitating this method
-	 * @param boxed
-	 * @return Unboxed double[] array
-	 */
-	public static double[] unboxDoubleArray(Double[] boxed) {
-		double[] unboxedArray = new double[boxed.length]; 
-		for (int i = 0; i < unboxedArray.length; i++)
-			unboxedArray[i] = boxed[i];
-		return unboxedArray;
-	}
+public class FileUtilities {
 	
 	//===================================================================================================
 	//										File Reading

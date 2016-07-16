@@ -2,18 +2,20 @@ package com.chrisali.javaflightsim.tests;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.IntegrateGroundReaction;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
-import com.chrisali.javaflightsim.utilities.Utilities;
 
 public class GroundReactionTest {
 
 	private IntegrateGroundReaction groundReaction;
 	private AircraftBuilder ab = new AircraftBuilder("Navion");
 	private double terrainHeight;
-	private double[] integratorConfig = Utilities.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
+	double[] integratorConfig 				 = ArrayUtils.toPrimitive(IntegrationSetup.gatherInitialConditions("IntegratorConfig").values()
+				  																	  .toArray(new Double[3]));
 	private double t;
 	private Map<FlightControls, Double> controls = IntegrationSetup.gatherInitialControls("InitialControls");
 	

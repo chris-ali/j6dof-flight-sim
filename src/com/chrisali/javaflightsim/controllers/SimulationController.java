@@ -28,7 +28,7 @@ import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
-import com.chrisali.javaflightsim.utilities.Utilities;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 /**
  * Controls the configuration and running of processes supporting the simulation component of JavaFlightSim. This consists of: 
@@ -112,9 +112,9 @@ public class SimulationController {
 	
 	/**
 	 * Updates simulation and display options and then saves the configurations to text files using either
-	 * <p>{@link Utilities#writeConfigFile(String, String, Set, String)}</p>
+	 * <p>{@link FileUtilities#writeConfigFile(String, String, Set, String)}</p>
 	 * <br/>or
-	 * <p>{@link Utilities#writeConfigFile(String, String, Map, String)}</p>
+	 * <p>{@link FileUtilities#writeConfigFile(String, String, Map, String)}</p>
 	 * 
 	 * @param newOptions
 	 * @param newDisplayOptions
@@ -127,9 +127,9 @@ public class SimulationController {
 		audioOptions = newAudioOptions;
 		
 		if (ab != null)
-			Utilities.writeConfigFile(SIM_CONFIG_PATH, "SimulationSetup", simulationOptions, ab.getAircraft().getName());
-		Utilities.writeConfigFile(SIM_CONFIG_PATH, "DisplaySetup", newDisplayOptions);
-		Utilities.writeConfigFile(SIM_CONFIG_PATH, "AudioSetup", newAudioOptions);
+			FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "SimulationSetup", simulationOptions, ab.getAircraft().getName());
+			FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "DisplaySetup", newDisplayOptions);
+			FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "AudioSetup", newAudioOptions);
 	}
 	
 	/**
@@ -147,12 +147,12 @@ public class SimulationController {
 	 * @param payloadWeight
 	 */
 	public void updateMassProperties(String aircraftName, double fuelWeight, double payloadWeight) {
-		massProperties = Utilities.parseMassProperties(aircraftName);
+		massProperties = FileUtilities.parseMassProperties(aircraftName);
 		
 		massProperties.put(MassProperties.WEIGHT_FUEL, fuelWeight);
 		massProperties.put(MassProperties.WEIGHT_PAYLOAD, payloadWeight);
 		
-		Utilities.writeConfigFile(AIRCRAFT_PATH, aircraftName + "\\MassProperties", massProperties);
+		FileUtilities.writeConfigFile(AIRCRAFT_PATH, aircraftName + "\\MassProperties", massProperties);
 	}
 	
 	/**
@@ -168,7 +168,7 @@ public class SimulationController {
 	public void updateIntegratorConfig(int stepSize) {
 		integratorConfig.put(IntegratorConfig.DT, (1/((double)stepSize)));
 		
-		Utilities.writeConfigFile(SIM_CONFIG_PATH, "IntegratorConfig", integratorConfig);
+		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "IntegratorConfig", integratorConfig);
 	}
 	
 	/**
@@ -188,17 +188,17 @@ public class SimulationController {
 		initialConditions.put(InitialConditions.INITLAT, Math.toRadians(coordinates[0]));
 		initialConditions.put(InitialConditions.INITLON, Math.toRadians(coordinates[1]));
 		initialConditions.put(InitialConditions.INITPSI, Math.toRadians(heading));
-		initialConditions.put(InitialConditions.INITU,   Utilities.toFtPerSec(airspeed));
+		initialConditions.put(InitialConditions.INITU,   FileUtilities.toFtPerSec(airspeed));
 		initialConditions.put(InitialConditions.INITD,   altitude);
 		
-		Utilities.writeConfigFile(SIM_CONFIG_PATH, "InitialConditions", initialConditions);
+		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "InitialConditions", initialConditions);
 	}
 	
 	/**
 	 * Updates the InitialControls config file
 	 */
 	public void updateIninitialControls() {
-		Utilities.writeConfigFile(SIM_CONFIG_PATH, "InitialControls", initialControls);
+		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "InitialControls", initialControls);
 	}	
 	
 	//=============================== Simulation ===========================================================
@@ -327,7 +327,7 @@ public class SimulationController {
 	 * @throws IOException
 	 */
 	public void saveConsoleOutput(File file) throws IOException {
-		Utilities.saveToCSVFile(file, runSim.getLogsOut());
+		FileUtilities.saveToCSVFile(file, runSim.getLogsOut());
 	}
 	
 	//================================ Paths ==============================================================

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
@@ -30,7 +31,6 @@ import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
-import com.chrisali.javaflightsim.utilities.Utilities;
 
 /**
  * This class integrates all 12 6DOF (plus 2 latitude/longitude) equations numerically to obtain the aircraft's states.
@@ -103,20 +103,23 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	 * Creates the {@link Integrate6DOFEquations} object with an {@link AircraftBuilder object}, a list of run-time options defined
 	 * in the {@link Options} EnumSet
 	 * 
-	 * @param builtAircraft
+	 * @param ab
 	 * @param runOptions
 	 */
-	public Integrate6DOFEquations(AircraftBuilder builtAircraft,
+	public Integrate6DOFEquations(AircraftBuilder ab,
 								  EnumSet<Options> runOptions) {
-		aircraft 		   = builtAircraft.getAircraft();
-		engineList   	   = builtAircraft.getEngineList();
+		aircraft 		   = ab.getAircraft();
+		engineList   	   = ab.getEngineList();
 		options		       = runOptions;
 		
 		accelAndMoments    = new AccelAndMoments(aircraft);
 		controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
 		
-		initialConditions = Utilities.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
-		integratorConfig  = Utilities.unboxDoubleArray(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig"));
+		// Use Apache Commons Lang to convert EnumMap values into primitive double[] 
+		initialConditions = ArrayUtils.toPrimitive(IntegrationSetup.gatherInitialConditions("InitialConditions").values()
+				   												   .toArray(new Double[initialConditions.length]));
+		integratorConfig  = ArrayUtils.toPrimitive(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig").values()
+				   												   .toArray(new Double[integratorConfig.length]));
 
 		// If USE_JOYSTICK/USE_MOUSE enabled, use joystick/mouse if ANALYSIS_MODE not enabled
 		if (options.contains(Options.USE_JOYSTICK) & !options.contains(Options.ANALYSIS_MODE))
@@ -184,7 +187,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	 */
 	private void updateDerivatives(double[] y) {
 		double[][] dirCosMat     = SixDOFUtilities.body2Ned(new double[]{y[6], y[7], y[8]});      // create DCM for NED equations ([column][row])
-		double[]   inertiaCoeffs = SixDOFUtilities.calculateInertiaCoeffs(Utilities.unboxDoubleArray(aircraft.getInertiaValues()));
+		double[]   inertiaCoeffs = SixDOFUtilities.calculateInertiaCoeffs(aircraft.getInertiaValues());
 		double[]   ned2LLA       = SixDOFUtilities.ned2LLA(y);
 		double[]   windSpdNED    = new double[]{environmentParameters.get(EnvironmentParameters.WIND_SPEED_N),
 												environmentParameters.get(EnvironmentParameters.WIND_SPEED_E),
@@ -257,7 +260,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		if ((NEDPosition[2] - terrainHeight) < 100)
 			groundReaction.integrateStep(terrainHeight);
 		
-		System.out.println(groundReaction);
+		//System.out.println(groundReaction);
 		
 		// Update accelerations
 		linearAccelerations = accelAndMoments.calculateLinearAccelerations(windParameters,
@@ -422,7 +425,8 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 				
 				// If paused and reset selected, reset initialConditions using IntegrationSetup's method 
 				if (options.contains(Options.PAUSED) & options.contains(Options.RESET))				
- 					initialConditions = Utilities.unboxDoubleArray(IntegrationSetup.gatherInitialConditions("InitialConditions"));
+ 					initialConditions = ArrayUtils.toPrimitive(IntegrationSetup.gatherInitialConditions("InitialConditions").values()
+ 																			   .toArray(new Double[initialConditions.length]));
 				
 				// If paused, skip the integration and update process
 				if (!options.contains(Options.PAUSED)) {
