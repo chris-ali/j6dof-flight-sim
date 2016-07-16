@@ -53,12 +53,14 @@ public class RunWorld implements Runnable, FlightDataListener {
 	private MasterRenderer masterRenderer;
 	private List<Light> lights;
 	private Map<DisplayOptions, Integer> displayOptions;
-	private Map<AudioOptions, Float> audioOptions;
 	
+	// Sound Fields
+	private Map<AudioOptions, Float> audioOptions;
 	private Map<SoundCategory, Double> soundValues = new EnumMap<>(SoundCategory.class);
 	private boolean recordPrev = true; // Used in FlightDataListener to record soundValues data to PREV_STEP_* enums
 	private AircraftBuilder ab;
 	
+	// Collections for in-game objects
 	private TerrainCollection terrainCollection;
 	private EntityCollections entities;
 	

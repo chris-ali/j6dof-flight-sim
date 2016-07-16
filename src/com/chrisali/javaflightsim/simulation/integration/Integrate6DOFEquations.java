@@ -89,7 +89,6 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	// Aircraft Properties
 	private Aircraft aircraft;
 	private Set<Engine> engineList;
-	private AccelAndMoments accelAndMoments;
 	
 	// Output Logging
 	private List<Map<SimOuts, Double>> logsOut = Collections.synchronizedList(new ArrayList<Map<SimOuts, Double>>());
@@ -111,8 +110,6 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		aircraft 		   = ab.getAircraft();
 		engineList   	   = ab.getEngineList();
 		options		       = runOptions;
-		
-		accelAndMoments    = new AccelAndMoments(aircraft);
 		controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
 		
 		// Use Apache Commons Lang to convert EnumMap values into primitive double[] 
@@ -121,25 +118,21 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		integratorConfig  = ArrayUtils.toPrimitive(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig").values()
 				   												   .toArray(new Double[integratorConfig.length]));
 
-		// If USE_JOYSTICK/USE_MOUSE enabled, use joystick/mouse if ANALYSIS_MODE not enabled
-		if (options.contains(Options.USE_JOYSTICK) & !options.contains(Options.ANALYSIS_MODE))
-			hidController = new Joystick(controls);
-		else if (options.contains(Options.USE_MOUSE) & !options.contains(Options.ANALYSIS_MODE))
-			hidController = new Mouse(controls);
-		else if (options.contains(Options.USE_CH_CONTROLS) & !options.contains(Options.ANALYSIS_MODE))
-			hidController = new CHControls(controls);
-		else
-			hidController = null;
-		
-		// If ANALYSIS_MODE not enabled use keyboard
-		if (!options.contains(Options.ANALYSIS_MODE))
+		// Use controllers for pilot in loop simulation if ANALYSIS_MODE not enabled 
+		if (!options.contains(Options.ANALYSIS_MODE)) {
+			if (options.contains(Options.USE_JOYSTICK))
+				hidController = new Joystick(controls);
+			else if (options.contains(Options.USE_MOUSE))
+				hidController = new Mouse(controls);
+			else if (options.contains(Options.USE_CH_CONTROLS))
+				hidController = new CHControls(controls);
+			
 			hidKeyboard = new Keyboard(controls);
-		else
-			hidKeyboard = null;
-		
-		// Lets simulation run forever when UNLIMITED_FLIGHT enabled, and ANALYSIS_MODE and TRIM_MODE are disabled
-		if(options.contains(Options.UNLIMITED_FLIGHT) & !options.contains(Options.ANALYSIS_MODE))
-			integratorConfig[2] = Double.POSITIVE_INFINITY;
+			
+			// Allows simulation to run forever
+			if(options.contains(Options.UNLIMITED_FLIGHT))
+				integratorConfig[2] = Double.POSITIVE_INFINITY;
+		}
 		
 		// Set up running parameters for integration
 		t = integratorConfig[0];
@@ -158,7 +151,8 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 													 aircraft, 
 													 controls);
 		
-		// Calculate initial data members' values
+		// Initialize accelerations and moments, and calculate initial data members' values
+		AccelAndMoments.init(aircraft);
 		updateDataMembers();
 	}
 	
@@ -263,7 +257,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		//System.out.println(groundReaction);
 		
 		// Update accelerations
-		linearAccelerations = accelAndMoments.calculateLinearAccelerations(windParameters,
+		linearAccelerations = AccelAndMoments.calculateLinearAccelerations(windParameters,
 																		   angularRates,
 																		   environmentParameters,
 																		   controls,
@@ -272,7 +266,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 																		   aircraft,
 																		   groundReaction);
 		// Update moments
-		totalMoments = accelAndMoments.calculateTotalMoments(windParameters,
+		totalMoments = AccelAndMoments.calculateTotalMoments(windParameters,
 														 	 angularRates,
 															 environmentParameters,
 															 controls,
@@ -292,6 +286,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	 *  collections are synchronized to mitigate data access problems from threading
 	 */
 	private void logData() {
+		// Need to initialize within logData(), else plots won't display correctly
 		simOut = Collections.synchronizedMap(new EnumMap<SimOuts, Double>(SimOuts.class));
 		
 		synchronized (simOut) {

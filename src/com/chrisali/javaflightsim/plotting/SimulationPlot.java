@@ -118,6 +118,7 @@ public class SimulationPlot extends JComponent {
 		if(plotLists.isEmpty())
 			makePlotLists(logsOut);
 		
+		// Use BorderLayout to place all graphs
 		setLayout(new BorderLayout());
 		
 		// Select from methods below to create a chart panels to populate AWT window 

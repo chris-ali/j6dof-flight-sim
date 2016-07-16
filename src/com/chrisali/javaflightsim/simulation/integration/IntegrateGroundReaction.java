@@ -343,16 +343,16 @@ public class IntegrateGroundReaction {
 		
 		// Saturate ground moments if airspeed is less than 10 ft/sec
 		if (windParameters[0] < 10) {
-			tempTotalGroundMoments[0] = (tempTotalGroundMoments[0] >  100) ?  100 : 
-								   		(tempTotalGroundMoments[0] < -100) ? -100 : 
+			tempTotalGroundMoments[0] = (tempTotalGroundMoments[0] >  10) ?  10 : 
+								   		(tempTotalGroundMoments[0] < -10) ? -10 : 
 									     tempTotalGroundMoments[0];
 
-			tempTotalGroundMoments[1] = (tempTotalGroundMoments[1] >  100) ?  100 : 
-								   		(tempTotalGroundMoments[1] < -100) ? -100 : 
+			tempTotalGroundMoments[1] = (tempTotalGroundMoments[1] >  10) ?  10 : 
+								   		(tempTotalGroundMoments[1] < -10) ? -10 : 
 									     tempTotalGroundMoments[1];
 			
-			tempTotalGroundMoments[2] = (tempTotalGroundMoments[1] >  100) ?  100 : 
-								   		(tempTotalGroundMoments[1] < -100) ? -100 : 
+			tempTotalGroundMoments[2] = (tempTotalGroundMoments[1] >  10) ?  10 : 
+								   		(tempTotalGroundMoments[1] < -10) ? -10 : 
 								   		 tempTotalGroundMoments[1];
 		}
 		
