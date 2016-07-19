@@ -73,9 +73,17 @@ public class RunWorld implements Runnable, FlightDataListener {
 	private GUIText text;
 	
 	private static boolean running = false;
-
-	public RunWorld(Map<DisplayOptions, Integer> displayOptions, AircraftBuilder ab,
-					Map<AudioOptions, Float> audioOptions) {
+	
+	/**
+	 * Sets up OTW display with {@link DisplayOptions} and {@link AudioOptions}, as well as a link to
+	 * {@link AircraftBuilder} to determine if multiple engines in aircraft
+	 * 
+	 * @param displayOptions
+	 * @param audioOptions
+	 * @param ab
+	 */
+	public RunWorld(Map<DisplayOptions, Integer> displayOptions, 
+					Map<AudioOptions, Float> audioOptions, AircraftBuilder ab) {
 		this.displayOptions = displayOptions;
 		this.audioOptions = audioOptions;
 		this.ab = ab;
@@ -86,23 +94,28 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		//=================================== Set Up ==========================================================
 		
+		// Initializes display window
 		DisplayManager.createDisplay();
 		DisplayManager.setHeight(displayOptions.get(DisplayOptions.DISPLAY_HEIGHT));
 		DisplayManager.setWidth(displayOptions.get(DisplayOptions.DISPLAY_WIDTH));
 		
 		loader = new Loader();
 		
+		// Sets up renderer with fog and sky config
 		masterRenderer = new MasterRenderer();
 		MasterRenderer.setSkyColor(new Vector3f(0.70f, 0.90f, 1.0f));
 		MasterRenderer.setFogDensity(0.0005f);
 		MasterRenderer.setFogGradient(3.5f);
 		
+		// Initialize sounds and position of listener
 		AudioMaster.init();
 		AudioMaster.setListenerData(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0));
 		
+		// Load particles and on-screen text
 		ParticleMaster.init(loader, masterRenderer.getProjectionMatrix());
 		TextMaster.init(loader);
 		
+		// Load all entities (lights, entities, particles, etc)
 		loadAssets();
 		
 		running = true;
@@ -169,15 +182,17 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		//================================= Ownship ===========================================================
 		
+		// Model used for aircraft; scale set to 0 to be invisible for now
 		TexturedModel bunny =  new TexturedModel(OBJLoader.loadObjModel("bunny", "Entities", loader), 
 			    								new ModelTexture(loader.loadTexture("bunny", "Entities")));
-		
+		// Initial position of ownship
 		ownshipPosition = new Vector3f(800, 150, 800);
 		ownshipRotation = new Vector3f(0, 0, 135);
 		ownship = new Ownship(bunny, ownshipPosition, ownshipRotation.z, ownshipRotation.z, ownshipRotation.x, 0.000f);
 		
 		entities.addToStaticEntities(ownship);
 		
+		// Camera tied to ownship as first person view
 		camera = new Camera(ownship);
 		camera.setChaseView(false);
 		camera.setPilotPosition(new Vector3f(0, 0, 0));
@@ -186,19 +201,20 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		ParticleTexture clouds = new ParticleTexture(loader.loadTexture("clouds", "Particles"), 4, true);
 		
+		// Generates clouds at random positions along terrain map
 		Random random = new Random();
 		for (int i = 0; i < 2000; i++)
 			new Cloud(clouds, new Vector3f(random.nextInt(800*10), 300, i*10), new Vector3f(0, 0, 0), 0, 200);
 		
 		//=============================== Interface ==========================================================
 		
+		// Generates font and on screen text
 		FontType font = new FontType(loader.loadTexture("arial", "Fonts"), new File("Resources\\Fonts\\arial.fnt"));
 		text = new GUIText("", 1, font, new Vector2f(0, 0), 1f, true);
 		
 		//==================================== Audio =========================================================
 		
 		SoundCollection.initializeSounds(ab, audioOptions);
-		
 	}
 	
 	/**
@@ -208,6 +224,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		if (running) {
 			Map<String, Terrain> terrainMap = terrainCollection.getTerrainMap();
 			Vector3f position = ownship.getPosition();
+			// Terrain object ownship is currently on
 			Terrain currentTerrain = Terrain.getCurrentTerrain(terrainMap, position.x, position.z);
 			// If outside world bounds, return 0 as terrain height
 			return (currentTerrain == null) ? 0.0f : currentTerrain.getTerrainHeight(position.x, position.z);
@@ -227,13 +244,15 @@ public class RunWorld implements Runnable, FlightDataListener {
 		Map<FlightDataType, Double> receivedFlightData = flightData.getFlightData();
 		
 		if (!receivedFlightData.containsValue(null) && (ownshipPosition != null || ownshipRotation != null)) {
+			// Scale distances from simulation to OTW
 			ownshipPosition.x = (float)  ((receivedFlightData.get(FlightDataType.NORTH)+800)/15);
 			ownshipPosition.y = (float)   (receivedFlightData.get(FlightDataType.ALTITUDE)  /15);
 			ownshipPosition.z = (float)  ((receivedFlightData.get(FlightDataType.EAST)+800) /15);
-		
+			
+			// Convert right-handed coordinates from simulation to left-handed coordinates of OTW
 			ownshipRotation.x = (float)  -(receivedFlightData.get(FlightDataType.ROLL));
 			ownshipRotation.y = (float)  -(receivedFlightData.get(FlightDataType.PITCH));
-			ownshipRotation.z = (float)   (receivedFlightData.get(FlightDataType.HEADING)-270); // rotate to follow camera translation
+			ownshipRotation.z = (float)   (receivedFlightData.get(FlightDataType.HEADING)-270); 
 			
 			soundValues.put(SoundCategory.RPM_1, receivedFlightData.get(FlightDataType.RPM_1));
 			soundValues.put(SoundCategory.RPM_2, receivedFlightData.get(FlightDataType.RPM_2));
@@ -244,7 +263,9 @@ public class RunWorld implements Runnable, FlightDataListener {
 			soundValues.put(SoundCategory.GEAR, receivedFlightData.get(FlightDataType.GEAR));
 			soundValues.put(SoundCategory.STALL_HORN, receivedFlightData.get(FlightDataType.AOA));
 			
-			if (recordPrev) { // record every other step to ensure a difference between previous and current values
+			// Record value every other step to ensure a difference between previous and current values; used to 
+			// trigger flaps and gear sounds
+			if (recordPrev) { 
 				soundValues.put(SoundCategory.PREV_STEP_FLAPS, receivedFlightData.get(FlightDataType.FLAPS));
 				soundValues.put(SoundCategory.PREV_STEP_GEAR, receivedFlightData.get(FlightDataType.GEAR));
 			} recordPrev ^= true; 

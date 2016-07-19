@@ -17,7 +17,7 @@ public class WorldTest {
 		displayOptions.put(DisplayOptions.DISPLAY_HEIGHT, 900);
 		displayOptions.put(DisplayOptions.DISPLAY_WIDTH, 1440);
 		
-		RunWorld world = new RunWorld(displayOptions, new AircraftBuilder(), audioOptions);
+		RunWorld world = new RunWorld(displayOptions, audioOptions, new AircraftBuilder());
 		Thread worldThread = new Thread(world);
 		worldThread.start();
 	}

@@ -248,7 +248,7 @@ public class SimulationController {
 		if (simulationOptions.contains(Options.ANALYSIS_MODE)) {
 			plotSimulation();
 		} else {
-			outTheWindow = new RunWorld(displayOptions, ab, audioOptions);
+			outTheWindow = new RunWorld(displayOptions, audioOptions, ab);
 			
 			environmentData = new EnvironmentData(outTheWindow);
 			environmentData.addEnvironmentDataListener(runSim);
