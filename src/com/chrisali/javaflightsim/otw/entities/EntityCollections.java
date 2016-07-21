@@ -47,13 +47,14 @@ public class EntityCollections {
 	 */
 	public void createRandomStaticEntities() {
 		
+		// Create models
 		TexturedModel planatusforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
 											new ModelTexture(loader.loadTexture("platanusforest", "Entities")));
 		TexturedModel pineforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
 											new ModelTexture(loader.loadTexture("pineforest", "Entities")));
 		TexturedModel oakforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
 											new ModelTexture(loader.loadTexture("oakforest", "Entities")));
-		
+		// Model settings
 		planatusforest.getTexture().setHasTransparency(true);
 		planatusforest.getTexture().setUseFakeLighting(true);
 		pineforest.getTexture().setHasTransparency(true);
@@ -66,32 +67,42 @@ public class EntityCollections {
 			float x, y, z;
 			
 			int terrainMapWidth = (int)Math.sqrt(terrainMap.size());
+			Entity staticEntity;
 			
 			if (i % 7 == 0) {
 				x = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
 				z = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
 				y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 				
-				staticEntities.add(new Entity(pineforest, new Vector3f(x, y-2, z), 
-					0, random.nextFloat()*360, 0, random.nextFloat() + 6));
+				staticEntity = new Entity(pineforest, new Vector3f(x, y-2, z), 
+										  0, random.nextFloat()*360, 0, 
+										  random.nextFloat() + 6);
+				
+				staticEntities.add(staticEntity);
 			}
 			
-			if (i % 5 == 0) {
+			else if (i % 5 == 0) {
 				x = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
 				z = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
 				y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 				
-				staticEntities.add(new Entity(oakforest, new Vector3f(x, y-2, z), 
-					0, random.nextFloat()*360, 0, random.nextFloat()* 1 + 5));
+				staticEntity = new Entity(oakforest, new Vector3f(x, y-2, z), 
+										  0, random.nextFloat()*360, 0, 
+										  random.nextFloat()* 1 + 5);
+				
+				staticEntities.add(staticEntity);
 			}
 			
-			if (i % 8 == 0) {
+			else if (i % 8 == 0) {
 				x = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
 				z = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
 				y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 				
-				staticEntities.add(new Entity(oakforest, new Vector3f(x, y-2, z), 
-					0, random.nextFloat()*360, 0, random.nextFloat()* 1 + 5));
+				staticEntity = new Entity(oakforest, new Vector3f(x, y-2, z), 
+										  0, random.nextFloat()*360, 0, 
+										  random.nextFloat()* 1 + 5);
+				
+				staticEntities.add(staticEntity);
 			}
 		}
 	}
@@ -141,6 +152,7 @@ public class EntityCollections {
 	 * @param z
 	 */
 	public void createRandomTrees(float x, float z) {
+		
 //		TexturedModel planatusforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
 //											new ModelTexture(loader.loadTexture("platanusforest", "Entities")));
 		TexturedModel pineforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
@@ -157,20 +169,33 @@ public class EntityCollections {
 		
 		Random random = new Random();
 		float y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
+		Entity staticEntity;
 		
-		staticEntities.add(new Entity(pineforest, new Vector3f(x, y-2, z), 
-				0, random.nextFloat()*360, 0, random.nextFloat() + 6));
+		staticEntity = new Entity(pineforest, new Vector3f(x, y-2, z), 
+								  0, random.nextFloat()*360, 0, 
+								  random.nextFloat() + 6);
+
+		staticEntities.add(staticEntity);
 		
 		/*
 		if (random.nextInt(100) % 3 == 0) {
-			staticEntities.add(new Entity(pineforest, new Vector3f(x, y-2, z), 
-				0, random.nextFloat()*360, 0, random.nextFloat() + 6));
+			staticEntity = new Entity(pineforest, new Vector3f(x, y-2, z), 
+									  0, random.nextFloat()*360, 0, 
+									  random.nextFloat() + 6);
+			
+			staticEntities.add(staticEntity);
 		} else if (random.nextInt(100) % 9 == 0) {
-			staticEntities.add(new Entity(oakforest, new Vector3f(x, y-2, z), 
-				0, random.nextFloat()*360, 0, random.nextFloat()* 1 + 5));
+			staticEntity = new Entity(oakforest, new Vector3f(x, y-2, z), 
+									  0, random.nextFloat()*360, 0, 
+									  random.nextFloat() + 6);
+			
+			staticEntities.add(staticEntity);
 		} else if (random.nextInt(100) % 10 == 0) {
-			staticEntities.add(new Entity(oakforest, new Vector3f(x, y-2, z), 
-				0, random.nextFloat()*360, 0, random.nextFloat()* 1 + 5));
+			staticEntity = new Entity(planatusforest, new Vector3f(x, y-2, z), 
+									  0, random.nextFloat()*360, 0, 
+									  random.nextFloat() + 6);
+			
+			staticEntities.add(staticEntity);
 		}
 		*/
 	}

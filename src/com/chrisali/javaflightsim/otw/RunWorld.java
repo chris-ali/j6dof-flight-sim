@@ -1,6 +1,5 @@
 package com.chrisali.javaflightsim.otw;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -8,7 +7,6 @@ import java.util.Map;
 import java.util.Random;
 
 import org.lwjgl.opengl.Display;
-import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -24,9 +22,6 @@ import com.chrisali.javaflightsim.otw.entities.Camera;
 import com.chrisali.javaflightsim.otw.entities.EntityCollections;
 import com.chrisali.javaflightsim.otw.entities.Light;
 import com.chrisali.javaflightsim.otw.entities.Ownship;
-import com.chrisali.javaflightsim.otw.interfaces.font.FontType;
-import com.chrisali.javaflightsim.otw.interfaces.font.GUIText;
-import com.chrisali.javaflightsim.otw.interfaces.font.TextMaster;
 import com.chrisali.javaflightsim.otw.models.TexturedModel;
 import com.chrisali.javaflightsim.otw.particles.Cloud;
 import com.chrisali.javaflightsim.otw.particles.ParticleMaster;
@@ -70,7 +65,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 	private Vector3f ownshipRotation;
 	private Camera camera;
 	
-	private GUIText text;
+	//private GUIText text;
 	
 	private static boolean running = false;
 	
@@ -113,7 +108,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		// Load particles and on-screen text
 		ParticleMaster.init(loader, masterRenderer.getProjectionMatrix());
-		TextMaster.init(loader);
+		//TextMaster.init(loader);
 		
 		// Load all entities (lights, entities, particles, etc)
 		loadAssets();
@@ -135,14 +130,14 @@ public class RunWorld implements Runnable, FlightDataListener {
 			SoundCollection.update(soundValues, ab);
 			
 			//----------- UI --------------------
-			text.setTextString(String.valueOf(ownship.getPosition().y));
-			TextMaster.loadText(text);
+			//text.setTextString(String.valueOf(ownship.getPosition().y));
+			//TextMaster.loadText(text);
 
 			//------ Render Everything -----------
 			masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainMap(), 
 											lights, camera, new Vector4f(0, 1, 0, 0));
 			ParticleMaster.renderParticles(camera);
-			TextMaster.render();
+			//TextMaster.render();
 			
 			DisplayManager.updateDisplay();
 		}
@@ -153,7 +148,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		AudioMaster.cleanUp();
 		ParticleMaster.cleanUp();
-		TextMaster.cleanUp();
+		//TextMaster.cleanUp();
 		masterRenderer.cleanUp();
 		loader.cleanUp();
 		
@@ -209,8 +204,8 @@ public class RunWorld implements Runnable, FlightDataListener {
 		//=============================== Interface ==========================================================
 		
 		// Generates font and on screen text
-		FontType font = new FontType(loader.loadTexture("arial", "Fonts"), new File("Resources\\Fonts\\arial.fnt"));
-		text = new GUIText("", 1, font, new Vector2f(0, 0), 1f, true);
+		//FontType font = new FontType(loader.loadTexture("arial", "Fonts"), new File("Resources\\Fonts\\arial.fnt"));
+		//text = new GUIText("", 1, font, new Vector2f(0, 0), 1f, true);
 		
 		//==================================== Audio =========================================================
 		
