@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 
 import com.chrisali.javaflightsim.controllers.SimulationController;
-import com.chrisali.javaflightsim.simulation.controls.FlightControls;
+import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.utilities.FileUtilities;
 
@@ -69,35 +69,35 @@ public class IntegrationSetup {
 	 * @param fileName
 	 * @return EnumMap of initial controls for the integration
 	 */
-	public static EnumMap<FlightControls, Double> gatherInitialControls(String fileName) {
+	public static EnumMap<FlightControlType, Double> gatherInitialControls(String fileName) {
 		ArrayList<String[]> initControlFile = FileUtilities.readFileAndSplit(fileName, SimulationController.getSimConfigPath());
-		EnumMap<FlightControls,Double> initControl = new EnumMap<FlightControls,Double>(FlightControls.class); 
+		EnumMap<FlightControlType,Double> initControl = new EnumMap<FlightControlType,Double>(FlightControlType.class); 
 		
 		if (!verifyControlFileIntegrity(initControlFile)) {
 			System.err.println("Error in controls file! Generating default control deflections...");
 			double[] defaultControl = new double[] {0.036, 0, 0, 0.65, 0.65, 0.65, 0.65, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0};
 			for (int i = 0; i < defaultControl.length; i++)
-				initControl.put(FlightControls.values()[i], defaultControl[i]);
+				initControl.put(FlightControlType.values()[i], defaultControl[i]);
 			return initControl;
 		} else {
 			for (int i = 0; i < initControlFile.size(); i++)
-				initControl.put(FlightControls.values()[i], Double.parseDouble(initControlFile.get(i)[1]));
+				initControl.put(FlightControlType.values()[i], Double.parseDouble(initControlFile.get(i)[1]));
 			return initControl;
 		}
 	}
 	
 	/**
 	 * Checks parsed InitialControls text file to ensure that read file length and content 
-	 * match {@link FlightControls} enum length and key content
+	 * match {@link FlightControlType} enum length and key content
 	 * @param initControlFile
 	 * @return
 	 */
 	private static boolean verifyControlFileIntegrity(ArrayList<String[]> initControlFile) {
 		// If lengths are not equal, don't bother checking integrity; return false
-		if (FlightControls.values().length == initControlFile.size()) {
+		if (FlightControlType.values().length == initControlFile.size()) {
 			// Compare enum string value with read string from file
-			for (int i = 0; i < FlightControls.values().length; i++) {
-				if (!initControlFile.get(i)[0].equals(FlightControls.values()[i].toString()))
+			for (int i = 0; i < FlightControlType.values().length; i++) {
+				if (!initControlFile.get(i)[0].equals(FlightControlType.values()[i].toString()))
 					return false;
 			}
 		}

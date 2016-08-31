@@ -12,9 +12,9 @@ right_y = -3
 right_z = 2
 
 % Strut Damping
-nose_damping = 200
-left_damping = 200
-right_damping = 200
+nose_damping = 100
+left_damping = 100
+right_damping = 100
 
 % Strut Springs
 nose_spring = 2500

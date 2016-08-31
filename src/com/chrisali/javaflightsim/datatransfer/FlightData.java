@@ -59,6 +59,8 @@ public class FlightData implements Runnable {
 			flightData.put(FlightDataType.TURN_RATE, Math.toDegrees(simOut.get(SimOuts.PSI_DOT)));
 			flightData.put(FlightDataType.TURN_COORD, simOut.get(SimOuts.AN_Y));
 			
+			flightData.put(FlightDataType.GFORCE, simOut.get(SimOuts.AN_Z));
+			
 			flightData.put(FlightDataType.LATITUDE, Math.toDegrees(simOut.get(SimOuts.LAT)));
 			flightData.put(FlightDataType.LONGITUDE, Math.toDegrees(simOut.get(SimOuts.LON)));
 			
@@ -72,6 +74,8 @@ public class FlightData implements Runnable {
 			flightData.put(FlightDataType.FLAPS, Math.toDegrees(simOut.get(SimOuts.FLAPS)));
 			
 			flightData.put(FlightDataType.AOA, Math.abs(simOut.get(SimOuts.ALPHA)));
+			
+			flightData.put(FlightDataType.PITCH_RATE, Math.toDegrees(simOut.get(SimOuts.Q)));
 		}
 		fireDataArrived();
 	}
@@ -123,7 +127,7 @@ public class FlightData implements Runnable {
 	
 	
 	/**
-	 * Lets other objects request to stop the the flow of flight data by setting running to false
+	 * Lets other objects request to stop the flow of flight data by setting running to false
 	 * 
 	 * @param running
 	 */

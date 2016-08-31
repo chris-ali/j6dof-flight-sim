@@ -12,23 +12,20 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
+import com.chrisali.javaflightsim.controllers.SimulationController;
 import com.chrisali.javaflightsim.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.datatransfer.EnvironmentDataListener;
 import com.chrisali.javaflightsim.datatransfer.EnvironmentDataType;
 import com.chrisali.javaflightsim.simulation.aero.AccelAndMoments;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
-import com.chrisali.javaflightsim.simulation.controls.FlightControlsUtilities;
-import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.AbstractController;
-import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.CHControls;
-import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Joystick;
-import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Keyboard;
-import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Mouse;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
+import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
 
@@ -59,7 +56,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	private double[] angularRates     		= new double[3];
 	
 	// Environment and Wind Parameters
-	private EnumMap<EnvironmentParameters, Double> environmentParameters;
+	private Map<EnvironmentParameters, Double> environmentParameters;
 	private double   gravity			    = Environment.getGravity();
 	private double[] windParameters   		= new double[3];	
 	private double   alphaDot 				= 0.0f;
@@ -74,17 +71,17 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	private double[] totalMoments     		= new double[3];
 	
 	// Simulation Controls (Joystick, Keyboard, etc.)
-	private EnumMap<FlightControls, Double> controls;
-	private AbstractController hidController;
-	private Keyboard hidKeyboard;
+	private Map<FlightControlType, Double> controls;
 	
 	// Integrator Fields
 	private ClassicalRungeKuttaIntegrator integrator;
 	private double[] sixDOFDerivatives		= new double[14];
 	private double[] y					    = new double[14];
 	private double[] initialConditions      = new double[14]; 
-	private double[] integratorConfig		= new double[3];
-	private double   t;
+	
+	// Static fields for concurrency
+	private static double[] integratorConfig = new double[3];
+	private static double   t;
 	
 	// Aircraft Properties
 	private Aircraft aircraft;
@@ -99,40 +96,28 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	private static boolean running;
 	
 	/**
-	 * Creates the {@link Integrate6DOFEquations} object with an {@link AircraftBuilder object}, a list of run-time options defined
-	 * in the {@link Options} EnumSet
+	 * Creates the {@link Integrate6DOFEquations} object with references to {@link FlightControls} and {@link SimulationController}
+	 * objects
 	 * 
-	 * @param ab
-	 * @param runOptions
+	 * @param flightControls
+	 * @param simController
 	 */
-	public Integrate6DOFEquations(AircraftBuilder ab,
-								  EnumSet<Options> runOptions) {
-		aircraft 		   = ab.getAircraft();
-		engineList   	   = ab.getEngineList();
-		options		       = runOptions;
-		controls 		   = IntegrationSetup.gatherInitialControls("InitialControls");
+	public Integrate6DOFEquations(FlightControls flightControls, SimulationController simController) {
+		
+		controls 		   = flightControls.getFlightControls();
+		aircraft 		   = simController.getAircraftBuilder().getAircraft();
+		engineList   	   = simController.getAircraftBuilder().getEngineList();
+		options		       = simController.getSimulationOptions();
 		
 		// Use Apache Commons Lang to convert EnumMap values into primitive double[] 
-		initialConditions = ArrayUtils.toPrimitive(IntegrationSetup.gatherInitialConditions("InitialConditions").values()
-				   												   .toArray(new Double[initialConditions.length]));
-		integratorConfig  = ArrayUtils.toPrimitive(IntegrationSetup.gatherIntegratorConfig("IntegratorConfig").values()
-				   												   .toArray(new Double[integratorConfig.length]));
+		initialConditions = ArrayUtils.toPrimitive(simController.getInitialConditions().values()
+				   												.toArray(new Double[initialConditions.length]));
+		integratorConfig  = ArrayUtils.toPrimitive(simController.getIntegratorConfig().values()
+				   												.toArray(new Double[integratorConfig.length]));
 
-		// Use controllers for pilot in loop simulation if ANALYSIS_MODE not enabled 
-		if (!options.contains(Options.ANALYSIS_MODE)) {
-			if (options.contains(Options.USE_JOYSTICK))
-				hidController = new Joystick(controls);
-			else if (options.contains(Options.USE_MOUSE))
-				hidController = new Mouse(controls);
-			else if (options.contains(Options.USE_CH_CONTROLS))
-				hidController = new CHControls(controls);
-			
-			hidKeyboard = new Keyboard(controls);
-			
-			// Allows simulation to run forever
-			if(options.contains(Options.UNLIMITED_FLIGHT))
-				integratorConfig[2] = Double.POSITIVE_INFINITY;
-		}
+		// Allows simulation to run forever in pilot in the loop simulation if ANALYSIS_MODE not enabled 
+		if (!options.contains(Options.ANALYSIS_MODE) && options.contains(Options.UNLIMITED_FLIGHT))
+			integratorConfig[2] = Double.POSITIVE_INFINITY;
 		
 		// Set up running parameters for integration
 		t = integratorConfig[0];
@@ -232,14 +217,6 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		// Update environment		
 		environmentParameters = Environment.updateEnvironmentParams(NEDPosition);
 		
-		// Update flight controls with joystick/keyboard/mouse unless in analysis mode;
-		// otherwise create a series of doublets (aileron, rudder and then elevator)
-		if (options.contains(Options.ANALYSIS_MODE)) {	
-			controls = FlightControlsUtilities.doubletSeries(controls, t);
-		} else {
-			controls = hidController.updateFlightControls(controls);
-			controls = hidKeyboard.updateFlightControls(controls);
-		}
 		// Update all engines in engine list
 		for(Engine engine : engineList)
 			 engine.updateEngineState(controls, environmentParameters, windParameters);
@@ -372,28 +349,28 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 			}
 			
 			// Controls
-			simOut.put(SimOuts.ELEVATOR,    controls.get(FlightControls.ELEVATOR));
-			simOut.put(SimOuts.AILERON, 	controls.get(FlightControls.AILERON));
-			simOut.put(SimOuts.RUDDER, 	 	controls.get(FlightControls.RUDDER));
-			simOut.put(SimOuts.THROTTLE_1, 	controls.get(FlightControls.THROTTLE_1));
-			simOut.put(SimOuts.THROTTLE_2, 	controls.get(FlightControls.THROTTLE_2));
-			simOut.put(SimOuts.THROTTLE_3, 	controls.get(FlightControls.THROTTLE_3));
-			simOut.put(SimOuts.THROTTLE_4, 	controls.get(FlightControls.THROTTLE_4));
-			simOut.put(SimOuts.PROPELLER_1, controls.get(FlightControls.PROPELLER_1));
-			simOut.put(SimOuts.PROPELLER_2, controls.get(FlightControls.PROPELLER_2));
-			simOut.put(SimOuts.PROPELLER_3, controls.get(FlightControls.PROPELLER_3));
-			simOut.put(SimOuts.PROPELLER_4, controls.get(FlightControls.PROPELLER_4));
-			simOut.put(SimOuts.MIXTURE_1, 	controls.get(FlightControls.MIXTURE_1));
-			simOut.put(SimOuts.MIXTURE_2, 	controls.get(FlightControls.MIXTURE_2));
-			simOut.put(SimOuts.MIXTURE_3, 	controls.get(FlightControls.MIXTURE_3));
-			simOut.put(SimOuts.MIXTURE_4, 	controls.get(FlightControls.MIXTURE_4));
-			simOut.put(SimOuts.FLAPS, 	 	controls.get(FlightControls.FLAPS));
-			simOut.put(SimOuts.GEAR, 	 	controls.get(FlightControls.GEAR));
+			simOut.put(SimOuts.ELEVATOR,    controls.get(FlightControlType.ELEVATOR));
+			simOut.put(SimOuts.AILERON, 	controls.get(FlightControlType.AILERON));
+			simOut.put(SimOuts.RUDDER, 	 	controls.get(FlightControlType.RUDDER));
+			simOut.put(SimOuts.THROTTLE_1, 	controls.get(FlightControlType.THROTTLE_1));
+			simOut.put(SimOuts.THROTTLE_2, 	controls.get(FlightControlType.THROTTLE_2));
+			simOut.put(SimOuts.THROTTLE_3, 	controls.get(FlightControlType.THROTTLE_3));
+			simOut.put(SimOuts.THROTTLE_4, 	controls.get(FlightControlType.THROTTLE_4));
+			simOut.put(SimOuts.PROPELLER_1, controls.get(FlightControlType.PROPELLER_1));
+			simOut.put(SimOuts.PROPELLER_2, controls.get(FlightControlType.PROPELLER_2));
+			simOut.put(SimOuts.PROPELLER_3, controls.get(FlightControlType.PROPELLER_3));
+			simOut.put(SimOuts.PROPELLER_4, controls.get(FlightControlType.PROPELLER_4));
+			simOut.put(SimOuts.MIXTURE_1, 	controls.get(FlightControlType.MIXTURE_1));
+			simOut.put(SimOuts.MIXTURE_2, 	controls.get(FlightControlType.MIXTURE_2));
+			simOut.put(SimOuts.MIXTURE_3, 	controls.get(FlightControlType.MIXTURE_3));
+			simOut.put(SimOuts.MIXTURE_4, 	controls.get(FlightControlType.MIXTURE_4));
+			simOut.put(SimOuts.FLAPS, 	 	controls.get(FlightControlType.FLAPS));
+			simOut.put(SimOuts.GEAR, 	 	controls.get(FlightControlType.GEAR));
 		}
 		
 		synchronized (logsOut) {
 			// Removes the first entry in logsOut to keep a maximum of 100 sec of flight data in UNLIMITED_FLIGHT
-			if (options.contains(Options.UNLIMITED_FLIGHT) & t >= 100)
+			if (options.contains(Options.UNLIMITED_FLIGHT) & t >= 100 & logsOut.size() > 0)
 				logsOut.remove(0);
 				
 			// Add output step to logging arrayList
@@ -414,10 +391,6 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 			running = true;
 			
 			while (t < integratorConfig[2] && running) {
-				// Set pause/reset from within keyboard's updateOptions method if not in analysis mode
-				if (!options.contains(Options.ANALYSIS_MODE))
-					this.options  = hidKeyboard.updateOptions(options);
-				
 				// If paused and reset selected, reset initialConditions using IntegrationSetup's method 
 				if (options.contains(Options.PAUSED) & options.contains(Options.RESET))				
  					initialConditions = ArrayUtils.toPrimitive(IntegrationSetup.gatherInitialConditions("InitialConditions").values()
@@ -446,13 +419,16 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 				if (!options.contains(Options.ANALYSIS_MODE))
 					Thread.sleep((long)(integratorConfig[1]*1000));
 				
-				t += integratorConfig[1];
+				// Increments time using an intrinsic lock
+				incrementTime();
 			}
 			
 		} catch (InterruptedException e) {
 		} finally {running = false;} 
 		
 	}
+	
+	//================================= Simulation Logging =====================================================
 	
 	/**
 	 * Returns an ArrayList of {@link Integrate6DOFEquations#getSimOut()} objects; acts as a logging method, which can be used to plot simulation data
@@ -476,6 +452,20 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	 */
 	public synchronized Map<SimOuts, Double> getSimOut() {return Collections.unmodifiableMap(simOut);}
 	
+	//========================================= Time ============================================================
+	
+	/**
+	 * @return current time of simulation (sec)
+	 */
+	public static synchronized double getTime() {return Integrate6DOFEquations.t;}
+	
+	/**
+	 * Gets the intrinsic lock on {@link Integrate6DOFEquations#t} and increments it by {@link IntegratorConfig#DT} seconds 
+	 */
+	private static synchronized void incrementTime() {Integrate6DOFEquations.t += integratorConfig[1];}
+	
+	//==================================== Running Status =======================================================
+	
 	/**
 	 * Lets other objects know if {@link Integrate6DOFEquations#run()} is currently running
 	 * 
@@ -489,7 +479,9 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	 * @param running
 	 */
 	public static synchronized void setRunning(boolean running) {Integrate6DOFEquations.running = running;}
-
+	
+	//==================================== Environment ==========================================================
+	
 	/**
 	 * Sets the wind speed (kts), wind direction (deg) and temperature (deg C)  
 	 * 
@@ -503,7 +495,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		// Subtract standard temperature from argument to get deviation from standard, then convert C deg to F deg 
 		Environment.setDeltaIsa((temperature-15)*9/5);
 	}
-
+	
 	@Override
 	public void onEnvironmentDataReceived(EnvironmentData environmentData) {
 		Map<EnvironmentDataType, Double> receivedEnvironmentData = environmentData.getEnvironmentData();

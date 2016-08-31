@@ -1,6 +1,6 @@
 package com.chrisali.javaflightsim.utilities;
 
-import java.util.EnumMap;
+import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
@@ -129,7 +129,7 @@ public class SixDOFUtilities {
 	 * Calculates Mach number
 	 * @see <i>Source Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
 	 */
-	public static double calculateMach(double[] windParameters, EnumMap<EnvironmentParameters, Double> environmentParameters) {
+	public static double calculateMach(double[] windParameters, Map<EnvironmentParameters, Double> environmentParameters) {
 		return windParameters[0]/environmentParameters.get(EnvironmentParameters.A);
 	}
 

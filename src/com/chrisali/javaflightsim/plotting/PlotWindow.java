@@ -23,7 +23,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.chrisali.javaflightsim.controllers.SimulationController;
-import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 
@@ -40,7 +39,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	private JTabbedPane tabPane;
 	private List<SimulationPlot> plotList;
 	private SwingWorker<Void, Integer> tabPaneWorker;
-	private SwingWorker<Void, Integer> refreshPlotWorker;
+	private Thread refreshPlotThread;
 	private ProgressDialog progressDialog;
 	
 	private SimulationController controller;
@@ -51,28 +50,28 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	 * from {@link Integrate6DOFEquations#getLogsOut()}, and assigns them to tabs in a JTabbedPane. 
 	 * 
 	 * @param String simPlotCetegories
-	 * @param List<EnumMap<SimOuts, Double>> logsOut
-	 * @param Aircraft aircraft
 	 * @param SimulationController controller
 	 */
-	public PlotWindow(List<Map<SimOuts, Double>> logsOut, 
-					 Set<String> simPlotCategories,
-					 Aircraft aircraft,
-					 SimulationController controller) {
-		super(aircraft.getName() + " Plots");
+	public PlotWindow(Set<String> simPlotCategories, SimulationController controller) {
+		super(controller.getAircraftBuilder().getAircraft().getName() + " Plots");
 		setLayout(new BorderLayout());
 		
-		plotList = new ArrayList<>();
-		this.logsOut = logsOut;
+		this.logsOut = controller.getLogsOut();
 		this.simPlotCategories = simPlotCategories;
 		this.controller = controller;
+		plotList = new ArrayList<>();
 		
+		//-------------- Progress Dialog ----------------------------
+		
+		progressDialog = new ProgressDialog(this, "Refreshing Plots");
+		progressDialog.setProgressDialogListener(this);
+
 		//------------------ Tab Pane ------------------------------
 		
 		tabPane = new JTabbedPane();
 		
 		if (this.logsOut != null && this.simPlotCategories != null)
-			initializePlots();
+			initializePlots(logsOut);
 		
 		tabPane.addChangeListener(new ChangeListener() {
 			@Override
@@ -82,10 +81,6 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 		});
 		add(tabPane, BorderLayout.CENTER);
 		
-		//-------------- Progress Dialog ----------------------------
-		
-		progressDialog = new ProgressDialog(this, "Plots Refreshing");
-		progressDialog.setProgressDialogListener(this);
 
 		//================== Window Settings ====================================
 		
@@ -98,8 +93,8 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 			public void windowClosing(WindowEvent e) {
 				setVisible(false);
 				
-				if (refreshPlotWorker != null)
-					refreshPlotWorker.cancel(true);
+				if (refreshPlotThread != null)
+					refreshPlotThread.interrupt();
 				if (tabPaneWorker != null)
 					tabPaneWorker.cancel(true);
 			}
@@ -147,7 +142,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 		});
 		plotsMenu.add(refreshItem);
 		
-		//------------------- Refresh Item -------------------------------
+		//---------------- Clear Pots Item -------------------------------
 		
 		JMenuItem clearPlotsItem = new JMenuItem("Clear Plots");
 		clearPlotsItem.setMnemonic(KeyEvent.VK_E);
@@ -175,21 +170,57 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	/**
 	 * Initalizes the plot window by generating plot objects and adding them to a tabbed pane 
 	 */
-	public void initializePlots() {
+	private void initializePlots(List<Map<SimOuts, Double>> logsOut) {
+		progressDialog.setMaximum(simPlotCategories.size());
+		progressDialog.setTitle("Generating Plots");
+		progressDialog.setVisible(true);
+		
 		tabPaneWorker = new SwingWorker<Void, Integer>() {
+			
+			@Override
+			protected void done() {
+				progressDialog.setVisible(false);
+				
+				if (isCancelled())
+					return;
+				
+				if (!isVisible())
+					setVisible(true);
+			}
+			
+			@Override
+			protected void process(List<Integer> counts) {
+				int retreived = counts.get(counts.size()-1);
+				progressDialog.setValue(retreived);
+			}
+			
 			@Override
 			protected Void doInBackground() throws Exception {
 				
-				List<Map<SimOuts, Double>> newLogsOut = new ArrayList<Map<SimOuts, Double>>(logsOut);
-				
-				for (String plotTitle : simPlotCategories) {
-					try {Thread.sleep(125);} 
-					catch (InterruptedException e) {}
+				try {
+					int count = 0;
 					
-					SimulationPlot plotObject = new SimulationPlot(newLogsOut, plotTitle);
-					tabPane.add(plotTitle, plotObject);
-					plotList.add(plotObject);
+					// Pause a bit to give SimulationPlot object time to initialize 
+					Thread.sleep(2000);
+					
+					for (String plotTitle : simPlotCategories) {
+					
+						SimulationPlot plotObject = new SimulationPlot(logsOut, plotTitle);
+						
+						Thread.sleep(250);
+
+						tabPane.add(plotTitle, plotObject);
+						plotList.add(plotObject);
+						
+						count++;
+						publish(count);
+					}
+						
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
+				
+				
 				return null;
 			}
 		};
@@ -203,52 +234,38 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	 * @param logsOut
 	 */
 	public void refreshPlots(List<Map<SimOuts, Double>> logsOut) {
-		progressDialog.setMaximum(plotList.size());
+		progressDialog.setMaximum(simPlotCategories.size());
+		progressDialog.setTitle("Refreshing Plots");
 		progressDialog.setVisible(true);
 		
-		refreshPlotWorker = new SwingWorker<Void, Integer>() {
+		// Run process in Thread instead of SwingWorker to allow re-execution
+		refreshPlotThread = new Thread(){
 			@Override
-			protected void done() {
-				progressDialog.setVisible(false);
-				
-				if (isCancelled())
-					return;
-				
-				if (!isVisible())
-					setVisible(true);
-			}
-
-			@Override
-			protected void process(List<Integer> counts) {
-				int retreived = counts.get(counts.size()-1);
-				progressDialog.setValue(retreived);
-			}
-
-			@Override
-			protected Void doInBackground() throws Exception {
-				int count = 0;
-				
-				try {Thread.sleep(125);} 
-				catch (InterruptedException e) {}
-				
-				List<Map<SimOuts, Double>> newLogsOut = new ArrayList<Map<SimOuts, Double>>(logsOut);
-				
-				SimulationPlot.updateXYSeriesData(newLogsOut);
-				
-				for (SimulationPlot plot : plotList) {
-					plot.getChartPanel().repaint();
+			public void run() {
+				try {
+					int count = 0;
 					
-					count++;
-					publish(count);
-				}
-				return null;
+					SimulationPlot.updateXYSeriesData(logsOut);
+					
+					for (SimulationPlot plot : plotList) {
+						plot.getChartPanel().repaint();
+						
+						Thread.sleep(125);
+						progressDialog.setValue(count);
+						
+						count++;
+					}
+				} 
+				catch (InterruptedException e) {} 
+				finally {progressDialog.setVisible(false);}
 			}
 		};
-		refreshPlotWorker.execute();
+		
+		refreshPlotThread.start();
 	}
 	
 	@Override
 	public void ProgressDialogCancelled() {
-		refreshPlotWorker.cancel(true);
+		refreshPlotThread.interrupt();
 	}
 }

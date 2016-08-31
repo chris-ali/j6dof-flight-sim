@@ -4,7 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.lwjgl.BufferUtils;
@@ -21,14 +21,22 @@ import org.newdawn.slick.opengl.TextureLoader;
 
 import com.chrisali.javaflightsim.otw.models.RawModel;
 
+/**
+ * Class that contains various methods to load resources (textures, models, etc) into memory
+ * 
+ * @author Christopher Ali
+ *
+ */
 public class Loader {
 	
 	private static boolean useAnisotropicFiltering;
 
-	private List<Integer> vaoList = new ArrayList<>();
-	private List<Integer> vboList = new ArrayList<>();
-	private List<Integer> textureList = new ArrayList<>();
+	private List<Integer> vaoList = new LinkedList<>();
+	private List<Integer> vboList = new LinkedList<>();
+	private List<Integer> textureList = new LinkedList<>();
 
+	//=============================== VAO Loaders for Various Entity Types =====================================
+	
 	public RawModel loadToVAO(float[] positions, float[] textureCoords, float[] normals, int[] indices) {
 		int vaoID = createVAO();
 		bindIndicesBuffer(indices);
@@ -39,6 +47,22 @@ public class Loader {
 
 		return new RawModel(vaoID, indices.length);
 	}
+	
+	public RawModel loadToVAO(float[] positions, int dimensions) {
+		int vaoID = createVAO();
+		this.storeDataInAttributeList(0, dimensions, positions);
+		unbindVAO();
+		
+		return new RawModel(vaoID, positions.length / dimensions);
+	}
+	
+	public RawModel loadToVAO(float[] positions) {
+		int vaoID = createVAO();
+		this.storeDataInAttributeList(0, 2, positions);
+		unbindVAO();
+		
+		return new RawModel(vaoID, positions.length / 2);
+	}
 
 	public int loadToVAO(float[] positions, float[] textureCoords) {
 		int vaoID = createVAO();
@@ -48,20 +72,19 @@ public class Loader {
 
 		return vaoID;
 	}
-
-	public RawModel loadToVAO(float[] positions, int dimensions) {
-		int vaoID = createVAO();
-		this.storeDataInAttributeList(0, dimensions, positions);
-		unbindVAO();
-		return new RawModel(vaoID, positions.length / dimensions);
+	
+	private int createVAO() {
+		int vaoID = GL30.glGenVertexArrays();
+		vaoList.add(vaoID);
+		GL30.glBindVertexArray(vaoID);
+		return vaoID;
+	}
+	
+	private void unbindVAO() {
+		GL30.glBindVertexArray(0);
 	}
 
-	public RawModel loadToVAO(float[] positions) {
-		int vaoID = createVAO();
-		this.storeDataInAttributeList(0, 2, positions);
-		unbindVAO();
-		return new RawModel(vaoID, positions.length / 2);
-	}
+	//================================== VBO Methods =============================================
 
 	public int createEmptyVBO(int floatCount) {
 		int vbo = GL15.glGenBuffers();
@@ -92,7 +115,17 @@ public class Loader {
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		GL30.glBindVertexArray(0);
 	}
+	
+	//========================================== Textures ===========================================
 
+	/**
+	 * Loads a texture into memory using SlikUtils png loader using a specific directory stemming from the ./Resources
+	 * directory. Sets anisotropic filtering for textures as well in this method
+	 * 
+	 * @param fileName
+	 * @param directory
+	 * @return
+	 */
 	public int loadTexture(String fileName, String directory) {
 		Texture texture = null;
 
@@ -122,23 +155,13 @@ public class Loader {
 
 		return textureID;
 	}
-
-	public void cleanUp() {
-		for (int vao : vaoList)
-			GL30.glDeleteVertexArrays(vao);
-		for (int vbo : vboList)
-			GL15.glDeleteBuffers(vbo);
-		for (int texture : textureList)
-			GL11.glDeleteTextures(texture);
+	
+	public static void setUseAnisotropicFiltering(boolean useAnisotropicFiltering) {
+		Loader.useAnisotropicFiltering = useAnisotropicFiltering;
 	}
-
-	private int createVAO() {
-		int vaoID = GL30.glGenVertexArrays();
-		vaoList.add(vaoID);
-		GL30.glBindVertexArray(vaoID);
-		return vaoID;
-	}
-
+	
+	//=================================== Indices and Buffers ========================================
+	
 	private void storeDataInAttributeList(int attributeNumber, int coordinateSize, float[] data) {
 		int vboID = GL15.glGenBuffers();
 		vboList.add(vboID);
@@ -147,10 +170,6 @@ public class Loader {
 		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
 		GL20.glVertexAttribPointer(attributeNumber, coordinateSize, GL11.GL_FLOAT, false, 0, 0);
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-	}
-
-	private void unbindVAO() {
-		GL30.glBindVertexArray(0);
 	}
 
 	private void bindIndicesBuffer(int[] indices) {
@@ -174,8 +193,17 @@ public class Loader {
 		buffer.flip();
 		return buffer;
 	}
-
-	public static void setUseAnisotropicFiltering(boolean useAnisotropicFiltering) {
-		Loader.useAnisotropicFiltering = useAnisotropicFiltering;
+	
+	public void cleanUp() {
+		for (int vao : vaoList)
+			GL30.glDeleteVertexArrays(vao);
+		for (int vbo : vboList)
+			GL15.glDeleteBuffers(vbo);
+		for (int texture : textureList)
+			GL11.glDeleteTextures(texture);
+		
+		vaoList.clear();
+		vboList.clear();
+		textureList.clear();
 	}
 }

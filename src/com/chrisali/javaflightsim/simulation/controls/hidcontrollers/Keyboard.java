@@ -1,10 +1,12 @@
 package com.chrisali.javaflightsim.simulation.controls.hidcontrollers;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.controls.FlightControls;
+import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
+import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
@@ -21,7 +23,8 @@ import net.java.games.input.ControllerEnvironment;
  * Up/Down and Left/Right control the elevator and ailerons, respectively, and all throttles are 
  * controlled by Page Up/Down. The simulation can be toggled paused by pressing P, and while paused
  * the simulation can be reset to initial conditions defined by 
- * {@link IntegrationSetup#gatherInitialConditions(String)} by pressing R
+ * {@link IntegrationSetup#gatherInitialConditions(String)} by pressing R.
+ * The simulation is quit by pressing Q and L plots the simulation.
  * @see AbstractController
  */
 public class Keyboard extends AbstractController {
@@ -31,17 +34,24 @@ public class Keyboard extends AbstractController {
 	// Keep track of reset, so that it can only be run once per pause
 	private boolean wasReset = false;
 	
+	private SimulationController simController;
+	private EnumSet<Options> options;
+	
 	/**
-	 *  Constructor for Keyboard class; creates list of controllers using searchForControllers()
+	 *  Constructor for Keyboard class; creates list of controllers using searchForControllers() and
+	 *  creates a reference to a {@link SimulationController} object 
 	 * @param controls
+	 * @param simController
 	 */
-	public Keyboard(EnumMap<FlightControls, Double> controls) {
+	public Keyboard(Map<FlightControlType, Double> controls, SimulationController simController) {
 		this.controllerList = new ArrayList<>();
-
+		this.simController = simController;
+		this.options = simController.getSimulationOptions();
+		
 		// Get initial trim values from initial values in controls EnumMap (rad)
-		trimElevator = controls.get(FlightControls.ELEVATOR);
-		trimAileron  = controls.get(FlightControls.AILERON);
-		trimRudder   = controls.get(FlightControls.RUDDER);
+		trimElevator = controls.get(FlightControlType.ELEVATOR);
+		trimAileron  = controls.get(FlightControlType.AILERON);
+		trimRudder   = controls.get(FlightControlType.RUDDER);
 		
 		searchForControllers();
 	}
@@ -67,67 +77,88 @@ public class Keyboard extends AbstractController {
 	}
 	
 	/**
-	 * Updates the EnumSet options, which controls the operation of the simulation; P pauses the simulation
-	 * and R resets it back to the initial conditions defined by {@link IntegrationSetup#gatherInitialConditions(String)}
-	 * in InitialConditions.txt
+	 * Contains hot keys used by the simulation for various tasks: <br>
+	 * P pauses the simulation<br>
+	 * R resets it back to the initial conditions defined in InitialConditions.txt<br>
+	 * Q quits the simulation<br>
+	 * L plots the simulation<br>
 	 * 
-	 * @param options
-	 * @return EnumSet options
+	 * @param simController
 	 */
-	public EnumSet<Options> updateOptions(EnumSet<Options> options) {
+	public void hotKeys() {
 		// Iterate through all controllers connected
-		for (Controller controller : controllerList) {
+		for (Controller keyboard : controllerList) {
 			// Poll controller for data; if disconnected, break out of componentIdentification loop
-			if(!controller.poll()) 
+			if(!keyboard.poll()) 
 				break;
 			
 			// Iterate through all components of the controller.
-			for (Component component : controller.getComponents()) {
+			for (Component component : keyboard.getComponents()) {
 				Identifier componentIdentifier = component.getIdentifier();
 				
 				// When simulation paused, can be reset once per pause with "R" key
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.P.toString())) {
-					if(component.getPollData() == 1.0f & !options.contains(Options.PAUSED) & !pPressed) {
+					if(component.getPollData() == 1.0f && !options.contains(Options.PAUSED) && !pPressed) {
 						options.add(Options.PAUSED);
 						System.err.println("Simulation Paused!");
-						this.pPressed = true;
-					} else if(component.getPollData() == 1.0f & options.contains(Options.PAUSED) & !pPressed) {
+						pPressed = true;
+					} else if(component.getPollData() == 1.0f 
+							  && options.contains(Options.PAUSED) && !pPressed) {
 						options.remove(Options.PAUSED);
-						this.wasReset = false;
-						this.pPressed = true;
-					} else if(component.getPollData() == 0.0f & pPressed) {
-						this.pPressed = false;
+						wasReset = false;
+						pPressed = true;
+					} else if(component.getPollData() == 0.0f && pPressed) {
+						pPressed = false;
 					}
 
 					continue;
 				}
 				
+				// Reset simulation
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.R.toString())) {
-					if(component.getPollData() == 1.0f & options.contains(Options.PAUSED) & !options.contains(Options.RESET) &
-					   !rPressed & !wasReset) {
+					if(component.getPollData() == 1.0f && options.contains(Options.PAUSED) 
+					    && !options.contains(Options.RESET) && !rPressed && !wasReset) {
 						options.add(Options.RESET);
 						System.err.println("Simulation Reset!");
-						this.wasReset = true;
-						this.rPressed = true;
-					} else if (component.getPollData() == 0.0f & rPressed) {
+						wasReset = true;
+						rPressed = true;
+					} else if (component.getPollData() == 0.0f && rPressed) {
 						options.remove(Options.RESET);
-						this.rPressed = false;
+						rPressed = false;
+					}
+					
+					continue;
+				}
+				
+				// Quits simulation
+				if (componentIdentifier.getName().matches(Component.Identifier.Key.Q.toString())) {
+					if(component.getPollData() == 1.0f && Integrate6DOFEquations.isRunning()) {
+						simController.stopSimulation();
+					}
+					
+					continue;
+				}
+				
+				// Plots simulation
+				if (componentIdentifier.getName().matches(Component.Identifier.Key.L.toString())) {
+					if(component.getPollData() == 1.0f && simController.getSimulation() != null 
+						&& Integrate6DOFEquations.isRunning() && !simController.isPlotWindowVisible()) {
+						simController.plotSimulation();
 					}
 					
 					continue;
 				}
 			}
 		}
-		
-		return options;
 	}
 	
 	/**
-	 *  Get button  values from keyboard, and return an EnumMap for updateFlightControls in {@link SimulationController)
-	 *  @return flightControls EnumMap
+	 *  Get button  values from keyboard, and return a Map for updateFlightControls in {@link SimulationController)
+	 *  
+	 *  @return flightControls Map
 	 */
 	@Override
-	protected EnumMap<FlightControls, Double> calculateControllerValues(EnumMap<FlightControls, Double> controls) {
+	protected Map<FlightControlType, Double> calculateControllerValues(Map<FlightControlType, Double> controls) {
 		// Iterate through all controllers connected
 		for (Controller controller : controllerList) {
 			// Poll controller for data; if disconnected, break out of componentIdentification loop
@@ -140,56 +171,56 @@ public class Keyboard extends AbstractController {
 				
 				// Elevator (Pitch) Down
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.UP.toString()) & 
-					controls.get(FlightControls.ELEVATOR) <= FlightControls.ELEVATOR.getMaximum()) {
+					controls.get(FlightControlType.ELEVATOR) <= FlightControlType.ELEVATOR.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f)
-						controls.put(FlightControls.ELEVATOR,controls.get(FlightControls.ELEVATOR)+0.001);
+						controls.put(FlightControlType.ELEVATOR, controls.get(FlightControlType.ELEVATOR) + getDeflectionRate(FlightControlType.ELEVATOR));
 					
 					continue;
 				}
 				
 				// Elevator (Pitch) Up
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.DOWN.toString()) & 
-					controls.get(FlightControls.ELEVATOR) >= FlightControls.ELEVATOR.getMinimum()) {
+					controls.get(FlightControlType.ELEVATOR) >= FlightControlType.ELEVATOR.getMinimum()) {
 					
 					if(component.getPollData() == 1.0f)
-						controls.put(FlightControls.ELEVATOR,controls.get(FlightControls.ELEVATOR)-0.001);
+						controls.put(FlightControlType.ELEVATOR, controls.get(FlightControlType.ELEVATOR) - getDeflectionRate(FlightControlType.ELEVATOR));
 					
 					continue;
 				}
 				
 				// Left Aileron
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.LEFT.toString()) & 
-					controls.get(FlightControls.AILERON) >= FlightControls.AILERON.getMinimum()) {
+					controls.get(FlightControlType.AILERON) >= FlightControlType.AILERON.getMinimum()) {
 					
 					if(component.getPollData() == 1.0f)
-						controls.put(FlightControls.AILERON,controls.get(FlightControls.AILERON)+0.001);
+						controls.put(FlightControlType.AILERON, controls.get(FlightControlType.AILERON) + getDeflectionRate(FlightControlType.AILERON));
 					
 					continue;
 				}
 				
 				// Right Aileron
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.RIGHT.toString()) & 
-					controls.get(FlightControls.AILERON) <= FlightControls.AILERON.getMaximum()) {
+					controls.get(FlightControlType.AILERON) <= FlightControlType.AILERON.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f)
-						controls.put(FlightControls.AILERON,controls.get(FlightControls.AILERON)-0.001);
+						controls.put(FlightControlType.AILERON, controls.get(FlightControlType.AILERON) - getDeflectionRate(FlightControlType.AILERON));
 					
 					continue;
 				}
 				
 				// Increase Throttle
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.PAGEUP.toString()) & 
-					controls.get(FlightControls.THROTTLE_1) <= FlightControls.THROTTLE_1.getMaximum() &
-					controls.get(FlightControls.THROTTLE_2) <= FlightControls.THROTTLE_2.getMaximum() &
-					controls.get(FlightControls.THROTTLE_3) <= FlightControls.THROTTLE_3.getMaximum() &
-					controls.get(FlightControls.THROTTLE_4) <= FlightControls.THROTTLE_4.getMaximum()) {
+					controls.get(FlightControlType.THROTTLE_1) <= FlightControlType.THROTTLE_1.getMaximum() &
+					controls.get(FlightControlType.THROTTLE_2) <= FlightControlType.THROTTLE_2.getMaximum() &
+					controls.get(FlightControlType.THROTTLE_3) <= FlightControlType.THROTTLE_3.getMaximum() &
+					controls.get(FlightControlType.THROTTLE_4) <= FlightControlType.THROTTLE_4.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f) {
-						controls.put(FlightControls.THROTTLE_1,controls.get(FlightControls.THROTTLE_1)+0.01);
-						controls.put(FlightControls.THROTTLE_2,controls.get(FlightControls.THROTTLE_2)+0.01);
-						controls.put(FlightControls.THROTTLE_3,controls.get(FlightControls.THROTTLE_3)+0.01);
-						controls.put(FlightControls.THROTTLE_4,controls.get(FlightControls.THROTTLE_4)+0.01);
+						controls.put(FlightControlType.THROTTLE_1, controls.get(FlightControlType.THROTTLE_1) + getDeflectionRate(FlightControlType.THROTTLE_1));
+						controls.put(FlightControlType.THROTTLE_2, controls.get(FlightControlType.THROTTLE_2) + getDeflectionRate(FlightControlType.THROTTLE_2));
+						controls.put(FlightControlType.THROTTLE_3, controls.get(FlightControlType.THROTTLE_3) + getDeflectionRate(FlightControlType.THROTTLE_3));
+						controls.put(FlightControlType.THROTTLE_4, controls.get(FlightControlType.THROTTLE_4) + getDeflectionRate(FlightControlType.THROTTLE_4));
 					}
 					
 					continue;
@@ -197,16 +228,16 @@ public class Keyboard extends AbstractController {
 				
 				// Decrease Throttle
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.PAGEDOWN.toString()) & 
-					controls.get(FlightControls.THROTTLE_1) >= FlightControls.THROTTLE_1.getMinimum() &
-					controls.get(FlightControls.THROTTLE_2) >= FlightControls.THROTTLE_2.getMinimum() &
-					controls.get(FlightControls.THROTTLE_3) >= FlightControls.THROTTLE_3.getMinimum() &
-					controls.get(FlightControls.THROTTLE_4) >= FlightControls.THROTTLE_4.getMinimum()) {
+					controls.get(FlightControlType.THROTTLE_1) >= FlightControlType.THROTTLE_1.getMinimum() &
+					controls.get(FlightControlType.THROTTLE_2) >= FlightControlType.THROTTLE_2.getMinimum() &
+					controls.get(FlightControlType.THROTTLE_3) >= FlightControlType.THROTTLE_3.getMinimum() &
+					controls.get(FlightControlType.THROTTLE_4) >= FlightControlType.THROTTLE_4.getMinimum()) {
 					
 					if(component.getPollData() == 1.0f) {
-						controls.put(FlightControls.THROTTLE_1,controls.get(FlightControls.THROTTLE_1)-0.01);
-						controls.put(FlightControls.THROTTLE_2,controls.get(FlightControls.THROTTLE_2)-0.01);
-						controls.put(FlightControls.THROTTLE_3,controls.get(FlightControls.THROTTLE_3)-0.01);
-						controls.put(FlightControls.THROTTLE_4,controls.get(FlightControls.THROTTLE_4)-0.01);
+						controls.put(FlightControlType.THROTTLE_1, controls.get(FlightControlType.THROTTLE_1) - getDeflectionRate(FlightControlType.THROTTLE_1));
+						controls.put(FlightControlType.THROTTLE_2, controls.get(FlightControlType.THROTTLE_2) - getDeflectionRate(FlightControlType.THROTTLE_2));
+						controls.put(FlightControlType.THROTTLE_3, controls.get(FlightControlType.THROTTLE_3) - getDeflectionRate(FlightControlType.THROTTLE_3));
+						controls.put(FlightControlType.THROTTLE_4, controls.get(FlightControlType.THROTTLE_4) - getDeflectionRate(FlightControlType.THROTTLE_4));
 					}
 					
 					continue;
@@ -215,20 +246,20 @@ public class Keyboard extends AbstractController {
 				
 				// Flaps Down
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.F7.toString()) & 
-					controls.get(FlightControls.FLAPS) <= FlightControls.FLAPS.getMaximum()) {
+					controls.get(FlightControlType.FLAPS) <= FlightControlType.FLAPS.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f)
-						controls.put(FlightControls.FLAPS,controls.get(FlightControls.FLAPS)+0.005);
+						controls.put(FlightControlType.FLAPS, (flaps += getDeflectionRate(FlightControlType.FLAPS)));
 					
 					continue;
 				}
 				
 				// Flaps Up
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.F6.toString()) & 
-						controls.get(FlightControls.FLAPS) >= FlightControls.FLAPS.getMinimum()) {
+						controls.get(FlightControlType.FLAPS) >= FlightControlType.FLAPS.getMinimum()) {
 						
 					if(component.getPollData() == 1.0f)
-						controls.put(FlightControls.FLAPS,controls.get(FlightControls.FLAPS)-0.005);
+						controls.put(FlightControlType.FLAPS, (flaps -= getDeflectionRate(FlightControlType.FLAPS)));
 					
 					continue;
 				}

@@ -5,6 +5,7 @@ package com.chrisali.javaflightsim.datatransfer;
  */
 public enum FlightDataType {
 	PITCH        ("Pitch Angle", "deg"),
+	PITCH_RATE   ("Pitch Rate", "deg/sec"),
 	ROLL		 ("Roll Angle", "deg"),
 	IAS			 ("Indicated Airspeed", "kts"),
 	TAS			 ("True Airspeed", "kts"),
@@ -23,7 +24,8 @@ public enum FlightDataType {
 	RPM_4		 ("Engine 4 RPM", "1/min"),
 	GEAR		 ("Gear Position", "norm"),
 	FLAPS		 ("Flaps Position", "deg"),
-	AOA			 ("Angle of Attack", "deg");
+	AOA			 ("Angle of Attack", "deg"),
+	GFORCE		 ("G Force", "g");
 	
 	private final String dataType;
 	private final String unit;

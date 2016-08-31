@@ -1,9 +1,9 @@
 package com.chrisali.javaflightsim.simulation.controls.hidcontrollers;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
+import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.controls.FlightControls;
+import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
@@ -14,7 +14,7 @@ import net.java.games.input.ControllerEnvironment;
  * The Mouse object uses JInput to integrate mouse functionality into the simulation as a joystick substitute.
  * It works by generating an ArrayList of mice connected to the computer, polling each one's active components 
  * (buttons, axes), using the polled data to calculate control deflections, and assigning these to each respective key 
- * in the controls EnumMap. These deflections are limited by the constants defined in {@link FlightControls}. Ailerons 
+ * in the controls EnumMap. These deflections are limited by the constants defined in {@link FlightControlType}. Ailerons 
  * and Elevator are controlled by horizontal and vertical mouse movement, respectively, and all throttles are controlled 
  * by the mouse wheel.
  * @see AbstractController
@@ -31,13 +31,13 @@ public class Mouse extends AbstractController {
 	 *  Constructor for Joystick class; creates list of controllers using searchForControllers()
 	 * @param controls
 	 */
-	public Mouse(EnumMap<FlightControls, Double> controls) {
+	public Mouse(Map<FlightControlType, Double> controls) {
 		this.controllerList = new ArrayList<>();
 
 		// Get initial trim values from initial values in controls EnumMap (rad)
-		trimElevator = controls.get(FlightControls.ELEVATOR);
-		trimAileron = controls.get(FlightControls.AILERON);
-		trimRudder = controls.get(FlightControls.RUDDER);
+		trimElevator = controls.get(FlightControlType.ELEVATOR);
+		trimAileron = controls.get(FlightControlType.AILERON);
+		trimRudder = controls.get(FlightControlType.RUDDER);
 
 		searchForControllers();
 	}
@@ -63,12 +63,13 @@ public class Mouse extends AbstractController {
 	}
 	
 	/**
-	 *  Get button, mouse wheel and axis values from mouse, and return an EnumMap for updateFlightControls()
-	 *  in {@link SimulationController)
-	 *  @return flightControls EnumMap
+	 *  Get button, mouse wheel and axis values from mouse, and return a Map for updateFlightControls()
+	 *  in {@link AbstractController}
+	 *  
+	 *  @return controls Map
 	 */
 	@Override
-	protected EnumMap<FlightControls, Double> calculateControllerValues(EnumMap<FlightControls, Double> controls) {
+	protected Map<FlightControlType, Double> calculateControllerValues(Map<FlightControlType, Double> controls) {
 		// Iterate through all controllers connected
 		for (Controller controller : controllerList) {
 			
@@ -97,7 +98,7 @@ public class Mouse extends AbstractController {
 					if(componentIdentifier == Component.Identifier.Axis.Y) {
 						if(axisValue != 0) {
 							tempElev += axisValue;
-							controls.put(FlightControls.ELEVATOR, -(tempElev+trimElevator));
+							controls.put(FlightControlType.ELEVATOR, -(tempElev+trimElevator));
 						}
 						continue; // Go to next component
 					}
@@ -105,7 +106,7 @@ public class Mouse extends AbstractController {
 					if(componentIdentifier == Component.Identifier.Axis.X) {
 						if(axisValue != 0) {
 							tempAil += axisValue;
-							controls.put(FlightControls.AILERON, -(tempAil+trimAileron));
+							controls.put(FlightControlType.AILERON, -(tempAil+trimAileron));
 						}
 						continue; // Go to next component
 					}
@@ -113,8 +114,8 @@ public class Mouse extends AbstractController {
 					if(componentIdentifier == Component.Identifier.Axis.Z) {
 						if(axisValue != 0) {
 							tempThrot += axisValue;
-							controls.put(FlightControls.THROTTLE_1, tempThrot*250);
-							controls.put(FlightControls.THROTTLE_2, tempThrot*250);
+							controls.put(FlightControlType.THROTTLE_1, tempThrot*250);
+							controls.put(FlightControlType.THROTTLE_2, tempThrot*250);
 						}
 						continue; // Go to next component
 					}

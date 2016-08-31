@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import com.chrisali.javaflightsim.controllers.SimulationController;
 import com.chrisali.javaflightsim.datatransfer.FlightData;
 import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
@@ -82,15 +83,17 @@ public class SoundCollection {
 	
 	/**
 	 *	Fills soundSources EnumMap with {@link SoundSource} objects, which are references to audio
-	 *  files in .Resources/Audio, and sets their initial properties. Takes an {@link AircraftBuilder}
-	 *  object as an argument to determine how many engines to assign sounds to and where to position 
-	 *  them relative to the listener. Uses Map of audio options to set the volumes of various types of
-	 *  sounds
+	 *  files in .Resources/Audio, and sets their initial properties. Uses {@link SimulationController}
+	 *  to get {@link AircraftBuilder} reference to determine how many engines to assign sounds to, and where 
+	 *  to position them relative to the listener. Also uses {@link SimulationController} to get Map of audio 
+	 *  options to set the volumes of various types of sounds
 	 *  
-	 *  @param ab
-	 *  @param audioOptions
+	 *  @param controller
 	 */
-	public static void initializeSounds(AircraftBuilder ab, Map<AudioOptions, Float> audioOptions) {
+	public static void initializeSounds(SimulationController controller) {
+		
+		Map<AudioOptions, Float> audioOptions = controller.getAudioOptions();
+		AircraftBuilder ab = controller.getAircraftBuilder();
 		
 		engineVolume = audioOptions.get(AudioOptions.ENGINE_VOLUME);
 		systemsVolume = audioOptions.get(AudioOptions.SYSTEMS_VOLUME);
@@ -168,14 +171,15 @@ public class SoundCollection {
 	/**
 	 * Wrapper method to call setRPM(), setControl(), setWind() and setStallHorn() at once;
 	 * uses an EnumMap of {@link SoundCategory} enums to set the double values retrieved by 
-	 * {@link FlightDataListener} in {@link RunWorld}
+	 * {@link FlightDataListener} in {@link RunWorld}. Uses {@link AircraftBuilder} from 
+	 * {@link SimulationController} argument to set RPM values
 	 * 
 	 * @param soundValues
-	 * @param ab
+	 * @param controller
 	 */
-	public static void update(Map<SoundCategory, Double> soundValues, AircraftBuilder ab) {
+	public static void update(Map<SoundCategory, Double> soundValues, SimulationController controller) {
 		if (!soundValues.isEmpty()) {
-			setRPM(ab, soundValues);
+			setRPM(controller.getAircraftBuilder(), soundValues);
 			setControl(SoundEvent.FLAPS, soundValues);
 			setControl(SoundEvent.GEAR, soundValues);
 			setWind(soundValues.get(SoundCategory.WIND));

@@ -52,7 +52,7 @@ public class FontRenderer {
 		
 		shader.loadColor(text.getColor());
 		shader.loadTranslation(text.getPosition());
-//		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, text.getVertexCount()); FIXME
+		GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, text.getVertexCount());
 		
 		GL20.glDisableVertexAttribArray(0);
 		GL20.glDisableVertexAttribArray(1);

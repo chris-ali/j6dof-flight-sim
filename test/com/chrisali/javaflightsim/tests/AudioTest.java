@@ -7,14 +7,12 @@ import java.util.Map;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
+import com.chrisali.javaflightsim.controllers.SimulationController;
 import com.chrisali.javaflightsim.otw.audio.AudioMaster;
 import com.chrisali.javaflightsim.otw.audio.SoundCollection;
 import com.chrisali.javaflightsim.otw.audio.SoundCollection.SoundCategory;
 import com.chrisali.javaflightsim.otw.audio.SoundCollection.SoundEvent;
 import com.chrisali.javaflightsim.otw.audio.SoundSource;
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 public class AudioTest {
 
@@ -39,11 +37,10 @@ public class AudioTest {
 	private Vector3f sourcePosition = new Vector3f(8, 0, 2);
 	private Vector3f sourceVelocity = new Vector3f(-0.02f, 0, 0);
 	
-	private Map<AudioOptions, Float> audioOptions = FileUtilities.parseAudioSetup();
+	private SimulationController controller = new SimulationController();
 	
 	private Map<String, SoundSource> soundSources = new HashMap<>();
 	private Map<SoundCategory, Double> soundValues = new EnumMap<>(SoundCategory.class);
-	private AircraftBuilder ab = new AircraftBuilder();
 	
 	private AudioTest() {
 		AudioMaster.init();
@@ -137,7 +134,7 @@ public class AudioTest {
 	private void AudioTestRPM() {
 		System.out.println("Starting RPM Test");
 		
-		SoundCollection.initializeSounds(ab, audioOptions);
+		SoundCollection.initializeSounds(controller);
 		
 		soundValues.put(SoundCategory.RPM_1, 500.0);
 		
@@ -145,7 +142,7 @@ public class AudioTest {
 		while (rpm < 2700) {
 			soundValues.put(SoundCategory.RPM_1, (double) rpm);
 			
-			SoundCollection.setRPM(ab, soundValues);
+			SoundCollection.setRPM(controller.getAircraftBuilder(), soundValues);
 			
 			try {Thread.sleep((int)dT * 5);} 
 			catch (InterruptedException e) {}
@@ -164,7 +161,7 @@ public class AudioTest {
 	private void AudioTestGear() {
 		System.out.println("Starting Gear Test");
 		
-		SoundCollection.initializeSounds(ab, audioOptions);
+		SoundCollection.initializeSounds(controller);
 		
 		soundValues.put(SoundCategory.PREV_STEP_GEAR, 0.0);
 		soundValues.put(SoundCategory.GEAR, 1.0);
@@ -191,7 +188,7 @@ public class AudioTest {
 	private void AudioTestFlaps() {
 		System.out.println("Starting Flaps Test");
 		
-		SoundCollection.initializeSounds(ab, audioOptions);
+		SoundCollection.initializeSounds(controller);
 		
 		for (double flaps = 0; flaps < 30; flaps += 1.0) {
 			
@@ -232,7 +229,7 @@ public class AudioTest {
 	private void AudioTestStall() {
 		System.out.println("Starting Stall Test");
 		
-		SoundCollection.initializeSounds(ab, audioOptions);
+		SoundCollection.initializeSounds(controller);
 		
 		for (float alpha = 0; alpha < 0.5f; alpha += 0.02) {
 			SoundCollection.setStallHorn(alpha, 0.25f);
@@ -259,7 +256,7 @@ public class AudioTest {
 	private void AudioTestWind() {
 		System.out.println("Starting Wind Test");
 		
-		SoundCollection.initializeSounds(ab, audioOptions);
+		SoundCollection.initializeSounds(controller);
 		
 		for (float trueAirspeed = 30; trueAirspeed < 300; trueAirspeed += 1.0) {
 			SoundCollection.setWind(trueAirspeed);

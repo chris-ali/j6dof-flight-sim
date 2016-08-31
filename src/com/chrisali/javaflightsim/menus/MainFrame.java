@@ -3,9 +3,6 @@ package com.chrisali.javaflightsim.menus;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.EnumMap;
@@ -16,6 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.instrumentpanel.ClosePanelListener;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.menus.aircraftpanel.AircraftConfigurationListener;
@@ -27,11 +25,19 @@ import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.menus.optionspanel.OptionsConfigurationListener;
 import com.chrisali.javaflightsim.menus.optionspanel.OptionsPanel;
-import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.otw.RunWorld;
+import com.chrisali.javaflightsim.otw.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.utilities.FileUtilities;
 
+/**
+ * Main Swing class that contains the main menus to configure the simulation and simulation window,
+ * which renders the Out The Window display and instrument panel. 
+ * 
+ * @author Christopher Ali
+ *
+ */
 public class MainFrame extends JFrame {
 
 	private static final long serialVersionUID = -1803264930661591606L;
@@ -42,14 +48,20 @@ public class MainFrame extends JFrame {
 	private AircraftPanel aircraftPanel;
 	private OptionsPanel optionsPanel;
 	private InitialConditionsPanel initialConditionsPanel;
-	private InstrumentPanel instrumentPanel;
+	private SimulationWindow simulationWindow;
 	private JPanel cardPanel; 
 	private CardLayout cardLayout;
 	
-	public MainFrame(SimulationController simController) {
+	/**
+	 * Constructor, which takes a {@link SimulationController} reference to gain access to methods to
+	 * configure the simulation
+	 * 
+	 * @param controller
+	 */
+	public MainFrame(SimulationController controller) {
 		super("Java Flight Sim");
 		
-		simulationController = simController;
+		simulationController = controller;
 		
 		setLayout(new BorderLayout());
 		Dimension dims = new Dimension(200, 400);
@@ -62,17 +74,9 @@ public class MainFrame extends JFrame {
 		cardPanel.setVisible(false);
 		add(cardPanel, BorderLayout.EAST);
 		
-		//------------------------- Instrument Panel -----------------------------------------------
+		//------------------------- Simulation Window ----------------------------------------------
 		
-		instrumentPanel = new InstrumentPanel();
-		instrumentPanel.setClosePanelListener(new ClosePanelListener() {
-			@Override
-			public void panelWindowClosed() {
-				simulationController.stopSimulation();
-				instrumentPanel.setVisible(false);
-				MainFrame.this.setVisible(true);
-			}
-		});
+		initSimulationWindow();
 		
 		//-------------------------- Aircraft Panel ------------------------------------------------
 		
@@ -130,7 +134,7 @@ public class MainFrame extends JFrame {
 		//-------------------- Initial Conditions Panel --------------------------------------------
 		
 		initialConditionsPanel = new InitialConditionsPanel();
-		initialConditionsPanel.setInitialConditionsPanel(simController.getInitialConditions());
+		initialConditionsPanel.setInitialConditionsPanel(controller.getInitialConditions());
 		initialConditionsPanel.setInitialConditionsConfigurationListener(new InitialConditionsConfigurationListener() {
 			@Override
 			public void initialConditonsConfigured(double[] coordinates, double heading, double altitude, double airspeed) {
@@ -183,42 +187,12 @@ public class MainFrame extends JFrame {
 				setSize(dims);
 				cardPanel.setVisible(false);
 				
-				simulationController.startSimulation(instrumentPanel);
+				simulationController.startSimulation();
 				MainFrame.this.setVisible(simulationController.getSimulationOptions().contains(Options.ANALYSIS_MODE) ? true : false);
-				instrumentPanel.setVisible(simulationController.getSimulationOptions().contains(Options.ANALYSIS_MODE) ? false : true);
+				simulationWindow.setVisible(simulationController.getSimulationOptions().contains(Options.ANALYSIS_MODE) ? false : true);
 			}
 		});
 		add(buttonPanel, BorderLayout.CENTER);
-		
-		//============================== Hot Keys ==================================================
-		
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
-			@Override
-			public boolean dispatchKeyEvent(KeyEvent ev) {
-				switch (ev.getKeyCode()) {
-				
-				case KeyEvent.VK_L:
-					if (simulationController.getSimulation() != null 
-							&& Integrate6DOFEquations.isRunning() 
-							&& !simulationController.isPlotWindowVisible())
-						simulationController.plotSimulation();
-					break;
-					
-				case KeyEvent.VK_Q:
-					if (Integrate6DOFEquations.isRunning()) {
-						simulationController.stopSimulation();
-						instrumentPanel.setVisible(false);
-						MainFrame.this.setVisible(true);
-					}
-					break;
-					
-				default:
-					break;
-				}
-				
-				return false;
-			}
-		});
 		
 		//============================ Miscellaneous ===============================================
 		
@@ -245,6 +219,10 @@ public class MainFrame extends JFrame {
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 	}
 	
+	/**
+	 * 	Sets all options and text on panels by calling methods in {@link SimulationController} to
+	 *  parse setup files and get EnumMap values
+	 */
 	private void setOptionsAndText() {
 		try {
 			simulationController.updateOptions(FileUtilities.parseSimulationSetup(), 
@@ -257,14 +235,48 @@ public class MainFrame extends JFrame {
 		}
 		
 		int stepSize = (int)(1/simulationController.getIntegratorConfig().get(IntegratorConfig.DT));
-		String aircrafName = simulationController.getAircraftBuilder().getAircraft().getName();
+		String aircraftName = simulationController.getAircraftBuilder().getAircraft().getName();
 		
 		buttonPanel.setOptionsLabel(simulationController.getSimulationOptions(), stepSize);
-		buttonPanel.setAircraftLabel(aircrafName);
+		buttonPanel.setAircraftLabel(aircraftName);
 		
-		aircraftPanel.setAircraftPanel(aircrafName);
+		aircraftPanel.setAircraftPanel(aircraftName);
 		optionsPanel.setAllOptions(simulationController.getSimulationOptions(), stepSize, 
 									simulationController.getDisplayOptions(),
 									simulationController.getAudioOptions());
+	}
+	
+	//=============================== Simulation Window ==============================================
+	
+	/**
+	 * (Re)initializes simulationWindow object so that instrument panel and OTW view are scaled correctly depending
+	 * on if the instrument panel is shown or not
+	 */
+	public void initSimulationWindow() {
+		simulationWindow = new SimulationWindow(simulationController);
+		simulationWindow.setClosePanelListener(new ClosePanelListener() {
+			@Override
+			public void panelWindowClosed() {
+				simulationController.stopSimulation();
+				simulationWindow.setVisible(false);
+				MainFrame.this.setVisible(true);
+			}
+		});
+	}
+	
+	/**
+	 * @return {@link SimulationWindow} object for {@link RunWorld} to set its display parent
+	 * within {@link DisplayManager}
+	 */
+	public SimulationWindow getSimulationWindow() {
+		return simulationWindow;
+	}
+	
+	/**
+	 * @return {@link InstrumentPanel} object for {@link SimulationController} to set a
+	 * {@link FlightDataListener} to when {@link SimulationController#startSimulation()} is called
+	 */
+	public InstrumentPanel getInstrumentPanel() {
+		return simulationWindow.getInstrumentPanel();
 	}
 }

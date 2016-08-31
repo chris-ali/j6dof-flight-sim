@@ -1,7 +1,7 @@
 # j6dof-flight-sim 
 JavaFlightSim - A Six Degree of Freedom (6DOF) Flight Simulator Written in Java by Chris Ali
 
-This program was written to apply my knowledge and background in Flight Dynamics to build my Java language skills. It can run as a simple analysis tool for flight dynamics, as well as a real time simulation for pilot in the loop use. When configured as a pilot in the loop simulation, a Swing instrument panel and out-the-window display open, and the user can control the simulation using a joystick.
+This program was written to apply my knowledge and background in Flight Dynamics to build my Java language skills. It can run as a simple analysis tool for flight dynamics, as well as a real time simulation for pilot-in-the-loop use. When configured as a pilot in the loop simulation, a Swing instrument panel and out-the-window display open, and the user can control the simulation using a joystick.
 
 One day I'd like to tie objectives or a scoring element into the simulation to make it a game as well.
 
@@ -10,7 +10,7 @@ One day I'd like to tie objectives or a scoring element into the simulation to m
  
 -The aircraft is a rigid body, with a constant mass.
 
--A simple ground reaction model is implemented, but currently doesn't receive data about the height of terrain above sea level  
+-A simple ground reaction model is implemented, but is unstable while on the ground stationary and on hills 
 
 -Only a simple propeller engine model is implemented for now. No engine effects (fuel burn, propeller effects) are modeled yet
 

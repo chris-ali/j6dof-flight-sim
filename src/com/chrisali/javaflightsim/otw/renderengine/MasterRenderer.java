@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
@@ -36,7 +35,7 @@ public class MasterRenderer {
 	private TerrainShader terrainShader = new TerrainShader();
 	
 	private EntityRenderer entityRenderer;
-	private Map<TexturedModel, List<Entity>> entities = new HashMap<>();
+	private Map<TexturedModel, List<Entity>> entityMap = new HashMap<>();
 	
 	private TerrainRenderer terrainRenderer;
 	private List<Terrain> terrains = new ArrayList<>();
@@ -60,15 +59,14 @@ public class MasterRenderer {
 		GL11.glDisable(GL11.GL_CULL_FACE);
 	}
 	
-	public void renderWholeScene(EntityCollections entities, Map<String, Terrain> terrainMap, List<Light> lights, Camera camera, Vector4f clippingPlane) {
-		for(Entity entity : entities.getStaticEntities())
+	public void renderWholeScene(EntityCollections entityCollection, Map<String, Terrain> terrainMap, List<Light> lights, Camera camera, Vector4f clippingPlane) {
+		for(Entity entity : entityCollection.getStaticEntities())
 			processEntity(entity);
 		
-		for(Entity entity : entities.getLitEntities())
+		for(Entity entity : entityCollection.getLitEntities())
 			processEntity(entity);
 		
-		for (Map.Entry<String, Terrain> terrain : terrainMap.entrySet())
-			processTerrain(terrain.getValue());
+		terrains = new ArrayList<>(terrainMap.values());
 		
 		render(lights, camera, clippingPlane);
 	}
@@ -82,7 +80,7 @@ public class MasterRenderer {
 		staticShader.loadFog(fogDensity, fogGradient);
 		staticShader.loadLights(lights);
 		staticShader.loadViewMatrix(camera);
-		entityRenderer.render(entities);
+		entityRenderer.render(entityMap);
 		staticShader.stop();
 		
 		terrainShader.start();
@@ -94,7 +92,7 @@ public class MasterRenderer {
 		terrainRenderer.render(terrains);
 		terrainShader.stop();
 		
-		entities.clear();
+		entityMap.clear();
 		terrains.clear();
 	}
 	
@@ -105,7 +103,7 @@ public class MasterRenderer {
 	}
 	
 	private void createProjectionMatrix() {
-		float aspectRatio = (float) Display.getWidth() / (float) Display.getHeight();
+		float aspectRatio = (float) DisplayManager.getWidth() / (float) DisplayManager.getHeight();
         float y_scale = (float) ((1f / Math.tan(Math.toRadians(fov/2f))) * aspectRatio);
         float x_scale = y_scale / aspectRatio;
         float frustum_length = farPlane - nearPlane;
@@ -121,21 +119,17 @@ public class MasterRenderer {
 
 	private void processEntity(Entity entity) {
 		TexturedModel entityModel = entity.getModel();
-		List<Entity> batch = entities.get(entityModel);
+		List<Entity> batch = entityMap.get(entityModel);
 		
 		if(batch!=null) {
 			batch.add(entity);
 		} else {
 			List<Entity> newBatch = new ArrayList<>();
 			newBatch.add(entity);
-			entities.put(entityModel, newBatch);
+			entityMap.put(entityModel, newBatch);
 		}
 	}
 	
-	private void processTerrain(Terrain terrain) {
-		terrains.add(terrain);
-	}
-
 	public Matrix4f getProjectionMatrix() {
 		return projectionMatrix;
 	}

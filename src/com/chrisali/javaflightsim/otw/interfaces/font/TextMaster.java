@@ -16,12 +16,27 @@ public class TextMaster {
 	public static void init(Loader loaderObj) {
 		renderer = new FontRenderer();
 		loader = loaderObj;
+		
+		// Need to clear out previous text from map when reinitializing otherwise will receive fatal error
+		if(!texts.isEmpty()) 
+			texts.clear();
 	}
 	
-	public static void render() {
-		renderer.render(texts);
+	public static void render(Map<String, GUIText> textMap) {
+		for (Map.Entry<String, GUIText> entry : textMap.entrySet()) {
+			TextMaster.loadText(entry.getValue());
+			
+			renderer.render(texts);
+			
+			TextMaster.removeText(entry.getValue());
+		}
 	}
 	
+	/**
+	 * Loads {@link GUIText} object into VAO and texts HashMap to be rendered
+	 * 
+	 * @param text
+	 */
 	public static void loadText(GUIText text) {
 		FontType font = text.getFont();
 		TextMeshData data = font.loadText(text);
@@ -38,6 +53,11 @@ public class TextMaster {
 		textBatch.add(text);
 	}
 	
+	/**
+	 * Removes {@link GUIText} object from texts HashMap after it has been rendered
+	 * 
+	 * @param text
+	 */
 	public static void removeText(GUIText text) {
 		List<GUIText> textBatch = texts.get(text.getFont());
 		textBatch.remove(text);

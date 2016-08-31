@@ -142,6 +142,11 @@ public class AudioOptionsTab extends JPanel {
 		return audioOptions;
 	}
 
+	/**
+	 * Reads audioOptions EnumMap to determine how to set {@link AudioOptionsTab} panel objects
+	 * 
+	 * @param audioOptions
+	 */
 	public void setOptionsTab(EnumMap<AudioOptions, Float> audioOptions) {
 		this.audioOptions = audioOptions;
 		

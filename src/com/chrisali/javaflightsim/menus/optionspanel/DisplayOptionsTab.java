@@ -128,6 +128,11 @@ public class DisplayOptionsTab extends JPanel {
 		return displayOptions;
 	}
 
+	/**
+	 * Reads displayOptions EnumMap to determine how to set {@link DisplayOptionsTab} panel objects
+	 * 
+	 * @param displayOptions
+	 */
 	public void setOptionsTab(EnumMap<DisplayOptions, Integer> displayOptions) {
 		this.displayOptions = displayOptions;
 		

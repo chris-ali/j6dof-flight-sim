@@ -6,6 +6,7 @@ import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JComponent;
 
@@ -100,8 +101,9 @@ public class SimulationPlot extends JComponent {
 	private static NumberAxis alphDotAxis 		= new NumberAxis("Rate [rad/sec]");
 	private static NumberAxis machAxis 			= new NumberAxis("Mach Number");
 	
+	// Combined Domain Plots
+	
 	private static CombinedDomainXYPlot ratesPlot      = new CombinedDomainXYPlot(timeAxis);
-	private static CombinedDomainXYPlot positionPlot   = new CombinedDomainXYPlot(eastAxis);
 	private static CombinedDomainXYPlot instrumentPlot = new CombinedDomainXYPlot(timeAxis);
 	private static CombinedDomainXYPlot miscPlot       = new CombinedDomainXYPlot(timeAxis);
 	private static CombinedDomainXYPlot controlsPlot   = new CombinedDomainXYPlot(timeAxis);
@@ -171,17 +173,12 @@ public class SimulationPlot extends JComponent {
 	}
 	
 	/**
-	 *  Generates a {@link JFreeChart} object associated with aircraft position (North vs East) on a {@link CombinedDomainXYPlot}.
+	 *  Generates a {@link JFreeChart} object associated with aircraft position (North vs East) on an {@link XYPlot}.
 	 */
 	private JFreeChart makePositionPlot() {
-		positionPlot.add(plotLists.get(PlotType.POSITION), 1);
-		
-		positionPlot.setOrientation(PlotOrientation.VERTICAL);
-		positionPlot.setGap(20);
-		
 		return new JFreeChart("Position", 
 					 	      JFreeChart.DEFAULT_TITLE_FONT, 
-					 	      positionPlot, 
+					 	      plotLists.get(PlotType.POSITION), // Get the XYplot directly from the Map of XYPlots
 					          true);
 	}
 	
@@ -447,9 +444,9 @@ public class SimulationPlot extends JComponent {
 	/**
 	 * Updates all XYSeries objects with new data from logsOut list
 	 * 
-	 * @param logsOut
+	 * @param oldlogsOut
 	 */
-	protected static void updateXYSeriesData(List<Map<SimOuts, Double>> logsOut) {
+	protected static void updateXYSeriesData(List<Map<SimOuts, Double>> oldLogsOut) {
 		
 		// Clear all data from series
 		
@@ -491,6 +488,10 @@ public class SimulationPlot extends JComponent {
 		
 		alphaDotData.clear();
 		machData.clear();
+		
+		// Copy to thread-safe ArrayList for iteration
+		
+		CopyOnWriteArrayList<Map<SimOuts, Double>> logsOut = new CopyOnWriteArrayList<>(oldLogsOut);
 		
 		// Add data from logsOut to each XYSeries; only notify of a SeriesChangeEvent at the end of the loop
 		

@@ -1,13 +1,13 @@
 package com.chrisali.javaflightsim.simulation.aero;
 
-import java.util.EnumMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
-import com.chrisali.javaflightsim.simulation.controls.FlightControls;
+import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.IntegrateGroundReaction;
@@ -52,8 +52,8 @@ public class AccelAndMoments {
 	 */
 	public static double[] calculateLinearAccelerations(double[] windParameters,
 									         		    double[] angularRates,
-									         		    EnumMap<EnvironmentParameters, Double> environmentParameters,
-									         		    EnumMap<FlightControls, Double> controls,
+									         		    Map<EnvironmentParameters, Double> environmentParameters,
+									         		    Map<FlightControlType, Double> controls,
 									         		    double alphaDot,
 									         		    Set<Engine> engineList,
 									         		    Aircraft aircraft,
@@ -94,8 +94,8 @@ public class AccelAndMoments {
 	 */
 	public static double[] calculateTotalMoments(double[] windParameters,
 											     double[] angularRates,
-											     EnumMap<EnvironmentParameters, Double> environmentParameters,
-											     EnumMap<FlightControls, Double> controls,
+											     Map<EnvironmentParameters, Double> environmentParameters,
+											     Map<FlightControlType, Double> controls,
 											     double alphaDot,
 											     Set<Engine> engineList,
 											     Aircraft aircraft,

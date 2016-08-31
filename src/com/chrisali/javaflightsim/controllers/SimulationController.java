@@ -1,5 +1,6 @@
 package com.chrisali.javaflightsim.controllers;
 
+import java.awt.Canvas;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -13,13 +14,16 @@ import java.util.Set;
 import com.chrisali.javaflightsim.consoletable.ConsoleTablePanel;
 import com.chrisali.javaflightsim.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.datatransfer.FlightData;
-import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
+import com.chrisali.javaflightsim.menus.MainFrame;
+import com.chrisali.javaflightsim.menus.SimulationWindow;
 import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.otw.RunWorld;
+import com.chrisali.javaflightsim.otw.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.plotting.PlotWindow;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
+import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
@@ -54,17 +58,22 @@ public class SimulationController {
 	private EnumSet<Options> simulationOptions;
 	private EnumMap<InitialConditions, Double> initialConditions;
 	private EnumMap<IntegratorConfig, Double> integratorConfig;
-	private EnumMap<FlightControls, Double> initialControls; 
+	private EnumMap<FlightControlType, Double> initialControls; 
 	
 	// Simulation
+	private FlightControls flightControls;
+	private Thread flightControlsThread;
 	private Integrate6DOFEquations runSim;
 	private Thread simulationThread;
-	private Thread flightDataThread;
 	private FlightData flightData;
+	private Thread flightDataThread;
 	
 	// Aircraft
 	private AircraftBuilder ab;
 	private EnumMap<MassProperties, Double> massProperties;
+	
+	// Menus and Integrated Simulation Window
+	private MainFrame mainFrame;
 	
 	// Plotting
 	private PlotWindow plotWindow;
@@ -84,13 +93,16 @@ public class SimulationController {
 	 * to be edited through the menu options in the view
 	 */
 	public SimulationController() {
-		simulationOptions = EnumSet.noneOf(Options.class);
-		displayOptions = new EnumMap<DisplayOptions, Integer>(DisplayOptions.class);
-		audioOptions = new EnumMap<AudioOptions, Float>(AudioOptions.class);
+		simulationOptions = FileUtilities.parseSimulationSetup();
+		displayOptions = FileUtilities.parseDisplaySetup();
+		audioOptions = FileUtilities.parseAudioSetup();
 		
 		initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
 		integratorConfig = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");
 		initialControls = IntegrationSetup.gatherInitialControls("InitialControls");
+		
+		String aircraftName = FileUtilities.parseSimulationSetupForAircraft();
+		ab = new AircraftBuilder(aircraftName);
 	}
 	
 	//=============================== Configuration ===========================================================
@@ -126,18 +138,21 @@ public class SimulationController {
 		displayOptions = newDisplayOptions;
 		audioOptions = newAudioOptions;
 		
-		if (ab != null)
-			FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "SimulationSetup", simulationOptions, ab.getAircraft().getName());
-			FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "DisplaySetup", newDisplayOptions);
-			FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "AudioSetup", newAudioOptions);
+		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "SimulationSetup", simulationOptions, ab.getAircraft().getName());
+		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "DisplaySetup", newDisplayOptions);
+		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "AudioSetup", newAudioOptions);
 	}
 	
 	/**
-	 * Calls the {@link AircraftBuilder} constructor with using the aircraftName argument
+	 * Calls the {@link AircraftBuilder} constructor with using the aircraftName argument and updates the SimulationSetup.txt
+	 * configuration file with the new selected aircraft
 	 * 
 	 * @param aircraftName
 	 */
-	public void updateAircraft(String aircraftName) {ab = new AircraftBuilder(aircraftName);}
+	public void updateAircraft(String aircraftName) {
+		ab = new AircraftBuilder(aircraftName);
+		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "SimulationSetup", simulationOptions, aircraftName);
+	}
 	
 	/**
 	 * Updates the MassProperties config file for the selected aircraft using aircraftName
@@ -199,10 +214,15 @@ public class SimulationController {
 	 */
 	public void updateIninitialControls() {
 		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "InitialControls", initialControls);
-	}	
+	}
+
+	/**
+	 * @return initialControls EnumMap
+	 */
+	public EnumMap<FlightControlType, Double> getInitialControls() {return initialControls;}
 	
 	//=============================== Simulation ===========================================================
-	
+
 	/**
 	 * @return instance of simulation
 	 */
@@ -212,6 +232,14 @@ public class SimulationController {
 	 * @return {@link AircraftBuilder} object
 	 */
 	public AircraftBuilder getAircraftBuilder() {return ab;}
+	
+	/**
+	 * Allows {@link AircraftBuilder} to be changed to a different aircraft outside of being parsed in
+	 * the SimulationSetup.txt configuration file
+	 * 
+	 * @param ab
+	 */
+	public void setAircraftBuilder(AircraftBuilder ab) {this.ab = ab;}
 	
 	/**
 	 * @return ArrayList of simulation output data 
@@ -230,25 +258,37 @@ public class SimulationController {
 	}
 	
 	/**
-	 * Initializes, trims and starts the simulation (and flight and environment data, if selected) threads.
-	 * Depending on options specified, a console panel, plot window, instrument panel
-	 * and out the window display window will also be initialized and opened 
-	 * 
-	 * @param panel
+	 * Initializes, trims and starts the flight controls, simulation (and flight and environment data, if selected) threads.
+	 * Depending on options specified, a console panel and/or plot window will also be initialized and opened 
 	 */
-	public void startSimulation(InstrumentPanel panel) {
-		Trimming.trimSim(ab, false);
-		runSim = new Integrate6DOFEquations(ab, simulationOptions);
+	public void startSimulation() {
+		Trimming.trimSim(this, false);
 		
+		flightControls = new FlightControls(this);
+		flightControlsThread = new Thread(flightControls);
+		
+		runSim = new Integrate6DOFEquations(flightControls, this);
 		simulationThread = new Thread(runSim);
+
+		flightControlsThread.start();
 		simulationThread.start();
 		
 		if (simulationOptions.contains(Options.CONSOLE_DISPLAY))
 			initializeConsole();
+		
 		if (simulationOptions.contains(Options.ANALYSIS_MODE)) {
-			plotSimulation();
+			try {
+				// Wait a bit to allow the simulation to finish running
+				Thread.sleep(1000);
+				plotSimulation();
+				//Stop flight controls thread after analysis finished
+				FlightControls.setRunning(false);
+			} catch (InterruptedException e) {}
+			
 		} else {
-			outTheWindow = new RunWorld(displayOptions, audioOptions, ab);
+			outTheWindow = new RunWorld(this);
+			//(Re)initalize simulation window to prevent scaling issues with instrument panel
+			getMainFrame().initSimulationWindow();
 			
 			environmentData = new EnvironmentData(outTheWindow);
 			environmentData.addEnvironmentDataListener(runSim);
@@ -257,29 +297,32 @@ public class SimulationController {
 			environmentDataThread.start();
 			
 			flightData = new FlightData(runSim);
-			flightData.addFlightDataListener(panel);
+			flightData.addFlightDataListener(mainFrame.getInstrumentPanel());
 			flightData.addFlightDataListener(outTheWindow);
 			
 			flightDataThread = new Thread(flightData);
 			flightDataThread.start();
-			
-			outTheWindowThread = new Thread(outTheWindow);
-			outTheWindowThread.start();
 		}
 	}
 	
 	/**
-	 * Stops simulation and flight data (if running) threads, and closes the raw data console window
+	 * Stops simulation, flight controls and data transfer threads (if running), closes the raw data {@link ConsoleTablePanel},
+	 * {@link SimulationWindow}, and opens the main menus window again
 	 */
 	public void stopSimulation() {
-		if (runSim != null && Integrate6DOFEquations.isRunning() && simulationThread != null && simulationThread.isAlive())
+		if (runSim != null && Integrate6DOFEquations.isRunning() && simulationThread != null && simulationThread.isAlive()) {
 			Integrate6DOFEquations.setRunning(false);
+			FlightControls.setRunning(false);
+		}
+		
 		if (flightDataThread != null && flightDataThread.isAlive())
 			FlightData.setRunning(false);
-		if (consoleTablePanel != null && consoleTablePanel.isVisible())
-			consoleTablePanel.setVisible(false);
+		
 		if (outTheWindowThread != null && outTheWindowThread.isAlive())
 			EnvironmentData.setRunning(false);
+		
+		getMainFrame().getSimulationWindow().dispose();
+		getMainFrame().setVisible(true);
 	}
 	
 	//=============================== Plotting =============================================================
@@ -289,7 +332,7 @@ public class SimulationController {
 	 */
 	public void plotSimulation() {
 		if(plotWindow == null)
-			plotWindow = new PlotWindow(runSim.getLogsOut(), plotCategories, ab.getAircraft(), this);
+			plotWindow = new PlotWindow(plotCategories, this);
 		else
 			plotWindow.refreshPlots(runSim.getLogsOut());
 	}
@@ -342,5 +385,48 @@ public class SimulationController {
 
 	public static String getResourcesPath() {
 		return RESOURCES_PATH;
+	}
+	
+	//========================== Main Frame Menus =========================================================
+	
+	/**
+	 * Sets {@link MainFrame} reference for {@link RunWorld}, which needs it to 
+	 * set the parent {@link Canvas} in {@link DisplayManager}
+	 * 
+	 * @param mainFrame
+	 */
+	public void setMainFrame(MainFrame mainFrame) {
+		this.mainFrame = mainFrame;
+	}
+	
+	/**
+	 * @return reference to {@link MainFrame} object in {@link SimulationController}
+	 */
+	public MainFrame getMainFrame() {
+		return mainFrame;
+	}
+
+	//=========================== OTW Threading ==========================================================
+	
+	/**
+	 * Initalizes and starts out the window thread; called from {@link SimulationWindow}'s addNotify() method
+	 * to allow OTW thread to start gracefully; uses the Stack Overflow solution shown here:
+	 * <p>http://stackoverflow.com/questions/26199534/how-to-attach-opengl-display-to-a-jframe-and-dispose-of-it-properly</p>
+	 */
+	public void startOTWThread() {
+		outTheWindowThread = new Thread(outTheWindow);
+		outTheWindowThread.start(); 
+	}
+	
+	/**
+	 * Stops out the window thread; called from {@link SimulationWindow}'s removeNotify() method
+	 * to allow OTW thread to stop gracefully; uses the Stack Overflow solution shown here:
+	 * <p>http://stackoverflow.com/questions/26199534/how-to-attach-opengl-display-to-a-jframe-and-dispose-of-it-properly</p>
+	 */
+	public void stopOTWThread() {
+		RunWorld.requestClose(); // sets running boolean in RunWorld to false to begin the clean up process
+		
+		try {outTheWindowThread.join();
+		} catch (InterruptedException e) {}
 	}
 }

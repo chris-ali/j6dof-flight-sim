@@ -36,6 +36,7 @@ public class SimulationOptionsTab extends JPanel {
 	private JLabel headerLabel;
 	private JCheckBox analysisMode;
 	private JCheckBox consoleDisplay;
+	private JCheckBox showInstrumentPanel;
 	private JList<String> controllers;
 	private JSpinner stepSizeSpinner;
 	private StepSizeValueChangedListener stepSizeValueChangedListener;
@@ -94,7 +95,7 @@ public class SimulationOptionsTab extends JPanel {
 		gc.anchor = GridBagConstraints.WEST;
 		analysisMode = new JCheckBox("Run Simulation Analysis");
 		analysisMode.setToolTipText("Disables control of the simulation and runs a test analysis of the aircraft's\n " +
-									"dynamic stability. At the end of the analysis, the results will be plotted in popup windows.");
+									"dynamic stability. At the end of the analysis, the results will be plotted in pop-up windows.");
 		analysisMode.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -106,6 +107,7 @@ public class SimulationOptionsTab extends JPanel {
 					simulationOptions.remove(Options.ANALYSIS_MODE);
 					simulationOptions.add(Options.UNLIMITED_FLIGHT);
 					controllers.setEnabled(true);
+					setDesiredController(controllers.getSelectedValue()); // adds previously removed value back to options map 
 				}
 			}
 		});
@@ -146,6 +148,7 @@ public class SimulationOptionsTab extends JPanel {
 		controllerList.addElement("Joystick");
 		controllerList.addElement("Mouse");
 		controllerList.addElement("CH Controls");
+		controllerList.addElement("Keyboard Only");
 		controllers = new JList<String>(controllerList);
 		controllers.setToolTipText("Chooses which HID controller will control the simulation");
 		controllers.setSelectedIndex(0);
@@ -154,25 +157,33 @@ public class SimulationOptionsTab extends JPanel {
 		controllers.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				switch (controllers.getSelectedValue()) {
-				case ("Joystick"):
-					simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_CH_CONTROLS));
-					simulationOptions.add(Options.USE_JOYSTICK);
-					break;
-				case ("Mouse"):
-					simulationOptions.removeIf(p -> (p == Options.USE_JOYSTICK || p == Options.USE_CH_CONTROLS));
-					simulationOptions.add(Options.USE_MOUSE);
-					break;
-				case ("CH Controls"):
-					simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_JOYSTICK));
-					simulationOptions.add(Options.USE_CH_CONTROLS);
-					break;
-				default:
-					break;
-				}
+				setDesiredController(controllers.getSelectedValue());
 			}
 		});
 		controlsPanel.add(controllers, gc);
+		
+		//------------ Use Instrument Panel ----------------------
+		gc.gridy++;
+		
+		gc.gridx = 0;
+		gc.anchor = GridBagConstraints.EAST;
+		controlsPanel.add(new JLabel("Instrument Panel:"), gc);
+		
+		gc.gridx = 1;
+		gc.anchor = GridBagConstraints.WEST;
+		showInstrumentPanel = new JCheckBox("Show Panel");
+		showInstrumentPanel.setToolTipText("Chooses whether a Swing instrument panel with gauges will display when the simulation runs");
+		showInstrumentPanel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (((JCheckBox) e.getSource()).isSelected())
+					simulationOptions.add(Options.INSTRUMENT_PANEL);
+				else 
+					simulationOptions.remove(Options.INSTRUMENT_PANEL);
+			}
+		});
+		
+		controlsPanel.add(showInstrumentPanel, gc);
 		
 		//--------- Simulation Step Size Spinner ----------------- 
 		gc.gridy++;
@@ -202,17 +213,52 @@ public class SimulationOptionsTab extends JPanel {
 		setPreferredSize(dims);
 	}
 	
-	protected EnumSet<Options> getSimulationOptions() {
-		return simulationOptions;
+	/**
+	 * Adds desired HID controller to simulationOptions EnumMap depending on string passed in; removes all other
+	 * HID controller values before adding new value, unless "Keyboard Only" is selected, in which case no option
+	 * is added
+	 * 
+	 * @param selectedValue
+	 */
+	private void setDesiredController(String selectedValue) {
+		switch (selectedValue) {
+		case ("Joystick"):
+			simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_CH_CONTROLS || p == Options.USE_KEYBOARD_ONLY));
+			simulationOptions.add(Options.USE_JOYSTICK);
+			break;
+		case ("Mouse"):
+			simulationOptions.removeIf(p -> (p == Options.USE_JOYSTICK || p == Options.USE_CH_CONTROLS || p == Options.USE_KEYBOARD_ONLY));
+			simulationOptions.add(Options.USE_MOUSE);
+			break;
+		case ("CH Controls"):
+			simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_JOYSTICK || p == Options.USE_KEYBOARD_ONLY));
+			simulationOptions.add(Options.USE_CH_CONTROLS);
+			break;
+		case ("Keyboard Only"):
+			simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_JOYSTICK || p == Options.USE_CH_CONTROLS));
+			simulationOptions.add(Options.USE_KEYBOARD_ONLY);
+			break;
+		default:
+			break;
+		}
 	}
 	
+	/**
+	 * Reads options EnumSet and step size integer value to determine how to set {@link SimulationOptionsTab} panel objects
+	 * 
+	 * @param options
+	 * @param stepSize
+	 */
 	public void setOptionsTab(EnumSet<Options> options, int stepSize) {
 		this.simulationOptions = options;
 		
 		analysisMode.setSelected(simulationOptions.contains(Options.ANALYSIS_MODE) ? true : false);
 		consoleDisplay.setSelected(simulationOptions.contains(Options.CONSOLE_DISPLAY) ? true : false);
+		showInstrumentPanel.setSelected(simulationOptions.contains(Options.INSTRUMENT_PANEL) ? true : false);
 		
-		if (simulationOptions.contains(Options.USE_CH_CONTROLS))
+		if (simulationOptions.contains(Options.USE_KEYBOARD_ONLY))
+			controllers.setSelectedIndex(3);
+		else if (simulationOptions.contains(Options.USE_CH_CONTROLS))
 			controllers.setSelectedIndex(2);
 		else if (simulationOptions.contains(Options.USE_MOUSE))
 			controllers.setSelectedIndex(1);
@@ -220,6 +266,10 @@ public class SimulationOptionsTab extends JPanel {
 			controllers.setSelectedIndex(0);
 		
 		stepSizeSpinner.setValue(stepSize);
+	}
+	
+	protected EnumSet<Options> getSimulationOptions() {
+		return simulationOptions;
 	}
 
 	public void setStepSizeValueChangedListener(StepSizeValueChangedListener stepSizeValueChangedListener) {

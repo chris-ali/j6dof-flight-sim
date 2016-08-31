@@ -36,31 +36,55 @@ public class EntityCollections {
 	private Map<String, Terrain> terrainMap;
 	private Loader loader;
 	
+	//==================== Models =======================
+	// Static
+	private TexturedModel planatusForest;
+	private TexturedModel pineForest;
+	private TexturedModel oakForest;
+	
+	// Lit
+	private TexturedModel lamp;
+	
 	public EntityCollections(List<Light> lights, Map<String, Terrain> terrainMap, Loader loader) {
 		this.terrainMap = terrainMap;
 		this.loader = loader;
 		this.lights = lights;
+		
+		initializeEntities();
+	}
+	
+	/**
+	 * Initializes all {@link TexturedModel} objects for in methods, which create entities
+	 */
+	private void initializeEntities() {
+		// Create models
+		// Static
+		planatusForest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
+											new ModelTexture(loader.loadTexture("platanusforest", "Entities")));
+		pineForest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
+											new ModelTexture(loader.loadTexture("pineforest", "Entities")));
+		oakForest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
+											new ModelTexture(loader.loadTexture("oakforest", "Entities")));
+		// Lit
+		lamp =  new TexturedModel(OBJLoader.loadObjModel("lamp", "Entities", loader), 
+			      							new ModelTexture(loader.loadTexture("lamp", "Entities")));
+		// Model settings
+		// Static
+		planatusForest.getTexture().setHasTransparency(true);
+		planatusForest.getTexture().setUseFakeLighting(true);
+		pineForest.getTexture().setHasTransparency(true);
+		pineForest.getTexture().setUseFakeLighting(true);
+		oakForest.getTexture().setHasTransparency(true);
+		oakForest.getTexture().setUseFakeLighting(true);
+		
+		// Lit
+		lamp.getTexture().setUseFakeLighting(true);
 	}
 	
 	/**
 	 * Creates numerous tree {@link Entity} objects to populate the world
 	 */
 	public void createRandomStaticEntities() {
-		
-		// Create models
-		TexturedModel planatusforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
-											new ModelTexture(loader.loadTexture("platanusforest", "Entities")));
-		TexturedModel pineforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
-											new ModelTexture(loader.loadTexture("pineforest", "Entities")));
-		TexturedModel oakforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
-											new ModelTexture(loader.loadTexture("oakforest", "Entities")));
-		// Model settings
-		planatusforest.getTexture().setHasTransparency(true);
-		planatusforest.getTexture().setUseFakeLighting(true);
-		pineforest.getTexture().setHasTransparency(true);
-		pineforest.getTexture().setUseFakeLighting(true);
-		oakforest.getTexture().setHasTransparency(true);
-		oakforest.getTexture().setUseFakeLighting(true);
 		
 		Random random = new Random();
 		for (int i=0; i<9600; i++) {
@@ -74,7 +98,7 @@ public class EntityCollections {
 				z = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
 				y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 				
-				staticEntity = new Entity(pineforest, new Vector3f(x, y-2, z), 
+				staticEntity = new Entity(pineForest, new Vector3f(x, y-2, z), 
 										  0, random.nextFloat()*360, 0, 
 										  random.nextFloat() + 6);
 				
@@ -86,7 +110,7 @@ public class EntityCollections {
 				z = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
 				y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 				
-				staticEntity = new Entity(oakforest, new Vector3f(x, y-2, z), 
+				staticEntity = new Entity(oakForest, new Vector3f(x, y-2, z), 
 										  0, random.nextFloat()*360, 0, 
 										  random.nextFloat()* 1 + 5);
 				
@@ -98,7 +122,7 @@ public class EntityCollections {
 				z = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
 				y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 				
-				staticEntity = new Entity(oakforest, new Vector3f(x, y-2, z), 
+				staticEntity = new Entity(oakForest, new Vector3f(x, y-2, z), 
 										  0, random.nextFloat()*360, 0, 
 										  random.nextFloat()* 1 + 5);
 				
@@ -128,8 +152,8 @@ public class EntityCollections {
 		float scaledX, scaledZ;
 		Color readColor;
 		
-		for (int x = 0; x < image.getWidth(); x+=16) {
-			for (int z = 0; z < image.getHeight(); z+=16) {
+		for (int x = 0; x < image.getWidth(); x+=4) {
+			for (int z = 0; z < image.getHeight(); z+=4) {
 				readColor = new Color(image.getRGB(x, z));
 				scaledX = x * imageScale;
 				scaledZ = z * imageScale;
@@ -153,51 +177,29 @@ public class EntityCollections {
 	 */
 	public void createRandomTrees(float x, float z) {
 		
-//		TexturedModel planatusforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
-//											new ModelTexture(loader.loadTexture("platanusforest", "Entities")));
-		TexturedModel pineforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
-											new ModelTexture(loader.loadTexture("pineforest", "Entities")));
-//		TexturedModel oakforest = new TexturedModel(OBJLoader.loadObjModel("grassModel", "Entities", loader), 
-//											new ModelTexture(loader.loadTexture("oakforest", "Entities")));
-		
-//		planatusforest.getTexture().setHasTransparency(true);
-//		planatusforest.getTexture().setUseFakeLighting(true);
-		pineforest.getTexture().setHasTransparency(true);
-		pineforest.getTexture().setUseFakeLighting(true);
-//		oakforest.getTexture().setHasTransparency(true);
-//		oakforest.getTexture().setUseFakeLighting(true);
-		
 		Random random = new Random();
 		float y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
 		Entity staticEntity;
 		
-		staticEntity = new Entity(pineforest, new Vector3f(x, y-2, z), 
-								  0, random.nextFloat()*360, 0, 
-								  random.nextFloat() + 6);
-
-		staticEntities.add(staticEntity);
-		
-		/*
 		if (random.nextInt(100) % 3 == 0) {
-			staticEntity = new Entity(pineforest, new Vector3f(x, y-2, z), 
+			staticEntity = new Entity(pineForest, new Vector3f(x, y-2, z), 
 									  0, random.nextFloat()*360, 0, 
 									  random.nextFloat() + 6);
 			
 			staticEntities.add(staticEntity);
 		} else if (random.nextInt(100) % 9 == 0) {
-			staticEntity = new Entity(oakforest, new Vector3f(x, y-2, z), 
+			staticEntity = new Entity(oakForest, new Vector3f(x, y-2, z), 
 									  0, random.nextFloat()*360, 0, 
 									  random.nextFloat() + 6);
 			
 			staticEntities.add(staticEntity);
 		} else if (random.nextInt(100) % 10 == 0) {
-			staticEntity = new Entity(planatusforest, new Vector3f(x, y-2, z), 
+			staticEntity = new Entity(planatusForest, new Vector3f(x, y-2, z), 
 									  0, random.nextFloat()*360, 0, 
 									  random.nextFloat() + 6);
 			
 			staticEntities.add(staticEntity);
 		}
-		*/
 	}
 	
 	/**
@@ -205,10 +207,6 @@ public class EntityCollections {
 	 */
 	public void createRandomLitEntities() {
 		float x, y, z;
-		TexturedModel lamp =  new TexturedModel(OBJLoader.loadObjModel("lamp", "Entities", loader), 
-						      new ModelTexture(loader.loadTexture("lamp", "Entities")));
-		
-		lamp.getTexture().setUseFakeLighting(true);
 		
 		x = 185;
 		z = 293;	
