@@ -12,7 +12,23 @@ import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.otw.models.RawModel;
 
+/**
+ * Contains static methods to load a {@link RawModel} into memory by reading and processing all vertices, textures and
+ * normals associated with the model 
+ * 
+ * @author Christopher Ali
+ *
+ */
 public class OBJLoader {
+	
+	/**
+	 * Loads OBJ model into memory by specifying a URI to the model's location 
+	 * 
+	 * @param fileName
+	 * @param directory
+	 * @param loader
+	 * @return RawModwl object
+	 */
 	public static RawModel loadObjModel(String fileName, String directory, Loader loader) {
  		FileReader fr = null;
 		

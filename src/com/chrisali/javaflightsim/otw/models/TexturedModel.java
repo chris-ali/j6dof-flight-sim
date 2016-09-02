@@ -2,6 +2,12 @@ package com.chrisali.javaflightsim.otw.models;
 
 import com.chrisali.javaflightsim.otw.textures.ModelTexture;
 
+/**
+ * Object that contains an OBJ {@link RawModel} loaded into memory with a {@link ModelTexture}
+ * 
+ * @author Christopher Ali
+ *
+ */
 public class TexturedModel {
 	private RawModel rawModel;
 	private ModelTexture texture;
