@@ -59,7 +59,18 @@ public class MasterRenderer {
 		GL11.glDisable(GL11.GL_CULL_FACE);
 	}
 	
+	/**
+	 * Takes all entities and terrains, and adds them (if necessary) to entity/terrain maps, and then renders the scene with
+	 * the given lights, camera and clipping plane  
+	 * 
+	 * @param entityCollection
+	 * @param terrainMap
+	 * @param lights
+	 * @param camera
+	 * @param clippingPlane
+	 */
 	public void renderWholeScene(EntityCollections entityCollection, Map<String, Terrain> terrainMap, List<Light> lights, Camera camera, Vector4f clippingPlane) {
+		// Process miscellaneous entities from entityCollention
 		for(Entity entity : entityCollection.getStaticEntities())
 			processEntity(entity);
 		
@@ -67,6 +78,15 @@ public class MasterRenderer {
 			processEntity(entity);
 		
 		terrains = new ArrayList<>(terrainMap.values());
+		
+		// Process entities tied to each terrain
+		for (Terrain terrain : terrains) {
+			for (Entity entity : terrain.getStaticEntities())
+				processEntity(entity);
+			
+			for (Entity entity : terrain.getLitEntities())
+				processEntity(entity);
+		}
 		
 		render(lights, camera, clippingPlane);
 	}

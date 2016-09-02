@@ -20,17 +20,18 @@ import com.chrisali.javaflightsim.otw.terrain.Terrain;
 import com.chrisali.javaflightsim.otw.textures.ModelTexture;
 
 /**
- * Randomly generates numerous objects in the world, spawning them to a list of entities
- * rendered by OpenGL; Static methods are also provided to allow the user to add custom entities in
- * specific locations to these lists
+ * Contains methods to create {@link Entity} objects to world, which are rendered by OpenGL; these objects are
+ * normally tied to a {@link Terrain} object and spawned using an autogen texture mapping scheme, but other objects can also
+ * be generated at specific locations in the world. These are added instead to a local list inside of this class using 
+ * provided static methods 
  * 
  * @author Christopher Ali
  *
  */
 public class EntityCollections {
 	
-	private List<Entity> staticEntities = new ArrayList<>();
-	private List<Entity> litEntities = new ArrayList<>();
+	private List<Entity> miscStaticEntities = new ArrayList<>();
+	private List<Entity> miscLitEntities = new ArrayList<>();
 	private List<Light> lights;
 	
 	private Map<String, Terrain> terrainMap;
@@ -38,21 +39,31 @@ public class EntityCollections {
 	
 	//==================== Models =======================
 	// Static
-	private TexturedModel planatusForest;
-	private TexturedModel pineForest;
-	private TexturedModel oakForest;
+	private static TexturedModel planatusForest;
+	private static TexturedModel pineForest;
+	private static TexturedModel oakForest;
 	
 	// Lit
-	private TexturedModel lamp;
+	private static TexturedModel lamp;
 	
-	public EntityCollections(List<Light> lights, Map<String, Terrain> terrainMap, Loader loader) {
-		this.terrainMap = terrainMap;
+	/**
+	 * Creates {@link EntityCollections} object with list of lights, loader to load entities, and
+	 * call to initialize all {@link Entity} objects
+	 * 
+	 * @param lights
+	 * @param loader
+	 */
+	public EntityCollections(List<Light> lights, Loader loader) {
 		this.loader = loader;
 		this.lights = lights;
 		
 		initializeEntities();
 	}
 	
+	public void setTerrainMap(Map<String, Terrain> terrainMap) {
+		this.terrainMap = terrainMap;
+	}
+
 	/**
 	 * Initializes all {@link TexturedModel} objects for in methods, which create entities
 	 */
@@ -82,66 +93,21 @@ public class EntityCollections {
 	}
 	
 	/**
-	 * Creates numerous tree {@link Entity} objects to populate the world
-	 */
-	public void createRandomStaticEntities() {
-		
-		Random random = new Random();
-		for (int i=0; i<9600; i++) {
-			float x, y, z;
-			
-			int terrainMapWidth = (int)Math.sqrt(terrainMap.size());
-			Entity staticEntity;
-			
-			if (i % 7 == 0) {
-				x = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
-				z = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
-				y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
-				
-				staticEntity = new Entity(pineForest, new Vector3f(x, y-2, z), 
-										  0, random.nextFloat()*360, 0, 
-										  random.nextFloat() + 6);
-				
-				staticEntities.add(staticEntity);
-			}
-			
-			else if (i % 5 == 0) {
-				x = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
-				z = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
-				y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
-				
-				staticEntity = new Entity(oakForest, new Vector3f(x, y-2, z), 
-										  0, random.nextFloat()*360, 0, 
-										  random.nextFloat()* 1 + 5);
-				
-				staticEntities.add(staticEntity);
-			}
-			
-			else if (i % 8 == 0) {
-				x = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
-				z = random.nextFloat() * Terrain.getSize()*terrainMapWidth;
-				y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
-				
-				staticEntity = new Entity(oakForest, new Vector3f(x, y-2, z), 
-										  0, random.nextFloat()*360, 0, 
-										  random.nextFloat()* 1 + 5);
-				
-				staticEntities.add(staticEntity);
-			}
-		}
-	}
-	
-	/**
-	 * Creates static entities from an autogen image file that maps specifically what type of entity should
+	 * Creates static {@link Entity} objects from an autogen image file that maps specifically what type of entity should
 	 * be generated at a given location. The image file should be filled in black with the exception of 
 	 * red, green or blue pixels, which each determine buildings, trees and airports, respectively.
 	 * 
+	 * <p>The {@link Terrain} argument specifies to which terrain the autogen objects should be "bound" to, which
+	 * involves adding the objects to a List in the terrain object. This list is then iterated through to render
+	 * each entity 
+	 * 
 	 * <p>Each pixel adds a new object, so they should be added to the autogen image (autogen.png) judiciously
 	 * 
+	 * @param terrain
 	 * @param fileName
 	 * @param directory
 	 */
-	public void createAutogenImageEntities(String fileName, String directory) {
+	public static void createAutogenImageEntities(Terrain terrain, String fileName, String directory) {
 		
 		BufferedImage image = null;
 		
@@ -152,8 +118,8 @@ public class EntityCollections {
 		float scaledX, scaledZ;
 		Color readColor;
 		
-		for (int x = 0; x < image.getWidth(); x+=4) {
-			for (int z = 0; z < image.getHeight(); z+=4) {
+		for (int x = 0; x < image.getWidth(); x+=6) {
+			for (int z = 0; z < image.getHeight(); z+=6) {
 				readColor = new Color(image.getRGB(x, z));
 				scaledX = x * imageScale;
 				scaledZ = z * imageScale;
@@ -161,7 +127,7 @@ public class EntityCollections {
 				if(readColor.getRed() > 250) {
 					// Create buildings here
 				} else if(readColor.getGreen() > 250) {
-					createRandomTrees(scaledX, scaledZ);
+					createRandomTrees(terrain, scaledX, scaledZ);
 				} else if(readColor.getBlue() > 250) {
 					// Create airport here
 				}
@@ -170,15 +136,24 @@ public class EntityCollections {
 	}
 	
 	/**
-	 * Creates a random group of trees at the specified x and z position
+	 * Creates a random group of trees at the specified x and z position. Uses {@link Terrain} object to get
+	 * the absolute world position of the "origin" of this terrain object, which is used to determine the 
+	 * relative position to add a tree. Then it adds this entity to a list of static {@link Entity} objects
+	 * contained in terrain object.
 	 * 
+	 * @param terrain
 	 * @param x
 	 * @param z
 	 */
-	public void createRandomTrees(float x, float z) {
+	private static void createRandomTrees(Terrain terrain, float x, float z) {
 		
 		Random random = new Random();
-		float y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
+		
+		float y = terrain.getTerrainHeight(x, z);
+		// (absolute world position of terrain's origin) + (position relative to origin) 
+		x += terrain.getX();
+		z += terrain.getZ();
+		
 		Entity staticEntity;
 		
 		if (random.nextInt(100) % 3 == 0) {
@@ -186,50 +161,21 @@ public class EntityCollections {
 									  0, random.nextFloat()*360, 0, 
 									  random.nextFloat() + 6);
 			
-			staticEntities.add(staticEntity);
+			terrain.getStaticEntities().add(staticEntity);
 		} else if (random.nextInt(100) % 9 == 0) {
 			staticEntity = new Entity(oakForest, new Vector3f(x, y-2, z), 
 									  0, random.nextFloat()*360, 0, 
 									  random.nextFloat() + 6);
 			
-			staticEntities.add(staticEntity);
+			terrain.getStaticEntities().add(staticEntity);
 		} else if (random.nextInt(100) % 10 == 0) {
 			staticEntity = new Entity(planatusForest, new Vector3f(x, y-2, z), 
 									  0, random.nextFloat()*360, 0, 
 									  random.nextFloat() + 6);
 			
-			staticEntities.add(staticEntity);
+			terrain.getStaticEntities().add(staticEntity);
 		}
 	}
-	
-	/**
-	 *  Generates lit {@link Entity} objects along with {@link Light} objects in various locations  
-	 */
-	public void createRandomLitEntities() {
-		float x, y, z;
-		
-		x = 185;
-		z = 293;	
-		y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
-		
-		litEntities.add(new Entity(lamp, new Vector3f(x, y, z), 0, 0, 0, 1));
-		lights.add(new Light(new Vector3f(x, y + 15, z), new Vector3f(0, 2, 2), new Vector3f(1, 0.01f, 0.002f)));
-		
-		x = 370;
-		z = 300;	
-		y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
-		
-		litEntities.add(new Entity(lamp, new Vector3f(x, y, z), 0, 0, 0, 1));
-		lights.add(new Light(new Vector3f(x, y + 15, z), new Vector3f(2, 0, 0), new Vector3f(1, 0.01f, 0.002f)));
-		
-		x = 100;
-		z = 200;	
-		y = Terrain.getCurrentTerrain(terrainMap, x, z).getTerrainHeight(x, z);
-		
-		litEntities.add(new Entity(lamp, new Vector3f(x, y, z), 0, 0, 0, 1));
-		lights.add(new Light(new Vector3f(x, y + 15, z), new Vector3f(2, 2, 0), new Vector3f(1, 0.01f, 0.002f)));
-	}
-	
 	
 	/**
 	 * Creates a single static entity based on the position vector specified
@@ -245,7 +191,7 @@ public class EntityCollections {
 		TexturedModel staticEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, "Entities", loader), 
 														new ModelTexture(loader.loadTexture(entityName, "Entities")));
 		
-		staticEntities.add(new Entity(staticEntity, position, xRot, yRot, zRot, scale));
+		miscStaticEntities.add(new Entity(staticEntity, position, xRot, yRot, zRot, scale));
 	}
 	
 	/**
@@ -264,7 +210,7 @@ public class EntityCollections {
 		float yPos = Terrain.getCurrentTerrain(terrainMap, xPos, zPos).getTerrainHeight(xPos, zPos);
 		Vector3f position = new Vector3f(xPos, yPos, zPos);
 		
-		staticEntities.add(new Entity(staticEntity, position, 0, yRot, 0, scale));
+		miscStaticEntities.add(new Entity(staticEntity, position, 0, yRot, 0, scale));
 	}
 	
 	/**
@@ -278,7 +224,7 @@ public class EntityCollections {
 		TexturedModel staticEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, "Entities", loader), 
 														new ModelTexture(loader.loadTexture(entityName, "Entities")));
 
-		staticEntities.add(new Entity(staticEntity, player.getPosition(), player.getRotX(), player.getRotY(), player.getRotZ(), scale));
+		miscStaticEntities.add(new Entity(staticEntity, player.getPosition(), player.getRotX(), player.getRotY(), player.getRotZ(), scale));
 	}
 	
 	/**
@@ -301,7 +247,7 @@ public class EntityCollections {
 		TexturedModel litEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, "Entities", loader), 
 													 new ModelTexture(loader.loadTexture(entityName, "Entities")));
 		
-		litEntities.add(new Entity(litEntity, position, xRot, yRot, zRot, scale));
+		miscLitEntities.add(new Entity(litEntity, position, xRot, yRot, zRot, scale));
 		
 		Light light = new Light(Vector3f.add(position, lightPosOffset, position), color, attenuation);
 		lights.add(light);
@@ -330,7 +276,7 @@ public class EntityCollections {
 		float yPos = Terrain.getCurrentTerrain(terrainMap, xPos, zPos).getTerrainHeight(xPos, zPos);
 		Vector3f position = new Vector3f(xPos, yPos, zPos);
 		
-		litEntities.add(new Entity(litEntity, position, 0, yRot, 0, scale));
+		miscLitEntities.add(new Entity(litEntity, position, 0, yRot, 0, scale));
 		
 		Light light = new Light(Vector3f.add(position, lightPosOffset, position), color, attenuation);
 		lights.add(light);
@@ -355,21 +301,21 @@ public class EntityCollections {
 													 new ModelTexture(loader.loadTexture(entityName, "Entities")));
 		Vector3f position = player.getPosition();
 		
-		litEntities.add(new Entity(litEntity, position, player.getRotX(), player.getRotY(), player.getRotZ(), scale));
+		miscLitEntities.add(new Entity(litEntity, position, player.getRotX(), player.getRotY(), player.getRotZ(), scale));
 		
 		Light light = new Light(Vector3f.add(position, lightPosOffset, position), color, attenuation);
 		lights.add(light);
 	}
 	
 	public void addToStaticEntities(Entity entity) {
-		staticEntities.add(entity);
+		miscStaticEntities.add(entity);
 	}
 	
 	public List<Entity> getLitEntities() {
-		return litEntities;
+		return miscLitEntities;
 	}
 
 	public List<Entity> getStaticEntities() {
-		return staticEntities;
+		return miscStaticEntities;
 	}
 }

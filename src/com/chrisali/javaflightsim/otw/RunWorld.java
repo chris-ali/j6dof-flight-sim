@@ -175,15 +175,14 @@ public class RunWorld implements Runnable, FlightDataListener {
 		lights = new ArrayList<>();
 		lights.add(new Light(new Vector3f(20000, 40000, 20000), new Vector3f(0.95f, 0.95f, 0.95f)));
 		
+		//================================= Entities ==========================================================
+		
+		entities = new EntityCollections(lights, loader);
+		
 		//================================= Terrain ==========================================================
 		
 		terrainCollection = new TerrainCollection(6, loader);
-		
-		//================================= Entities ==========================================================
-		
-		entities = new EntityCollections(lights, terrainCollection.getTerrainMap(), loader);
-		entities.createAutogenImageEntities("autogen", "Terrain");
-		//entities.createRandomStaticEntities();
+		entities.setTerrainMap(terrainCollection.getTerrainMap());
 		
 		//================================= Ownship ===========================================================
 		

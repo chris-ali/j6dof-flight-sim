@@ -3,6 +3,8 @@ package com.chrisali.javaflightsim.otw.terrain;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -10,12 +12,22 @@ import javax.imageio.ImageIO;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
+import com.chrisali.javaflightsim.otw.entities.Entity;
+import com.chrisali.javaflightsim.otw.entities.EntityCollections;
 import com.chrisali.javaflightsim.otw.models.RawModel;
 import com.chrisali.javaflightsim.otw.renderengine.Loader;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexture;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexturePack;
 import com.chrisali.javaflightsim.utilities.RenderingUtilities;
 
+/**
+ * Terrain object that contains one ground tile that makes up the world of JavaFlightSimulator.
+ * A blend map PNG file paints the ground textures, a height map PNG determines the terrain height, and 
+ * ArrayLists of stationary {@link Entity} objects contain all objects associated with this tile  
+ * 
+ * @author Christopher Ali
+ *
+ */
 public class Terrain {
 	private static final float SIZE = 1600;
 	private static final float MAX_HEIGHT = 20;
@@ -26,6 +38,10 @@ public class Terrain {
 	private TerrainTexturePack texturePack;
 	private TerrainTexture blendMap;
 	
+	// Stationary entities associated with this terrain
+	private List<Entity> staticEntities = new ArrayList<>();
+	private List<Entity> litEntities = new ArrayList<>();
+	
 	private float[][] heightArray;
 	
 	/**
@@ -35,6 +51,9 @@ public class Terrain {
 	 * <p>gridX and gridZ correspond to indices in the terrain array that this object resides</p>
 	 * 
 	 * <p>fileName and Directory point to a height map .png file to give the terrain vertical modeling</p>
+	 * 
+	 * <p>Uses {@link EntityCollections#createAutogenImageEntities()} to generate populate this object's lists of entities
+	 * using an autogen image file in ./Resources/Terrain/</p>
 	 * 
 	 * @param gridX
 	 * @param gridZ
@@ -51,6 +70,9 @@ public class Terrain {
 		this.x = gridX * SIZE;
 		this.z = gridZ * SIZE;
 		this.model = generateTerrain(fileName, directory, loader);
+		
+		// Generate all autogen objects and add them to staticEntities and litEntities
+		EntityCollections.createAutogenImageEntities(this, "autogen", directory);
 	}
 
 	/**
@@ -230,6 +252,14 @@ public class Terrain {
 
 	public float getZ() {
 		return z;
+	}
+	
+	public List<Entity> getStaticEntities() {
+		return staticEntities;
+	}
+
+	public List<Entity> getLitEntities() {
+		return litEntities;
 	}
 
 	public RawModel getModel() {
