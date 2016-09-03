@@ -18,7 +18,7 @@ public class SaturationLimits {
 	}
 	
 	/**
-	 * Binds pitch and bank angles between +/- Pi, and heading between 0 and 2*Pi. In addition, pitch is prevented from reaching +/- Pi/2, 
+	 * Binds pitch and bank angles between +/- 2*Pi, and heading between 0 and 2*Pi. In addition, pitch is prevented from reaching +/- Pi/2, 
 	 * as this would cause a singularity in the calculation of heading in {@link Integrate6DOFEquations}
 	 * @param eulerAngles
 	 * @param isWeightOnWheels
@@ -30,15 +30,17 @@ public class SaturationLimits {
 		double psi   = eulerAngles[2];
 		
 		// If banked past +/- pi, subtract/add 2*pi to return -/+ pi
-		if (eulerAngles[0] > Math.PI) {
-			phi -= 2*Math.PI;
-			phi %= Math.PI;
-		} else if (eulerAngles[0] < -Math.PI) {
-			phi += 2*Math.PI;
-			phi %= Math.PI;
-		}
+//		if (eulerAngles[0] > Math.PI) {
+//			phi -= 2*Math.PI;
+//			phi %= Math.PI;
+//		} else if (eulerAngles[0] < -Math.PI) {
+//			phi += 2*Math.PI;
+//			phi %= Math.PI;
+//		}
 		
-		if (eulerAngles[1] > Math.PI ) {
+		phi %= 2*Math.PI;
+		
+		if (eulerAngles[1] > Math.PI) {
 			theta -= 2*Math.PI;
 			theta %= Math.PI;
 		} else if (eulerAngles[1] < -Math.PI) {
