@@ -38,5 +38,5 @@ CM_d_flap = -0.050
 CN_beta = 0.071
 CN_p = -0.0575
 CN_r = -0.125
-CN_d_ail = 0.035
+CN_d_ail = 0.0035
 CN_d_rud = -0.072
