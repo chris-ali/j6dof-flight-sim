@@ -1,6 +1,7 @@
 package com.chrisali.javaflightsim.tests;
 
 import java.util.EnumMap;
+import java.util.Map;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -28,7 +29,7 @@ public class EngineTest extends ApplicationFrame {
 		super("Engine Test");
 		
 		EnumMap<FlightControlType, Double> controls = IntegrationSetup.gatherInitialControls("InitialControls");
-		EnumMap<EnvironmentParameters, Double> environmentParameters = Environment.updateEnvironmentParams(new double[] {0,0,0});
+		Map<EnvironmentParameters, Double> environmentParameters = Environment.getAndUpdateEnvironmentParams(new double[] {0,0,0});
 		StringBuilder constraint = new StringBuilder();
 		
 		Engine defaultEngine  = new FixedPitchPropEngine();
@@ -112,7 +113,7 @@ public class EngineTest extends ApplicationFrame {
 							  .append(" ft/sec)");
 				
 				for (double altitude = 0; altitude < 20000; altitude += 10) {
-					environmentParameters = Environment.updateEnvironmentParams(new double[] {0, 0, altitude});
+					environmentParameters = Environment.getAndUpdateEnvironmentParams(new double[] {0, 0, altitude});
 					
 					defaultEngine.updateEngineState(controls, 
 													environmentParameters,

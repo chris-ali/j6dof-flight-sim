@@ -47,7 +47,7 @@ public class EnvironmentTest extends ApplicationFrame {
 		for (double alt=0; alt<60000; alt+=10) {
 			Environment.setWindDir(alt*6/1000);
 			Environment.setWindSpeed(alt/6000);
-			envData = Environment.updateEnvironmentParams(new double[] {0, 0, alt});
+			envData = Environment.getAndUpdateEnvironmentParams(new double[] {0, 0, alt});
 			
 			// Add envData to each XYSeries
 			tData.add(alt,envData.get(EnvironmentParameters.T));

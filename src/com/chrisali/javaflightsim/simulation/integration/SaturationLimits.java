@@ -21,10 +21,10 @@ public class SaturationLimits {
 	 * Binds pitch and bank angles between +/- 2*Pi, and heading between 0 and 2*Pi. In addition, pitch is prevented from reaching +/- Pi/2, 
 	 * as this would cause a singularity in the calculation of heading in {@link Integrate6DOFEquations}
 	 * @param eulerAngles
-	 * @param isWeightOnWheels
+	 * @param angularRates
 	 * @return eulerAngles
 	 */
-	public static double[] piBounding(double[] eulerAngles) {
+	public static double[] piBounding(double[] eulerAngles, double[] angularRates) {
 		double phi   = eulerAngles[0];
 		double theta = eulerAngles[1];
 		double psi   = eulerAngles[2];
@@ -46,10 +46,11 @@ public class SaturationLimits {
 		} else if (eulerAngles[1] < -Math.PI) {
 			theta += 2*Math.PI;
 			theta %= Math.PI;
+		// Prevent theta from reaching PI/2, which would cause singularity in 6DOF equations
 		} else if (eulerAngles[1] ==  Math.PI/2) {
-			theta = Math.PI*0.52; // Prevent theta from reaching PI/2, which would cause singularity
+			theta = angularRates[1] > 0 ? Math.PI*0.52 : Math.PI*0.48;
 		} else if (eulerAngles[1] == -Math.PI/2) {
-			theta = -Math.PI*0.52;
+			theta = angularRates[1] < 0 ? -Math.PI*0.52 : -Math.PI*0.48;
 		}
 		
 		// Return only positive values of psi between 0 and 2*pi
@@ -64,7 +65,7 @@ public class SaturationLimits {
 	}
 	
 	/**
-	 *  Limits u, v and w velocities; u is restricted to 0.5-1000 ft/sec, while v and w are restricted to -1000-1000 ft/sec.
+	 *  Limits u, v and w velocities; u is restricted to 0.5-1000 ft/sec, while v and w are restricted to +/-1000 ft/sec.
 	 *  On ground v is restricted to -3-3 ft/sec
 	 *  @param linearVelocities
 	 *  @param isWeightOnWheels
@@ -99,7 +100,7 @@ public class SaturationLimits {
 	}
 	
 	/**
-	 *  Limits angular rates for p, q and r to -10-10 rad/sec
+	 *  Limits angular rates for p, q and r to +/-10 rad/sec
 	 *  @return angularRates
 	 *  @return angularRates
 	 */
@@ -131,7 +132,7 @@ public class SaturationLimits {
 	}
 	
 	/**
-	 *  Limits accelerations in all directions to -1000-1000 ft/sec^2
+	 *  Limits accelerations in all directions to +/-1000 ft/sec^2
 	 *  @param linearAccelerations
 	 *  @return linearAccelerations
 	 */
@@ -163,7 +164,7 @@ public class SaturationLimits {
 	}
 	
 	/**
-	 *  Limits moments in all directions to -100000-100000 lb*ft
+	 *  Limits moments in all directions to +/-100000 lb*ft
 	 *  @return linearMoments
 	 *  @return linearMoments
 	 */
@@ -195,7 +196,7 @@ public class SaturationLimits {
 	}
 	
 	/**
-	 *  Limits true airspeed to 0.5-1000 ft/sec, beta to -Pi/4-Pi/4 and alpha to -Pi/16-Pi/16 
+	 *  Limits true airspeed to 0.5-1000 ft/sec, beta to +/-Pi/4 and alpha to +/-Pi/12 
 	 *  @param windParameters
 	 *  @return windParameters
 	 */

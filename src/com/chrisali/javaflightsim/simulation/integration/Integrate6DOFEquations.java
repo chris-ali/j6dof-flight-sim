@@ -181,7 +181,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		sixDOFDerivatives[5]  = -1*(y[0]*dirCosMat[2][0]+y[1]*dirCosMat[2][1]+y[2]*dirCosMat[2][2])+windSpdNED[2];    // D (ft)
 		
 		sixDOFDerivatives[6]  =   y[9]+(Math.tan(y[7])*((y[10]*Math.sin(y[6]))+(y[11]*Math.cos(y[6])))); // phi (rad)
-		sixDOFDerivatives[7]  =  (y[10]*Math.cos(y[6]))-(y[11]*Math.sin(y[6]));     			            // theta (rad)
+		sixDOFDerivatives[7]  =  (y[10]*Math.cos(y[6]))-(y[11]*Math.sin(y[6]));     			         // theta (rad)
 		sixDOFDerivatives[8]  = ((y[10]*Math.sin(y[6]))+(y[11]*Math.cos(y[6])))/Math.cos(y[7]);          // psi (rad)
 		
 		sixDOFDerivatives[9]  = ((inertiaCoeffs[1]*y[9]*y[10]) - (inertiaCoeffs[0]*y[10])*y[11]) + (inertiaCoeffs[2]*totalMoments[0])+(inertiaCoeffs[3]*totalMoments[2]);     // p (rad/sec)
@@ -208,14 +208,14 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		// Implement saturation and (2)pi bounding to keep states within realistic limits
 		linearVelocities = SaturationLimits.limitLinearVelocities(linearVelocities);
 		NEDPosition      = SaturationLimits.limitNEDPosition(NEDPosition, terrainHeight);
-		eulerAngles      = SaturationLimits.piBounding(eulerAngles);
+		eulerAngles      = SaturationLimits.piBounding(eulerAngles, angularRates);
 		angularRates     = SaturationLimits.limitAngularRates(angularRates);
 		
 		// Update wind parameters
 		windParameters = SixDOFUtilities.calculateWindParameters(linearVelocities);
 		
 		// Update environment		
-		environmentParameters = Environment.updateEnvironmentParams(NEDPosition);
+		environmentParameters = Environment.getAndUpdateEnvironmentParams(NEDPosition);
 		
 		// Update all engines in engine list
 		for(Engine engine : engineList)
@@ -489,7 +489,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	 * @param windDir
 	 * @param temperature
 	 */
-	public void setEnvironment(double windSpeed, double windDir, double temperature) {
+	public void setWeather(double windSpeed, double windDir, double temperature) {
 		Environment.setWindDir(windDir);
 		Environment.setWindSpeed(windSpeed);
 		// Subtract standard temperature from argument to get deviation from standard, then convert C deg to F deg 

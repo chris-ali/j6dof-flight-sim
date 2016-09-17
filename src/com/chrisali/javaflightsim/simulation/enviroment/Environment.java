@@ -1,6 +1,7 @@
 package com.chrisali.javaflightsim.simulation.enviroment;
 
 import java.util.EnumMap;
+import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.integration.SaturationLimits;
 import com.chrisali.javaflightsim.utilities.FileUtilities;
@@ -26,6 +27,8 @@ public class Environment {
 	private static final double ENV_CONST_TROP = 0.0000068755;
 	private static final double ENV_CONST_STRAT = -0.0000480637;
 	
+	private static Map<EnvironmentParameters, Double> environmentParams = new EnumMap<>(EnvironmentParameters.class);
+	
 	private static double windSpeed = 0.0;
 	private static double windDir   = 0.0;
 	private static double deltaIsa  = 0.0;
@@ -38,8 +41,7 @@ public class Environment {
 	 * @param NEDPosition
 	 * @return EnumMap of environment parameters
 	 */
-	public static EnumMap<EnvironmentParameters, Double> updateEnvironmentParams(double[] NEDPosition) {
-		EnumMap<EnvironmentParameters, Double> environmentParams = new EnumMap<EnvironmentParameters, Double>(EnvironmentParameters.class); 
+	public static Map<EnvironmentParameters, Double> getAndUpdateEnvironmentParams(double[] NEDPosition) {
 		double temp, rho, p, a, g, windN, windE, windD;
 		
 		// Troposphere

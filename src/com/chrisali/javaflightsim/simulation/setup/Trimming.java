@@ -1,6 +1,7 @@
 package com.chrisali.javaflightsim.simulation.setup;
 
 import java.util.EnumMap;
+import java.util.Map;
 import java.util.Set;
 
 import com.chrisali.javaflightsim.controllers.SimulationController;
@@ -29,7 +30,7 @@ public class Trimming {
 	
 	private static EnumMap<InitialConditions, Double> initialConditions;
 	private static EnumMap<FlightControlType, Double> initialControls;
-	private static EnumMap<EnvironmentParameters, Double> environmentParams;
+	private static Map<EnvironmentParameters, Double> environmentParams;
 	private static Aircraft aircraft;
 	private static Aerodynamics aero;
 	
@@ -58,7 +59,7 @@ public class Trimming {
 		initialConditions = controller.getInitialConditions();
 		initialControls = controller.getInitialControls();
 		
-		environmentParams = Environment.updateEnvironmentParams(new double[]{0,0,initialConditions.get(InitialConditions.INITD)});
+		environmentParams = Environment.getAndUpdateEnvironmentParams(new double[]{0,0,initialConditions.get(InitialConditions.INITD)});
 		
 		double alphaMin = -0.18, alphaMax = 0.18, throttleMin = 0.0, throttleMax = 1.0,
 			   alphaTrim = 0.0, thetaTrim = 0.0, elevTrim = 0.0, throttleTrim = 0.0, wVelocityTrim = 0.0, 
