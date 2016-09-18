@@ -138,11 +138,10 @@ public class RunWorld implements Runnable, FlightDataListener {
 			SoundCollection.update(soundValues, controller);
 			
 			//----------- UI --------------------
-			if (controller.getSimulationOptions().contains(Options.PAUSED))
-				texts.get("Paused").setTextString("PAUSED");
-			else
-				texts.get("Paused").setTextString("");
-
+			texts.get("Paused").setTextString(controller.getSimulationOptions()
+														.contains(Options.PAUSED) ?
+																  "PAUSED" : "");
+			
 			//------ Render Everything -----------
 			masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainMap(), 
 											lights, camera, new Vector4f(0, 1, 0, 0));
@@ -239,6 +238,8 @@ public class RunWorld implements Runnable, FlightDataListener {
 		}
 	}
 	
+	//=============================== Synchronization ======================================================
+	
 	/**
 	 * @return If out the window display is running
 	 */
@@ -248,6 +249,8 @@ public class RunWorld implements Runnable, FlightDataListener {
 	 * Sets running boolean in {@link RunWorld} to false to begin the display clean up process
 	 */
 	public static synchronized void requestClose() {RunWorld.running = false;}
+	
+	//===================================== Text ============================================================
 	
 	/**
 	 * Prepares a string of flight data that is output on the OTW using the {@link GUIText} object
@@ -298,7 +301,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 			soundValues.put(SoundCategory.STALL_HORN, receivedFlightData.get(FlightDataType.AOA));
 			
 			// Record flight data into text string to display on OTW screen 
-			if (texts.get("FlightData") != null && !controller.getSimulationOptions().contains(Options.INSTRUMENT_PANEL))
+			if (!controller.getSimulationOptions().contains(Options.INSTRUMENT_PANEL))
 				texts.get("FlightData").setTextString(setTextInfo(receivedFlightData));
 			
 			// Record value every other step to ensure a difference between previous and current values; used to 
