@@ -48,6 +48,7 @@ public class AccelAndMoments {
 	 * @param engineList
 	 * @param aircraft
 	 * @param groundReaction
+	 * @param heightAGL
 	 * @return linearAccelerations
 	 */
 	public static double[] calculateLinearAccelerations(double[] windParameters,
@@ -57,13 +58,15 @@ public class AccelAndMoments {
 									         		    double alphaDot,
 									         		    Set<Engine> engineList,
 									         		    Aircraft aircraft,
-									         		    IntegrateGroundReaction groundReaction) {
+									         		    IntegrateGroundReaction groundReaction,
+									         		    double heightAGL) {
 		
 		Vector3D aeroForceVector = new Vector3D(aero.calculateBodyForces(windParameters, 
 																	     angularRates, 
 																	     environmentParameters, 
 																	     controls, 
-																	     alphaDot));
+																	     alphaDot,
+																	     heightAGL));
 		
 		Vector3D groundForceVector = new Vector3D(groundReaction.getTotalGroundForces());
 		
@@ -90,6 +93,7 @@ public class AccelAndMoments {
 	 * @param engineList
 	 * @param aircraft
 	 * @param groundReaction
+	 * @param heightAGL
 	 * @return totalMoments
 	 */
 	public static double[] calculateTotalMoments(double[] windParameters,
@@ -99,13 +103,15 @@ public class AccelAndMoments {
 											     double alphaDot,
 											     Set<Engine> engineList,
 											     Aircraft aircraft,
-											     IntegrateGroundReaction groundReaction) {
+											     IntegrateGroundReaction groundReaction,
+											     double heightAGL) {
 
 		Vector3D aeroForceVector = new Vector3D(aero.calculateBodyForces(windParameters, 
 																	     angularRates, 
 																	     environmentParameters, 
 																	     controls, 
-																	     alphaDot));
+																	     alphaDot,
+																	     heightAGL));
 		
 		// Apache Commons vector methods only accept primitive double[] arrays
 		Vector3D acVector = new Vector3D(aircraft.getAerodynamicCenter());

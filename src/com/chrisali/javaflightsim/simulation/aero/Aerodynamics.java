@@ -45,15 +45,17 @@ public class Aerodynamics {
 	 * @param windParameters
 	 * @param controls
 	 * @param alphaDot
+	 * @param heightAGL
 	 * @return CL
 	 */
 	private double calculateCL(double[] angularRates,
 						  	   double[] windParameters,
 						  	   Map<FlightControlType, Double> controls,
-						  	   double alphaDot) {
+						  	   double alphaDot,
+						  	   double heightAGL) {
 		double rotaryTerm = aircraft.getWingGeometry(WingGeometry.C_BAR)/(2*windParameters[0]);
 		
-		return calculateInterpStabDer(windParameters, controls, StabilityDerivatives.CL_ALPHA)*windParameters[2]+
+		return calculateInterpStabDer(windParameters, controls, StabilityDerivatives.CL_ALPHA)*windParameters[2]*groundEffect(heightAGL)+
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_0)+	
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_Q)*angularRates[1]*rotaryTerm+
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CL_ALPHA_DOT)*alphaDot*rotaryTerm+
@@ -79,11 +81,13 @@ public class Aerodynamics {
 	 * 
 	 * @param windParameters
 	 * @param controls
+	 * @param heightAGL
 	 * @return CD
 	 */
 	private double calculateCD(double[] windParameters,
-					 	  	   Map<FlightControlType, Double> controls) {
-		return calculateInterpStabDer(windParameters, controls, StabilityDerivatives.CD_ALPHA)*Math.abs(windParameters[2])+ // Need absolute value to prevent negative drag at negative alpha
+					 	  	   Map<FlightControlType, Double> controls,
+					 	  	   double heightAGL) {
+		return calculateInterpStabDer(windParameters, controls, StabilityDerivatives.CD_ALPHA)*Math.abs(windParameters[2])/groundEffect(heightAGL)+ // Need absolute value to prevent negative drag at negative alpha
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_0)+
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_FLAP)*controls.get(FlightControlType.FLAPS)+
 			   (Double)aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_ELEV)*controls.get(FlightControlType.ELEVATOR)+
@@ -187,6 +191,21 @@ public class Aerodynamics {
 	}
 	
 	/**
+	 * If aircraft is within 1 wing span length of the ground, return a slight multiple adjustment to CL_alpha
+	 * and CD_alpha to simulate aerodynamic benefits of ground effect
+	 * 
+	 * @param heightAGL
+	 * @return adjustment to CL_alpha and CD_alpha
+	 */
+	private double groundEffect(double heightAGL) {
+		double normalizedHeightAGL = heightAGL/aircraft.getWingGeometry(WingGeometry.B_WING);
+		if (normalizedHeightAGL < 1.0)
+			return 1 - (Math.atan(15*(normalizedHeightAGL-1)) / 10);
+		else
+			return 1.0;
+	}
+	
+	/**
 	 * Calculates aerodynamic forces experienced by the aircraft, converted from the wind frame to the body
 	 * frame by using {@link SixDOFUtilities#wind2Body(double[])}
 	 * 
@@ -195,21 +214,23 @@ public class Aerodynamics {
 	 * @param environmentParameters
 	 * @param controls
 	 * @param alphaDot
+	 * @param heightAGL
 	 * @return bodyForces
 	 */
 	public double[] calculateBodyForces(double[] windParameters,
 									  	double[] angularRates,
 										Map<EnvironmentParameters, Double> environmentParameters,
 									    Map<FlightControlType, Double> controls,
-										double alphaDot) {
+										double alphaDot,
+										double heightAGL) {
 		double qBar = environmentParameters.get(EnvironmentParameters.RHO)*Math.pow(windParameters[0], 2)/2;
 		
 		double[][] w2bDCM = SixDOFUtilities.wind2Body(windParameters);
 		
 		// Negative L and D to switch body directions and position in array swapped
-		double[] aeroForces = {-qBar*calculateCD(windParameters, controls)*aircraft.getWingGeometry(WingGeometry.S_WING),
+		double[] aeroForces = {-qBar*calculateCD(windParameters, controls, heightAGL)*aircraft.getWingGeometry(WingGeometry.S_WING),
 				   			    qBar*calculateCY(windParameters, controls)*aircraft.getWingGeometry(WingGeometry.S_WING),
-							   -qBar*calculateCL(angularRates, windParameters, controls, alphaDot)*aircraft.getWingGeometry(WingGeometry.S_WING)};
+							   -qBar*calculateCL(angularRates, windParameters, controls, alphaDot, heightAGL)*aircraft.getWingGeometry(WingGeometry.S_WING)};
 		
 		return new double[] {aeroForces[0]*w2bDCM[0][0]+aeroForces[1]*w2bDCM[0][1]+aeroForces[2]*w2bDCM[0][2],
 							 aeroForces[0]*w2bDCM[1][0]+aeroForces[1]*w2bDCM[1][1]+aeroForces[2]*w2bDCM[1][2],

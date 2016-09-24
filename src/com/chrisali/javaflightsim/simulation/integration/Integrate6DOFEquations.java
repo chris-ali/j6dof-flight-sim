@@ -228,7 +228,8 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		mach = SixDOFUtilities.calculateMach(windParameters, environmentParameters);
 		
 		// Integrate another step of ground reaction only if within 100 ft of ground
-		if ((NEDPosition[2] - terrainHeight) < 100)
+		double heightAGL = NEDPosition[2] - terrainHeight;
+		if (heightAGL < 100)
 			groundReaction.integrateStep(terrainHeight);
 		
 		//System.out.println(groundReaction);
@@ -241,7 +242,8 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 																		   alphaDot,
 																		   engineList,
 																		   aircraft,
-																		   groundReaction);
+																		   groundReaction,
+																		   heightAGL);
 		// Update moments
 		totalMoments = AccelAndMoments.calculateTotalMoments(windParameters,
 														 	 angularRates,
@@ -250,7 +252,8 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 															 alphaDot,
 															 engineList,
 															 aircraft,
-															 groundReaction);
+															 groundReaction,
+															 heightAGL);
 				
 		// Recalculates derivatives for next step
 		updateDerivatives(y);
