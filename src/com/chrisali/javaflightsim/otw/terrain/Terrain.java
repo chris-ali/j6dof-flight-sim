@@ -14,6 +14,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.otw.entities.Entity;
 import com.chrisali.javaflightsim.otw.entities.EntityCollections;
+import com.chrisali.javaflightsim.otw.entities.Ownship;
 import com.chrisali.javaflightsim.otw.models.RawModel;
 import com.chrisali.javaflightsim.otw.renderengine.Loader;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexture;
@@ -28,7 +29,7 @@ import com.chrisali.javaflightsim.utilities.RenderingUtilities;
  * @author Christopher Ali
  *
  */
-public class Terrain {
+public class Terrain implements Comparable<Terrain> {
 	private static final float SIZE = 1600;
 	private static final float MAX_HEIGHT = 20;
 	private static final float MAX_PIXEL_COLOR = 256 * 256 * 256;
@@ -37,6 +38,8 @@ public class Terrain {
 	private RawModel model;
 	private TerrainTexturePack texturePack;
 	private TerrainTexture blendMap;
+	
+	private Ownship ownship;
 	
 	// Stationary entities associated with this terrain
 	private List<Entity> staticEntities = new ArrayList<>();
@@ -55,6 +58,9 @@ public class Terrain {
 	 * <p>Uses {@link EntityCollections#createAutogenImageEntities()} to generate populate this object's lists of entities
 	 * using an autogen image file in ./Resources/Terrain/</p>
 	 * 
+	 * <p>Uses a reference to {@link Ownship} to calculate the distance the midpoint of this terrain instance is from 
+	 * the ownship; this is used to compare to other Terrain objects in compareTo()</p>
+	 * 
 	 * @param gridX
 	 * @param gridZ
 	 * @param fileName
@@ -62,14 +68,17 @@ public class Terrain {
 	 * @param loader
 	 * @param texturePack
 	 * @param blendMap
+	 * @param ownship
 	 */
 	public Terrain(int gridX, int gridZ, String fileName, String directory, 
-					Loader loader, TerrainTexturePack texturePack, TerrainTexture blendMap) {
+					Loader loader, TerrainTexturePack texturePack, TerrainTexture blendMap,
+					Ownship ownship) {
 		this.texturePack = texturePack;
 		this.blendMap = blendMap;
 		this.x = gridX * SIZE;
 		this.z = gridZ * SIZE;
 		this.model = generateTerrain(fileName, directory, loader);
+		this.ownship = ownship;
 		
 		// Generate all autogen objects and add them to staticEntities and litEntities
 		EntityCollections.createAutogenImageEntities(this, "autogen", directory);
@@ -281,4 +290,28 @@ public class Terrain {
 	public static float getMaxHeight() {
 		return MAX_HEIGHT;
 	}
+	
+	/**
+	 * @return the magnitude of the distance from the center of the {@link Terrain} object's absolute postion
+	 * to the {@link Ownship} objects absolute postion
+	 */
+	private float getDistanceFromOwnship() {
+		float terrainMidpointX = x + (MAX_HEIGHT/2);
+		float terrainMidpointZ = z + (MAX_HEIGHT/2);
+		
+		return (float) Math.sqrt(Math.pow((ownship.getPosition().x - terrainMidpointX), 2) +
+						 		 Math.pow((ownship.getPosition().z - terrainMidpointZ), 2));
+	}
+
+	/**
+	 * Compares using absolute distance between this {@link Terrain} and the {@link Ownship} versus another {@link Terrain}
+	 * @param terrain
+	 * @return 1 if this is further away, -1 if this is closer, 0 if they are equal
+	 */
+	@Override
+	public int compareTo(Terrain terrain) {
+		return this.getDistanceFromOwnship() > terrain.getDistanceFromOwnship() ?  1 :
+			   this.getDistanceFromOwnship() < terrain.getDistanceFromOwnship() ? -1 : 0;
+	}
+	
 }

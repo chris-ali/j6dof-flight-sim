@@ -178,11 +178,6 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		entities = new EntityCollections(lights, loader);
 		
-		//================================= Terrain ==========================================================
-		
-		terrainCollection = new TerrainCollection(6, loader);
-		entities.setTerrainMap(terrainCollection.getTerrainMap());
-		
 		//================================= Ownship ===========================================================
 		
 		// Model used for aircraft; scale set to 0 to be invisible for now
@@ -199,6 +194,11 @@ public class RunWorld implements Runnable, FlightDataListener {
 		camera = new Camera(ownship);
 		camera.setChaseView(false);
 		camera.setPilotPosition(new Vector3f(0, 0, 0));
+
+		//================================= Terrain ==========================================================
+		
+		terrainCollection = new TerrainCollection(6, loader, ownship);
+		entities.setTerrainMap(terrainCollection.getTerrainMap());
 		
 		//=============================== Particles ==========================================================
 		

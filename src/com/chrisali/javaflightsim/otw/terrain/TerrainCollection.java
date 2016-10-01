@@ -3,6 +3,7 @@ package com.chrisali.javaflightsim.otw.terrain;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.chrisali.javaflightsim.otw.entities.Ownship;
 import com.chrisali.javaflightsim.otw.renderengine.Loader;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexture;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexturePack;
@@ -23,8 +24,9 @@ public class TerrainCollection {
 	 * 
 	 * @param numTerrains
 	 * @param loader
+	 * @param ownship
 	 */
-	public TerrainCollection(int numTerrains, Loader loader) {
+	public TerrainCollection(int numTerrains, Loader loader, Ownship ownship) {
 		terrainMap = new HashMap<>();
 
 		TerrainTexturePack texturePack = createTexturePack("fields", "town", "forest", "water", loader);
@@ -32,7 +34,7 @@ public class TerrainCollection {
 	
 		for (int i = 0; i < numTerrains; i++) {
 			for (int j = 0; j < numTerrains; j++) {
-				terrainMap.put(i + "-" + j, new Terrain(i, j, "heightMap", "Terrain", loader, texturePack, blendMap));
+				terrainMap.put(i + "-" + j, new Terrain(i, j, "heightMap", "Terrain", loader, texturePack, blendMap, ownship));
 			}
 		}
 	}
