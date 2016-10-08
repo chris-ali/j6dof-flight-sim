@@ -31,6 +31,7 @@ public class Keyboard extends AbstractController {
 	// Keep track if button is pressed, so events occur only once if button held down 
 	private boolean pPressed = false;
 	private boolean rPressed = false;
+	private boolean gPressed = false;
 	// Keep track of reset, so that it can only be run once per pause
 	private boolean wasReset = false;
 	
@@ -170,7 +171,7 @@ public class Keyboard extends AbstractController {
 				Identifier componentIdentifier = component.getIdentifier();
 				
 				// Elevator (Pitch) Down
-				if (componentIdentifier.getName().matches(Component.Identifier.Key.UP.toString()) & 
+				if (componentIdentifier.getName().matches(Component.Identifier.Key.UP.toString()) && 
 					controls.get(FlightControlType.ELEVATOR) <= FlightControlType.ELEVATOR.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f)
@@ -180,7 +181,7 @@ public class Keyboard extends AbstractController {
 				}
 				
 				// Elevator (Pitch) Up
-				if (componentIdentifier.getName().matches(Component.Identifier.Key.DOWN.toString()) & 
+				if (componentIdentifier.getName().matches(Component.Identifier.Key.DOWN.toString()) &&
 					controls.get(FlightControlType.ELEVATOR) >= FlightControlType.ELEVATOR.getMinimum()) {
 					
 					if(component.getPollData() == 1.0f)
@@ -190,7 +191,7 @@ public class Keyboard extends AbstractController {
 				}
 				
 				// Left Aileron
-				if (componentIdentifier.getName().matches(Component.Identifier.Key.LEFT.toString()) & 
+				if (componentIdentifier.getName().matches(Component.Identifier.Key.LEFT.toString()) && 
 					controls.get(FlightControlType.AILERON) >= FlightControlType.AILERON.getMinimum()) {
 					
 					if(component.getPollData() == 1.0f)
@@ -200,7 +201,7 @@ public class Keyboard extends AbstractController {
 				}
 				
 				// Right Aileron
-				if (componentIdentifier.getName().matches(Component.Identifier.Key.RIGHT.toString()) & 
+				if (componentIdentifier.getName().matches(Component.Identifier.Key.RIGHT.toString()) && 
 					controls.get(FlightControlType.AILERON) <= FlightControlType.AILERON.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f)
@@ -210,10 +211,10 @@ public class Keyboard extends AbstractController {
 				}
 				
 				// Increase Throttle
-				if (componentIdentifier.getName().matches(Component.Identifier.Key.PAGEUP.toString()) & 
-					controls.get(FlightControlType.THROTTLE_1) <= FlightControlType.THROTTLE_1.getMaximum() &
-					controls.get(FlightControlType.THROTTLE_2) <= FlightControlType.THROTTLE_2.getMaximum() &
-					controls.get(FlightControlType.THROTTLE_3) <= FlightControlType.THROTTLE_3.getMaximum() &
+				if (componentIdentifier.getName().matches(Component.Identifier.Key.PAGEUP.toString()) && 
+					controls.get(FlightControlType.THROTTLE_1) <= FlightControlType.THROTTLE_1.getMaximum() &&
+					controls.get(FlightControlType.THROTTLE_2) <= FlightControlType.THROTTLE_2.getMaximum() &&
+					controls.get(FlightControlType.THROTTLE_3) <= FlightControlType.THROTTLE_3.getMaximum() &&
 					controls.get(FlightControlType.THROTTLE_4) <= FlightControlType.THROTTLE_4.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f) {
@@ -227,10 +228,10 @@ public class Keyboard extends AbstractController {
 				}
 				
 				// Decrease Throttle
-				if (componentIdentifier.getName().matches(Component.Identifier.Key.PAGEDOWN.toString()) & 
-					controls.get(FlightControlType.THROTTLE_1) >= FlightControlType.THROTTLE_1.getMinimum() &
-					controls.get(FlightControlType.THROTTLE_2) >= FlightControlType.THROTTLE_2.getMinimum() &
-					controls.get(FlightControlType.THROTTLE_3) >= FlightControlType.THROTTLE_3.getMinimum() &
+				if (componentIdentifier.getName().matches(Component.Identifier.Key.PAGEDOWN.toString()) && 
+					controls.get(FlightControlType.THROTTLE_1) >= FlightControlType.THROTTLE_1.getMinimum() &&
+					controls.get(FlightControlType.THROTTLE_2) >= FlightControlType.THROTTLE_2.getMinimum() &&
+					controls.get(FlightControlType.THROTTLE_3) >= FlightControlType.THROTTLE_3.getMinimum() &&
 					controls.get(FlightControlType.THROTTLE_4) >= FlightControlType.THROTTLE_4.getMinimum()) {
 					
 					if(component.getPollData() == 1.0f) {
@@ -243,9 +244,8 @@ public class Keyboard extends AbstractController {
 					continue;
 				}
 				
-				
 				// Flaps Down
-				if (componentIdentifier.getName().matches(Component.Identifier.Key.F7.toString()) & 
+				if (componentIdentifier.getName().matches(Component.Identifier.Key.F7.toString()) && 
 					controls.get(FlightControlType.FLAPS) <= FlightControlType.FLAPS.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f)
@@ -255,7 +255,7 @@ public class Keyboard extends AbstractController {
 				}
 				
 				// Flaps Up
-				if (componentIdentifier.getName().matches(Component.Identifier.Key.F6.toString()) & 
+				if (componentIdentifier.getName().matches(Component.Identifier.Key.F6.toString()) && 
 						controls.get(FlightControlType.FLAPS) >= FlightControlType.FLAPS.getMinimum()) {
 						
 					if(component.getPollData() == 1.0f)
@@ -263,7 +263,38 @@ public class Keyboard extends AbstractController {
 					
 					continue;
 				}
-
+				
+				// Landing Gear Down/Up
+				// use gPressed to prevent numerous cycles of gear up/down if key held down;
+				// need to release key to extend or retract gear again
+				if (componentIdentifier.getName().matches(Component.Identifier.Key.G.toString()) && 
+						!gPressed &&
+						controls.get(FlightControlType.GEAR) < 0.5) {
+					
+					if(component.getPollData() == 1.0f) {
+						controls.put(FlightControlType.GEAR, 1.0);
+						gPressed = true;
+					}
+					
+					continue;
+				} else if (componentIdentifier.getName().matches(Component.Identifier.Key.G.toString()) && 
+						!gPressed &&
+						controls.get(FlightControlType.GEAR) > 0.5) {
+					
+					if(component.getPollData() == 1.0f) {
+						controls.put(FlightControlType.GEAR, 0.0);
+						gPressed = true;
+					}
+					
+					continue;
+				} else if (componentIdentifier.getName().matches(Component.Identifier.Key.G.toString()) && 
+						component.getPollData() == 0.0f && 
+						gPressed) {
+					
+					gPressed = false;
+					
+					continue;
+				} 
 			}
 		}
 		return controls;
