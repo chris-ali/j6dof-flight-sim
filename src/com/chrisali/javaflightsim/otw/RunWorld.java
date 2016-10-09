@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector2f;
@@ -143,7 +144,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 																  "PAUSED" : "");
 			
 			//------ Render Everything -----------
-			masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainMap(), 
+			masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainTree(), 
 											lights, camera, new Vector4f(0, 1, 0, 0));
 			ParticleMaster.renderParticles(camera);
 			TextMaster.render(texts);
@@ -198,7 +199,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		//================================= Terrain ==========================================================
 		
 		terrainCollection = new TerrainCollection(6, loader, ownship);
-		entities.setTerrainMap(terrainCollection.getTerrainMap());
+		entities.setTerrainTree(terrainCollection.getTerrainTree());
 		
 		//=============================== Particles ==========================================================
 		
@@ -227,10 +228,10 @@ public class RunWorld implements Runnable, FlightDataListener {
 	 */
 	public synchronized float getTerrainHeight() {
 		if (running) {
-			Map<String, Terrain> terrainMap = terrainCollection.getTerrainMap();
+			TreeMap<String, Terrain> terrainTree = terrainCollection.getTerrainTree();
 			Vector3f position = ownship.getPosition();
 			// Terrain object ownship is currently on
-			Terrain currentTerrain = Terrain.getCurrentTerrain(terrainMap, position.x, position.z);
+			Terrain currentTerrain = Terrain.getCurrentTerrain(terrainTree, position.x, position.z);
 			// If outside world bounds, return 0 as terrain height
 			return (currentTerrain == null) ? 0.0f : currentTerrain.getTerrainHeight(position.x, position.z);
 		} else { 

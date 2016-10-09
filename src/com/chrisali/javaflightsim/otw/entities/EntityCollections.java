@@ -6,8 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
@@ -34,7 +34,7 @@ public class EntityCollections {
 	private List<Entity> miscLitEntities = new ArrayList<>();
 	private List<Light> lights;
 	
-	private Map<String, Terrain> terrainMap;
+	private TreeMap<String, Terrain> terrainTree;
 	private Loader loader;
 	
 	//==================== Models =======================
@@ -60,8 +60,8 @@ public class EntityCollections {
 		initializeEntities();
 	}
 	
-	public void setTerrainMap(Map<String, Terrain> terrainMap) {
-		this.terrainMap = terrainMap;
+	public void setTerrainTree(TreeMap<String, Terrain> terrainTree) {
+		this.terrainTree = terrainTree;
 	}
 
 	/**
@@ -207,7 +207,7 @@ public class EntityCollections {
 	public void createStaticEntity(String entityName, float xPos, float zPos, float yRot, float scale) {
 		TexturedModel staticEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, "Entities", loader), 
 														new ModelTexture(loader.loadTexture(entityName, "Entities")));
-		float yPos = Terrain.getCurrentTerrain(terrainMap, xPos, zPos).getTerrainHeight(xPos, zPos);
+		float yPos = Terrain.getCurrentTerrain(terrainTree, xPos, zPos).getTerrainHeight(xPos, zPos);
 		Vector3f position = new Vector3f(xPos, yPos, zPos);
 		
 		miscStaticEntities.add(new Entity(staticEntity, position, 0, yRot, 0, scale));
@@ -273,7 +273,7 @@ public class EntityCollections {
 								 Vector3f color, Vector3f attenuation, Vector3f lightPosOffset) {
 		TexturedModel litEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, "Entities", loader), 
 													 new ModelTexture(loader.loadTexture(entityName, "Entities")));
-		float yPos = Terrain.getCurrentTerrain(terrainMap, xPos, zPos).getTerrainHeight(xPos, zPos);
+		float yPos = Terrain.getCurrentTerrain(terrainTree, xPos, zPos).getTerrainHeight(xPos, zPos);
 		Vector3f position = new Vector3f(xPos, yPos, zPos);
 		
 		miscLitEntities.add(new Entity(litEntity, position, 0, yRot, 0, scale));

@@ -1,7 +1,6 @@
 package com.chrisali.javaflightsim.otw.terrain;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 
 import com.chrisali.javaflightsim.otw.entities.Ownship;
 import com.chrisali.javaflightsim.otw.renderengine.Loader;
@@ -16,10 +15,10 @@ import com.chrisali.javaflightsim.otw.textures.TerrainTexturePack;
  */
 public class TerrainCollection {
 	
-	private Map<String, Terrain> terrainMap;
+	private TreeMap<String, Terrain> terrainTree;
 	
 	/**
-	 * Creates a Map of {@link Terrain} objects, with texture blending and height maps. Each key to the map consists of
+	 * Creates a TreeMao of {@link Terrain} objects, with texture blending and height maps. Each key to the tree map consists of
 	 * the string "xGrid-zGrid", which represents the terrain object's position relative to other terrains in an array fashion
 	 * 
 	 * @param numTerrains
@@ -27,14 +26,14 @@ public class TerrainCollection {
 	 * @param ownship
 	 */
 	public TerrainCollection(int numTerrains, Loader loader, Ownship ownship) {
-		terrainMap = new HashMap<>();
+		terrainTree = new TreeMap<>();
 
 		TerrainTexturePack texturePack = createTexturePack("fields", "town", "forest", "water", loader);
 		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap", "Terrain"));
 	
 		for (int i = 0; i < numTerrains; i++) {
 			for (int j = 0; j < numTerrains; j++) {
-				terrainMap.put(i + "-" + j, new Terrain(i, j, "heightMap", "Terrain", loader, texturePack, blendMap, ownship));
+				terrainTree.put(i + "-" + j, new Terrain(i, j, "heightMap", "Terrain", loader, texturePack, blendMap, ownship));
 			}
 		}
 	}
@@ -60,7 +59,7 @@ public class TerrainCollection {
 		return new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture); 
 	}
 
-	public Map<String, Terrain> getTerrainMap() {
-		return terrainMap;
+	public TreeMap<String, Terrain> getTerrainTree() {
+		return terrainTree;
 	}
 }

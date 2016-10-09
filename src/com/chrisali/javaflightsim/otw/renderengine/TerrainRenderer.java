@@ -1,6 +1,7 @@
 package com.chrisali.javaflightsim.otw.renderengine;
 
-import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -26,8 +27,10 @@ public class TerrainRenderer {
 		terrainShader.stop();
 	}
 	
-	public void render(List<Terrain> terrains) {
-		for(Terrain terrain : terrains) {
+	public void render(TreeMap<String, Terrain> terrains) {
+		for(Map.Entry<String, Terrain> terrainEntry : terrains.entrySet()) {
+			Terrain terrain = terrainEntry.getValue();
+			
 			prepareTerrain(terrain);
 			loadModelMatrix(terrain);
 			GL11.glDrawElements(GL11.GL_TRIANGLES, terrain.getModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);

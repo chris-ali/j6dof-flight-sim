@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
@@ -38,7 +39,7 @@ public class MasterRenderer {
 	private Map<TexturedModel, List<Entity>> entityMap = new HashMap<>();
 	
 	private TerrainRenderer terrainRenderer;
-	private List<Terrain> terrains = new ArrayList<>();
+	private TreeMap<String, Terrain> terrainTree = new TreeMap<>();
 	
 	private Matrix4f projectionMatrix;
 	
@@ -64,12 +65,12 @@ public class MasterRenderer {
 	 * the given lights, camera and clipping plane  
 	 * 
 	 * @param entityCollection
-	 * @param terrainMap
+	 * @param terrainTree
 	 * @param lights
 	 * @param camera
 	 * @param clippingPlane
 	 */
-	public void renderWholeScene(EntityCollections entityCollection, Map<String, Terrain> terrainMap, List<Light> lights, Camera camera, Vector4f clippingPlane) {
+	public void renderWholeScene(EntityCollections entityCollection, TreeMap<String, Terrain> terrainTree, List<Light> lights, Camera camera, Vector4f clippingPlane) {
 		// Process miscellaneous entities from entityCollention
 		for(Entity entity : entityCollection.getStaticEntities())
 			processEntity(entity);
@@ -77,14 +78,14 @@ public class MasterRenderer {
 		for(Entity entity : entityCollection.getLitEntities())
 			processEntity(entity);
 		
-		terrains = new ArrayList<>(terrainMap.values());
+		this.terrainTree = new TreeMap<>(terrainTree);
 		
 		// Process entities tied to each terrain
-		for (Terrain terrain : terrains) {
-			for (Entity entity : terrain.getStaticEntities())
+		for (Map.Entry<String, Terrain> terrainEntry : terrainTree.entrySet()) {
+			for (Entity entity : terrainEntry.getValue().getStaticEntities())
 				processEntity(entity);
 			
-			for (Entity entity : terrain.getLitEntities())
+			for (Entity entity : terrainEntry.getValue().getLitEntities())
 				processEntity(entity);
 		}
 		
@@ -109,11 +110,11 @@ public class MasterRenderer {
 		terrainShader.loadFog(fogDensity, fogGradient);
 		terrainShader.loadLights(lights);
 		terrainShader.loadViewMatrix(camera);
-		terrainRenderer.render(terrains);
+		terrainRenderer.render(terrainTree);
 		terrainShader.stop();
 		
 		entityMap.clear();
-		terrains.clear();
+		terrainTree.clear();
 	}
 	
 	private void prepare() {

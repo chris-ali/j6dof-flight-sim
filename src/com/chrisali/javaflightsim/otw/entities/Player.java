@@ -1,6 +1,6 @@
 package com.chrisali.javaflightsim.otw.entities;
 
-import java.util.Map;
+import java.util.TreeMap;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector3f;
@@ -37,7 +37,7 @@ public class Player extends Entity {
 	 * 
 	 * @param terrainMap
 	 */
-	public void move(Map<String, Terrain> terrainMap) {
+	public void move(TreeMap<String, Terrain> terrainMap) {
 		checkInputs();
 		
 		super.increaseRotation(0, currentTurnSpeed * DisplayManager.getFrameTimeSeconds(), 0);
