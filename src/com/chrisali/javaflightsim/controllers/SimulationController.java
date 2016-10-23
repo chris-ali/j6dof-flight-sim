@@ -335,6 +335,9 @@ public class SimulationController {
 			plotWindow = new PlotWindow(plotCategories, this);
 		else
 			plotWindow.refreshPlots(runSim.getLogsOut());
+		
+		if (!isPlotWindowVisible())
+			plotWindow.setVisible(true);
 	}
 	
 	/**

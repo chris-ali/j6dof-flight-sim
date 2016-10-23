@@ -295,7 +295,7 @@ public class Terrain implements Comparable<Terrain> {
 	 * @return the magnitude of the distance from the center of the {@link Terrain} object's absolute postion
 	 * to the {@link Ownship} objects absolute postion
 	 */
-	private float getDistanceFromOwnship() {
+	public float getDistanceFromOwnship() {
 		float terrainMidpointX = x + (MAX_HEIGHT/2);
 		float terrainMidpointZ = z + (MAX_HEIGHT/2);
 		

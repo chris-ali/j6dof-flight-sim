@@ -31,10 +31,13 @@ public class TerrainRenderer {
 		for(Map.Entry<String, Terrain> terrainEntry : terrains.entrySet()) {
 			Terrain terrain = terrainEntry.getValue();
 			
-			prepareTerrain(terrain);
-			loadModelMatrix(terrain);
-			GL11.glDrawElements(GL11.GL_TRIANGLES, terrain.getModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
-			unbindTexturedModel();
+			// Render only terrain objects that are within a certain distance of ownship
+			if (terrain.getDistanceFromOwnship() < MasterRenderer.getDrawDistance()) {
+				prepareTerrain(terrain);
+				loadModelMatrix(terrain);
+				GL11.glDrawElements(GL11.GL_TRIANGLES, terrain.getModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
+				unbindTexturedModel();
+			}
 		}
 	}
 	

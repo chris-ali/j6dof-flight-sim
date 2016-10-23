@@ -32,6 +32,8 @@ public class MasterRenderer {
 	private static float fogDensity = 0.0015f;
 	private static float fogGradient = 0.5f;
 	
+	private static float drawDistance = 2500;
+	
 	private StaticShader staticShader = new StaticShader();
 	private TerrainShader terrainShader = new TerrainShader();
 	
@@ -80,13 +82,15 @@ public class MasterRenderer {
 		
 		this.terrainTree = new TreeMap<>(terrainTree);
 		
-		// Process entities tied to each terrain
+		// Process entities tied to each terrain only if they are part of a terrain within the draw distance
 		for (Map.Entry<String, Terrain> terrainEntry : terrainTree.entrySet()) {
-			for (Entity entity : terrainEntry.getValue().getStaticEntities())
-				processEntity(entity);
-			
-			for (Entity entity : terrainEntry.getValue().getLitEntities())
-				processEntity(entity);
+			if (terrainEntry.getValue().getDistanceFromOwnship() < drawDistance) {
+				for (Entity entity : terrainEntry.getValue().getStaticEntities())
+					processEntity(entity);
+				
+				for (Entity entity : terrainEntry.getValue().getLitEntities())
+					processEntity(entity);
+			}
 		}
 		
 		render(lights, camera, clippingPlane);
@@ -196,5 +200,13 @@ public class MasterRenderer {
 
 	public static float getFov() {
 		return fov;
+	}
+
+	public static float getDrawDistance() {
+		return drawDistance;
+	}
+
+	public static void setDrawDistance(float drawDistance) {
+		MasterRenderer.drawDistance = drawDistance;
 	}
 }
