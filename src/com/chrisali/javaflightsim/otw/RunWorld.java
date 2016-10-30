@@ -198,7 +198,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 
 		//================================= Terrain ==========================================================
 		
-		terrainCollection = new TerrainCollection(6, loader, ownship);
+		terrainCollection = new TerrainCollection(10, loader, ownship);
 		entities.setTerrainTree(terrainCollection.getTerrainTree());
 		
 		//=============================== Particles ==========================================================
@@ -280,7 +280,8 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		Map<FlightDataType, Double> receivedFlightData = flightData.getFlightData();
 		
-		if (!receivedFlightData.containsValue(null) && (ownshipPosition != null || ownshipRotation != null)) {
+		if (!receivedFlightData.containsValue(null) && (ownshipPosition != null || ownshipRotation != null)
+				&& receivedFlightData != null) {
 			// Scale distances from simulation to OTW
 			ownshipPosition.x = (float)  ((receivedFlightData.get(FlightDataType.NORTH)+800)/15);
 			ownshipPosition.y = (float)   (receivedFlightData.get(FlightDataType.ALTITUDE)  /15);

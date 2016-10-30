@@ -1,7 +1,6 @@
 package com.chrisali.javaflightsim.otw.renderengine;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -27,10 +26,8 @@ public class TerrainRenderer {
 		terrainShader.stop();
 	}
 	
-	public void render(TreeMap<String, Terrain> terrains) {
-		for(Map.Entry<String, Terrain> terrainEntry : terrains.entrySet()) {
-			Terrain terrain = terrainEntry.getValue();
-			
+	public void render(TreeSet<Terrain> terrainTree) {
+		for(Terrain terrain : terrainTree) {
 			// Render only terrain objects that are within a certain distance of ownship
 			if (terrain.getDistanceFromOwnship() < MasterRenderer.getDrawDistance()) {
 				prepareTerrain(terrain);

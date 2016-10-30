@@ -88,7 +88,7 @@ public class Terrain implements Comparable<Terrain> {
 	 * Gererates a terrain model using a BufferedImage height map
 	 * 
 	 * @param fileName
-	 * @param directory
+	 * @param directory (usually "Terrain" or can specify sub-directories such as "Terrain\\1-1")
 	 * @param loader
 	 * @return terrain model
 	 */

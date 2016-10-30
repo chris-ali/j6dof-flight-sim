@@ -85,7 +85,7 @@ public class FlightData implements Runnable {
 		running = true;
 		
 		try {
-			Thread.sleep(250);
+			Thread.sleep(5000);
 			
 			while (Integrate6DOFEquations.isRunning() && running) {
 				Thread.sleep(12);

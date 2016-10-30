@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
@@ -41,7 +42,7 @@ public class MasterRenderer {
 	private Map<TexturedModel, List<Entity>> entityMap = new HashMap<>();
 	
 	private TerrainRenderer terrainRenderer;
-	private TreeMap<String, Terrain> terrainTree = new TreeMap<>();
+	private TreeSet<Terrain> terrainTree = new TreeSet<>();
 	
 	private Matrix4f projectionMatrix;
 	
@@ -67,12 +68,12 @@ public class MasterRenderer {
 	 * the given lights, camera and clipping plane  
 	 * 
 	 * @param entityCollection
-	 * @param terrainTree
+	 * @param terrainTreeMap
 	 * @param lights
 	 * @param camera
 	 * @param clippingPlane
 	 */
-	public void renderWholeScene(EntityCollections entityCollection, TreeMap<String, Terrain> terrainTree, List<Light> lights, Camera camera, Vector4f clippingPlane) {
+	public void renderWholeScene(EntityCollections entityCollection, TreeMap<String, Terrain> terrainTreeMap, List<Light> lights, Camera camera, Vector4f clippingPlane) {
 		// Process miscellaneous entities from entityCollention
 		for(Entity entity : entityCollection.getStaticEntities())
 			processEntity(entity);
@@ -80,15 +81,15 @@ public class MasterRenderer {
 		for(Entity entity : entityCollection.getLitEntities())
 			processEntity(entity);
 		
-		this.terrainTree = new TreeMap<>(terrainTree);
+		this.terrainTree = new TreeSet<>(terrainTreeMap.values());
 		
 		// Process entities tied to each terrain only if they are part of a terrain within the draw distance
-		for (Map.Entry<String, Terrain> terrainEntry : terrainTree.entrySet()) {
-			if (terrainEntry.getValue().getDistanceFromOwnship() < drawDistance) {
-				for (Entity entity : terrainEntry.getValue().getStaticEntities())
+		for (Terrain terrain : terrainTree) {
+			if (terrain.getDistanceFromOwnship() < drawDistance) {
+				for (Entity entity : terrain.getStaticEntities())
 					processEntity(entity);
 				
-				for (Entity entity : terrainEntry.getValue().getLitEntities())
+				for (Entity entity : terrain.getLitEntities())
 					processEntity(entity);
 			}
 		}
@@ -97,7 +98,9 @@ public class MasterRenderer {
 	}
 
 	private void render(List<Light> lights, Camera camera, Vector4f clippingPlane) {
-		prepare();
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+		GL11.glClearColor(skyRed, skyGreen, skyBlue, 1);
 
 		staticShader.start();
 		staticShader.loadClippingPlane(clippingPlane);
@@ -119,12 +122,6 @@ public class MasterRenderer {
 		
 		entityMap.clear();
 		terrainTree.clear();
-	}
-	
-	private void prepare() {
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-		GL11.glClearColor(skyRed, skyGreen, skyBlue, 1);
 	}
 	
 	private void createProjectionMatrix() {
@@ -154,14 +151,14 @@ public class MasterRenderer {
 			entityMap.put(entityModel, newBatch);
 		}
 	}
-	
-	public Matrix4f getProjectionMatrix() {
-		return projectionMatrix;
-	}
 
 	public void cleanUp() {
 		staticShader.cleanUp();
 		terrainShader.cleanUp();
+	}
+	
+	public Matrix4f getProjectionMatrix() {
+		return projectionMatrix;
 	}
 
 	public static Vector3f getSkyColor() {
