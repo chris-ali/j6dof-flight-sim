@@ -45,6 +45,7 @@ import com.chrisali.javaflightsim.otw.terrain.Terrain;
 import com.chrisali.javaflightsim.otw.terrain.TerrainCollection;
 import com.chrisali.javaflightsim.otw.textures.ModelTexture;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
 /**
@@ -185,8 +186,13 @@ public class RunWorld implements Runnable, FlightDataListener {
 		TexturedModel bunny =  new TexturedModel(OBJLoader.loadObjModel("bunny", "Entities", loader), 
 			    								new ModelTexture(loader.loadTexture("bunny", "Entities")));
 		// Initial position of ownship
-		ownshipPosition = new Vector3f(800, 150, 800);
-		ownshipRotation = new Vector3f(0, 0, 135);
+		Map<InitialConditions, Double> initialConditions = controller.getInitialConditions();
+		ownshipPosition = new Vector3f((float)initialConditions.get(InitialConditions.INITN).doubleValue() / 15,
+									   (float)initialConditions.get(InitialConditions.INITD).doubleValue() / 15, 
+									   (float)initialConditions.get(InitialConditions.INITE).doubleValue() / 15); //(800, 150, 800)
+		ownshipRotation = new Vector3f((float)Math.toDegrees(initialConditions.get(InitialConditions.INITPHI)),
+									   (float)Math.toDegrees(initialConditions.get(InitialConditions.INITTHETA)), 
+									   (float)Math.toDegrees(initialConditions.get(InitialConditions.INITPSI)) - 270); // (0, 0, 135)
 		ownship = new Ownship(bunny, ownshipPosition, ownshipRotation.z, ownshipRotation.z, ownshipRotation.x, 0.000f);
 		
 		entities.addToStaticEntities(ownship);
@@ -283,14 +289,14 @@ public class RunWorld implements Runnable, FlightDataListener {
 		if (!receivedFlightData.containsValue(null) && (ownshipPosition != null || ownshipRotation != null)
 				&& receivedFlightData != null) {
 			// Scale distances from simulation to OTW
-			ownshipPosition.x = (float)  ((receivedFlightData.get(FlightDataType.NORTH)+800)/15);
-			ownshipPosition.y = (float)   (receivedFlightData.get(FlightDataType.ALTITUDE)  /15);
-			ownshipPosition.z = (float)  ((receivedFlightData.get(FlightDataType.EAST)+800) /15);
+			ownshipPosition.x = (float) (receivedFlightData.get(FlightDataType.NORTH)    / 15);
+			ownshipPosition.y = (float) (receivedFlightData.get(FlightDataType.ALTITUDE) / 15);
+			ownshipPosition.z = (float) (receivedFlightData.get(FlightDataType.EAST)     / 15);
 			
 			// Convert right-handed coordinates from simulation to left-handed coordinates of OTW
-			ownshipRotation.x = (float)  -(receivedFlightData.get(FlightDataType.ROLL));
-			ownshipRotation.y = (float)  -(receivedFlightData.get(FlightDataType.PITCH));
-			ownshipRotation.z = (float)   (receivedFlightData.get(FlightDataType.HEADING)-270); 
+			ownshipRotation.x = (float) -(receivedFlightData.get(FlightDataType.ROLL));
+			ownshipRotation.y = (float) -(receivedFlightData.get(FlightDataType.PITCH));
+			ownshipRotation.z = (float)  (receivedFlightData.get(FlightDataType.HEADING)-270); 
 			
 			// Set values for each sound in the simulation that depends on flight data
 			soundValues.put(SoundCategory.RPM_1, receivedFlightData.get(FlightDataType.RPM_1));

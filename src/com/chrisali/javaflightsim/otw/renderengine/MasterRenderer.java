@@ -33,7 +33,7 @@ public class MasterRenderer {
 	private static float fogDensity = 0.0015f;
 	private static float fogGradient = 0.5f;
 	
-	private static float drawDistance = 2500;
+	private static float drawDistance = 4800;
 	
 	private StaticShader staticShader = new StaticShader();
 	private TerrainShader terrainShader = new TerrainShader();

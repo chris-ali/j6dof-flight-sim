@@ -206,6 +206,10 @@ public class SimulationController {
 		initialConditions.put(InitialConditions.INITU,   FileUtilities.toFtPerSec(airspeed));
 		initialConditions.put(InitialConditions.INITD,   altitude);
 		
+		// Temporary method to calcuate north/east position from lat/lon position 
+		initialConditions.put(InitialConditions.INITN, (Math.sin(Math.toRadians(coordinates[0])) * 20903520));
+		initialConditions.put(InitialConditions.INITE, (Math.sin(Math.toRadians(coordinates[1])) * 20903520));
+		
 		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "InitialConditions", initialConditions);
 	}
 	

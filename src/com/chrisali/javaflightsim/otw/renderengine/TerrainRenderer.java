@@ -34,8 +34,11 @@ public class TerrainRenderer {
 				loadModelMatrix(terrain);
 				GL11.glDrawElements(GL11.GL_TRIANGLES, terrain.getModel().getVertexCount(), GL11.GL_UNSIGNED_INT, 0);
 				unbindTexturedModel();
+				//System.out.printf("%5.0f - %5.0f is %5.0f from ownship\n", terrain.getX(), terrain.getZ(), terrain.getDistanceFromOwnship());
 			}
 		}
+		//System.out.println("---------------------------------------");
+		//System.out.printf("Terrain tree has %d items\n", terrainTree.size());
 	}
 	
 	private void prepareTerrain(Terrain terrain) {
