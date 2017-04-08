@@ -19,6 +19,7 @@ import com.chrisali.javaflightsim.otw.models.RawModel;
 import com.chrisali.javaflightsim.otw.renderengine.Loader;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexture;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexturePack;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 import com.chrisali.javaflightsim.utilities.RenderingUtilities;
 
 /**
@@ -56,7 +57,7 @@ public class Terrain implements Comparable<Terrain> {
 	 * <p>fileName and Directory point to a height map .png file to give the terrain vertical modeling</p>
 	 * 
 	 * <p>Uses {@link EntityCollections#createAutogenImageEntities()} to generate populate this object's lists of entities
-	 * using an autogen image file in ./Resources/Terrain/</p>
+	 * using an autogen image file in Resources/Terrain/</p>
 	 * 
 	 * <p>Uses a reference to {@link Ownship} to calculate the distance the midpoint of this terrain instance is from 
 	 * the ownship; this is used to compare to other Terrain objects in compareTo()</p>
@@ -88,7 +89,7 @@ public class Terrain implements Comparable<Terrain> {
 	 * Gererates a terrain model using a BufferedImage height map
 	 * 
 	 * @param fileName
-	 * @param directory (usually "Terrain" or can specify sub-directories such as "Terrain\\1-1")
+	 * @param directory (usually "Terrain" or can specify sub-directories such as "Terrain\1-1")
 	 * @param loader
 	 * @return terrain model
 	 */
@@ -96,8 +97,8 @@ public class Terrain implements Comparable<Terrain> {
 		
 		BufferedImage image = null;
 		
-		try {image = ImageIO.read(new File("Resources\\" + directory + "\\" + fileName + ".png"));} 
-		catch (IOException e) {System.err.println("Could not load height map: " + fileName + ".png");}
+		try {image = ImageIO.read(new File(FileUtilities.RESOURCES_DIR + File.separator + directory + File.separator + fileName + FileUtilities.TEXTURE_EXT));} 
+		catch (IOException e) {System.err.println("Could not load height map: " + fileName + FileUtilities.TEXTURE_EXT + "!");}
 		
 		int VERTEX_COUNT = image.getHeight();
 		int count = VERTEX_COUNT * VERTEX_COUNT;

@@ -13,6 +13,7 @@ import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.otw.RunWorld;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 /**
  * Static class that contains a repository of sounds to be played by triggering certain events, such
@@ -116,25 +117,25 @@ public class SoundCollection {
 			SoundEvent engHigh = Enum.valueOf(SoundEvent.class, "ENGINE_" + engineNumber + "_HIGH");
 			SoundEvent engMax  = Enum.valueOf(SoundEvent.class, "ENGINE_" + engineNumber + "_MAX");
 			
-			soundSources.put(engLow, new SoundSource("Audio", "engineLow"));
+			soundSources.put(engLow, new SoundSource(FileUtilities.AUDIO_DIR, "engineLow"));
 			soundSources.get(engLow).setVolume(0);
 			soundSources.get(engLow).setLooping(true);
 			soundSources.get(engLow).play();
 			soundSources.get(engLow).setPosition(enginePosVector);
 			
-			soundSources.put(engMed, new SoundSource("Audio", "engineMed"));
+			soundSources.put(engMed, new SoundSource(FileUtilities.AUDIO_DIR, "engineMed"));
 			soundSources.get(engMed).setVolume(0);
 			soundSources.get(engMed).setLooping(true);
 			soundSources.get(engMed).play();
 			soundSources.get(engMed).setPosition(enginePosVector);
 			
-			soundSources.put(engHigh, new SoundSource("Audio", "engineHigh"));
+			soundSources.put(engHigh, new SoundSource(FileUtilities.AUDIO_DIR, "engineHigh"));
 			soundSources.get(engHigh).setVolume(0);
 			soundSources.get(engHigh).setLooping(true);
 			soundSources.get(engHigh).play();
 			soundSources.get(engHigh).setPosition(enginePosVector);
 			
-			soundSources.put(engMax, new SoundSource("Audio", "engineMax"));
+			soundSources.put(engMax, new SoundSource(FileUtilities.AUDIO_DIR, "engineMax"));
 			soundSources.get(engMax).setVolume(0);
 			soundSources.get(engMax).setLooping(true);
 			soundSources.get(engMax).play();
@@ -144,24 +145,24 @@ public class SoundCollection {
 		
 		//================================ Systems =========================================
 		
-		soundSources.put(SoundEvent.FLAPS, new SoundSource("Audio", "flap"));
+		soundSources.put(SoundEvent.FLAPS, new SoundSource(FileUtilities.AUDIO_DIR, "flap"));
 		soundSources.get(SoundEvent.FLAPS).setVolume(0.5f*systemsVolume);
 		
-		soundSources.put(SoundEvent.GEAR, new SoundSource("Audio", "gear"));
+		soundSources.put(SoundEvent.GEAR, new SoundSource(FileUtilities.AUDIO_DIR, "gear"));
 		soundSources.get(SoundEvent.GEAR).setVolume(0.5f*systemsVolume);
 		
-		soundSources.put(SoundEvent.STALL, new SoundSource("Audio", "stall"));
+		soundSources.put(SoundEvent.STALL, new SoundSource(FileUtilities.AUDIO_DIR, "stall"));
 		soundSources.get(SoundEvent.STALL).setVolume(0.5f*systemsVolume);
 		soundSources.get(SoundEvent.STALL).setLooping(true);
 		
-		soundSources.put(SoundEvent.GYRO, new SoundSource("Audio", "gyroLoop"));
+		soundSources.put(SoundEvent.GYRO, new SoundSource(FileUtilities.AUDIO_DIR, "gyroLoop"));
 		soundSources.get(SoundEvent.GYRO).setVolume(0.25f*systemsVolume);
 		soundSources.get(SoundEvent.GYRO).setLooping(true);
 		soundSources.get(SoundEvent.GYRO).play();
 		
 		//================================ Environment ======================================
 		
-		soundSources.put(SoundEvent.WIND, new SoundSource("Audio", "wind"));
+		soundSources.put(SoundEvent.WIND, new SoundSource(FileUtilities.AUDIO_DIR, "wind"));
 		soundSources.get(SoundEvent.WIND).setVolume(0.25f);
 		soundSources.get(SoundEvent.WIND).setLooping(true);
 		soundSources.get(SoundEvent.WIND).play();

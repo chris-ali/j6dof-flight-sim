@@ -21,9 +21,56 @@ import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
 /**
- * Contains various static methods for reading and parsing text files into lists
+ * Contains various static methods for reading and parsing files
  */
 public class FileUtilities {
+	
+	//===================================================================================================
+	//										File and Folder Names
+	//===================================================================================================
+	
+	// Folders
+	public static final String AIRCRAFT_DIR = "Aircraft";
+	public static final String LOOKUP_TABLE_DIR = "LookupTables";
+	
+	public static final String SIM_CONFIG_DIR = "SimConfig";
+	
+	public static final String RESOURCES_DIR = "Resources";
+	public static final String AUDIO_DIR = "Audio";
+	public static final String ENTITIES_DIR = "Entities";
+	public static final String FONTS_DIR = "Fonts";
+	public static final String PARTICLES_DIR = "Particles";
+	public static final String TERRAIN_DIR = "Terrain";
+	public static final String WATER_DIR = "Water";
+	
+	// Aircraft Files
+	public static final String AERO_FILE = "Aero";
+	public static final String DESCRIPTION_FILE = "Description";
+	public static final String GROUND_REACTION_FILE = "GroundReaction";
+	public static final String MASS_PROPERTIES_FILE = "MassProperties";
+	public static final String PREVIEW_PICTURE_FILE = "PreviewPicture";
+	public static final String PROPULSION_FILE = "Propulsion";
+	public static final String WING_GEOMETRY_FILE = "WingGeometry";
+	
+	// Sim Config Files
+	public static final String AUDIO_SETUP_FILE = "AudioSetup";
+	public static final String DISPLAY_SETUP_FILE = "DisplaySetup";
+	public static final String INITIAL_CONDITIONS_FILE = "InitialConditions";
+	public static final String INITIAL_CONTROLS_FILE = "InitialControls";
+	public static final String INTEGRATOR_CONFIG_FILE = "IntegratorConfig";
+	public static final String SIMULATION_SETUP_FILE = "SimulationSetup";
+	
+	// Extensions
+	public static final String DESCRIPTION_EXT = ".txt";
+	public static final String PREVIEW_PIC_EXT = ".jpg";
+	public static final String CONFIG_EXT = ".txt";
+	public static final String TEXTURE_EXT = ".png";
+	public static final String MODEL_EXT = ".obj";
+	public static final String SOUND_EXT = ".wav";
+	public static final String FONT_EXT = ".fnt";
+	
+	// Root (May vary depending on operating system)
+	public static final String FILE_ROOT = ""; //"." + File.separator;
 	
 	//===================================================================================================
 	//										File Reading
@@ -43,17 +90,17 @@ public class FileUtilities {
 	 */
 	public static ArrayList<String[]> readFileAndSplit(String aircraftName, String filePath, String fileContents) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(filePath).append(aircraftName).append("\\").append(fileContents).append(".txt");
+		sb.append(FILE_ROOT).append(filePath).append(File.separator).append(aircraftName).append(File.separator).append(fileContents).append(CONFIG_EXT);
 		ArrayList<String[]> readAndSplit = new ArrayList<>();
 		String readLine = null;
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
 			while ((readLine = br.readLine()) != null)
 				readAndSplit.add(readLine.split(" = "));
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileContents + ".txt!");}
-		catch (IOException e) {System.err.println("Could not read: " + fileContents + ".txt!");}
-		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileContents + ".txt!");} 
-		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileContents + ".txt!");}
+		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileContents + CONFIG_EXT + "!");}
+		catch (IOException e) {System.err.println("Could not read: " + fileContents + CONFIG_EXT + "!");}
+		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileContents + CONFIG_EXT + "!");} 
+		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileContents + CONFIG_EXT + "!");}
 		
 		return readAndSplit;
 	}
@@ -71,23 +118,23 @@ public class FileUtilities {
 	 */
 	public static ArrayList<String[]> readFileAndSplit(String fileName, String filePath) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(filePath).append(fileName).append(".txt");
+		sb.append(FILE_ROOT).append(filePath).append(File.separator).append(fileName).append(CONFIG_EXT);
 		ArrayList<String[]> readAndSplit = new ArrayList<>();
 		String readLine = null;
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
 			while ((readLine = br.readLine()) != null)
 				readAndSplit.add(readLine.split(" = "));
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + ".txt!");}
-		catch (IOException e) {System.err.println("Could not read: " + fileName + ".txt!");}
-		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + ".txt!");}
-		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileName + ".txt!");}
+		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + CONFIG_EXT + "!");}
+		catch (IOException e) {System.err.println("Could not read: " + fileName + CONFIG_EXT + "!");}
+		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + CONFIG_EXT + "!");}
+		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileName + CONFIG_EXT + "!");}
 		
 		return readAndSplit;
 	}
 	
 	/**
-	 * Parses a config file called SimulationSetup.txt located in .\\SimConfig\\ 
+	 * Parses a config file called SimulationSetup.txt located in SimConfig\
 	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
 	 * and returns an EnumSet containing enums from Options for each line in the
 	 * file where *value* contains true  
@@ -95,7 +142,7 @@ public class FileUtilities {
 	 * @return EnumSet of selected options
 	 */
 	public static EnumSet<Options> parseSimulationSetup() throws IllegalArgumentException {
-		ArrayList<String[]> readSimSetupFile = readFileAndSplit("SimulationSetup", ".\\SimConfig\\");
+		ArrayList<String[]> readSimSetupFile = readFileAndSplit(SIMULATION_SETUP_FILE, SIM_CONFIG_DIR);
 		EnumSet<Options> options = EnumSet.noneOf(Options.class);
 		
 		for (String[] readLine : readSimSetupFile) {
@@ -107,7 +154,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Parses a config file called SimulationSetup.txt located in .\\SimConfig\\ 
+	 * Parses a config file called SimulationSetup.txt located in SimConfig\
 	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
 	 * and returns a String of the right hand side value contained on the line
 	 * <br><code>"selectedAircraft = *value*\n"</code></br>
@@ -115,7 +162,7 @@ public class FileUtilities {
 	 * @return selectedAircraft
 	 */
 	public static String parseSimulationSetupForAircraft() throws IllegalArgumentException {
-		ArrayList<String[]> readSimSetupFile = readFileAndSplit("SimulationSetup", ".\\SimConfig\\");
+		ArrayList<String[]> readSimSetupFile = readFileAndSplit(SIMULATION_SETUP_FILE, SIM_CONFIG_DIR);
 		String selectedAircraft = "";
 		
 		for (String[] readLine : readSimSetupFile) {
@@ -127,7 +174,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Parses the DisplaySetup.txt file in .\SimConfig\ and returns an EnumMap with {@link DisplayOptions}
+	 * Parses the DisplaySetup.txt file in SimConfig\ and returns an EnumMap with {@link DisplayOptions}
 	 * as the keys
 	 * 
 	 * @return displayOptions EnumMap
@@ -136,7 +183,7 @@ public class FileUtilities {
 		EnumMap<DisplayOptions, Integer> displayOptions = new EnumMap<DisplayOptions, Integer>(DisplayOptions.class);
 		
 		// Display options
-		ArrayList<String[]> readDisplaySetupFile = readFileAndSplit("DisplaySetup", ".\\SimConfig\\");
+		ArrayList<String[]> readDisplaySetupFile = readFileAndSplit(DISPLAY_SETUP_FILE, SIM_CONFIG_DIR);
 		
 		for(DisplayOptions displayOptionsKey : DisplayOptions.values()) {
 			for (String[] readLine : readDisplaySetupFile) {
@@ -149,7 +196,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Parses the AudioSetup.txt file in .\SimConfig\ and returns an EnumMap with {@link DisplayOptions}
+	 * Parses the AudioSetup.txt file in SimConfig\ and returns an EnumMap with {@link DisplayOptions}
 	 * as the keys
 	 * 
 	 * @return audioOptions EnumMap
@@ -158,7 +205,7 @@ public class FileUtilities {
 		EnumMap<AudioOptions, Float> audioOptions = new EnumMap<AudioOptions, Float>(AudioOptions.class);
 		
 		// Display options
-		ArrayList<String[]> readAudioSetupFile = readFileAndSplit("AudioSetup", ".\\SimConfig\\");
+		ArrayList<String[]> readAudioSetupFile = readFileAndSplit(AUDIO_SETUP_FILE, SIM_CONFIG_DIR);
 		
 		for(AudioOptions audioOptionsKey : AudioOptions.values()) {
 			for (String[] readLine : readAudioSetupFile) {
@@ -171,7 +218,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Parses the MassProperties.txt file in .\Aircraft\aircraftName and returns an EnumMap with {@link MassProperties}
+	 * Parses the MassProperties.txt file in Aircraft\aircraftName and returns an EnumMap with {@link MassProperties}
 	 * as the keys
 	 * 
 	 * @param aircraftName
@@ -181,7 +228,7 @@ public class FileUtilities {
 		EnumMap<MassProperties, Double> massProperties = new EnumMap<MassProperties, Double>(MassProperties.class);
 		
 		// Mass Properties
-		ArrayList<String[]> readMassPropFile = readFileAndSplit(aircraftName, ".//Aircraft//", "MassProperties");
+		ArrayList<String[]> readMassPropFile = readFileAndSplit(aircraftName, AIRCRAFT_DIR, MASS_PROPERTIES_FILE);
 		
 		for(MassProperties massPropKey : MassProperties.values()) {
 			for (String[] readLine : readMassPropFile) {
@@ -223,17 +270,17 @@ public class FileUtilities {
 	 */
 	public static void writeConfigFile(String filePath, String fileName, Map<?, ?> enumMap) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(filePath).append(fileName).append(".txt");
+		sb.append(FILE_ROOT).append(filePath).append(File.separator).append(fileName).append(CONFIG_EXT);
 		
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sb.toString()))) {
 			for (Map.Entry<?,?> entry : enumMap.entrySet()) {
 				bw.write(entry.getKey().toString() + " = " + entry.getValue());
 				bw.newLine();
 			}
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + ".txt!");}
-		catch (IOException e) {System.err.println("Could not read: " + fileName + ".txt!");}
-		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + ".txt!");}
-		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileName + ".txt!");}
+		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + CONFIG_EXT + "!");}
+		catch (IOException e) {System.err.println("Could not read: " + fileName + CONFIG_EXT + "!");}
+		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + CONFIG_EXT + "!");}
+		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileName + CONFIG_EXT + "!");}
 	}
 	
 	/**
@@ -247,7 +294,7 @@ public class FileUtilities {
 	 */
 	public static void writeConfigFile(String filePath, String fileName, Set<Options> optionsSet, String selectedAircraft) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(filePath).append(fileName).append(".txt");
+		sb.append(FILE_ROOT).append(filePath).append(File.separator).append(fileName).append(CONFIG_EXT);
 		
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sb.toString()))) {
 			for (Options option : Options.values()) {
@@ -256,9 +303,9 @@ public class FileUtilities {
 			}
 			bw.write("selectedAircraft = " + selectedAircraft);
 			bw.newLine();
-		} catch (FileNotFoundException e) {System.err.println("Could not find: SimulationSetup.txt!");}
-		catch (IOException e) {System.err.println("Could not read: SimulationSetup.txt!");}
-		catch (NullPointerException e) {System.err.println("Bad reference to: SimulationSetup.txt!");}
+		} catch (FileNotFoundException e) {System.err.println("Could not find: SimulationSetup" + CONFIG_EXT + "!");}
+		catch (IOException e) {System.err.println("Could not read: SimulationSetup" + CONFIG_EXT + "!");}
+		catch (NullPointerException e) {System.err.println("Bad reference to: SimulationSetup" + CONFIG_EXT + "!");}
 	}
 	
 	/**

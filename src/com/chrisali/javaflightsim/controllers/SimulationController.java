@@ -47,11 +47,6 @@ import com.chrisali.javaflightsim.utilities.FileUtilities;
  */
 public class SimulationController {
 	
-	// Paths
-	private static final String SIM_CONFIG_PATH = ".\\SimConfig\\";
-	private static final String AIRCRAFT_PATH = ".\\Aircraft\\";
-	private static final String RESOURCES_PATH = ".\\Resources\\";
-	
 	// Configuration
 	private EnumMap<DisplayOptions, Integer> displayOptions;
 	private EnumMap<AudioOptions, Float> audioOptions;
@@ -97,9 +92,9 @@ public class SimulationController {
 		displayOptions = FileUtilities.parseDisplaySetup();
 		audioOptions = FileUtilities.parseAudioSetup();
 		
-		initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
-		integratorConfig = IntegrationSetup.gatherIntegratorConfig("IntegratorConfig");
-		initialControls = IntegrationSetup.gatherInitialControls("InitialControls");
+		initialConditions = IntegrationSetup.gatherInitialConditions(null);
+		integratorConfig = IntegrationSetup.gatherIntegratorConfig(null);
+		initialControls = IntegrationSetup.gatherInitialControls(null);
 		
 		String aircraftName = FileUtilities.parseSimulationSetupForAircraft();
 		ab = new AircraftBuilder(aircraftName);
@@ -138,9 +133,9 @@ public class SimulationController {
 		displayOptions = newDisplayOptions;
 		audioOptions = newAudioOptions;
 		
-		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "SimulationSetup", simulationOptions, ab.getAircraft().getName());
-		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "DisplaySetup", newDisplayOptions);
-		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "AudioSetup", newAudioOptions);
+		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.SIMULATION_SETUP_FILE, simulationOptions, ab.getAircraft().getName());
+		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.DISPLAY_SETUP_FILE, newDisplayOptions);
+		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.AUDIO_SETUP_FILE, newAudioOptions);
 	}
 	
 	/**
@@ -151,7 +146,7 @@ public class SimulationController {
 	 */
 	public void updateAircraft(String aircraftName) {
 		ab = new AircraftBuilder(aircraftName);
-		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "SimulationSetup", simulationOptions, aircraftName);
+		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.SIMULATION_SETUP_FILE, simulationOptions, aircraftName);
 	}
 	
 	/**
@@ -167,7 +162,7 @@ public class SimulationController {
 		massProperties.put(MassProperties.WEIGHT_FUEL, fuelWeight);
 		massProperties.put(MassProperties.WEIGHT_PAYLOAD, payloadWeight);
 		
-		FileUtilities.writeConfigFile(AIRCRAFT_PATH, aircraftName + "\\MassProperties", massProperties);
+		FileUtilities.writeConfigFile(FileUtilities.AIRCRAFT_DIR + File.pathSeparator + aircraftName, FileUtilities.MASS_PROPERTIES_FILE, massProperties);
 	}
 	
 	/**
@@ -183,7 +178,7 @@ public class SimulationController {
 	public void updateIntegratorConfig(int stepSize) {
 		integratorConfig.put(IntegratorConfig.DT, (1/((double)stepSize)));
 		
-		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "IntegratorConfig", integratorConfig);
+		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.INTEGRATOR_CONFIG_FILE, integratorConfig);
 	}
 	
 	/**
@@ -210,14 +205,14 @@ public class SimulationController {
 		initialConditions.put(InitialConditions.INITN, (Math.sin(Math.toRadians(coordinates[0])) * 20903520));
 		initialConditions.put(InitialConditions.INITE, (Math.sin(Math.toRadians(coordinates[1])) * 20903520));
 		
-		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "InitialConditions", initialConditions);
+		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.INITIAL_CONDITIONS_FILE, initialConditions);
 	}
 	
 	/**
 	 * Updates the InitialControls config file
 	 */
 	public void updateIninitialControls() {
-		FileUtilities.writeConfigFile(SIM_CONFIG_PATH, "InitialControls", initialControls);
+		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.INITIAL_CONTROLS_FILE, initialControls);
 	}
 
 	/**
@@ -378,20 +373,6 @@ public class SimulationController {
 	 */
 	public void saveConsoleOutput(File file) throws IOException {
 		FileUtilities.saveToCSVFile(file, runSim.getLogsOut());
-	}
-	
-	//================================ Paths ==============================================================
-	
-	public static String getSimConfigPath() {
-		return SIM_CONFIG_PATH;
-	}
-
-	public static String getAircraftPath() {
-		return AIRCRAFT_PATH;
-	}
-
-	public static String getResourcesPath() {
-		return RESOURCES_PATH;
 	}
 	
 	//========================== Main Frame Menus =========================================================

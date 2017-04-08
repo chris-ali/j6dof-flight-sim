@@ -1,5 +1,6 @@
 package com.chrisali.javaflightsim.otw.renderengine;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -20,6 +21,7 @@ import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
 import com.chrisali.javaflightsim.otw.models.RawModel;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 /**
  * Class that contains various methods to load resources (textures, models, etc) into memory
@@ -131,7 +133,7 @@ public class Loader {
 
 		try {
 			texture = TextureLoader.getTexture("PNG",
-					new FileInputStream("Resources\\" + directory + "\\" + fileName + ".png"));
+					new FileInputStream(FileUtilities.RESOURCES_DIR + File.separator + directory + File.separator + fileName + FileUtilities.TEXTURE_EXT));
 			GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
 			
@@ -147,7 +149,7 @@ public class Loader {
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
 		} catch (IOException e) {
-			System.err.println("Could not load texture: " + fileName + ".png");
+			System.err.println("Could not load texture: " + fileName + FileUtilities.TEXTURE_EXT);
 		}
 
 		int textureID = texture.getTextureID();

@@ -37,15 +37,15 @@ public class Trimming {
 	/**
 	 * Trims an aircraft longitudinally for a forward velocity and altitude specified in 
 	 * 
-	 * <p> ./SimConfig/InitialConditions.txt </p>
+	 * <p> SimConfig/InitialConditions.txt </p>
 	 * 
 	 * by setting the elevator, throttle and pitch attitude. These values are calculated by statically equating forces and moments.
 	 * If unable to reach a given trim condition, the method will return the maximum values for each control and pitch attitude.
 	 * These values are then saved to 
 	 * 
-	 * <p> ./SimConfig/InitialConditions.txt </p>
+	 * <p> SimConfig/InitialConditions.txt </p>
 	 * and 
-	 * <p> ./SimConfig/InitialControls.txt </p>
+	 * <p> SimConfig/InitialControls.txt </p>
 	 * 
 	 * as long as the test mode boolean flag is false; otherwise the results will be displayed in the console
 	 * 
@@ -174,8 +174,8 @@ public class Trimming {
 		
 		// In test mode do not write any config settings to files
 		if (!testMode) {
-			FileUtilities.writeConfigFile(SimulationController.getSimConfigPath(), "InitialConditions", initialConditions);
-			FileUtilities.writeConfigFile(SimulationController.getSimConfigPath(), "InitialControls", initialControls);
+			FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.INITIAL_CONDITIONS_FILE, initialConditions);
+			FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.INITIAL_CONTROLS_FILE, initialControls);
 		} else {
 			System.out.println(Trimming.outputTrimValues());
 		}

@@ -1,6 +1,7 @@
 package com.chrisali.javaflightsim.simulation.aircraft;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -33,7 +34,8 @@ public class AircraftBuilder {
 	private Set<Engine> engineList = new LinkedHashSet<>();
 	private Aircraft aircraft;
 	
-	protected static final String FILE_PATH = ".\\Aircraft\\";
+	protected static final String AIRCRAFT_PATH = "Aircraft" + File.separator; //FileUtilities.FILE_ROOT + File.separator + (For Windows [?])
+	protected static final String LOOKUP_PATH = File.separator + "LookupTables" + File.separator;
 	
 	/**
 	 *  Default AircraftBuilder constructor, using the default constructors of {@link Aircraft} and {@link FixedPitchPropEngine}
@@ -46,14 +48,14 @@ public class AircraftBuilder {
 	
 	/**
 	 * Custom AircraftBuilder constructor that uses a set of text files in a folder with a name matching the aircraftName argument. This folder is located in:
-	 * <br><code>.\Aircraft\</code></br>
+	 * <br><code>Aircraft\</code></br>
 	 * An example of the proper file structure and syntax can be seen in the sample aircraft (LookupNavion, Navion and TwinNavion) within this folder.  
 	 * @param aircraftName
 	 */
 	public AircraftBuilder(String aircraftName) {
 		this.aircraft = new Aircraft(aircraftName);
 		
-		List<String[]> readPropulsionFile = FileUtilities.readFileAndSplit(aircraftName, FILE_PATH, "Propulsion");
+		List<String[]> readPropulsionFile = FileUtilities.readFileAndSplit(aircraftName, FileUtilities.AIRCRAFT_DIR, FileUtilities.PROPULSION_FILE);
 
 		// Gets the number of engines on the aircraft from the first line of the
 		// String[] ArrayList
@@ -99,7 +101,7 @@ public class AircraftBuilder {
 	
 	/**
 	 * Parses a text file located in:
-	 * <br><code>.\Aircraft\"aircraftName"\LookupTables</code></br>
+	 * <br><code>Aircraft\"aircraftName"\LookupTables</code></br>
 	 * for text files with the title "fileName".txt. This text file contains a table of values separated by the regular expression ",\t", 
 	 * where the first row contains control position breakpoints, the first column contains angle (of attack/sideslip) breakpoints, and 
 	 * the rest contains lookup values. It generates a {@link PiecewiseBicubicSplineInterpolatingFunction} from this data, which is used
@@ -110,7 +112,8 @@ public class AircraftBuilder {
 	 */
 	protected static PiecewiseBicubicSplineInterpolatingFunction createLookupTable(Aircraft aircraft, String fileName) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(FILE_PATH).append(aircraft.getName()).append("\\LookupTables\\").append(fileName).append(".txt");
+		sb.append(FileUtilities.FILE_ROOT).append(AIRCRAFT_PATH).append(File.separator).append(aircraft.getName()).append(File.separator)
+		  .append(FileUtilities.LOOKUP_TABLE_DIR).append(File.separator).append(fileName).append(FileUtilities.CONFIG_EXT);
 		
 		List<Double[]> readAndSplit = new LinkedList<>();
 		PiecewiseBicubicSplineInterpolatingFunction pbsif = null;
@@ -151,35 +154,35 @@ public class AircraftBuilder {
 			pbsif = new PiecewiseBicubicSplineInterpolatingFunction(breakPointAngle, breakPointFlap, lookUpValues);									 
 			
 		} catch (FileNotFoundException e) {
-			System.err.println("Could not find: " + fileName + ".txt!");
+			System.err.println("Could not find: " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (IOException e) {
-			System.err.println("Could not read: " + fileName + ".txt!");
+			System.err.println("Could not read: " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (NullPointerException e) {
-			System.err.println("Bad reference to: " + fileName + ".txt!");
+			System.err.println("Bad reference to: " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (NumberFormatException e) {
-			System.err.println("Error parsing number data from " + fileName + ".txt!");
+			System.err.println("Error parsing number data from " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (DimensionMismatchException e) {
-			System.err.println("Lookup table dimensions do not match in " + fileName + ".txt!");
+			System.err.println("Lookup table dimensions do not match in " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (NonMonotonicSequenceException e) {
-			System.err.println("Lookup table breakpoints do not increase monotonically in " + fileName + ".txt!");
+			System.err.println("Lookup table breakpoints do not increase monotonically in " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (NullArgumentException e) {
-			System.err.println("Error parsing data from " + fileName + ".txt!");
+			System.err.println("Error parsing data from " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (NoDataException e) {
-			System.err.println("No lookup table data found in " + fileName + ".txt!");
+			System.err.println("No lookup table data found in " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		
@@ -232,5 +235,5 @@ public class AircraftBuilder {
 	/**
 	 * @return File path where all aircraft template files and folders are located
 	 */
-	public static String getFilePath() {return FILE_PATH;}
+	public static String getFilePath() {return AIRCRAFT_PATH;}
 }

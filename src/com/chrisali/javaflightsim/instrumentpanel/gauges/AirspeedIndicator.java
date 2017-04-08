@@ -53,7 +53,6 @@ import eu.hansolo.steelseries.gauges.AbstractGauge;
 import eu.hansolo.steelseries.gauges.AbstractRadial;
 import eu.hansolo.steelseries.tools.FrameDesign;
 import eu.hansolo.steelseries.tools.LcdColor;
-import eu.hansolo.steelseries.tools.Util;
 
 public final class AirspeedIndicator extends AbstractRadial {
 
@@ -293,7 +292,7 @@ public final class AirspeedIndicator extends AbstractRadial {
             LCD_COLORS[3],
             LCD_COLORS[4]
         };
-        Util.INSTANCE.validateGradientPoints(FOREGROUND_START, FOREGROUND_STOP);
+        //Util.INSTANCE.validateGradientPoints(FOREGROUND_START, FOREGROUND_STOP); // TODO is this needed?
         return new LinearGradientPaint(FOREGROUND_START, FOREGROUND_STOP, FOREGROUND_FRACTIONS, FOREGROUND_COLORS);
     }
 

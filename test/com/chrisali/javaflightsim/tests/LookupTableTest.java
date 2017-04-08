@@ -16,7 +16,7 @@ public class LookupTableTest {
 	private Aerodynamics aero;
 	
 	public LookupTableTest(String aircraftName) {								 
-		this.ab = new AircraftBuilder("LookupNavion");
+		this.ab = new AircraftBuilder(aircraftName);
 		this.aero = new Aerodynamics(ab.getAircraft());
 		double clAlpha = 0.0;
 
@@ -33,5 +33,5 @@ public class LookupTableTest {
 		}
 	}
 
-	public static void main(String[] args) {new LookupTableTest("LookupNavion");}
+	public static void main(String[] args) {new LookupTableTest("TwinNavion");}
 }

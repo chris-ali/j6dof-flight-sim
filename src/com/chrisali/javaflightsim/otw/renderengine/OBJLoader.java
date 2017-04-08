@@ -11,6 +11,7 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.otw.models.RawModel;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 /**
  * Contains static methods to load a {@link RawModel} into memory by reading and processing all vertices, textures and
@@ -32,8 +33,8 @@ public class OBJLoader {
 	public static RawModel loadObjModel(String fileName, String directory, Loader loader) {
  		FileReader fr = null;
 		
-		try {fr = new FileReader(new File("Resources\\" + directory + "\\" + fileName + ".obj"));} 
-		catch (FileNotFoundException e) {System.err.println("Could not load file: " + fileName);}
+		try {fr = new FileReader(new File(FileUtilities.RESOURCES_DIR + File.separator + directory + File.separator + fileName + FileUtilities.MODEL_EXT));} 
+		catch (FileNotFoundException e) {System.err.println("Could not load model: " + fileName + FileUtilities.MODEL_EXT + "!");}
 		
 		BufferedReader reader = new BufferedReader(fr);
 		String line;

@@ -1,6 +1,5 @@
 package com.chrisali.javaflightsim.otw;
 
-import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -47,6 +46,7 @@ import com.chrisali.javaflightsim.otw.textures.ModelTexture;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 /**
  * Runner class for out the window display for Java Flight Sim. It utilizes LWJGL to create a 3D world in OpenGL. 
@@ -183,8 +183,8 @@ public class RunWorld implements Runnable, FlightDataListener {
 		//================================= Ownship ===========================================================
 		
 		// Model used for aircraft; scale set to 0 to be invisible for now
-		TexturedModel bunny =  new TexturedModel(OBJLoader.loadObjModel("bunny", "Entities", loader), 
-			    								new ModelTexture(loader.loadTexture("bunny", "Entities")));
+		TexturedModel bunny =  new TexturedModel(OBJLoader.loadObjModel("bunny", FileUtilities.ENTITIES_DIR, loader), 
+			    								new ModelTexture(loader.loadTexture("bunny", FileUtilities.ENTITIES_DIR)));
 		// Initial position of ownship
 		Map<InitialConditions, Double> initialConditions = controller.getInitialConditions();
 		ownshipPosition = new Vector3f((float)initialConditions.get(InitialConditions.INITN).doubleValue() / 15,
@@ -209,7 +209,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		//=============================== Particles ==========================================================
 		
-		ParticleTexture clouds = new ParticleTexture(loader.loadTexture("clouds", "Particles"), 4, true);
+		ParticleTexture clouds = new ParticleTexture(loader.loadTexture("clouds", FileUtilities.PARTICLES_DIR), 4, true);
 		
 		// Generates clouds at random positions along terrain map
 		Random random = new Random();
@@ -219,7 +219,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		//=============================== Interface ==========================================================
 		
 		// Generates font and on screen text
-		FontType font = new FontType(loader.loadTexture("ubuntu", "Fonts"), new File("Resources\\Fonts\\ubuntu.fnt"));
+		FontType font = new FontType(loader, "ubuntu");
 		texts.put("FlightData", new GUIText("", 0.85f, font, new Vector2f(0, 0), 1f, true));
 		texts.put("Paused", new GUIText("PAUSED", 1.15f, font, new Vector2f(0.5f, 0.5f), 1f, false, new Vector3f(1,0,0)));
 		

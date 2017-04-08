@@ -166,7 +166,7 @@ public class Aircraft {
 	}
 	
 	/**
-	 * Custom aircraft constructor. It uses files located in <p><br><code>.\Aircraft\</code></br></p>
+	 * Custom aircraft constructor. It uses files located in <p><br><code>Aircraft\</code></br></p>
 	 * to define the stability derivatives, mass properties, wing geometry and ground reaction. These files are: 
 	 * <p><br><code>Aero.txt</code></br> 
 	 * <br><code>StabilityDerivaticves.txt</code></br>
@@ -197,7 +197,7 @@ public class Aircraft {
 		this.groundReaction     = new EnumMap<GroundReaction, Double>(GroundReaction.class);
 		
 		// Aerodynamics
-		ArrayList<String[]> readAeroFile = FileUtilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "Aero");
+		ArrayList<String[]> readAeroFile = FileUtilities.readFileAndSplit(aircraftName, FileUtilities.AIRCRAFT_DIR, FileUtilities.AERO_FILE);
 		
 		// Override constant stability derivative values with the keyword "lookup" in Aero.txt; need to then 
 		// supply text file with lookup table and break points
@@ -212,7 +212,7 @@ public class Aircraft {
 		}
 		
 		// Mass Properties
-		ArrayList<String[]> readMassPropFile = FileUtilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "MassProperties");
+		ArrayList<String[]> readMassPropFile = FileUtilities.readFileAndSplit(aircraftName, FileUtilities.AIRCRAFT_DIR, FileUtilities.MASS_PROPERTIES_FILE);
 		
 		for(MassProperties massPropKey : MassProperties.values()) {
 			for (String[] readLine : readMassPropFile) {
@@ -226,7 +226,7 @@ public class Aircraft {
 												   massProps.get(MassProperties.WEIGHT_EMPTY))      / Environment.getGravity());
 		
 		// Wing Geometry
-		ArrayList<String[]> readWingGeomFile = FileUtilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "WingGeometry");
+		ArrayList<String[]> readWingGeomFile = FileUtilities.readFileAndSplit(aircraftName, FileUtilities.AIRCRAFT_DIR, FileUtilities.WING_GEOMETRY_FILE);
 		
 		for(WingGeometry wingGeoKey : WingGeometry.values()) {
 			for (String[] readLine : readWingGeomFile) {
@@ -236,7 +236,7 @@ public class Aircraft {
 		}
 		
 		// Ground Reaction
-		ArrayList<String[]> readGndReactFile = FileUtilities.readFileAndSplit(aircraftName, AircraftBuilder.FILE_PATH, "GroundReaction");
+		ArrayList<String[]> readGndReactFile = FileUtilities.readFileAndSplit(aircraftName, FileUtilities.AIRCRAFT_DIR, FileUtilities.GROUND_REACTION_FILE);
 		
 		for(GroundReaction gndReactKey : GroundReaction.values()) {
 			for (String[] readLine : readGndReactFile) {

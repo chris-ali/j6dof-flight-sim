@@ -3,7 +3,6 @@ package com.chrisali.javaflightsim.simulation.setup;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
 import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.utilities.FileUtilities;
@@ -18,11 +17,13 @@ public class IntegrationSetup {
 	 * Parses a text file formatted as described in {@link IntegrationSetup#readFileAndSplit(String)} to generate an 
 	 * EnumMap of initial conditions used by {@link Integrate6DOFEquations} to start the integration for the simulation. 
 	 * 
-	 * @param fileName
+	 * @param fileName (pass in null to use the default file [InitialConditions.txt])
 	 * @return EnumMap of initial conditions for the integration
 	 */
 	public static EnumMap<InitialConditions, Double> gatherInitialConditions(String fileName) {
-		ArrayList<String[]> initConditionsFile = FileUtilities.readFileAndSplit(fileName, SimulationController.getSimConfigPath());
+		fileName = fileName == null ? FileUtilities.INITIAL_CONDITIONS_FILE : fileName;
+		
+		ArrayList<String[]> initConditionsFile = FileUtilities.readFileAndSplit(fileName, FileUtilities.SIM_CONFIG_DIR);
 		EnumMap<InitialConditions,Double> initialConditions = new EnumMap<InitialConditions,Double>(InitialConditions.class); 
 				
 		if (!verifyICFileIntegrity(initConditionsFile)) {
@@ -42,11 +43,13 @@ public class IntegrationSetup {
 	 * Parses a text file formatted as described in {@link IntegrationSetup#readFileAndSplit(String)} to generate an 
 	 * EnumMap of settings used by {@link Integrate6DOFEquations} to control the start, step and end times for the simulation. 
 	 * 
-	 * @param fileName
+	 * @param fileName (pass in null to use the default file [IntegratorConfig.txt])
 	 * @return EnumMap of integration configuration options
 	 */
 	public static EnumMap<IntegratorConfig, Double> gatherIntegratorConfig(String fileName) {
-		ArrayList<String[]> intConfigFile = FileUtilities.readFileAndSplit(fileName, SimulationController.getSimConfigPath());
+		fileName = fileName == null ? FileUtilities.INTEGRATOR_CONFIG_FILE : fileName;
+		
+		ArrayList<String[]> intConfigFile = FileUtilities.readFileAndSplit(fileName, FileUtilities.SIM_CONFIG_DIR);
 		EnumMap<IntegratorConfig,Double> integratorConfig = new EnumMap<IntegratorConfig,Double>(IntegratorConfig.class); 
 				
 		if (!verifyIntConfigFileIntegrity(intConfigFile)) {
@@ -66,11 +69,13 @@ public class IntegrationSetup {
 	 * Parses a text file formatted as described in {@link IntegrationSetup#readFileAndSplit(String)} to generate an 
 	 * EnumMap of initial controls used by {@link Integrate6DOFEquations} to start the integration for the simulation. 
 	 * 
-	 * @param fileName
+	 * @param fileName (pass in null to use the default file [InitialControls.txt])
 	 * @return EnumMap of initial controls for the integration
 	 */
 	public static EnumMap<FlightControlType, Double> gatherInitialControls(String fileName) {
-		ArrayList<String[]> initControlFile = FileUtilities.readFileAndSplit(fileName, SimulationController.getSimConfigPath());
+		fileName = fileName == null ? FileUtilities.INITIAL_CONTROLS_FILE : fileName;
+		
+		ArrayList<String[]> initControlFile = FileUtilities.readFileAndSplit(fileName, FileUtilities.SIM_CONFIG_DIR);
 		EnumMap<FlightControlType,Double> initControl = new EnumMap<FlightControlType,Double>(FlightControlType.class); 
 		
 		if (!verifyControlFileIntegrity(initControlFile)) {
