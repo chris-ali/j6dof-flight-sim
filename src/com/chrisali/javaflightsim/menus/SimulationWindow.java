@@ -35,6 +35,7 @@ import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.otw.RunWorld;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
  * JPanel that integrates {@link InstrumentPanel} and the OpenGL OTW view from {@link RunWorld},
@@ -62,6 +63,8 @@ public class SimulationWindow extends JFrame {
 	 */
 	public SimulationWindow(SimulationController controller) {
 		super("Java Flight Simulator");
+		
+		SimulationConfiguration configuration = controller.getConfiguration();
 		
 		setLayout(new GridBagLayout());
 		
@@ -99,7 +102,7 @@ public class SimulationWindow extends JFrame {
 
 		instrumentPanel = new InstrumentPanel();
 
-		if (controller.getSimulationOptions().contains(Options.INSTRUMENT_PANEL))
+		if (configuration.getSimulationOptions().contains(Options.INSTRUMENT_PANEL))
 			add(instrumentPanel, gc);
 	
 		//========================== Window Settings =============================================
@@ -114,8 +117,8 @@ public class SimulationWindow extends JFrame {
 			}
 		});
 		
-		Dimension windowSize = new Dimension(controller.getDisplayOptions().get(DisplayOptions.DISPLAY_WIDTH), 
-											 controller.getDisplayOptions().get(DisplayOptions.DISPLAY_HEIGHT));
+		Dimension windowSize = new Dimension(configuration.getDisplayOptions().get(DisplayOptions.DISPLAY_WIDTH), 
+											 configuration.getDisplayOptions().get(DisplayOptions.DISPLAY_HEIGHT));
 		setSize(windowSize.width, windowSize.height);
 		setResizable(false);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -123,7 +126,7 @@ public class SimulationWindow extends JFrame {
 	
 	/**
 	 * @return {@link InstrumentPanel} object to set {@link FlightDataListener} to the instrument panel
-	 * 	in {@link MainFrame}
+	 * 	in {@link GuiFrame}
 	 */
 	public InstrumentPanel getInstrumentPanel() {
 		return instrumentPanel;

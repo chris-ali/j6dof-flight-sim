@@ -34,6 +34,7 @@ import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Mouse;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
  * Contains the Flight Controls thread used to handle flight controls actuated by human interface devices, such as
@@ -59,17 +60,19 @@ public class FlightControls implements Runnable, FlightDataListener {
 	private Keyboard hidKeyboard;
 	
 	/**
-	 * Constructor for {@link FlightControls}; {@link SimulationController} argument to initialize {@link IntegratorConfig} 
+	 * Constructor for {@link FlightControls}; {@link SimulationConfiguration} argument to initialize {@link IntegratorConfig} 
 	 * EnumMap, the {@link Options} EnumSet, as well as to update simulation options and call simulation methods
 	 * 
 	 * @param options
 	 */
-	public FlightControls(SimulationController simController) {
-		this.controls = simController.getInitialControls();
-		this.integratorConfig = simController.getIntegratorConfig();
-		this.options = simController.getSimulationOptions();
+	public FlightControls(SimulationController controller) {
+		SimulationConfiguration configuration = controller.getConfiguration();
 		
-		this.hidKeyboard = new Keyboard(controls, simController);
+		controls = configuration.getInitialControls();
+		integratorConfig = configuration.getIntegratorConfig();
+		options = configuration.getSimulationOptions();
+		
+		hidKeyboard = new Keyboard(controls, controller);
 		
 		// initializes static EnumMap that contains trim values of controls for doublets 
 		FlightControlsUtilities.init();
@@ -106,7 +109,9 @@ public class FlightControls implements Runnable, FlightDataListener {
 					controls = FlightControlsUtilities.doubletSeries(controls, Integrate6DOFEquations.getTime());
 				}
 				
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException e) {
+				continue;
+			}
 		}
 		
 		running = false;

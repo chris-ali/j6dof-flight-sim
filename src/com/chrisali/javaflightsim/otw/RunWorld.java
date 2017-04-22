@@ -37,7 +37,7 @@ import com.chrisali.javaflightsim.controllers.SimulationController;
 import com.chrisali.javaflightsim.datatransfer.FlightData;
 import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.datatransfer.FlightDataType;
-import com.chrisali.javaflightsim.menus.MainFrame;
+import com.chrisali.javaflightsim.menus.GuiFrame;
 import com.chrisali.javaflightsim.menus.SimulationWindow;
 import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
@@ -65,6 +65,7 @@ import com.chrisali.javaflightsim.otw.textures.ModelTexture;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 /**
@@ -81,6 +82,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 	private List<Light> lights;
 	
 	private SimulationController controller;
+	private SimulationConfiguration configuration;
 	
 	// Sound Fields
 	private Map<SoundCategory, Double> soundValues = new EnumMap<>(SoundCategory.class);
@@ -103,12 +105,13 @@ public class RunWorld implements Runnable, FlightDataListener {
 	/**
 	 * Sets up OTW display with {@link DisplayOptions} and {@link AudioOptions}, as well as a link to
 	 * {@link AircraftBuilder} to determine if multiple engines in aircraft. If {@link SimulationController}
-	 * object specified, display will embed itself within {@link SimulationWindow} in {@link MainFrame} 
+	 * object specified, display will embed itself within {@link SimulationWindow} in {@link GuiFrame} 
 	 * 
 	 * @param controller
 	 */
 	public RunWorld(SimulationController controller) {
 		this.controller = controller;
+		configuration = controller.getConfiguration();
 	}	
 	
 	@Override
@@ -156,10 +159,10 @@ public class RunWorld implements Runnable, FlightDataListener {
 			ParticleMaster.update(camera);
 			
 			//--------- Audio--------------------
-			SoundCollection.update(soundValues, controller);
+			SoundCollection.update(soundValues, configuration);
 			
 			//----------- UI --------------------
-			texts.get("Paused").setTextString(controller.getSimulationOptions()
+			texts.get("Paused").setTextString(configuration.getSimulationOptions()
 														.contains(Options.PAUSED) ?
 																  "PAUSED" : "");
 			
@@ -205,7 +208,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		TexturedModel bunny =  new TexturedModel(OBJLoader.loadObjModel("bunny", FileUtilities.ENTITIES_DIR, loader), 
 			    								new ModelTexture(loader.loadTexture("bunny", FileUtilities.ENTITIES_DIR)));
 		// Initial position of ownship
-		Map<InitialConditions, Double> initialConditions = controller.getInitialConditions();
+		Map<InitialConditions, Double> initialConditions = configuration.getInitialConditions();
 		ownshipPosition = new Vector3f((float)initialConditions.get(InitialConditions.INITN).doubleValue() / 15,
 									   (float)initialConditions.get(InitialConditions.INITD).doubleValue() / 15, 
 									   (float)initialConditions.get(InitialConditions.INITE).doubleValue() / 15); //(800, 150, 800)
@@ -245,7 +248,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		
 		//==================================== Audio =========================================================
 		
-		SoundCollection.initializeSounds(controller);
+		SoundCollection.initializeSounds(configuration);
 	}
 	
 	/**
@@ -328,7 +331,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 			soundValues.put(SoundCategory.STALL_HORN, receivedFlightData.get(FlightDataType.AOA));
 			
 			// Record flight data into text string to display on OTW screen 
-			if (!controller.getSimulationOptions().contains(Options.INSTRUMENT_PANEL))
+			if (!configuration.getSimulationOptions().contains(Options.INSTRUMENT_PANEL))
 				texts.get("FlightData").setTextString(setTextInfo(receivedFlightData));
 			
 			// Record value every other step to ensure a difference between previous and current values; used to 

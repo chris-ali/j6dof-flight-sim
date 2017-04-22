@@ -30,6 +30,7 @@ import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
  * Creates a real-time pilot in the loop simulation using {@link Integrate6DOFEquations}, and
@@ -49,14 +50,16 @@ public class InstrumentPanelTest {
 	}
 
 	private static void runApp() {
-		SimulationController simController = new SimulationController();
-		simController.getSimulationOptions().clear();
-		simController.getSimulationOptions().add(Options.UNLIMITED_FLIGHT);
-		simController.getSimulationOptions().add(Options.USE_CH_CONTROLS);
+		SimulationController controller = new SimulationController();
+		SimulationConfiguration configuration = new SimulationConfiguration();
 		
-		FlightControls flightControls = new FlightControls(simController);
+		configuration.getSimulationOptions().clear();
+		configuration.getSimulationOptions().add(Options.UNLIMITED_FLIGHT);
+		configuration.getSimulationOptions().add(Options.USE_CH_CONTROLS);
 		
-		Integrate6DOFEquations runSim = new Integrate6DOFEquations(flightControls, simController);
+		FlightControls flightControls = new FlightControls(controller);
+		
+		Integrate6DOFEquations runSim = new Integrate6DOFEquations(flightControls, configuration);
 		FlightData flightData = new FlightData(runSim);
 
 		new Thread(flightControls).start();

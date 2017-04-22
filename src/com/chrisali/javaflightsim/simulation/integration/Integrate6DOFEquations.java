@@ -31,7 +31,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
 import com.chrisali.javaflightsim.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.datatransfer.EnvironmentDataListener;
 import com.chrisali.javaflightsim.datatransfer.EnvironmentDataType;
@@ -46,6 +45,7 @@ import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
 
 /**
@@ -115,23 +115,23 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	private static boolean running;
 	
 	/**
-	 * Creates the {@link Integrate6DOFEquations} object with references to {@link FlightControls} and {@link SimulationController}
+	 * Creates the {@link Integrate6DOFEquations} object with references to {@link FlightControls} and {@link SimulationConfiguration}
 	 * objects
 	 * 
 	 * @param flightControls
-	 * @param simController
+	 * @param configuration
 	 */
-	public Integrate6DOFEquations(FlightControls flightControls, SimulationController simController) {
+	public Integrate6DOFEquations(FlightControls flightControls, SimulationConfiguration configuration) {
 		
 		controls 		   = flightControls.getFlightControls();
-		aircraft 		   = simController.getAircraftBuilder().getAircraft();
-		engineList   	   = simController.getAircraftBuilder().getEngineList();
-		options		       = simController.getSimulationOptions();
+		aircraft 		   = configuration.getAircraftBuilder().getAircraft();
+		engineList   	   = configuration.getAircraftBuilder().getEngineList();
+		options		       = configuration.getSimulationOptions();
 		
 		// Use Apache Commons Lang to convert EnumMap values into primitive double[] 
-		initialConditions = ArrayUtils.toPrimitive(simController.getInitialConditions().values()
+		initialConditions = ArrayUtils.toPrimitive(configuration.getInitialConditions().values()
 				   												.toArray(new Double[initialConditions.length]));
-		integratorConfig  = ArrayUtils.toPrimitive(simController.getIntegratorConfig().values()
+		integratorConfig  = ArrayUtils.toPrimitive(configuration.getIntegratorConfig().values()
 				   												.toArray(new Double[integratorConfig.length]));
 
 		// Allows simulation to run forever in pilot in the loop simulation if ANALYSIS_MODE not enabled 

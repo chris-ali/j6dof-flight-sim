@@ -29,7 +29,7 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
 
-import com.chrisali.javaflightsim.menus.MainFrame;
+import com.chrisali.javaflightsim.menus.GuiFrame;
 import com.chrisali.javaflightsim.menus.SimulationWindow;
 
 /**
@@ -53,7 +53,7 @@ public class DisplayManager {
 	
 	/**
 	 * Commands the creation of the OpenGL display; {@link SimulationWindow} object
-	 * reference passed from {@link MainFrame} used to set the {@link Canvas} parent object,
+	 * reference passed from {@link GuiFrame} used to set the {@link Canvas} parent object,
 	 * allowing the display to be embedded within the simulation window
 	 * 
 	 * @param canvas

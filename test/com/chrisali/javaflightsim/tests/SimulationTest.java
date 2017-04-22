@@ -30,6 +30,7 @@ import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
 
 /**
@@ -49,24 +50,27 @@ public class SimulationTest {
 	private Integrate6DOFEquations runSim;
 	private Thread simulationThread;
 	
-	private SimulationController simController;
+	private SimulationController controller;
+	private SimulationConfiguration configuration;
 	
 	private PlotWindow plots;
 	
 	public SimulationTest() {
-		this.simController = new SimulationController();
-		simController.getSimulationOptions().clear();
-		simController.getSimulationOptions().add(Options.ANALYSIS_MODE);
-		simController.setAircraftBuilder(new AircraftBuilder("TwinNavion")); // Twin Navion with 2 Lycoming IO-360
-		//simController.setAircraftBuilder(new AircraftBuilder()); // Default Navion with Lycoming IO-360
-		//simController.setAircraftBuilder(new AircraftBuilder("Navion")); // Navion with lookup tables with Lycoming IO-360
+		controller = new SimulationController();
+		configuration = new SimulationConfiguration();
 		
-		Trimming.trimSim(simController, false);
+		configuration.getSimulationOptions().clear();
+		configuration.getSimulationOptions().add(Options.ANALYSIS_MODE);
+		configuration.setAircraftBuilder(new AircraftBuilder("TwinNavion")); // Twin Navion with 2 Lycoming IO-360
+		//configuration.setAircraftBuilder(new AircraftBuilder()); // Default Navion with Lycoming IO-360
+		//configuration.setAircraftBuilder(new AircraftBuilder("Navion")); // Navion with lookup tables with Lycoming IO-360
+		
+		Trimming.trimSim(configuration, false);
 
-		this.flightControls = new FlightControls(simController);
+		this.flightControls = new FlightControls(controller);
 		this.flightControlsThread = new Thread(flightControls);
 		
-		this.runSim = new Integrate6DOFEquations(flightControls, simController);
+		this.runSim = new Integrate6DOFEquations(flightControls, configuration);
 		this.simulationThread = new Thread(runSim);
 
 		flightControlsThread.start();
@@ -76,7 +80,7 @@ public class SimulationTest {
 		catch (InterruptedException e) {}
 		
 		this.plots = new PlotWindow(new HashSet<String>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous")),
-						 			simController);
+						 			controller);
 		plots.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		FlightControls.setRunning(false);

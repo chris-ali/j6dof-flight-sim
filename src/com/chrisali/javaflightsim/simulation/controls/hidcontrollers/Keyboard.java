@@ -64,9 +64,9 @@ public class Keyboard extends AbstractController {
 	 * @param simController
 	 */
 	public Keyboard(Map<FlightControlType, Double> controls, SimulationController simController) {
-		this.controllerList = new ArrayList<>();
 		this.simController = simController;
-		this.options = simController.getSimulationOptions();
+		controllerList = new ArrayList<>();
+		options = simController.getConfiguration().getSimulationOptions();
 		
 		// Get initial trim values from initial values in controls EnumMap (rad)
 		trimElevator = controls.get(FlightControlType.ELEVATOR);
@@ -92,8 +92,7 @@ public class Keyboard extends AbstractController {
 		if (controllerList.isEmpty()) {
 			System.err.println("No keyboard found!");
 			return;
-		}
-		
+		}	
 	}
 	
 	/**

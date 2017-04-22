@@ -23,7 +23,6 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
 import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
 import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.simulation.aero.WingGeometry;
@@ -68,15 +67,15 @@ public class Trimming {
 	 * 
 	 * as long as the test mode boolean flag is false; otherwise the results will be displayed in the console
 	 * 
-	 * @param controller
+	 * @param configuration
 	 * @param testMode
 	 */
-	public static void trimSim(SimulationController controller, boolean testMode) {
-		aircraft = controller.getAircraftBuilder().getAircraft();
+	public static void trimSim(SimulationConfiguration configuration, boolean testMode) {
+		aircraft = configuration.getAircraftBuilder().getAircraft();
 		aero = new Aerodynamics(aircraft);
 		
-		initialConditions = controller.getInitialConditions();
-		initialControls = controller.getInitialControls();
+		initialConditions = configuration.getInitialConditions();
+		initialControls = configuration.getInitialControls();
 		
 		environmentParams = Environment.getAndUpdateEnvironmentParams(new double[]{0,0,initialConditions.get(InitialConditions.INITD)});
 		
@@ -147,7 +146,7 @@ public class Trimming {
 
 		//==================================================== Throttle ============================================================
 		
-		Set<Engine> engines = controller.getAircraftBuilder().getEngineList();
+		Set<Engine> engines = configuration.getAircraftBuilder().getEngineList();
 		
 		drag = (drag * Math.cos(alphaTrim)) - (lift * Math.sin(alphaTrim)) + (weight * Math.sin(thetaTrim));
 		

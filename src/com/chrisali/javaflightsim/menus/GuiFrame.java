@@ -48,6 +48,7 @@ import com.chrisali.javaflightsim.otw.RunWorld;
 import com.chrisali.javaflightsim.otw.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 /**
@@ -57,11 +58,12 @@ import com.chrisali.javaflightsim.utilities.FileUtilities;
  * @author Christopher Ali
  *
  */
-public class MainFrame extends JFrame {
+public class GuiFrame extends JFrame {
 
 	private static final long serialVersionUID = -1803264930661591606L;
 	
 	private SimulationController simulationController;
+	private SimulationConfiguration configuration;
 	
 	private ButtonPanel buttonPanel;
 	private AircraftPanel aircraftPanel;
@@ -77,10 +79,11 @@ public class MainFrame extends JFrame {
 	 * 
 	 * @param controller
 	 */
-	public MainFrame(SimulationController controller) {
+	public GuiFrame(SimulationController controller) {
 		super("Java Flight Sim");
 		
 		simulationController = controller;
+		configuration = controller.getConfiguration();
 		
 		setLayout(new BorderLayout());
 		Dimension dims = new Dimension(200, 400);
@@ -104,7 +107,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void aircraftConfigured(String aircraftName) {
 				buttonPanel.setAircraftLabel(aircraftName);
-				simulationController.updateAircraft(aircraftName);
+				configuration.setAircraftBuilder(aircraftName);
 				
 				setSize(dims);
 				cardPanel.setVisible(false);
@@ -113,7 +116,7 @@ public class MainFrame extends JFrame {
 		aircraftPanel.setWeightConfiguredListener(new WeightConfiguredListener() {
 			@Override
 			public void weightConfigured(String aircraftName, double fuelWeight, double payloadWeight) {
-				simulationController.updateMassProperties(aircraftName, fuelWeight, payloadWeight);
+				configuration.setMassProperties(aircraftName, fuelWeight, payloadWeight);
 			}
 		});
 		aircraftPanel.setCancelButtonListener(new CancelButtonListener() {
@@ -134,8 +137,8 @@ public class MainFrame extends JFrame {
 													EnumMap<DisplayOptions, Integer> displayOptions,
 													EnumMap<AudioOptions, Float> audioOptions) {
 				buttonPanel.setOptionsLabel(options, stepSize);
-				simulationController.updateIntegratorConfig(stepSize);
-				simulationController.updateOptions(options, displayOptions, audioOptions);
+				configuration.setIntegratorConfig(stepSize);
+				configuration.updateOptions(options, displayOptions, audioOptions);
 				
 				setSize(dims);
 				cardPanel.setVisible(false);
@@ -153,12 +156,12 @@ public class MainFrame extends JFrame {
 		//-------------------- Initial Conditions Panel --------------------------------------------
 		
 		initialConditionsPanel = new InitialConditionsPanel();
-		initialConditionsPanel.setInitialConditionsPanel(controller.getInitialConditions());
+		initialConditionsPanel.setInitialConditionsPanel(configuration.getInitialConditions());
 		initialConditionsPanel.setInitialConditionsConfigurationListener(new InitialConditionsConfigurationListener() {
 			@Override
 			public void initialConditonsConfigured(double[] coordinates, double heading, double altitude, double airspeed) {
 				buttonPanel.setInitialConditionsLabel(coordinates, heading, altitude, airspeed);
-				simulationController.updateInitialConditions(coordinates, heading, altitude, airspeed);
+				configuration.setInitialConditions(coordinates, heading, altitude, airspeed);
 				
 				setSize(dims);
 				cardPanel.setVisible(false);
@@ -207,8 +210,8 @@ public class MainFrame extends JFrame {
 				cardPanel.setVisible(false);
 				
 				simulationController.startSimulation();
-				MainFrame.this.setVisible(simulationController.getSimulationOptions().contains(Options.ANALYSIS_MODE) ? true : false);
-				simulationWindow.setVisible(simulationController.getSimulationOptions().contains(Options.ANALYSIS_MODE) ? false : true);
+				GuiFrame.this.setVisible(configuration.getSimulationOptions().contains(Options.ANALYSIS_MODE) ? true : false);
+				simulationWindow.setVisible(configuration.getSimulationOptions().contains(Options.ANALYSIS_MODE) ? false : true);
 			}
 		});
 		add(buttonPanel, BorderLayout.CENTER);
@@ -222,7 +225,7 @@ public class MainFrame extends JFrame {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				int closeDialog = JOptionPane.showConfirmDialog(MainFrame.this, "Are you sure you wish to quit?",
+				int closeDialog = JOptionPane.showConfirmDialog(GuiFrame.this, "Are you sure you wish to quit?",
 																"Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if (closeDialog == JOptionPane.YES_OPTION) {
 					System.gc();
@@ -244,25 +247,25 @@ public class MainFrame extends JFrame {
 	 */
 	private void setOptionsAndText() {
 		try {
-			simulationController.updateOptions(FileUtilities.parseSimulationSetup(), 
-											   FileUtilities.parseDisplaySetup(),
-											   FileUtilities.parseAudioSetup());
-			simulationController.updateAircraft(FileUtilities.parseSimulationSetupForAircraft());
+			configuration.updateOptions(FileUtilities.parseSimulationSetup(), 
+									    FileUtilities.parseDisplaySetup(),
+									    FileUtilities.parseAudioSetup());
+			configuration.setAircraftBuilder(FileUtilities.parseSimulationSetupForAircraft());
 		} catch (IllegalArgumentException e) {
 			JOptionPane.showMessageDialog(this, "Unable to read SimulationSetup.txt!", 
 					"Error Reading File", JOptionPane.ERROR_MESSAGE);
 		}
 		
-		int stepSize = (int)(1/simulationController.getIntegratorConfig().get(IntegratorConfig.DT));
-		String aircraftName = simulationController.getAircraftBuilder().getAircraft().getName();
+		int stepSize = (int)(1/configuration.getIntegratorConfig().get(IntegratorConfig.DT));
+		String aircraftName = configuration.getAircraftBuilder().getAircraft().getName();
 		
-		buttonPanel.setOptionsLabel(simulationController.getSimulationOptions(), stepSize);
+		buttonPanel.setOptionsLabel(configuration.getSimulationOptions(), stepSize);
 		buttonPanel.setAircraftLabel(aircraftName);
 		
 		aircraftPanel.setAircraftPanel(aircraftName);
-		optionsPanel.setAllOptions(simulationController.getSimulationOptions(), stepSize, 
-									simulationController.getDisplayOptions(),
-									simulationController.getAudioOptions());
+		optionsPanel.setAllOptions(configuration.getSimulationOptions(), stepSize, 
+				configuration.getDisplayOptions(),
+				configuration.getAudioOptions());
 	}
 	
 	//=============================== Simulation Window ==============================================
@@ -278,7 +281,7 @@ public class MainFrame extends JFrame {
 			public void panelWindowClosed() {
 				simulationController.stopSimulation();
 				simulationWindow.setVisible(false);
-				MainFrame.this.setVisible(true);
+				GuiFrame.this.setVisible(true);
 			}
 		});
 	}

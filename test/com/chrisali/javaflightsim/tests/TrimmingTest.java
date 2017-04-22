@@ -19,8 +19,8 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.tests;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
 
 public class TrimmingTest {
@@ -30,9 +30,9 @@ public class TrimmingTest {
 	}
 	
 	private TrimmingTest(String aircraftName) {
-		SimulationController controller = new SimulationController();
-		controller.setAircraftBuilder(new AircraftBuilder(aircraftName));
+		SimulationConfiguration configuration = new SimulationConfiguration();
+		configuration.setAircraftBuilder(new AircraftBuilder(aircraftName));
 		
-		Trimming.trimSim(controller, true);
+		Trimming.trimSim(configuration, true);
 	}
 }

@@ -60,7 +60,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	private SwingWorker<Void, Integer> tabPaneWorker;
 	private Thread refreshPlotThread;
 	private ProgressDialog progressDialog;
-	
+
 	private SimulationController controller;
 	
 	/**
@@ -72,7 +72,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	 * @param SimulationController controller
 	 */
 	public PlotWindow(Set<String> simPlotCategories, SimulationController controller) {
-		super(controller.getAircraftBuilder().getAircraft().getName() + " Plots");
+		super(controller.getConfiguration().getAircraftBuilder().getAircraft().getName() + " Plots");
 		setLayout(new BorderLayout());
 		
 		this.logsOut = controller.getLogsOut();

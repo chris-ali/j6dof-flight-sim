@@ -22,6 +22,7 @@ package com.chrisali.javaflightsim.tests;
 import com.chrisali.javaflightsim.controllers.SimulationController;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
  * Test class for {@link FlightControls}. Creates flight controls object and thread to
@@ -33,13 +34,15 @@ import com.chrisali.javaflightsim.simulation.setup.Options;
 public class FlightControlsTest implements Runnable {
 	private FlightControls flightControls;
 	private Thread flightControlsThread;
+	private SimulationConfiguration configuation;
 	private SimulationController simController;
 	
 	public FlightControlsTest() {
-		this.simController = new SimulationController();
-		simController.getSimulationOptions().add(Options.USE_CH_CONTROLS);
-		this.flightControls = new FlightControls(simController);
-		this.flightControlsThread = new Thread(flightControls);
+		simController = new SimulationController();
+		configuation = simController.getConfiguration();
+		configuation.getSimulationOptions().add(Options.USE_CH_CONTROLS);
+		flightControls = new FlightControls(simController);
+		flightControlsThread = new Thread(flightControls);
 	}
 	
 	@Override
@@ -52,7 +55,7 @@ public class FlightControlsTest implements Runnable {
 			while (FlightControls.isRunning()) {
 				System.out.println(flightControls.toString());
 				System.out.println();
-				System.out.println(simController.getSimulationOptions());
+				System.out.println(configuation.getSimulationOptions());
 				Thread.sleep((long) (100));
 			}
 		} catch (InterruptedException e) {

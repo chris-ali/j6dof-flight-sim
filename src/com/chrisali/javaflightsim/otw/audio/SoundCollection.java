@@ -25,13 +25,13 @@ import java.util.Set;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
 import com.chrisali.javaflightsim.datatransfer.FlightData;
 import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.otw.RunWorld;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 /**
@@ -103,17 +103,17 @@ public class SoundCollection {
 	
 	/**
 	 *	Fills soundSources EnumMap with {@link SoundSource} objects, which are references to audio
-	 *  files in .Resources/Audio, and sets their initial properties. Uses {@link SimulationController}
+	 *  files in .Resources/Audio, and sets their initial properties. Uses {@link SimulationConfiguration}
 	 *  to get {@link AircraftBuilder} reference to determine how many engines to assign sounds to, and where 
-	 *  to position them relative to the listener. Also uses {@link SimulationController} to get Map of audio 
+	 *  to position them relative to the listener. Also uses {@link SimulationConfiguration} to get Map of audio 
 	 *  options to set the volumes of various types of sounds
 	 *  
-	 *  @param controller
+	 *  @param configuration
 	 */
-	public static void initializeSounds(SimulationController controller) {
+	public static void initializeSounds(SimulationConfiguration configuration) {
 		
-		Map<AudioOptions, Float> audioOptions = controller.getAudioOptions();
-		AircraftBuilder ab = controller.getAircraftBuilder();
+		Map<AudioOptions, Float> audioOptions = configuration.getAudioOptions();
+		AircraftBuilder ab = configuration.getAircraftBuilder();
 		
 		engineVolume = audioOptions.get(AudioOptions.ENGINE_VOLUME);
 		systemsVolume = audioOptions.get(AudioOptions.SYSTEMS_VOLUME);
@@ -192,14 +192,14 @@ public class SoundCollection {
 	 * Wrapper method to call setRPM(), setControl(), setWind() and setStallHorn() at once;
 	 * uses an EnumMap of {@link SoundCategory} enums to set the double values retrieved by 
 	 * {@link FlightDataListener} in {@link RunWorld}. Uses {@link AircraftBuilder} from 
-	 * {@link SimulationController} argument to set RPM values
+	 * {@link SimulationConfiguration} argument to set RPM values
 	 * 
 	 * @param soundValues
 	 * @param controller
 	 */
-	public static void update(Map<SoundCategory, Double> soundValues, SimulationController controller) {
+	public static void update(Map<SoundCategory, Double> soundValues, SimulationConfiguration configuration) {
 		if (!soundValues.isEmpty()) {
-			setRPM(controller.getAircraftBuilder(), soundValues);
+			setRPM(configuration.getAircraftBuilder(), soundValues);
 			setControl(SoundEvent.FLAPS, soundValues);
 			setControl(SoundEvent.GEAR, soundValues);
 			setWind(soundValues.get(SoundCategory.WIND));

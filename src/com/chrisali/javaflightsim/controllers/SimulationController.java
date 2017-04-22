@@ -23,8 +23,6 @@ import java.awt.Canvas;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,23 +31,16 @@ import java.util.Set;
 import com.chrisali.javaflightsim.consoletable.ConsoleTablePanel;
 import com.chrisali.javaflightsim.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.datatransfer.FlightData;
-import com.chrisali.javaflightsim.menus.MainFrame;
+import com.chrisali.javaflightsim.menus.GuiFrame;
 import com.chrisali.javaflightsim.menus.SimulationWindow;
-import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
-import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.otw.RunWorld;
 import com.chrisali.javaflightsim.otw.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.plotting.PlotWindow;
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
-import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
-import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
-import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
-import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
-import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
 import com.chrisali.javaflightsim.utilities.FileUtilities;
 
@@ -67,12 +58,7 @@ import com.chrisali.javaflightsim.utilities.FileUtilities;
 public class SimulationController {
 	
 	// Configuration
-	private EnumMap<DisplayOptions, Integer> displayOptions;
-	private EnumMap<AudioOptions, Float> audioOptions;
-	private EnumSet<Options> simulationOptions;
-	private EnumMap<InitialConditions, Double> initialConditions;
-	private EnumMap<IntegratorConfig, Double> integratorConfig;
-	private EnumMap<FlightControlType, Double> initialControls; 
+	private SimulationConfiguration configuration;
 	
 	// Simulation
 	private FlightControls flightControls;
@@ -82,12 +68,8 @@ public class SimulationController {
 	private FlightData flightData;
 	private Thread flightDataThread;
 	
-	// Aircraft
-	private AircraftBuilder ab;
-	private EnumMap<MassProperties, Double> massProperties;
-	
 	// Menus and Integrated Simulation Window
-	private MainFrame mainFrame;
+	private GuiFrame mainFrame;
 	
 	// Plotting
 	private PlotWindow plotWindow;
@@ -103,141 +85,18 @@ public class SimulationController {
 	private EnvironmentData environmentData;
 	
 	/**
-	 * Constructor for the controller that initializes initial settings, configurations and conditions
-	 * to be edited through the menu options in the view
+	 * Initializes initial settings, configurations and conditions to be edited through menu options
 	 */
 	public SimulationController() {
-		simulationOptions = FileUtilities.parseSimulationSetup();
-		displayOptions = FileUtilities.parseDisplaySetup();
-		audioOptions = FileUtilities.parseAudioSetup();
-		
-		initialConditions = IntegrationSetup.gatherInitialConditions(null);
-		integratorConfig = IntegrationSetup.gatherIntegratorConfig(null);
-		initialControls = IntegrationSetup.gatherInitialControls(null);
-		
-		String aircraftName = FileUtilities.parseSimulationSetupForAircraft();
-		ab = new AircraftBuilder(aircraftName);
+		configuration = new SimulationConfiguration();
 	}
 	
-	//=============================== Configuration ===========================================================
+	//============================== Configuration =========================================================
 	
 	/**
-	 * @return simulationOptions EnumSet
+	 * @return instance of configuraion
 	 */
-	public EnumSet<Options> getSimulationOptions() {return simulationOptions;}
-	
-	/**
-	 * @return displayOptions EnumMap
-	 */
-	public EnumMap<DisplayOptions, Integer> getDisplayOptions() {return displayOptions;}
-	
-	/**
-	 * @return audioOptions EnumMap
-	 */
-	public EnumMap<AudioOptions, Float> getAudioOptions() {return audioOptions;}
-	
-	/**
-	 * Updates simulation and display options and then saves the configurations to text files using either
-	 * <p>{@link FileUtilities#writeConfigFile(String, String, Set, String)}</p>
-	 * <br/>or
-	 * <p>{@link FileUtilities#writeConfigFile(String, String, Map, String)}</p>
-	 * 
-	 * @param newOptions
-	 * @param newDisplayOptions
-	 * @param newAudioOptions
-	 */
-	public void updateOptions(EnumSet<Options> newOptions, EnumMap<DisplayOptions, Integer> newDisplayOptions,
-							  EnumMap<AudioOptions, Float> newAudioOptions) {
-		simulationOptions = EnumSet.copyOf(newOptions);
-		displayOptions = newDisplayOptions;
-		audioOptions = newAudioOptions;
-		
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.SIMULATION_SETUP_FILE, simulationOptions, ab.getAircraft().getName());
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.DISPLAY_SETUP_FILE, newDisplayOptions);
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.AUDIO_SETUP_FILE, newAudioOptions);
-	}
-	
-	/**
-	 * Calls the {@link AircraftBuilder} constructor with using the aircraftName argument and updates the SimulationSetup.txt
-	 * configuration file with the new selected aircraft
-	 * 
-	 * @param aircraftName
-	 */
-	public void updateAircraft(String aircraftName) {
-		ab = new AircraftBuilder(aircraftName);
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.SIMULATION_SETUP_FILE, simulationOptions, aircraftName);
-	}
-	
-	/**
-	 * Updates the MassProperties config file for the selected aircraft using aircraftName
-	 * 
-	 * @param aircraftName
-	 * @param fuelWeight
-	 * @param payloadWeight
-	 */
-	public void updateMassProperties(String aircraftName, double fuelWeight, double payloadWeight) {
-		massProperties = FileUtilities.parseMassProperties(aircraftName);
-		
-		massProperties.put(MassProperties.WEIGHT_FUEL, fuelWeight);
-		massProperties.put(MassProperties.WEIGHT_PAYLOAD, payloadWeight);
-		
-		FileUtilities.writeConfigFile(FileUtilities.AIRCRAFT_DIR + File.pathSeparator + aircraftName, FileUtilities.MASS_PROPERTIES_FILE, massProperties);
-	}
-	
-	/**
-	 * @return integratorConfig EnumMap
-	 */
-	public EnumMap<IntegratorConfig, Double> getIntegratorConfig() {return integratorConfig;}
-
-	/**
-	 * Updates the IntegratorConfig file with stepSize inverted and converted to a double  
-	 * 
-	 * @param stepSize
-	 */
-	public void updateIntegratorConfig(int stepSize) {
-		integratorConfig.put(IntegratorConfig.DT, (1/((double)stepSize)));
-		
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.INTEGRATOR_CONFIG_FILE, integratorConfig);
-	}
-	
-	/**
-	 * @return initialConditions EnumMap
-	 */
-	public EnumMap<InitialConditions, Double> getInitialConditions() {return initialConditions;}
-
-	/**
-	 * Updates initialConditions file with the following arguments, converted to radians and ft/sec:
-	 * 
-	 * @param coordinates [latitude, longitude]
-	 * @param heading 
-	 * @param altitude 
-	 * @param airspeed
-	 */
-	public void updateInitialConditions(double[] coordinates, double heading, double altitude, double airspeed) {
-		initialConditions.put(InitialConditions.INITLAT, Math.toRadians(coordinates[0]));
-		initialConditions.put(InitialConditions.INITLON, Math.toRadians(coordinates[1]));
-		initialConditions.put(InitialConditions.INITPSI, Math.toRadians(heading));
-		initialConditions.put(InitialConditions.INITU,   FileUtilities.toFtPerSec(airspeed));
-		initialConditions.put(InitialConditions.INITD,   altitude);
-		
-		// Temporary method to calcuate north/east position from lat/lon position 
-		initialConditions.put(InitialConditions.INITN, (Math.sin(Math.toRadians(coordinates[0])) * 20903520));
-		initialConditions.put(InitialConditions.INITE, (Math.sin(Math.toRadians(coordinates[1])) * 20903520));
-		
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.INITIAL_CONDITIONS_FILE, initialConditions);
-	}
-	
-	/**
-	 * Updates the InitialControls config file
-	 */
-	public void updateIninitialControls() {
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.INITIAL_CONTROLS_FILE, initialControls);
-	}
-
-	/**
-	 * @return initialControls EnumMap
-	 */
-	public EnumMap<FlightControlType, Double> getInitialControls() {return initialControls;}
+	public SimulationConfiguration getConfiguration() {return configuration;}
 	
 	//=============================== Simulation ===========================================================
 
@@ -245,20 +104,7 @@ public class SimulationController {
 	 * @return instance of simulation
 	 */
 	public Integrate6DOFEquations getSimulation() {return runSim;}
-	
-	/**
-	 * @return {@link AircraftBuilder} object
-	 */
-	public AircraftBuilder getAircraftBuilder() {return ab;}
-	
-	/**
-	 * Allows {@link AircraftBuilder} to be changed to a different aircraft outside of being parsed in
-	 * the SimulationSetup.txt configuration file
-	 * 
-	 * @param ab
-	 */
-	public void setAircraftBuilder(AircraftBuilder ab) {this.ab = ab;}
-	
+
 	/**
 	 * @return ArrayList of simulation output data 
 	 * @see SimOuts
@@ -280,21 +126,21 @@ public class SimulationController {
 	 * Depending on options specified, a console panel and/or plot window will also be initialized and opened 
 	 */
 	public void startSimulation() {
-		Trimming.trimSim(this, false);
+		Trimming.trimSim(configuration, false);
 		
 		flightControls = new FlightControls(this);
 		flightControlsThread = new Thread(flightControls);
 		
-		runSim = new Integrate6DOFEquations(flightControls, this);
+		runSim = new Integrate6DOFEquations(flightControls, configuration);
 		simulationThread = new Thread(runSim);
 
 		flightControlsThread.start();
 		simulationThread.start();
 		
-		if (simulationOptions.contains(Options.CONSOLE_DISPLAY))
+		if (configuration.getSimulationOptions().contains(Options.CONSOLE_DISPLAY))
 			initializeConsole();
 		
-		if (simulationOptions.contains(Options.ANALYSIS_MODE)) {
+		if (configuration.getSimulationOptions().contains(Options.ANALYSIS_MODE)) {
 			try {
 				// Wait a bit to allow the simulation to finish running
 				Thread.sleep(1000);
@@ -397,19 +243,19 @@ public class SimulationController {
 	//========================== Main Frame Menus =========================================================
 	
 	/**
-	 * Sets {@link MainFrame} reference for {@link RunWorld}, which needs it to 
+	 * Sets {@link GuiFrame} reference for {@link RunWorld}, which needs it to 
 	 * set the parent {@link Canvas} in {@link DisplayManager}
 	 * 
 	 * @param mainFrame
 	 */
-	public void setMainFrame(MainFrame mainFrame) {
+	public void setMainFrame(GuiFrame mainFrame) {
 		this.mainFrame = mainFrame;
 	}
 	
 	/**
-	 * @return reference to {@link MainFrame} object in {@link SimulationController}
+	 * @return reference to {@link GuiFrame} object in {@link SimulationController}
 	 */
-	public MainFrame getMainFrame() {
+	public GuiFrame getMainFrame() {
 		return mainFrame;
 	}
 
