@@ -33,7 +33,7 @@ import com.chrisali.javaflightsim.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.datatransfer.FlightData;
 import com.chrisali.javaflightsim.menus.GuiFrame;
 import com.chrisali.javaflightsim.menus.SimulationWindow;
-import com.chrisali.javaflightsim.otw.RunWorld;
+import com.chrisali.javaflightsim.otw.LWJGLWorld;
 import com.chrisali.javaflightsim.otw.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.plotting.PlotWindow;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
@@ -79,7 +79,7 @@ public class SimulationController {
 	private ConsoleTablePanel consoleTablePanel;
 	
 	// Out the Window
-	private RunWorld outTheWindow;
+	private LWJGLWorld outTheWindow;
 	private Thread outTheWindowThread;
 	private Thread environmentDataThread;
 	private EnvironmentData environmentData;
@@ -150,7 +150,7 @@ public class SimulationController {
 			} catch (InterruptedException e) {}
 			
 		} else {
-			outTheWindow = new RunWorld(this);
+			outTheWindow = new LWJGLWorld(this);
 			//(Re)initalize simulation window to prevent scaling issues with instrument panel
 			getMainFrame().initSimulationWindow();
 			
@@ -243,7 +243,7 @@ public class SimulationController {
 	//========================== Main Frame Menus =========================================================
 	
 	/**
-	 * Sets {@link GuiFrame} reference for {@link RunWorld}, which needs it to 
+	 * Sets {@link GuiFrame} reference for {@link LWJGLWorld}, which needs it to 
 	 * set the parent {@link Canvas} in {@link DisplayManager}
 	 * 
 	 * @param mainFrame
@@ -277,7 +277,7 @@ public class SimulationController {
 	 * <p>http://stackoverflow.com/questions/26199534/how-to-attach-opengl-display-to-a-jframe-and-dispose-of-it-properly</p>
 	 */
 	public void stopOTWThread() {
-		RunWorld.requestClose(); // sets running boolean in RunWorld to false to begin the clean up process
+		LWJGLWorld.requestClose(); // sets running boolean in RunWorld to false to begin the clean up process
 		
 		try {outTheWindowThread.join();
 		} catch (InterruptedException e) {}

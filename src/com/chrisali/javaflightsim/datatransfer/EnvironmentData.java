@@ -25,11 +25,12 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.otw.RunWorld;
+import com.chrisali.javaflightsim.otw.LWJGLWorld;
+import com.chrisali.javaflightsim.otw.OTWWorld;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 /**
- *	Interacts with {@link RunWorld} and any registered listeners to pass data from the out the window display back to
+ *	Interacts with {@link LWJGLWorld} and any registered listeners to pass data from the out the window display back to
  *	the simulation {@link Integrate6DOFEquations}. Uses threading to obtain data at a reasonable rate
  */
 public class EnvironmentData implements Runnable {
@@ -37,16 +38,16 @@ public class EnvironmentData implements Runnable {
 	private static boolean running;
 	private Map<EnvironmentDataType, Double> environmentData = Collections.synchronizedMap(new EnumMap<EnvironmentDataType, Double>(EnvironmentDataType.class));
 	
-	private RunWorld outTheWindow;
+	private OTWWorld outTheWindow;
 	private List<EnvironmentDataListener> dataListenerList;
 	
 	/**
-	 * Creates an instance of {@link EnvironmentData} with a reference to {@link RunWorld} so
+	 * Creates an instance of {@link EnvironmentData} with a reference to {@link LWJGLWorld} so
 	 * that the thread in this class knows when the out the window display is running
 	 * 
 	 * @param outTheWindow
 	 */
-	public EnvironmentData(RunWorld outTheWindow) {
+	public EnvironmentData(OTWWorld outTheWindow) {
 		this.outTheWindow = outTheWindow;
 		this.dataListenerList = new ArrayList<>();
 	}
@@ -70,7 +71,7 @@ public class EnvironmentData implements Runnable {
 		running = true;
 		
 		try {
-			while (!RunWorld.isRunning()) 
+			while (!LWJGLWorld.isRunning()) 
 				Thread.sleep(25);
 			
 			while (running) {
@@ -94,7 +95,7 @@ public class EnvironmentData implements Runnable {
 	}
 	
 	/**
-	 * Lets registered listeners know that data has arrived from the {@link RunWorld} thread
+	 * Lets registered listeners know that data has arrived from the {@link LWJGLWorld} thread
 	 * so that they can use it as needed
 	 */
 	private void fireDataArrived() {

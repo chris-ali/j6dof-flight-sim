@@ -26,7 +26,6 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
-import com.chrisali.javaflightsim.otw.RunWorld;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.GroundReaction;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
@@ -93,7 +92,7 @@ public class IntegrateGroundReaction {
 	/**
 	 * Constructor for ground reaction integrator; uses references to integrated states from 
 	 * {@link Integrate6DOFEquations} as well as terrain height received from the 
-	 * out-the-window display view ({@link RunWorld})
+	 * out-the-window display view
 	 * @param linearVelocities
 	 * @param NEDPosition
 	 * @param eulerAngles

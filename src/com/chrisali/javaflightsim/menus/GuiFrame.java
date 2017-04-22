@@ -44,7 +44,7 @@ import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.menus.optionspanel.OptionsConfigurationListener;
 import com.chrisali.javaflightsim.menus.optionspanel.OptionsPanel;
-import com.chrisali.javaflightsim.otw.RunWorld;
+import com.chrisali.javaflightsim.otw.LWJGLWorld;
 import com.chrisali.javaflightsim.otw.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -287,7 +287,7 @@ public class GuiFrame extends JFrame {
 	}
 	
 	/**
-	 * @return {@link SimulationWindow} object for {@link RunWorld} to set its display parent
+	 * @return {@link SimulationWindow} object for {@link LWJGLWorld} to set its display parent
 	 * within {@link DisplayManager}
 	 */
 	public SimulationWindow getSimulationWindow() {

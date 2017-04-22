@@ -33,12 +33,12 @@ import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.instrumentpanel.ClosePanelListener;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
-import com.chrisali.javaflightsim.otw.RunWorld;
+import com.chrisali.javaflightsim.otw.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
- * JPanel that integrates {@link InstrumentPanel} and the OpenGL OTW view from {@link RunWorld},
+ * JPanel that integrates {@link InstrumentPanel} and the OpenGL OTW view from {@link LWJGLWorld},
  * producing a display similar to a traditional flight simulator program; uses addNotify() and removeNodity()
  * stop OTW thread on this thread to destroy OpenGL display correctly when window is closed. The solution is shown here:
  * <p>http://stackoverflow.com/questions/26199534/how-to-attach-opengl-display-to-a-jframe-and-dispose-of-it-properly</p>
@@ -57,7 +57,7 @@ public class SimulationWindow extends JFrame {
 	
 	/**
 	 * Constructor for simulation window; takes {@link SimulationController} argument to gain access to
-	 * starting and stopping threads for {@link RunWorld} on this thread
+	 * starting and stopping threads for {@link LWJGLWorld} on this thread
 	 * 
 	 * @param controller
 	 */
@@ -133,7 +133,7 @@ public class SimulationWindow extends JFrame {
 	}
 	
 	/**
-	 * @return {@link Canvas} object used to render the {@link RunWorld} out the window display 
+	 * @return {@link Canvas} object used to render the {@link LWJGLWorld} out the window display 
 	 */
 	public Canvas getOutTheWindowCanvas() {
 		return outTheWindowCanvas;

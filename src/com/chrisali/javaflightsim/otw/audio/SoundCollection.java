@@ -28,7 +28,7 @@ import org.lwjgl.util.vector.Vector3f;
 import com.chrisali.javaflightsim.datatransfer.FlightData;
 import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
-import com.chrisali.javaflightsim.otw.RunWorld;
+import com.chrisali.javaflightsim.otw.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -191,7 +191,7 @@ public class SoundCollection {
 	/**
 	 * Wrapper method to call setRPM(), setControl(), setWind() and setStallHorn() at once;
 	 * uses an EnumMap of {@link SoundCategory} enums to set the double values retrieved by 
-	 * {@link FlightDataListener} in {@link RunWorld}. Uses {@link AircraftBuilder} from 
+	 * {@link FlightDataListener} in {@link LWJGLWorld}. Uses {@link AircraftBuilder} from 
 	 * {@link SimulationConfiguration} argument to set RPM values
 	 * 
 	 * @param soundValues

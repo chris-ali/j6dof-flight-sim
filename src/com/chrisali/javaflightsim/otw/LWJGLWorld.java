@@ -75,7 +75,7 @@ import com.chrisali.javaflightsim.utilities.FileUtilities;
  * @author Christopher Ali
  *
  */
-public class RunWorld implements Runnable, FlightDataListener {
+public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	
 	private Loader loader;
 	private MasterRenderer masterRenderer;
@@ -109,7 +109,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 	 * 
 	 * @param controller
 	 */
-	public RunWorld(SimulationController controller) {
+	public LWJGLWorld(SimulationController controller) {
 		this.controller = controller;
 		configuration = controller.getConfiguration();
 	}	
@@ -251,9 +251,7 @@ public class RunWorld implements Runnable, FlightDataListener {
 		SoundCollection.initializeSounds(configuration);
 	}
 	
-	/**
-	 * @return Height of terrain at the ownship's current position
-	 */
+	@Override
 	public synchronized float getTerrainHeight() {
 		if (running) {
 			TreeMap<String, Terrain> terrainTree = terrainCollection.getTerrainTree();
@@ -275,9 +273,9 @@ public class RunWorld implements Runnable, FlightDataListener {
 	public static synchronized boolean isRunning() {return running;}
 	
 	/**
-	 * Sets running boolean in {@link RunWorld} to false to begin the display clean up process
+	 * Sets running boolean in {@link LWJGLWorld} to false to begin the display clean up process
 	 */
-	public static synchronized void requestClose() {RunWorld.running = false;}
+	public static synchronized void requestClose() {LWJGLWorld.running = false;}
 	
 	//===================================== Text ============================================================
 	
