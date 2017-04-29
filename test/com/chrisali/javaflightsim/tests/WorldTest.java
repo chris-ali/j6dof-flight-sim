@@ -19,13 +19,13 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.tests;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
 import com.chrisali.javaflightsim.otw.LWJGLWorld;
 
 public class WorldTest {
 	
 	public static void main(String[] args) {
-		Thread worldThread = new Thread(new LWJGLWorld(new SimulationController()));
+		Thread worldThread = new Thread(new LWJGLWorld(new LWJGLSimulationController()));
 		worldThread.start();
 	}
 	

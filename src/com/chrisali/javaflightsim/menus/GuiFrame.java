@@ -31,7 +31,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
 import com.chrisali.javaflightsim.instrumentpanel.ClosePanelListener;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.menus.aircraftpanel.AircraftConfigurationListener;
@@ -62,7 +62,7 @@ public class GuiFrame extends JFrame {
 
 	private static final long serialVersionUID = -1803264930661591606L;
 	
-	private SimulationController simulationController;
+	private LWJGLSimulationController simulationController;
 	private SimulationConfiguration configuration;
 	
 	private ButtonPanel buttonPanel;
@@ -74,12 +74,12 @@ public class GuiFrame extends JFrame {
 	private CardLayout cardLayout;
 	
 	/**
-	 * Constructor, which takes a {@link SimulationController} reference to gain access to methods to
+	 * Constructor, which takes a {@link LWJGLSimulationController} reference to gain access to methods to
 	 * configure the simulation
 	 * 
 	 * @param controller
 	 */
-	public GuiFrame(SimulationController controller) {
+	public GuiFrame(LWJGLSimulationController controller) {
 		super("Java Flight Sim");
 		
 		simulationController = controller;
@@ -242,7 +242,7 @@ public class GuiFrame extends JFrame {
 	}
 	
 	/**
-	 * 	Sets all options and text on panels by calling methods in {@link SimulationController} to
+	 * 	Sets all options and text on panels by calling methods in {@link LWJGLSimulationController} to
 	 *  parse setup files and get EnumMap values
 	 */
 	private void setOptionsAndText() {
@@ -295,8 +295,8 @@ public class GuiFrame extends JFrame {
 	}
 	
 	/**
-	 * @return {@link InstrumentPanel} object for {@link SimulationController} to set a
-	 * {@link FlightDataListener} to when {@link SimulationController#startSimulation()} is called
+	 * @return {@link InstrumentPanel} object for {@link LWJGLSimulationController} to set a
+	 * {@link FlightDataListener} to when {@link LWJGLSimulationController#startSimulation()} is called
 	 */
 	public InstrumentPanel getInstrumentPanel() {
 		return simulationWindow.getInstrumentPanel();

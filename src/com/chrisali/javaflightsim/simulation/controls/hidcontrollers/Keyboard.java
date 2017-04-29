@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
 import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
@@ -54,16 +54,16 @@ public class Keyboard extends AbstractController {
 	// Keep track of reset, so that it can only be run once per pause
 	private boolean wasReset = false;
 	
-	private SimulationController simController;
+	private LWJGLSimulationController simController;
 	private EnumSet<Options> options;
 	
 	/**
 	 *  Constructor for Keyboard class; creates list of controllers using searchForControllers() and
-	 *  creates a reference to a {@link SimulationController} object 
+	 *  creates a reference to a {@link LWJGLSimulationController} object 
 	 * @param controls
 	 * @param simController
 	 */
-	public Keyboard(Map<FlightControlType, Double> controls, SimulationController simController) {
+	public Keyboard(Map<FlightControlType, Double> controls, LWJGLSimulationController simController) {
 		this.simController = simController;
 		controllerList = new ArrayList<>();
 		options = simController.getConfiguration().getSimulationOptions();

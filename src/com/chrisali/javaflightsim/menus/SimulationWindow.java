@@ -28,7 +28,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
 import com.chrisali.javaflightsim.instrumentpanel.ClosePanelListener;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
@@ -56,12 +56,12 @@ public class SimulationWindow extends JFrame {
 	private ClosePanelListener closePanelListener;
 	
 	/**
-	 * Constructor for simulation window; takes {@link SimulationController} argument to gain access to
+	 * Constructor for simulation window; takes {@link LWJGLSimulationController} argument to gain access to
 	 * starting and stopping threads for {@link LWJGLWorld} on this thread
 	 * 
 	 * @param controller
 	 */
-	public SimulationWindow(SimulationController controller) {
+	public SimulationWindow(LWJGLSimulationController controller) {
 		super("Java Flight Simulator");
 		
 		SimulationConfiguration configuration = controller.getConfiguration();

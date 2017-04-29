@@ -24,7 +24,7 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
@@ -50,7 +50,7 @@ public class InstrumentPanelTest {
 	}
 
 	private static void runApp() {
-		SimulationController controller = new SimulationController();
+		LWJGLSimulationController controller = new LWJGLSimulationController();
 		SimulationConfiguration configuration = new SimulationConfiguration();
 		
 		configuration.getSimulationOptions().clear();

@@ -33,7 +33,7 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
 import com.chrisali.javaflightsim.menus.GuiFrame;
 import com.chrisali.javaflightsim.menus.SimulationWindow;
 import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
@@ -81,7 +81,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	private MasterRenderer masterRenderer;
 	private List<Light> lights;
 	
-	private SimulationController controller;
+	private LWJGLSimulationController controller;
 	private SimulationConfiguration configuration;
 	
 	// Sound Fields
@@ -104,12 +104,12 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	
 	/**
 	 * Sets up OTW display with {@link DisplayOptions} and {@link AudioOptions}, as well as a link to
-	 * {@link AircraftBuilder} to determine if multiple engines in aircraft. If {@link SimulationController}
+	 * {@link AircraftBuilder} to determine if multiple engines in aircraft. If {@link LWJGLSimulationController}
 	 * object specified, display will embed itself within {@link SimulationWindow} in {@link GuiFrame} 
 	 * 
 	 * @param controller
 	 */
-	public LWJGLWorld(SimulationController controller) {
+	public LWJGLWorld(LWJGLSimulationController controller) {
 		this.controller = controller;
 		configuration = controller.getConfiguration();
 	}	

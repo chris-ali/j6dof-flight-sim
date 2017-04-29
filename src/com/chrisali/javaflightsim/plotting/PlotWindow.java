@@ -41,7 +41,7 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 
@@ -61,7 +61,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	private Thread refreshPlotThread;
 	private ProgressDialog progressDialog;
 
-	private SimulationController controller;
+	private LWJGLSimulationController controller;
 	
 	/**
 	 * Plots data from the simulation in a Swing window. It loops through 
@@ -69,9 +69,9 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	 * from {@link Integrate6DOFEquations#getLogsOut()}, and assigns them to tabs in a JTabbedPane. 
 	 * 
 	 * @param String simPlotCetegories
-	 * @param SimulationController controller
+	 * @param LWJGLSimulationController controller
 	 */
-	public PlotWindow(Set<String> simPlotCategories, SimulationController controller) {
+	public PlotWindow(Set<String> simPlotCategories, LWJGLSimulationController controller) {
 		super(controller.getConfiguration().getAircraftBuilder().getAircraft().getName() + " Plots");
 		setLayout(new BorderLayout());
 		

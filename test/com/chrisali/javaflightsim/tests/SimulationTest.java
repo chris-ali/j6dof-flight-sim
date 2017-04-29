@@ -24,7 +24,7 @@ import java.util.HashSet;
 
 import javax.swing.JFrame;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
 import com.chrisali.javaflightsim.plotting.PlotWindow;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
@@ -35,7 +35,7 @@ import com.chrisali.javaflightsim.simulation.setup.Trimming;
 
 /**
  * Runs a test of the flight simulation module in Analysis mode to test an aircraft and the simulation 
- * workings; uses {@link SimulationController} to set the options, {@link AircraftBuilder} to initalize 
+ * workings; uses {@link LWJGLSimulationController} to set the options, {@link AircraftBuilder} to initalize 
  * the aircraft to test, {@link FlightControls} thread to run doublet inputs and {@link PlotWindow} to
  * plot the simulation results at the end
  * 
@@ -50,13 +50,13 @@ public class SimulationTest {
 	private Integrate6DOFEquations runSim;
 	private Thread simulationThread;
 	
-	private SimulationController controller;
+	private LWJGLSimulationController controller;
 	private SimulationConfiguration configuration;
 	
 	private PlotWindow plots;
 	
 	public SimulationTest() {
-		controller = new SimulationController();
+		controller = new LWJGLSimulationController();
 		configuration = new SimulationConfiguration();
 		
 		configuration.getSimulationOptions().clear();

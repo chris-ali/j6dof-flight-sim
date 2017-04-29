@@ -39,7 +39,7 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 public class ConsoleTablePanel extends JFrame {
@@ -48,10 +48,10 @@ public class ConsoleTablePanel extends JFrame {
 	
 	private JTable table;
 	private ConsoleTableModel consoleTableModel;
-	private SimulationController simController;
+	private LWJGLSimulationController simController;
 	private SwingWorker<Void,Integer> tableRefreshWorker;
 	
-	public ConsoleTablePanel(SimulationController controller) {
+	public ConsoleTablePanel(LWJGLSimulationController controller) {
 		super("Raw Data Output");
 		
 		this.simController = controller;

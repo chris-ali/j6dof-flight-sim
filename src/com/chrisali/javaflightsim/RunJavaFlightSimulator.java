@@ -21,7 +21,7 @@ package com.chrisali.javaflightsim;
 
 import javax.swing.SwingUtilities;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
 import com.chrisali.javaflightsim.menus.GuiFrame;
 
 /**
@@ -40,12 +40,12 @@ public class RunJavaFlightSimulator {
 	}
 	
 	/**
-	 * Initializes {@link SimulationController} and {@link GuiFrame}; due to cross-referencing
-	 * needed with both objects, {@link SimulationController#setGuiFrame(GuiFrame)} needs to be
+	 * Initializes {@link LWJGLSimulationController} and {@link GuiFrame}; due to cross-referencing
+	 * needed with both objects, {@link LWJGLSimulationController#setGuiFrame(GuiFrame)} needs to be
 	 * called
 	 */
 	private static void runApp() {
-		SimulationController controller = new SimulationController(); 
+		LWJGLSimulationController controller = new LWJGLSimulationController(); 
 		GuiFrame guiFrame = new GuiFrame(controller);
 		
 		// Pass in mainFrame reference so that OTW display can get Canvas

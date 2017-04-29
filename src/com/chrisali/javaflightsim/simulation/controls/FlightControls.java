@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.controllers.SimulationController;
+import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
 import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.AbstractController;
 import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.CHControls;
 import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Joystick;
@@ -66,7 +66,7 @@ public class FlightControls implements Runnable, FlightDataListener {
 	 * 
 	 * @param options
 	 */
-	public FlightControls(SimulationController controller) {
+	public FlightControls(LWJGLSimulationController controller) {
 		SimulationConfiguration configuration = controller.getConfiguration();
 		
 		controls = configuration.getInitialControls();
