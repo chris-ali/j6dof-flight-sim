@@ -30,9 +30,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
-import com.chrisali.javaflightsim.datatransfer.FlightData;
-import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
-import com.chrisali.javaflightsim.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.AirspeedIndicator;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.Altimeter;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.ArtificialHorizon;
@@ -41,6 +38,9 @@ import com.chrisali.javaflightsim.instrumentpanel.gauges.Led;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.Tachometer;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.TurnCoordinator;
 import com.chrisali.javaflightsim.instrumentpanel.gauges.VerticalSpeed;
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 import eu.hansolo.steelseries.tools.LedColor;

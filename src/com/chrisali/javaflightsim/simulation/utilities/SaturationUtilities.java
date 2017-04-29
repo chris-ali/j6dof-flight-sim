@@ -17,13 +17,15 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.simulation.integration;
+package com.chrisali.javaflightsim.simulation.utilities;
+
+import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 /**
  * This class provides methods to limit the results calculated in {@link Integrate6DOFEquations} to prevent large or non-physical values 
  * of the 6DOF states from affecting the simulation elsewhere  
  */
-public class SaturationLimits {
+public class SaturationUtilities {
 	
 	/**
 	 * @return Angle bound between 0 and 2*Pi. 

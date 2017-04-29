@@ -29,14 +29,14 @@ import java.util.Map;
 import java.util.Set;
 
 import com.chrisali.javaflightsim.consoletable.ConsoleTablePanel;
-import com.chrisali.javaflightsim.datatransfer.EnvironmentData;
-import com.chrisali.javaflightsim.datatransfer.FlightData;
 import com.chrisali.javaflightsim.menus.GuiFrame;
 import com.chrisali.javaflightsim.menus.SimulationWindow;
 import com.chrisali.javaflightsim.otw.LWJGLWorld;
 import com.chrisali.javaflightsim.otw.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.plotting.PlotWindow;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
+import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.Options;

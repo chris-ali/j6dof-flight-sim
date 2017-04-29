@@ -32,7 +32,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.chrisali.javaflightsim.controllers.SimulationController;
-import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.instrumentpanel.ClosePanelListener;
 import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.menus.aircraftpanel.AircraftConfigurationListener;
@@ -46,6 +45,7 @@ import com.chrisali.javaflightsim.menus.optionspanel.OptionsConfigurationListene
 import com.chrisali.javaflightsim.menus.optionspanel.OptionsPanel;
 import com.chrisali.javaflightsim.otw.LWJGLWorld;
 import com.chrisali.javaflightsim.otw.renderengine.DisplayManager;
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;

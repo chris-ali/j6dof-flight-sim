@@ -25,10 +25,10 @@ import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
 import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
-import com.chrisali.javaflightsim.simulation.controls.FlightControlsUtilities;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
+import com.chrisali.javaflightsim.simulation.utilities.FlightControlsUtilities;
 
 import net.java.games.input.Controller;
 

@@ -17,10 +17,11 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.simulation.controls;
+package com.chrisali.javaflightsim.simulation.utilities;
 
 import java.util.Map;
 
+import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
@@ -39,7 +40,7 @@ public class FlightControlsUtilities {
 	 * Initializes trimControls EnumMap in {@link FlightControlsUtilities}; needs to be called each time controls and
 	 * initial conditions are changed so that new trim values can be read from InitialControls.txt
 	 */
-	public static void init() {trimControls = IntegrationSetup.gatherInitialControls("InitialControls");}
+	public static void init() {trimControls = IntegrationSetup.gatherInitialControls(SimFiles.INITIAL_CONTROLS.toString());}
 	
 	/**
 	 * Generates a control doublet in the positive and then negative direction, returning to trim value. The start

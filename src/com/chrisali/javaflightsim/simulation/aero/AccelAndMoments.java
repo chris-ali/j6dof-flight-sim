@@ -30,8 +30,8 @@ import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.IntegrateGroundReaction;
-import com.chrisali.javaflightsim.simulation.integration.SaturationLimits;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
+import com.chrisali.javaflightsim.simulation.utilities.SaturationUtilities;
 
 /**
  * Calculates total accelerations and moments experienced by the aircraft in the simulation. The init method creates an
@@ -98,7 +98,7 @@ public class AccelAndMoments {
 											 .scalarMultiply(1/aircraft.getMassProperty(MassProperties.TOTAL_MASS))
 											 .toArray(); 
 		
-		return SaturationLimits.limitLinearAccelerations(linearAccelerations);
+		return SaturationUtilities.limitLinearAccelerations(linearAccelerations);
 	}
 	
 	/**
@@ -154,6 +154,6 @@ public class AccelAndMoments {
 		totalMoments = aeroMomentVector.add(engineMoment).add(aeroForceCrossProd).add(groundMomentVector)
 									   .toArray();
 		
-		return SaturationLimits.limitTotalMoments(totalMoments); 
+		return SaturationUtilities.limitTotalMoments(totalMoments); 
 	}
 }

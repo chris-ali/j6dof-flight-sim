@@ -40,7 +40,7 @@ import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
 /**
- * Contains various static methods for reading and parsing files
+ * Contains various static methods for reading and parsing text configuration files
  */
 public class FileUtilities {
 

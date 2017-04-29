@@ -25,12 +25,12 @@ import java.util.Set;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import com.chrisali.javaflightsim.datatransfer.FlightData;
-import com.chrisali.javaflightsim.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.otw.LWJGLWorld;
 import com.chrisali.javaflightsim.otw.utilities.OTWDirectories;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 

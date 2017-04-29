@@ -31,14 +31,14 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 
-import com.chrisali.javaflightsim.datatransfer.EnvironmentData;
-import com.chrisali.javaflightsim.datatransfer.EnvironmentDataListener;
-import com.chrisali.javaflightsim.datatransfer.EnvironmentDataType;
 import com.chrisali.javaflightsim.simulation.aero.AccelAndMoments;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.controls.FlightControls;
+import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
+import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentDataListener;
+import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentDataType;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
@@ -46,6 +46,7 @@ import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.SaturationUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
@@ -225,10 +226,10 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		}
 
 		// Implement saturation and (2)pi bounding to keep states within realistic limits
-		linearVelocities = SaturationLimits.limitLinearVelocities(linearVelocities);
-		NEDPosition      = SaturationLimits.limitNEDPosition(NEDPosition, terrainHeight);
-		eulerAngles      = SaturationLimits.piBounding(eulerAngles, angularRates);
-		angularRates     = SaturationLimits.limitAngularRates(angularRates);
+		linearVelocities = SaturationUtilities.limitLinearVelocities(linearVelocities);
+		NEDPosition      = SaturationUtilities.limitNEDPosition(NEDPosition, terrainHeight);
+		eulerAngles      = SaturationUtilities.piBounding(eulerAngles, angularRates);
+		angularRates     = SaturationUtilities.limitAngularRates(angularRates);
 		
 		// Update wind parameters
 		windParameters = SixDOFUtilities.calculateWindParameters(linearVelocities);

@@ -17,10 +17,10 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.datatransfer;
+package com.chrisali.javaflightsim.simulation.datatransfer;
 
 import java.util.EventListener;
 
-public interface FlightDataListener extends EventListener {
-	public void onFlightDataReceived(FlightData flightData);
+public interface EnvironmentDataListener extends EventListener {
+	public void onEnvironmentDataReceived(EnvironmentData environmentData);
 }

@@ -24,7 +24,6 @@ import java.util.Map;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.simulation.integration.SaturationLimits;
 
 /**
  * This class contains methods to do coordinate axes transformations from Body to NED and from Wind to Body. It also calculates Geodetic coordinates from NED position, Mach number, 
@@ -132,7 +131,7 @@ public class SixDOFUtilities {
 		double beta = Math.asin(linearVelocities[1]/vTrue);
 		double alpha = Math.atan(linearVelocities[2]/linearVelocities[0]);
 		
-		return SaturationLimits.limitWindParameters(new double[] {vTrue,beta,alpha});
+		return SaturationUtilities.limitWindParameters(new double[] {vTrue,beta,alpha});
 	}
 	
 	/**

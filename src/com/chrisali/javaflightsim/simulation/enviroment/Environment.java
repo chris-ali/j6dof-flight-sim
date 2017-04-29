@@ -22,7 +22,7 @@ package com.chrisali.javaflightsim.simulation.enviroment;
 import java.util.EnumMap;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.integration.SaturationLimits;
+import com.chrisali.javaflightsim.simulation.utilities.SaturationUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
@@ -115,7 +115,7 @@ public class Environment {
 	 * 
 	 * @param windDir
 	 */
-	public static void setWindDir(double windDir) {Environment.windDir = SaturationLimits.twoPiBounding(Math.toRadians(windDir)-Math.PI);}
+	public static void setWindDir(double windDir) {Environment.windDir = SaturationUtilities.twoPiBounding(Math.toRadians(windDir)-Math.PI);}
 
 	/**
 	 * Sets the difference in temperature from ISA (59 F, 15 C at Standard Sea Level)
