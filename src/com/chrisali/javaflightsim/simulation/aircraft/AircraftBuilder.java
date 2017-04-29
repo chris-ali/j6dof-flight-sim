@@ -29,9 +29,9 @@ import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.propulsion.EngineParameters;
 import com.chrisali.javaflightsim.simulation.propulsion.FixedPitchPropEngine;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
-import com.chrisali.javaflightsim.utilities.SimDirectories;
-import com.chrisali.javaflightsim.utilities.SimFiles;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
+import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
 
 /**
  * Wrapper class to build a complete aircraft with a "body" ({@link Aircraft}) and a LinkedHashSet of {@link Engine}(s). This object is used by {@link Integrate6DOFEquations}

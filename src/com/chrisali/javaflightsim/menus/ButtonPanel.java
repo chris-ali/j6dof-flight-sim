@@ -39,7 +39,7 @@ import javax.swing.border.EtchedBorder;
 import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
-import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 public class ButtonPanel extends JPanel {
 

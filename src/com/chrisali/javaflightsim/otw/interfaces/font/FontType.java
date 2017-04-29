@@ -22,7 +22,8 @@ package com.chrisali.javaflightsim.otw.interfaces.font;
 import java.io.File;
 
 import com.chrisali.javaflightsim.otw.renderengine.Loader;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.otw.utilities.OTWDirectories;
+import com.chrisali.javaflightsim.otw.utilities.OTWFiles;
 
 /**
  * Represents a font. It holds the font's texture atlas as well as having the
@@ -47,8 +48,11 @@ public class FontType {
 	 *            information about each character in the texture atlas.
 	 */
 	public FontType(Loader loader, String fontName) {
-		this.textureAtlas = loader.loadTexture(fontName, FileUtilities.FONTS_DIR);
-		File fontFile = new File(FileUtilities.RESOURCES_DIR + File.separator + FileUtilities.FONTS_DIR + File.separator + fontName + FileUtilities.FONT_EXT); 
+		this.textureAtlas = loader.loadTexture(fontName, OTWDirectories.FONTS.toString());
+		
+		File fontFile = new File(OTWDirectories.RESOURCES.toString() + File.separator + OTWDirectories.FONTS.toString() + 
+								File.separator + fontName + OTWFiles.FONT_EXT.toString()); 
+		
 		this.loader = new TextMeshCreator(fontFile);
 	}
 

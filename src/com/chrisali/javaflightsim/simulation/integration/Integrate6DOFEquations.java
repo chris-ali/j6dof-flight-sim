@@ -46,7 +46,7 @@ import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
-import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
  * This class integrates all 12 6DOF (plus 2 latitude/longitude) equations numerically to obtain the aircraft's states.

@@ -42,7 +42,7 @@ import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 /**
  * Controls the configuration and running of processes supporting the simulation component of JavaFlightSim. This consists of: 

@@ -19,8 +19,8 @@ import org.apache.commons.math3.exception.NullArgumentException;
 
 import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
 import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
-import com.chrisali.javaflightsim.utilities.SimDirectories;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 
 /**
  * Contains a builder to generate a {@link PiecewiseBicubicSplineInterpolatingFunction}, which simulates a 2D lookup table in JavaFlightSimulator

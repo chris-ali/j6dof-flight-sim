@@ -32,7 +32,7 @@ import com.chrisali.javaflightsim.otw.models.RawModel;
 import com.chrisali.javaflightsim.otw.shaders.TerrainShader;
 import com.chrisali.javaflightsim.otw.terrain.Terrain;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexturePack;
-import com.chrisali.javaflightsim.utilities.RenderingUtilities;
+import com.chrisali.javaflightsim.otw.utilities.RenderingUtilities;
 
 public class TerrainRenderer {
 	private TerrainShader terrainShader;

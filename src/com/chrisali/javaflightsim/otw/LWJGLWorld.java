@@ -62,11 +62,11 @@ import com.chrisali.javaflightsim.otw.renderengine.OBJLoader;
 import com.chrisali.javaflightsim.otw.terrain.Terrain;
 import com.chrisali.javaflightsim.otw.terrain.TerrainCollection;
 import com.chrisali.javaflightsim.otw.textures.ModelTexture;
+import com.chrisali.javaflightsim.otw.utilities.OTWDirectories;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
 
 /**
  * Runner class for out the window display for Java Flight Sim. It utilizes LWJGL to create a 3D world in OpenGL. 
@@ -205,8 +205,8 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		//================================= Ownship ===========================================================
 		
 		// Model used for aircraft; scale set to 0 to be invisible for now
-		TexturedModel bunny =  new TexturedModel(OBJLoader.loadObjModel("bunny", FileUtilities.ENTITIES_DIR, loader), 
-			    								new ModelTexture(loader.loadTexture("bunny", FileUtilities.ENTITIES_DIR)));
+		TexturedModel bunny =  new TexturedModel(OBJLoader.loadObjModel("bunny", OTWDirectories.ENTITIES.toString(), loader), 
+			    								new ModelTexture(loader.loadTexture("bunny", OTWDirectories.ENTITIES.toString())));
 		// Initial position of ownship
 		Map<InitialConditions, Double> initialConditions = configuration.getInitialConditions();
 		ownshipPosition = new Vector3f((float)initialConditions.get(InitialConditions.INITN).doubleValue() / 15,
@@ -231,7 +231,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		
 		//=============================== Particles ==========================================================
 		
-		ParticleTexture clouds = new ParticleTexture(loader.loadTexture("clouds", FileUtilities.PARTICLES_DIR), 4, true);
+		ParticleTexture clouds = new ParticleTexture(loader.loadTexture("clouds", OTWDirectories.PARTICLES.toString()), 4, true);
 		
 		// Generates clouds at random positions along terrain map
 		Random random = new Random();

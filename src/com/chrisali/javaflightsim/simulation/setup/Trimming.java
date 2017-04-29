@@ -32,9 +32,9 @@ import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
-import com.chrisali.javaflightsim.utilities.SimDirectories;
-import com.chrisali.javaflightsim.utilities.SimFiles;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
+import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
 
 /**
  * Simple rudimentary method of longitudinally trimming an aircraft by statically equating forces and moments.

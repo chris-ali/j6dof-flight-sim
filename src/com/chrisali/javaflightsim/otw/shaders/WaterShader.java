@@ -23,7 +23,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.otw.entities.Camera;
-import com.chrisali.javaflightsim.utilities.RenderingUtilities;
+import com.chrisali.javaflightsim.otw.utilities.RenderingUtilities;
 
 public class WaterShader extends ShaderProgram {
 

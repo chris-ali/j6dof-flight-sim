@@ -24,7 +24,7 @@ import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 public class WriteFileTest {
 	

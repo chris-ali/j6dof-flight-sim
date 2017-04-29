@@ -37,7 +37,7 @@ import com.chrisali.javaflightsim.otw.models.RawModel;
 import com.chrisali.javaflightsim.otw.particles.Particle;
 import com.chrisali.javaflightsim.otw.particles.ParticleTexture;
 import com.chrisali.javaflightsim.otw.shaders.ParticleShader;
-import com.chrisali.javaflightsim.utilities.RenderingUtilities;
+import com.chrisali.javaflightsim.otw.utilities.RenderingUtilities;
 
 public class ParticleRenderer {
 

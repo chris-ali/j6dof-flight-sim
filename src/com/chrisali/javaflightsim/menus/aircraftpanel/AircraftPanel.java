@@ -53,8 +53,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import com.chrisali.javaflightsim.menus.CancelButtonListener;
-import com.chrisali.javaflightsim.utilities.SimDirectories;
-import com.chrisali.javaflightsim.utilities.SimFiles;
+import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
+import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
 
 public class AircraftPanel extends JPanel {
 

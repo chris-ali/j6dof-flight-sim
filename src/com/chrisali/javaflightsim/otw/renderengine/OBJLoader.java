@@ -30,7 +30,8 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.otw.models.RawModel;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.otw.utilities.OTWDirectories;
+import com.chrisali.javaflightsim.otw.utilities.OTWFiles;
 
 /**
  * Contains static methods to load a {@link RawModel} into memory by reading and processing all vertices, textures and
@@ -52,8 +53,8 @@ public class OBJLoader {
 	public static RawModel loadObjModel(String fileName, String directory, Loader loader) {
  		FileReader fr = null;
 		
-		try {fr = new FileReader(new File(FileUtilities.RESOURCES_DIR + File.separator + directory + File.separator + fileName + FileUtilities.MODEL_EXT));} 
-		catch (FileNotFoundException e) {System.err.println("Could not load model: " + fileName + FileUtilities.MODEL_EXT + "!");}
+		try {fr = new FileReader(new File(OTWDirectories.RESOURCES.toString() + File.separator + directory + File.separator + fileName + OTWFiles.MODEL_EXT.toString()));} 
+		catch (FileNotFoundException e) {System.err.println("Could not load model: " + fileName + OTWFiles.MODEL_EXT.toString() + "!");}
 		
 		BufferedReader reader = new BufferedReader(fr);
 		String line;
@@ -130,7 +131,6 @@ public class OBJLoader {
 			indicesArray[i] = indices.get(i);
 		
 		return loader.loadToVAO(verticesArray, texturesArray, normalsArray, indicesArray);
-	
 	}
 	
 	private static void processVertex(String[] vertexData, List<Integer> indices, List<Vector2f> textures, 

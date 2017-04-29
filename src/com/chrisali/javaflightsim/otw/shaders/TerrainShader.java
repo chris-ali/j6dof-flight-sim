@@ -27,7 +27,7 @@ import org.lwjgl.util.vector.Vector4f;
 
 import com.chrisali.javaflightsim.otw.entities.Camera;
 import com.chrisali.javaflightsim.otw.entities.Light;
-import com.chrisali.javaflightsim.utilities.RenderingUtilities;
+import com.chrisali.javaflightsim.otw.utilities.RenderingUtilities;
 
 public class TerrainShader extends ShaderProgram {
 	

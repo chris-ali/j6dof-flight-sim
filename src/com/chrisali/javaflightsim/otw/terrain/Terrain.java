@@ -38,8 +38,9 @@ import com.chrisali.javaflightsim.otw.models.RawModel;
 import com.chrisali.javaflightsim.otw.renderengine.Loader;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexture;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexturePack;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
-import com.chrisali.javaflightsim.utilities.RenderingUtilities;
+import com.chrisali.javaflightsim.otw.utilities.OTWDirectories;
+import com.chrisali.javaflightsim.otw.utilities.OTWFiles;
+import com.chrisali.javaflightsim.otw.utilities.RenderingUtilities;
 
 /**
  * Terrain object that contains one ground tile that makes up the world of JavaFlightSimulator.
@@ -116,8 +117,8 @@ public class Terrain implements Comparable<Terrain> {
 		
 		BufferedImage image = null;
 		
-		try {image = ImageIO.read(new File(FileUtilities.RESOURCES_DIR + File.separator + directory + File.separator + fileName + FileUtilities.TEXTURE_EXT));} 
-		catch (IOException e) {System.err.println("Could not load height map: " + fileName + FileUtilities.TEXTURE_EXT + "!");}
+		try {image = ImageIO.read(new File(OTWDirectories.RESOURCES.toString() + File.separator + directory + File.separator + fileName + OTWFiles.TEXTURE_EXT.toString()));} 
+		catch (IOException e) {System.err.println("Could not load height map: " + fileName + OTWFiles.TEXTURE_EXT.toString() + "!");}
 		
 		int VERTEX_COUNT = image.getHeight();
 		int count = VERTEX_COUNT * VERTEX_COUNT;

@@ -23,7 +23,7 @@ import java.io.File;
 
 import javax.swing.filechooser.FileFilter;
 
-import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 public class CSVFileFilter extends FileFilter {
 

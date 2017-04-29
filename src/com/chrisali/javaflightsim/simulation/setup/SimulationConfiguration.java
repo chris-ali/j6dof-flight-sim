@@ -14,10 +14,10 @@ import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
-import com.chrisali.javaflightsim.utilities.SimDirectories;
-import com.chrisali.javaflightsim.utilities.SimFiles;
-import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
+import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
+import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
  * Contains collections and methods used to configure the simulation and save/load 

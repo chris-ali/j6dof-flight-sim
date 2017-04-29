@@ -24,9 +24,9 @@ import java.util.EnumMap;
 
 import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
-import com.chrisali.javaflightsim.utilities.SimDirectories;
-import com.chrisali.javaflightsim.utilities.SimFiles;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
+import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
 
 /**
  * Class containing methods to parse setup files to generate EnumMaps used as initial conditions,

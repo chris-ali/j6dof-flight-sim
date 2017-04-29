@@ -47,7 +47,7 @@ import javax.swing.event.ChangeListener;
 
 import com.chrisali.javaflightsim.menus.CancelButtonListener;
 import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
-import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 public class InitialConditionsPanel extends JPanel {
 

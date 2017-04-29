@@ -32,7 +32,8 @@ import org.lwjgl.openal.AL10;
 import org.lwjgl.util.WaveData;
 import org.lwjgl.util.vector.Vector3f;
 
-import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.otw.utilities.OTWDirectories;
+import com.chrisali.javaflightsim.otw.utilities.OTWFiles;
 
 public class AudioMaster {
 	
@@ -53,12 +54,12 @@ public class AudioMaster {
 		buffers.add(buffer);
 				
 		try {
-			String path = FileUtilities.RESOURCES_DIR + File.separator + directory + File.separator + fileName + FileUtilities.SOUND_EXT;
+			String path = OTWDirectories.RESOURCES.toString() + File.separator + directory + File.separator + fileName + OTWFiles.SOUND_EXT.toString();
 			WaveData waveFile = WaveData.create(new BufferedInputStream(new FileInputStream(path)));
 			AL10.alBufferData(buffer, waveFile.format, waveFile.data, waveFile.samplerate);
 			waveFile.dispose();
 		} catch (IOException | NullPointerException e) {
-			System.err.println("Could not load sound: " + fileName + FileUtilities.SOUND_EXT + "!");
+			System.err.println("Could not load sound: " + fileName + OTWFiles.SOUND_EXT.toString() + "!");
 			System.err.println(e.getMessage());
 		}
 		

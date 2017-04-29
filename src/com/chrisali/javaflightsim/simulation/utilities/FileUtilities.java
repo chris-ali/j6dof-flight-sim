@@ -17,7 +17,7 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.utilities;
+package com.chrisali.javaflightsim.simulation.utilities;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -43,28 +43,9 @@ import com.chrisali.javaflightsim.simulation.setup.Options;
  * Contains various static methods for reading and parsing files
  */
 public class FileUtilities {
-	
-	//===================================================================================================
-	//										File and Folder Names
-	//===================================================================================================
-	
-	// Folders
-	public static final String RESOURCES_DIR = "Resources";
-	public static final String AUDIO_DIR = "Audio";
-	public static final String ENTITIES_DIR = "Entities";
-	public static final String FONTS_DIR = "Fonts";
-	public static final String PARTICLES_DIR = "Particles";
-	public static final String TERRAIN_DIR = "Terrain";
-	public static final String WATER_DIR = "Water";
-	
-	// Extensions
+
 	public static final String CONFIG_EXT = ".txt";
-	public static final String TEXTURE_EXT = ".png";
-	public static final String MODEL_EXT = ".obj";
-	public static final String SOUND_EXT = ".wav";
-	public static final String FONT_EXT = ".fnt";
-	
-	// Root (May vary depending on operating system)
+
 	public static final String FILE_ROOT = ""; //"." + File.separator;
 	
 	//===================================================================================================

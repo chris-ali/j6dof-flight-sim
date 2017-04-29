@@ -30,7 +30,7 @@ import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.GroundReaction;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
-import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
  * This class contains calculations needed to model the force and moment reactions between the aircraft

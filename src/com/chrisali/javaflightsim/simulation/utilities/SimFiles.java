@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.chrisali.javaflightsim.utilities;
+package com.chrisali.javaflightsim.simulation.utilities;
 
 /**
  * Contains files and extensions used by the simulation component of JavaFlightSimulator 
@@ -31,9 +31,9 @@ public enum SimFiles {
 	DESCRIPTION_EXT		(".txt"),
 	PREVIEW_PIC_EXT     (".jpg");
 	
-	private String directory;
+	private String file;
 	
-	private SimFiles(String directory) {this.directory = directory;}
+	private SimFiles(String file) {this.file = file;}
 	
-	public String toString() {return directory;}
+	public String toString() {return file;}
 }

@@ -33,7 +33,7 @@ import com.chrisali.javaflightsim.otw.models.RawModel;
 import com.chrisali.javaflightsim.otw.models.TexturedModel;
 import com.chrisali.javaflightsim.otw.shaders.StaticShader;
 import com.chrisali.javaflightsim.otw.textures.ModelTexture;
-import com.chrisali.javaflightsim.utilities.RenderingUtilities;
+import com.chrisali.javaflightsim.otw.utilities.RenderingUtilities;
 
 public class EntityRenderer {
 	

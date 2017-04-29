@@ -25,7 +25,7 @@ import com.chrisali.javaflightsim.otw.entities.Ownship;
 import com.chrisali.javaflightsim.otw.renderengine.Loader;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexture;
 import com.chrisali.javaflightsim.otw.textures.TerrainTexturePack;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.otw.utilities.OTWDirectories;
 
 /**
  * An array of {@link Terrain} objects used to model out the world 
@@ -49,11 +49,11 @@ public class TerrainCollection {
 		terrainTree = new TreeMap<>();
 
 		TerrainTexturePack texturePack = createTexturePack("fields", "town", "forest", "water", loader);
-		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap", FileUtilities.TERRAIN_DIR));
+		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap", OTWDirectories.TERRAIN.toString()));
 	
 		for (int i = 0; i < numTerrains; i++) {
 			for (int j = 0; j < numTerrains; j++) {
-				terrainTree.put(i + "-" + j, new Terrain(i, j, "heightMap", FileUtilities.TERRAIN_DIR, loader, texturePack, blendMap, ownship));
+				terrainTree.put(i + "-" + j, new Terrain(i, j, "heightMap", OTWDirectories.TERRAIN.toString(), loader, texturePack, blendMap, ownship));
 			}
 		}
 	}
@@ -71,10 +71,10 @@ public class TerrainCollection {
 	 */
 	private TerrainTexturePack createTexturePack(String backgroundTextureName, 
 							String rTextureName, String gTextureName, String bTextureName, Loader loader) {
-		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture(backgroundTextureName, FileUtilities.TERRAIN_DIR));
-		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture(rTextureName, FileUtilities.TERRAIN_DIR));
-		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture(gTextureName, FileUtilities.TERRAIN_DIR));
-		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture(bTextureName, FileUtilities.TERRAIN_DIR));
+		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture(backgroundTextureName, OTWDirectories.TERRAIN.toString()));
+		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture(rTextureName, OTWDirectories.TERRAIN.toString()));
+		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture(gTextureName, OTWDirectories.TERRAIN.toString()));
+		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture(bTextureName, OTWDirectories.TERRAIN.toString()));
 		
 		return new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture); 
 	}

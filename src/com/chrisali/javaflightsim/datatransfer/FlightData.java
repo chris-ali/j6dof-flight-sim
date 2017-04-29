@@ -27,7 +27,7 @@ import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
-import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
  *	Interacts with {@link Integrate6DOFEquations} and any registered listeners to pass flight data from the simulation

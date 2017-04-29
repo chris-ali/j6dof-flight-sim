@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.chrisali.javaflightsim.utilities;
+package com.chrisali.javaflightsim.simulation.utilities;
 
 /**
  * Contains directories used by the simulation component of JavaFlightSimulator 
