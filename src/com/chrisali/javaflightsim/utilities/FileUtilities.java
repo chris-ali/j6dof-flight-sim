@@ -49,11 +49,6 @@ public class FileUtilities {
 	//===================================================================================================
 	
 	// Folders
-	public static final String AIRCRAFT_DIR = "Aircraft";
-	public static final String LOOKUP_TABLE_DIR = "LookupTables";
-	
-	public static final String SIM_CONFIG_DIR = "SimConfig";
-	
 	public static final String RESOURCES_DIR = "Resources";
 	public static final String AUDIO_DIR = "Audio";
 	public static final String ENTITIES_DIR = "Entities";
@@ -62,26 +57,7 @@ public class FileUtilities {
 	public static final String TERRAIN_DIR = "Terrain";
 	public static final String WATER_DIR = "Water";
 	
-	// Aircraft Files
-	public static final String AERO_FILE = "Aero";
-	public static final String DESCRIPTION_FILE = "Description";
-	public static final String GROUND_REACTION_FILE = "GroundReaction";
-	public static final String MASS_PROPERTIES_FILE = "MassProperties";
-	public static final String PREVIEW_PICTURE_FILE = "PreviewPicture";
-	public static final String PROPULSION_FILE = "Propulsion";
-	public static final String WING_GEOMETRY_FILE = "WingGeometry";
-	
-	// Sim Config Files
-	public static final String AUDIO_SETUP_FILE = "AudioSetup";
-	public static final String DISPLAY_SETUP_FILE = "DisplaySetup";
-	public static final String INITIAL_CONDITIONS_FILE = "InitialConditions";
-	public static final String INITIAL_CONTROLS_FILE = "InitialControls";
-	public static final String INTEGRATOR_CONFIG_FILE = "IntegratorConfig";
-	public static final String SIMULATION_SETUP_FILE = "SimulationSetup";
-	
 	// Extensions
-	public static final String DESCRIPTION_EXT = ".txt";
-	public static final String PREVIEW_PIC_EXT = ".jpg";
 	public static final String CONFIG_EXT = ".txt";
 	public static final String TEXTURE_EXT = ".png";
 	public static final String MODEL_EXT = ".obj";
@@ -161,7 +137,7 @@ public class FileUtilities {
 	 * @return EnumSet of selected options
 	 */
 	public static EnumSet<Options> parseSimulationSetup() throws IllegalArgumentException {
-		ArrayList<String[]> readSimSetupFile = readFileAndSplit(SIMULATION_SETUP_FILE, SIM_CONFIG_DIR);
+		ArrayList<String[]> readSimSetupFile = readFileAndSplit(SimFiles.SIMULATION_SETUP.toString(), SimDirectories.SIM_CONFIG.toString());
 		EnumSet<Options> options = EnumSet.noneOf(Options.class);
 		
 		for (String[] readLine : readSimSetupFile) {
@@ -181,7 +157,7 @@ public class FileUtilities {
 	 * @return selectedAircraft
 	 */
 	public static String parseSimulationSetupForAircraft() throws IllegalArgumentException {
-		ArrayList<String[]> readSimSetupFile = readFileAndSplit(SIMULATION_SETUP_FILE, SIM_CONFIG_DIR);
+		ArrayList<String[]> readSimSetupFile = readFileAndSplit(SimFiles.SIMULATION_SETUP.toString(), SimDirectories.SIM_CONFIG.toString());
 		String selectedAircraft = "";
 		
 		for (String[] readLine : readSimSetupFile) {
@@ -202,7 +178,7 @@ public class FileUtilities {
 		EnumMap<DisplayOptions, Integer> displayOptions = new EnumMap<DisplayOptions, Integer>(DisplayOptions.class);
 		
 		// Display options
-		ArrayList<String[]> readDisplaySetupFile = readFileAndSplit(DISPLAY_SETUP_FILE, SIM_CONFIG_DIR);
+		ArrayList<String[]> readDisplaySetupFile = readFileAndSplit(SimFiles.DISPLAY_SETUP.toString(), SimDirectories.SIM_CONFIG.toString());
 		
 		for(DisplayOptions displayOptionsKey : DisplayOptions.values()) {
 			for (String[] readLine : readDisplaySetupFile) {
@@ -224,7 +200,7 @@ public class FileUtilities {
 		EnumMap<AudioOptions, Float> audioOptions = new EnumMap<AudioOptions, Float>(AudioOptions.class);
 		
 		// Display options
-		ArrayList<String[]> readAudioSetupFile = readFileAndSplit(AUDIO_SETUP_FILE, SIM_CONFIG_DIR);
+		ArrayList<String[]> readAudioSetupFile = readFileAndSplit(SimFiles.AUDIO_SETUP.toString(), SimDirectories.SIM_CONFIG.toString());
 		
 		for(AudioOptions audioOptionsKey : AudioOptions.values()) {
 			for (String[] readLine : readAudioSetupFile) {
@@ -247,7 +223,7 @@ public class FileUtilities {
 		EnumMap<MassProperties, Double> massProperties = new EnumMap<MassProperties, Double>(MassProperties.class);
 		
 		// Mass Properties
-		ArrayList<String[]> readMassPropFile = readFileAndSplit(aircraftName, AIRCRAFT_DIR, MASS_PROPERTIES_FILE);
+		ArrayList<String[]> readMassPropFile = readFileAndSplit(aircraftName, SimDirectories.AIRCRAFT.toString(), SimFiles.MASS_PROPERTIES.toString());
 		
 		for(MassProperties massPropKey : MassProperties.values()) {
 			for (String[] readLine : readMassPropFile) {

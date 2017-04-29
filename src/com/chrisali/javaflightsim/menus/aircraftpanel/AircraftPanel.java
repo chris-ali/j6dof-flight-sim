@@ -53,7 +53,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import com.chrisali.javaflightsim.menus.CancelButtonListener;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.utilities.SimDirectories;
+import com.chrisali.javaflightsim.utilities.SimFiles;
 
 public class AircraftPanel extends JPanel {
 
@@ -134,8 +135,8 @@ public class AircraftPanel extends JPanel {
 		aircraftComboBox.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				pictureArea.setIcon(createPreviewPicture((String)aircraftComboBox.getSelectedItem(), FileUtilities.PREVIEW_PICTURE_FILE));
-				descriptionArea.setText(createDescriptionText((String)aircraftComboBox.getSelectedItem(), FileUtilities.DESCRIPTION_FILE));
+				pictureArea.setIcon(createPreviewPicture((String)aircraftComboBox.getSelectedItem(), SimFiles.PREVIEW_PICTURE.toString()));
+				descriptionArea.setText(createDescriptionText((String)aircraftComboBox.getSelectedItem(), SimFiles.DESCRIPTION.toString()));
 			}
 		});
 		controlsPanel.add(aircraftComboBox, gc);
@@ -163,7 +164,7 @@ public class AircraftPanel extends JPanel {
 		gc.weighty = 0.5;
 		gc.gridheight = 2;
 		//Picture must be ~430x230 pixels
-		pictureArea = new JLabel(createPreviewPicture((String)aircraftComboBox.getSelectedItem(), FileUtilities.PREVIEW_PICTURE_FILE));
+		pictureArea = new JLabel(createPreviewPicture((String)aircraftComboBox.getSelectedItem(), SimFiles.PREVIEW_PICTURE.toString()));
 		controlsPanel.add(pictureArea, gc);
 		
 		//------------------ Text Field --------------------------
@@ -175,7 +176,7 @@ public class AircraftPanel extends JPanel {
 		gc.weightx = 0.6;
 		gc.gridheight = 1;
 		descriptionArea = new JTextArea();
-		descriptionArea.setText(createDescriptionText((String)aircraftComboBox.getSelectedItem(), FileUtilities.DESCRIPTION_FILE));
+		descriptionArea.setText(createDescriptionText((String)aircraftComboBox.getSelectedItem(), SimFiles.DESCRIPTION.toString()));
 		
 		descriptionArea.setLineWrap(true);
 		descriptionArea.setWrapStyleWord(true);
@@ -229,7 +230,7 @@ public class AircraftPanel extends JPanel {
 	private DefaultComboBoxModel<String> makeComboBox() {
 		DefaultComboBoxModel<String> comboBox = new DefaultComboBoxModel<>();
 		StringBuilder sb = new StringBuilder();
-		sb.append(FileUtilities.FILE_ROOT).append(FileUtilities.AIRCRAFT_DIR).append(File.separator);
+		sb.append(SimDirectories.AIRCRAFT.toString()).append(File.separator);
 		
 		File[] directories = new File(sb.toString()).listFiles(new FileFilter() {
 		    @Override
@@ -246,7 +247,7 @@ public class AircraftPanel extends JPanel {
 	
 	private ImageIcon createPreviewPicture(String aircraftName, String fileName) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(FileUtilities.AIRCRAFT_DIR).append(File.separator).append(aircraftName).append(File.separator).append(fileName).append(FileUtilities.PREVIEW_PIC_EXT);
+		sb.append(SimDirectories.AIRCRAFT.toString()).append(File.separator).append(aircraftName).append(File.separator).append(fileName).append(SimFiles.PREVIEW_PIC_EXT.toString());
 		
 		File imageFile = new File(sb.toString());
 		
@@ -255,7 +256,7 @@ public class AircraftPanel extends JPanel {
 		try { 
 			image = new ImageIcon(imageFile.toURI().toURL());
 		} catch (MalformedURLException e) {
-			JOptionPane.showMessageDialog(AircraftPanel.this, "Unable to load image: " + fileName + FileUtilities.PREVIEW_PIC_EXT + "!", 
+			JOptionPane.showMessageDialog(AircraftPanel.this, "Unable to load image: " + fileName + SimFiles.PREVIEW_PIC_EXT + "!", 
 					"Error Loading Message", JOptionPane.ERROR_MESSAGE);
 		}
 
@@ -264,7 +265,7 @@ public class AircraftPanel extends JPanel {
 	
 	private String createDescriptionText(String aircraftName, String fileName) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(FileUtilities.AIRCRAFT_DIR).append(File.separator).append(aircraftName).append(File.separator).append(fileName).append(FileUtilities.DESCRIPTION_EXT);
+		sb.append(SimDirectories.AIRCRAFT.toString()).append(File.separator).append(aircraftName).append(File.separator).append(fileName).append(SimFiles.DESCRIPTION_EXT.toString());
 		
 		String readLine = null;
 		StringBuilder readFile = new StringBuilder();
@@ -272,9 +273,9 @@ public class AircraftPanel extends JPanel {
 		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
 			while ((readLine = br.readLine()) != null)
 				readFile.append(readLine).append("\n");
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + FileUtilities.DESCRIPTION_EXT + "!");}
-		catch (IOException e) {System.err.println("Could not read: " + fileName + FileUtilities.DESCRIPTION_EXT + "!");}
-		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + FileUtilities.DESCRIPTION_EXT + "!");}
+		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!");}
+		catch (IOException e) {System.err.println("Could not read: " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!");}
+		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!");}
 		
 		return readFile.toString();
 	}

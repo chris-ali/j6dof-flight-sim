@@ -25,6 +25,8 @@ import java.util.EnumMap;
 import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.utilities.SimDirectories;
+import com.chrisali.javaflightsim.utilities.SimFiles;
 
 /**
  * Class containing methods to parse setup files to generate EnumMaps used as initial conditions,
@@ -40,9 +42,9 @@ public class IntegrationSetup {
 	 * @return EnumMap of initial conditions for the integration
 	 */
 	public static EnumMap<InitialConditions, Double> gatherInitialConditions(String fileName) {
-		fileName = fileName == null ? FileUtilities.INITIAL_CONDITIONS_FILE : fileName;
+		fileName = fileName == null ? SimFiles.INITIAL_CONDITIONS.toString() : fileName;
 		
-		ArrayList<String[]> initConditionsFile = FileUtilities.readFileAndSplit(fileName, FileUtilities.SIM_CONFIG_DIR);
+		ArrayList<String[]> initConditionsFile = FileUtilities.readFileAndSplit(fileName, SimDirectories.SIM_CONFIG.toString());
 		EnumMap<InitialConditions,Double> initialConditions = new EnumMap<InitialConditions,Double>(InitialConditions.class); 
 				
 		if (!verifyICFileIntegrity(initConditionsFile)) {
@@ -66,9 +68,9 @@ public class IntegrationSetup {
 	 * @return EnumMap of integration configuration options
 	 */
 	public static EnumMap<IntegratorConfig, Double> gatherIntegratorConfig(String fileName) {
-		fileName = fileName == null ? FileUtilities.INTEGRATOR_CONFIG_FILE : fileName;
+		fileName = fileName == null ? SimFiles.INTEGRATOR_CONFIG.toString() : fileName;
 		
-		ArrayList<String[]> intConfigFile = FileUtilities.readFileAndSplit(fileName, FileUtilities.SIM_CONFIG_DIR);
+		ArrayList<String[]> intConfigFile = FileUtilities.readFileAndSplit(fileName, SimDirectories.SIM_CONFIG.toString());
 		EnumMap<IntegratorConfig,Double> integratorConfig = new EnumMap<IntegratorConfig,Double>(IntegratorConfig.class); 
 				
 		if (!verifyIntConfigFileIntegrity(intConfigFile)) {
@@ -92,9 +94,9 @@ public class IntegrationSetup {
 	 * @return EnumMap of initial controls for the integration
 	 */
 	public static EnumMap<FlightControlType, Double> gatherInitialControls(String fileName) {
-		fileName = fileName == null ? FileUtilities.INITIAL_CONTROLS_FILE : fileName;
+		fileName = fileName == null ? SimFiles.INITIAL_CONTROLS.toString() : fileName;
 		
-		ArrayList<String[]> initControlFile = FileUtilities.readFileAndSplit(fileName, FileUtilities.SIM_CONFIG_DIR);
+		ArrayList<String[]> initControlFile = FileUtilities.readFileAndSplit(fileName, SimDirectories.SIM_CONFIG.toString());
 		EnumMap<FlightControlType,Double> initControl = new EnumMap<FlightControlType,Double>(FlightControlType.class); 
 		
 		if (!verifyControlFileIntegrity(initControlFile)) {

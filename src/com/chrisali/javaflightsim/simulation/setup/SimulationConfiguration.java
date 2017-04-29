@@ -15,6 +15,8 @@ import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.utilities.SimDirectories;
+import com.chrisali.javaflightsim.utilities.SimFiles;
 import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
 
 /**
@@ -83,9 +85,9 @@ public class SimulationConfiguration {
 		displayOptions = newDisplayOptions;
 		audioOptions = newAudioOptions;
 		
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.SIMULATION_SETUP_FILE, simulationOptions, ab.getAircraft().getName());
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.DISPLAY_SETUP_FILE, newDisplayOptions);
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.AUDIO_SETUP_FILE, newAudioOptions);
+		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.SIMULATION_SETUP.toString(), simulationOptions, ab.getAircraft().getName());
+		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.DISPLAY_SETUP.toString(), newDisplayOptions);
+		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.AUDIO_SETUP.toString(), newAudioOptions);
 	}
 	
 	/**
@@ -96,7 +98,7 @@ public class SimulationConfiguration {
 	 */
 	public void setAircraftBuilder(String aircraftName) {
 		ab = new AircraftBuilder(aircraftName);
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.SIMULATION_SETUP_FILE, simulationOptions, aircraftName);
+		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.SIMULATION_SETUP.toString(), simulationOptions, aircraftName);
 	}
 	
 	/**
@@ -112,7 +114,7 @@ public class SimulationConfiguration {
 		massProperties.put(MassProperties.WEIGHT_FUEL, fuelWeight);
 		massProperties.put(MassProperties.WEIGHT_PAYLOAD, payloadWeight);
 		
-		FileUtilities.writeConfigFile(FileUtilities.AIRCRAFT_DIR + File.pathSeparator + aircraftName, FileUtilities.MASS_PROPERTIES_FILE, massProperties);
+		FileUtilities.writeConfigFile(SimDirectories.AIRCRAFT.toString() + File.pathSeparator + aircraftName, SimFiles.MASS_PROPERTIES.toString(), massProperties);
 	}
 	
 	/**
@@ -128,7 +130,7 @@ public class SimulationConfiguration {
 	public void setIntegratorConfig(int stepSize) {
 		integratorConfig.put(IntegratorConfig.DT, (1/((double)stepSize)));
 		
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.INTEGRATOR_CONFIG_FILE, integratorConfig);
+		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INTEGRATOR_CONFIG.toString(), integratorConfig);
 	}
 
 	/**
@@ -160,14 +162,14 @@ public class SimulationConfiguration {
 		initialConditions.put(InitialConditions.INITN, (Math.sin(Math.toRadians(coordinates[0])) * 20903520));
 		initialConditions.put(InitialConditions.INITE, (Math.sin(Math.toRadians(coordinates[1])) * 20903520));
 		
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.INITIAL_CONDITIONS_FILE, initialConditions);
+		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INITIAL_CONDITIONS.toString(), initialConditions);
 	}
 
 	/**
 	 * Updates the InitialControls config file
 	 */
 	public void setIninitialControls() {
-		FileUtilities.writeConfigFile(FileUtilities.SIM_CONFIG_DIR, FileUtilities.INITIAL_CONTROLS_FILE, initialControls);
+		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INITIAL_CONTROLS.toString(), initialControls);
 	}
 	
 	/**

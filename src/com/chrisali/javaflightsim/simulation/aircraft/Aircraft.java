@@ -34,6 +34,8 @@ import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
 import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.utilities.SimDirectories;
+import com.chrisali.javaflightsim.utilities.SimFiles;
 
 /**
  * Aircraft object which consists of {@link StabilityDerivatives} and {@link WingGeometry} to define its aerodynamic properties,
@@ -216,7 +218,7 @@ public class Aircraft {
 		this.groundReaction     = new EnumMap<GroundReaction, Double>(GroundReaction.class);
 		
 		// Aerodynamics
-		ArrayList<String[]> readAeroFile = FileUtilities.readFileAndSplit(aircraftName, FileUtilities.AIRCRAFT_DIR, FileUtilities.AERO_FILE);
+		ArrayList<String[]> readAeroFile = FileUtilities.readFileAndSplit(aircraftName, SimDirectories.AIRCRAFT.toString(), SimFiles.AERO.toString());
 		
 		// Override constant stability derivative values with the keyword "lookup" in Aero.txt; need to then 
 		// supply text file with lookup table and break points
@@ -224,14 +226,14 @@ public class Aircraft {
 			for (String[] readLine : readAeroFile) {
 				if (stabDerKey.toString().equals(readLine[0]))
 					if (readLine[1].toLowerCase().equals("lookup"))
-						this.stabDerivs.put(stabDerKey, AircraftBuilder.createLookupTable(this, readLine[0]));
+						this.stabDerivs.put(stabDerKey, LookupTableBuilder.createLookupTable(this, readLine[0]));
 					else
 						this.stabDerivs.put(stabDerKey, Double.parseDouble(readLine[1]));
 			}
 		}
 		
 		// Mass Properties
-		ArrayList<String[]> readMassPropFile = FileUtilities.readFileAndSplit(aircraftName, FileUtilities.AIRCRAFT_DIR, FileUtilities.MASS_PROPERTIES_FILE);
+		ArrayList<String[]> readMassPropFile = FileUtilities.readFileAndSplit(aircraftName, SimDirectories.AIRCRAFT.toString(), SimFiles.MASS_PROPERTIES.toString());
 		
 		for(MassProperties massPropKey : MassProperties.values()) {
 			for (String[] readLine : readMassPropFile) {
@@ -245,7 +247,7 @@ public class Aircraft {
 												   massProps.get(MassProperties.WEIGHT_EMPTY))      / Environment.getGravity());
 		
 		// Wing Geometry
-		ArrayList<String[]> readWingGeomFile = FileUtilities.readFileAndSplit(aircraftName, FileUtilities.AIRCRAFT_DIR, FileUtilities.WING_GEOMETRY_FILE);
+		ArrayList<String[]> readWingGeomFile = FileUtilities.readFileAndSplit(aircraftName, SimDirectories.AIRCRAFT.toString(), SimFiles.WING_GEOMETRY.toString());
 		
 		for(WingGeometry wingGeoKey : WingGeometry.values()) {
 			for (String[] readLine : readWingGeomFile) {
@@ -255,7 +257,7 @@ public class Aircraft {
 		}
 		
 		// Ground Reaction
-		ArrayList<String[]> readGndReactFile = FileUtilities.readFileAndSplit(aircraftName, FileUtilities.AIRCRAFT_DIR, FileUtilities.GROUND_REACTION_FILE);
+		ArrayList<String[]> readGndReactFile = FileUtilities.readFileAndSplit(aircraftName, SimDirectories.AIRCRAFT.toString(), SimFiles.GROUND_REACTION.toString());
 		
 		for(GroundReaction gndReactKey : GroundReaction.values()) {
 			for (String[] readLine : readGndReactFile) {
