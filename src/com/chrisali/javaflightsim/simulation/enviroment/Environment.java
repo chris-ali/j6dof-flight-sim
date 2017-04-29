@@ -23,7 +23,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.integration.SaturationLimits;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
 
 /**
  * This class calculates atmospheric parameters as a function of height, and the gravitational acceleration constant.
@@ -107,7 +107,7 @@ public class Environment {
 	 * @param windSpeed
 	 */
 	public static void setWindSpeed(double windSpeed) {
-		Environment.windSpeed = (windSpeed > 100) ? FileUtilities.toFtPerSec(100) : FileUtilities.toFtPerSec(windSpeed);
+		Environment.windSpeed = (windSpeed > 100) ? SixDOFUtilities.toFtPerSec(100) : SixDOFUtilities.toFtPerSec(windSpeed);
 	}
 	
 	/**

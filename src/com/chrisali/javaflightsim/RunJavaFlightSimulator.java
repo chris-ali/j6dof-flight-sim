@@ -41,15 +41,15 @@ public class RunJavaFlightSimulator {
 	
 	/**
 	 * Initializes {@link SimulationController} and {@link GuiFrame}; due to cross-referencing
-	 * needed with both objects, {@link SimulationController#setMainFrame(GuiFrame)} needs to be
+	 * needed with both objects, {@link SimulationController#setGuiFrame(GuiFrame)} needs to be
 	 * called
 	 */
 	private static void runApp() {
 		SimulationController controller = new SimulationController(); 
-		GuiFrame mainFrame = new GuiFrame(controller);
+		GuiFrame guiFrame = new GuiFrame(controller);
 		
 		// Pass in mainFrame reference so that OTW display can get Canvas
 		// reference
-		controller.setMainFrame(mainFrame);
+		controller.setGuiFrame(guiFrame);
 	}
 }

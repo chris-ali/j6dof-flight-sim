@@ -121,8 +121,8 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		
 		// Initializes display window depending on presence of SimulationController's MainFrame object,
 		// set in RunJavaFlightSimulator
-		if (controller.getMainFrame() != null)
-			DisplayManager.createDisplay(controller.getMainFrame().getSimulationWindow());
+		if (controller.getGuiFrame() != null)
+			DisplayManager.createDisplay(controller.getGuiFrame().getSimulationWindow());
 		else
 			DisplayManager.createDisplay();
 		

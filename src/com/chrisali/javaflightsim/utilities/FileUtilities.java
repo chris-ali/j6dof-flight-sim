@@ -356,20 +356,4 @@ public class FileUtilities {
 		
 		bw.close();
 	}
-	
-	//===================================================================================================
-	//										Unit Conversions
-	//===================================================================================================
-	
-	/**
-	 * @param knots
-	 * @return Airspeed converted from knots to ft/sec
-	 */
-	public static double toFtPerSec(double knots) {return knots*1.687810;}
-	
-	/**
-	 * @param knots
-	 * @return Airspeed converted from ft/sec to knots
-	 */
-	public static double toKnots(double ftPerSec) {return ftPerSec/1.687810;}
 }

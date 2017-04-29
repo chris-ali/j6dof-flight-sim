@@ -15,6 +15,7 @@ import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
 
 /**
  * Contains collections and methods used to configure the simulation and save/load 
@@ -152,7 +153,7 @@ public class SimulationConfiguration {
 		initialConditions.put(InitialConditions.INITLAT, Math.toRadians(coordinates[0]));
 		initialConditions.put(InitialConditions.INITLON, Math.toRadians(coordinates[1]));
 		initialConditions.put(InitialConditions.INITPSI, Math.toRadians(heading));
-		initialConditions.put(InitialConditions.INITU,   FileUtilities.toFtPerSec(airspeed));
+		initialConditions.put(InitialConditions.INITU,   SixDOFUtilities.toFtPerSec(airspeed));
 		initialConditions.put(InitialConditions.INITD,   altitude);
 		
 		// Temporary method to calcuate north/east position from lat/lon position 

@@ -47,7 +47,7 @@ import javax.swing.event.ChangeListener;
 
 import com.chrisali.javaflightsim.menus.CancelButtonListener;
 import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
-import com.chrisali.javaflightsim.utilities.FileUtilities;
+import com.chrisali.javaflightsim.utilities.SixDOFUtilities;
 
 public class InitialConditionsPanel extends JPanel {
 
@@ -261,7 +261,7 @@ public class InitialConditionsPanel extends JPanel {
 	
 	public void setInitialConditionsPanel(Map<InitialConditions, Double> initialConditions) {
 		headingSpinnerModel.setValue(Math.toDegrees(initialConditions.get(InitialConditions.INITPSI)));
-		airspeedSpinnerModel.setValue(FileUtilities.toKnots(initialConditions.get(InitialConditions.INITU)));
+		airspeedSpinnerModel.setValue(SixDOFUtilities.toKnots(initialConditions.get(InitialConditions.INITU)));
 		altitudeSpinnerModel.setValue(initialConditions.get(InitialConditions.INITD));
 	}
 	

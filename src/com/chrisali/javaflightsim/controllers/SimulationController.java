@@ -60,16 +60,21 @@ public class SimulationController {
 	// Configuration
 	private SimulationConfiguration configuration;
 	
-	// Simulation
+	// Simulation and Threads
 	private FlightControls flightControls;
 	private Thread flightControlsThread;
+	
 	private Integrate6DOFEquations runSim;
 	private Thread simulationThread;
+	
 	private FlightData flightData;
 	private Thread flightDataThread;
+
+	private EnvironmentData environmentData;
+	private Thread environmentDataThread;
 	
 	// Menus and Integrated Simulation Window
-	private GuiFrame mainFrame;
+	private GuiFrame guiFrame;
 	
 	// Plotting
 	private PlotWindow plotWindow;
@@ -81,8 +86,6 @@ public class SimulationController {
 	// Out the Window
 	private LWJGLWorld outTheWindow;
 	private Thread outTheWindowThread;
-	private Thread environmentDataThread;
-	private EnvironmentData environmentData;
 	
 	/**
 	 * Initializes initial settings, configurations and conditions to be edited through menu options
@@ -152,7 +155,7 @@ public class SimulationController {
 		} else {
 			outTheWindow = new LWJGLWorld(this);
 			//(Re)initalize simulation window to prevent scaling issues with instrument panel
-			getMainFrame().initSimulationWindow();
+			getGuiFrame().initSimulationWindow();
 			
 			environmentData = new EnvironmentData(outTheWindow);
 			environmentData.addEnvironmentDataListener(runSim);
@@ -161,7 +164,7 @@ public class SimulationController {
 			environmentDataThread.start();
 			
 			flightData = new FlightData(runSim);
-			flightData.addFlightDataListener(mainFrame.getInstrumentPanel());
+			flightData.addFlightDataListener(guiFrame.getInstrumentPanel());
 			flightData.addFlightDataListener(outTheWindow);
 			
 			flightDataThread = new Thread(flightData);
@@ -185,8 +188,8 @@ public class SimulationController {
 		if (outTheWindowThread != null && outTheWindowThread.isAlive())
 			EnvironmentData.setRunning(false);
 		
-		getMainFrame().getSimulationWindow().dispose();
-		getMainFrame().setVisible(true);
+		getGuiFrame().getSimulationWindow().dispose();
+		getGuiFrame().setVisible(true);
 	}
 	
 	//=============================== Plotting =============================================================
@@ -246,17 +249,17 @@ public class SimulationController {
 	 * Sets {@link GuiFrame} reference for {@link LWJGLWorld}, which needs it to 
 	 * set the parent {@link Canvas} in {@link DisplayManager}
 	 * 
-	 * @param mainFrame
+	 * @param guiFrame
 	 */
-	public void setMainFrame(GuiFrame mainFrame) {
-		this.mainFrame = mainFrame;
+	public void setGuiFrame(GuiFrame guiFrame) {
+		this.guiFrame = guiFrame;
 	}
 	
 	/**
 	 * @return reference to {@link GuiFrame} object in {@link SimulationController}
 	 */
-	public GuiFrame getMainFrame() {
-		return mainFrame;
+	public GuiFrame getGuiFrame() {
+		return guiFrame;
 	}
 
 	//=========================== OTW Threading ==========================================================
