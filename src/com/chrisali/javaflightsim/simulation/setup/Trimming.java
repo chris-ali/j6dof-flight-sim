@@ -23,7 +23,6 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.chrisali.javaflightsim.initializer.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
 import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.simulation.aero.WingGeometry;

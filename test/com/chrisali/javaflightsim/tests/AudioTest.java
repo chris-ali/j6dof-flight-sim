@@ -26,12 +26,12 @@ import java.util.Map;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import com.chrisali.javaflightsim.initializer.SimulationConfiguration;
 import com.chrisali.javaflightsim.lwjgl.audio.AudioMaster;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundSource;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection.SoundCategory;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection.SoundEvent;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 public class AudioTest {
 

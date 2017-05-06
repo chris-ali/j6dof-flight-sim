@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.chrisali.javaflightsim.initializer;
+package com.chrisali.javaflightsim.simulation.setup;
 
 import java.io.File;
 import java.util.EnumMap;
@@ -12,10 +12,6 @@ import java.util.Set;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
-import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
-import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
-import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
-import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 import com.chrisali.javaflightsim.simulation.utilities.SimFiles;

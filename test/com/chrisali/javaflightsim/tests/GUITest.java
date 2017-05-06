@@ -22,7 +22,7 @@ package com.chrisali.javaflightsim.tests;
 import javax.swing.SwingUtilities;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
-import com.chrisali.javaflightsim.initializer.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.swing.GuiFrame;
 
 public class GUITest {

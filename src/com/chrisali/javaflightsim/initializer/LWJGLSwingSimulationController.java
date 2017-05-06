@@ -37,6 +37,7 @@ import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.swing.GuiFrame;
@@ -265,8 +266,8 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	
 	/**
 	 * Initalizes and starts out the window thread; called from {@link SimulationWindow}'s addNotify() method
-	 * to allow OTW thread to start gracefully; uses the Stack Overflow solution shown here:
-	 * <p>http://stackoverflow.com/questions/26199534/how-to-attach-opengl-display-to-a-jframe-and-dispose-of-it-properly</p>
+	 * to allow OTW thread to start gracefully; uses the Stack Overflow solution shown 
+	 * <a href="http://stackoverflow.com/questions/26199534/how-to-attach-opengl-display-to-a-jframe-and-dispose-of-it-properly">here</a>.
 	 */
 	public void startOTWThread() {
 		outTheWindowThread = new Thread(outTheWindow);
@@ -276,7 +277,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	/**
 	 * Stops out the window thread; called from {@link SimulationWindow}'s removeNotify() method
 	 * to allow OTW thread to stop gracefully; uses the Stack Overflow solution shown here:
-	 * <p>http://stackoverflow.com/questions/26199534/how-to-attach-opengl-display-to-a-jframe-and-dispose-of-it-properly</p>
+	 * <a href="http://stackoverflow.com/questions/26199534/how-to-attach-opengl-display-to-a-jframe-and-dispose-of-it-properly">here</a>.
 	 */
 	public void stopOTWThread() {
 		LWJGLWorld.requestClose(); // sets running boolean in RunWorld to false to begin the clean up process

@@ -20,8 +20,8 @@
 package com.chrisali.javaflightsim.tests;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
-import com.chrisali.javaflightsim.initializer.SimulationConfiguration;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 public class WorldTest {
 	

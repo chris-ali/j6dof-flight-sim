@@ -34,7 +34,6 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
-import com.chrisali.javaflightsim.initializer.SimulationConfiguration;
 import com.chrisali.javaflightsim.lwjgl.audio.AudioMaster;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection.SoundCategory;
@@ -64,6 +63,7 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.simulation.interfaces.OTWWorld;
 import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.swing.GuiFrame;
 import com.chrisali.javaflightsim.swing.SimulationWindow;
 import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;

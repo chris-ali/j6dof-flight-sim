@@ -29,10 +29,10 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
-import com.chrisali.javaflightsim.initializer.SimulationConfiguration;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.swing.instrumentpanel.ClosePanelListener;
 import com.chrisali.javaflightsim.swing.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
