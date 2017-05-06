@@ -25,9 +25,9 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.otw.LWJGLWorld;
-import com.chrisali.javaflightsim.otw.OTWWorld;
+import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.interfaces.OTWWorld;
 
 /**
  *	Interacts with {@link LWJGLWorld} and any registered listeners to pass data from the out the window display back to

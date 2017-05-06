@@ -21,7 +21,7 @@ package com.chrisali.javaflightsim.simulation.utilities;
 
 import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 

@@ -23,14 +23,15 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.chrisali.javaflightsim.initializer.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
 import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.simulation.aero.WingGeometry;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
-import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;

@@ -21,8 +21,9 @@ package com.chrisali.javaflightsim.tests;
 
 import javax.swing.SwingUtilities;
 
-import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
-import com.chrisali.javaflightsim.menus.GuiFrame;
+import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.initializer.SimulationConfiguration;
+import com.chrisali.javaflightsim.swing.GuiFrame;
 
 public class GUITest {
 
@@ -33,5 +34,7 @@ public class GUITest {
 		});
 	}
 
-	private static void runApp() {new GuiFrame(new LWJGLSimulationController());}
+	private static void runApp() {
+		new GuiFrame(new LWJGLSwingSimulationController(new SimulationConfiguration()));
+	}
 }

@@ -19,13 +19,13 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.setup;
 
-import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
-import com.chrisali.javaflightsim.menus.SimulationWindow;
-import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Joystick;
-import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Keyboard;
-import com.chrisali.javaflightsim.simulation.controls.hidcontrollers.Mouse;
+import com.chrisali.javaflightsim.simulation.hidcontrollers.Joystick;
+import com.chrisali.javaflightsim.simulation.hidcontrollers.Keyboard;
+import com.chrisali.javaflightsim.simulation.hidcontrollers.Mouse;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.utilities.FlightControlsUtilities;
+import com.chrisali.javaflightsim.swing.SimulationWindow;
+import com.chrisali.javaflightsim.swing.instrumentpanel.InstrumentPanel;
 
 /**
  * Provides Enums for the options EnumSet to provide the following options:

@@ -19,10 +19,10 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.tests;
 
-import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
-import com.chrisali.javaflightsim.simulation.controls.FlightControls;
+import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.initializer.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
 import com.chrisali.javaflightsim.simulation.setup.Options;
-import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
  * Test class for {@link FlightControls}. Creates flight controls object and thread to
@@ -35,11 +35,11 @@ public class FlightControlsTest implements Runnable {
 	private FlightControls flightControls;
 	private Thread flightControlsThread;
 	private SimulationConfiguration configuation;
-	private LWJGLSimulationController simController;
+	private LWJGLSwingSimulationController simController;
 	
 	public FlightControlsTest() {
-		simController = new LWJGLSimulationController();
 		configuation = simController.getConfiguration();
+		simController = new LWJGLSwingSimulationController(configuation);
 		configuation.getSimulationOptions().add(Options.USE_CH_CONTROLS);
 		flightControls = new FlightControls(simController);
 		flightControlsThread = new Thread(flightControls);

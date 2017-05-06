@@ -34,9 +34,9 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
-import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;

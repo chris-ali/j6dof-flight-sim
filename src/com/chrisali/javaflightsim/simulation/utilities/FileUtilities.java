@@ -33,11 +33,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.chrisali.javaflightsim.menus.optionspanel.AudioOptions;
-import com.chrisali.javaflightsim.menus.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
+import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
 
 /**
  * Contains various static methods for reading and parsing text configuration files

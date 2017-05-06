@@ -24,13 +24,13 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
-import com.chrisali.javaflightsim.instrumentpanel.InstrumentPanel;
-import com.chrisali.javaflightsim.simulation.controls.FlightControls;
+import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.initializer.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
-import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.swing.instrumentpanel.InstrumentPanel;
 
 /**
  * Creates a real-time pilot in the loop simulation using {@link Integrate6DOFEquations}, and
@@ -50,8 +50,8 @@ public class InstrumentPanelTest {
 	}
 
 	private static void runApp() {
-		LWJGLSimulationController controller = new LWJGLSimulationController();
 		SimulationConfiguration configuration = new SimulationConfiguration();
+		LWJGLSwingSimulationController controller = new LWJGLSwingSimulationController(configuration);
 		
 		configuration.getSimulationOptions().clear();
 		configuration.getSimulationOptions().add(Options.UNLIMITED_FLIGHT);

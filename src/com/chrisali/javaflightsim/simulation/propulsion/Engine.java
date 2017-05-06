@@ -25,8 +25,8 @@ import java.util.Map;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 
 /**
  * Base abstract class for the flight simulation's engine model. 

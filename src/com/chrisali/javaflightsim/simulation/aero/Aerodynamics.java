@@ -26,8 +26,8 @@ import org.apache.commons.math3.exception.OutOfRangeException;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
-import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**

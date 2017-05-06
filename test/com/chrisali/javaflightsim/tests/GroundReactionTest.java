@@ -24,7 +24,7 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
-import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.IntegrateGroundReaction;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 

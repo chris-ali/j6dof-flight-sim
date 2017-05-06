@@ -22,8 +22,8 @@ package com.chrisali.javaflightsim.simulation.propulsion;
 import java.util.Arrays;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 /**

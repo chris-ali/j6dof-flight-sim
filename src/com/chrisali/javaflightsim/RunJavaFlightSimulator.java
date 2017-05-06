@@ -21,8 +21,9 @@ package com.chrisali.javaflightsim;
 
 import javax.swing.SwingUtilities;
 
-import com.chrisali.javaflightsim.controllers.LWJGLSimulationController;
-import com.chrisali.javaflightsim.menus.GuiFrame;
+import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.initializer.SimulationConfiguration;
+import com.chrisali.javaflightsim.swing.GuiFrame;
 
 /**
  * Runner class to start Java Flight Simulator
@@ -31,25 +32,30 @@ import com.chrisali.javaflightsim.menus.GuiFrame;
  *
  */
 public class RunJavaFlightSimulator {
-
+	
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {runApp();}
-		});
+		runSwingLWJGLApp();
 	}
 	
 	/**
-	 * Initializes {@link LWJGLSimulationController} and {@link GuiFrame}; due to cross-referencing
-	 * needed with both objects, {@link LWJGLSimulationController#setGuiFrame(GuiFrame)} needs to be
+	 * Initializes {@link LWJGLSwingSimulationController} and Swing {@link GuiFrame}; due to cross-referencing
+	 * needed with both objects, {@link LWJGLSwingSimulationController#setGuiFrame(GuiFrame)} needs to be
 	 * called
 	 */
-	private static void runApp() {
-		LWJGLSimulationController controller = new LWJGLSimulationController(); 
-		GuiFrame guiFrame = new GuiFrame(controller);
+	private static void runSwingLWJGLApp() {
 		
-		// Pass in mainFrame reference so that OTW display can get Canvas
-		// reference
-		controller.setGuiFrame(guiFrame);
+		SimulationConfiguration configuration = new SimulationConfiguration();
+		
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				LWJGLSwingSimulationController controller = new LWJGLSwingSimulationController(configuration); 
+				GuiFrame guiFrame = new GuiFrame(controller);
+				
+				// Pass in mainFrame reference so that OTW display can get Canvas
+				// reference
+				controller.setGuiFrame(guiFrame);			
+			}
+		});
 	}
 }

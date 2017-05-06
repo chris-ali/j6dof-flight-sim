@@ -29,7 +29,7 @@ import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.GroundReaction;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
-import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**

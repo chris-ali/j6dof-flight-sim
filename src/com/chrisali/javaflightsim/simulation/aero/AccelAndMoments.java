@@ -26,8 +26,8 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
-import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.IntegrateGroundReaction;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;

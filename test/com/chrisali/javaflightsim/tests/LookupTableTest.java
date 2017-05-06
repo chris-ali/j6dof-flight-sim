@@ -24,7 +24,7 @@ import java.util.EnumMap;
 import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
 import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
-import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 
 public class LookupTableTest {

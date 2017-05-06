@@ -22,7 +22,7 @@ package com.chrisali.javaflightsim.simulation.setup;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
-import com.chrisali.javaflightsim.simulation.controls.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
