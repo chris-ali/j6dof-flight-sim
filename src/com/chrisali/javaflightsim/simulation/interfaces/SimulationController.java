@@ -1,6 +1,8 @@
 package com.chrisali.javaflightsim.simulation.interfaces;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
  * Controls the starting and stopping of the simulation component of JavaFlightSimulator.
@@ -13,7 +15,15 @@ import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
  */
 public interface SimulationController {
 	
-	void startSimulation();
+	public SimulationConfiguration getConfiguration();
+	
+	public Integrate6DOFEquations getSimulation();
+	
+	public void plotSimulation();
+	
+	public boolean isPlotWindowVisible();
+	
+	public void startSimulation();
 
-	void stopSimulation();
+	public void stopSimulation();
 }

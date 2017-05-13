@@ -22,6 +22,9 @@ package com.chrisali.javaflightsim.simulation.setup;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -34,6 +37,8 @@ import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
  */
 public class IntegrationSetup {
 	
+	private static final Logger logger = LogManager.getLogger(IntegrationSetup.class);
+	
 	/**
 	 * Parses a text file formatted as described in {@link IntegrationSetup#readFileAndSplit(String)} to generate an 
 	 * EnumMap of initial conditions used by {@link Integrate6DOFEquations} to start the integration for the simulation. 
@@ -41,23 +46,27 @@ public class IntegrationSetup {
 	 * @param fileName (pass in null to use the default file [InitialConditions.txt])
 	 * @return EnumMap of initial conditions for the integration
 	 */
-	public static EnumMap<InitialConditions, Double> gatherInitialConditions(String fileName) {
+	public static EnumMap<InitialConditions, Double> gatherInitialConditions(String fileName) {		
 		fileName = fileName == null ? SimFiles.INITIAL_CONDITIONS.toString() : fileName;
+		
+		logger.debug("Generating initial conditions from: " + fileName + FileUtilities.CONFIG_EXT +"...");
 		
 		ArrayList<String[]> initConditionsFile = FileUtilities.readFileAndSplit(fileName, SimDirectories.SIM_CONFIG.toString());
 		EnumMap<InitialConditions,Double> initialConditions = new EnumMap<InitialConditions,Double>(InitialConditions.class); 
 				
 		if (!verifyICFileIntegrity(initConditionsFile)) {
-			System.err.println("Error in initial conditions file! Generating default initial conditions...");
+			logger.error("Error in initial conditions file! Generating default initial conditions...");
+			
 			Double[] defaultIC = new Double[] {210.0, 0.0, -3.99, 0.0, 0.0, 5000.0, 0.0, -0.025, 1.57, 0.0, 0.0, 0.0};
+			
 			for (int i = 0; i < defaultIC.length; i++)
 				initialConditions.put(InitialConditions.values()[i], defaultIC[i]);
-			return initialConditions;
 		} else {
 			for (int i = 0; i < initConditionsFile.size(); i++)
 				initialConditions.put(InitialConditions.values()[i], Double.parseDouble(initConditionsFile.get(i)[1]));
-			return initialConditions;
 		}
+		
+		return initialConditions;
 	}
 	
 	/**
@@ -70,20 +79,25 @@ public class IntegrationSetup {
 	public static EnumMap<IntegratorConfig, Double> gatherIntegratorConfig(String fileName) {
 		fileName = fileName == null ? SimFiles.INTEGRATOR_CONFIG.toString() : fileName;
 		
+		logger.debug("Generating integrator configuration from: " + fileName + FileUtilities.CONFIG_EXT +"...");
+		
 		ArrayList<String[]> intConfigFile = FileUtilities.readFileAndSplit(fileName, SimDirectories.SIM_CONFIG.toString());
 		EnumMap<IntegratorConfig,Double> integratorConfig = new EnumMap<IntegratorConfig,Double>(IntegratorConfig.class); 
 				
 		if (!verifyIntConfigFileIntegrity(intConfigFile)) {
-			System.err.println("Error in integration configuration file! Generating default integration configuration...");
+			logger.error("Error in integration configuration file! Generating default integration configuration...");
+			
 			double[] defaultIntConfig = new double[] {0.0, 0.05, 100.0};
+			
 			for (int i = 0; i < defaultIntConfig.length; i++)
 				integratorConfig.put(IntegratorConfig.values()[i], defaultIntConfig[i]);
-			return integratorConfig;
 		} else {
 			for (int i = 0; i < intConfigFile.size(); i++)
 				integratorConfig.put(IntegratorConfig.values()[i], Double.parseDouble(intConfigFile.get(i)[1]));
-			return integratorConfig;
+			
 		}
+
+		return integratorConfig;
 	}
 	
 	/**
@@ -96,20 +110,24 @@ public class IntegrationSetup {
 	public static EnumMap<FlightControlType, Double> gatherInitialControls(String fileName) {
 		fileName = fileName == null ? SimFiles.INITIAL_CONTROLS.toString() : fileName;
 		
+		logger.debug("Generating initial flight controls from: " + fileName + FileUtilities.CONFIG_EXT +"...");
+		
 		ArrayList<String[]> initControlFile = FileUtilities.readFileAndSplit(fileName, SimDirectories.SIM_CONFIG.toString());
 		EnumMap<FlightControlType,Double> initControl = new EnumMap<FlightControlType,Double>(FlightControlType.class); 
 		
 		if (!verifyControlFileIntegrity(initControlFile)) {
-			System.err.println("Error in controls file! Generating default control deflections...");
+			logger.error("Error in controls file! Generating default control deflections...");
+			
 			double[] defaultControl = new double[] {0.036, 0, 0, 0.65, 0.65, 0.65, 0.65, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0};
+			
 			for (int i = 0; i < defaultControl.length; i++)
 				initControl.put(FlightControlType.values()[i], defaultControl[i]);
-			return initControl;
 		} else {
 			for (int i = 0; i < initControlFile.size(); i++)
 				initControl.put(FlightControlType.values()[i], Double.parseDouble(initControlFile.get(i)[1]));
-			return initControl;
 		}
+		
+		return initControl;
 	}
 	
 	/**

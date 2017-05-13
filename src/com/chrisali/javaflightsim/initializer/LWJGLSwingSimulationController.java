@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
@@ -59,6 +62,9 @@ import com.chrisali.javaflightsim.swing.plotting.PlotWindow;
  *
  */
 public class LWJGLSwingSimulationController implements SimulationController {
+	
+	//Logging
+	private static final Logger logger = LogManager.getLogger(LWJGLSwingSimulationController.class);
 	
 	// Configuration
 	private SimulationConfiguration configuration;
@@ -102,6 +108,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	/**
 	 * @return instance of configuraion
 	 */
+	@Override
 	public SimulationConfiguration getConfiguration() {return configuration;}
 	
 	//=============================== Simulation ===========================================================
@@ -109,6 +116,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	/**
 	 * @return instance of simulation
 	 */
+	@Override
 	public Integrate6DOFEquations getSimulation() {return runSim;}
 
 	/**
@@ -130,45 +138,67 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	@Override
 	public void startSimulation() {
+		logger.debug("Starting simulation...");
+		
+		logger.debug("Trimming aircraft...");
 		Trimming.trimSim(configuration, false);
 		
+		logger.debug("Initializing flight controls (thread)...");
 		flightControls = new FlightControls(this);
 		flightControlsThread = new Thread(flightControls);
 		
+		logger.debug("Initializing simulation (thread)...");
 		runSim = new Integrate6DOFEquations(flightControls, configuration);
 		simulationThread = new Thread(runSim);
 
+		logger.debug("Starting flight controls and simulation threads...");
 		flightControlsThread.start();
 		simulationThread.start();
 		
-		if (configuration.getSimulationOptions().contains(Options.CONSOLE_DISPLAY))
+		if (configuration.getSimulationOptions().contains(Options.CONSOLE_DISPLAY)) {
+			logger.debug("Starting console...");
 			initializeConsole();
+		}
 		
 		if (configuration.getSimulationOptions().contains(Options.ANALYSIS_MODE)) {
 			try {
+				logger.debug("Running simulation in Analysis Mode...");
 				// Wait a bit to allow the simulation to finish running
 				Thread.sleep(1000);
+				
+				logger.debug("Generating plots...");
 				plotSimulation();
+				
 				//Stop flight controls thread after analysis finished
+				logger.debug("Stopping flight controls thread...");
 				FlightControls.setRunning(false);
-			} catch (InterruptedException e) {}
-			
+			} catch (InterruptedException e) {
+				logger.warn("Thread was interrupted, ignoring...");
+			}
 		} else {
+			logger.debug("Initializing LWJGL world...");
 			outTheWindow = new LWJGLWorld(this);
+			
 			//(Re)initalize simulation window to prevent scaling issues with instrument panel
 			getGuiFrame().initSimulationWindow();
 			
+			logger.debug("Initializing environment data transfer (thread)...");
 			environmentData = new EnvironmentData(outTheWindow);
 			environmentData.addEnvironmentDataListener(runSim);
 			
 			environmentDataThread = new Thread(environmentData);
+			
+			logger.debug("Starting environment data transfer thread...");
 			environmentDataThread.start();
 			
+			logger.debug("Initializing flight data transfer (thread)...");
 			flightData = new FlightData(runSim);
 			flightData.addFlightDataListener(guiFrame.getInstrumentPanel());
 			flightData.addFlightDataListener(outTheWindow);
 			
 			flightDataThread = new Thread(flightData);
+			
+			logger.debug("Starting flight data transfer thread...");
 			flightDataThread.start();
 		}
 	}
@@ -179,17 +209,25 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	@Override
 	public void stopSimulation() {
+		logger.debug("Starting simulation...");
+		
 		if (runSim != null && Integrate6DOFEquations.isRunning() && simulationThread != null && simulationThread.isAlive()) {
+			logger.debug("Stopping simulation and flight controls threads...");
 			Integrate6DOFEquations.setRunning(false);
 			FlightControls.setRunning(false);
 		}
 		
-		if (flightDataThread != null && flightDataThread.isAlive())
+		if (flightDataThread != null && flightDataThread.isAlive()) {
+			logger.debug("Stopping flight data transfer thread...");
 			FlightData.setRunning(false);
+		}
 		
-		if (outTheWindowThread != null && outTheWindowThread.isAlive())
+		if (outTheWindowThread != null && outTheWindowThread.isAlive()) {
+			logger.debug("Stopping environment data transfer thread...");
 			EnvironmentData.setRunning(false);
+		}	
 		
+		logger.debug("Returning to menus...");
 		getGuiFrame().getSimulationWindow().dispose();
 		getGuiFrame().setVisible(true);
 	}
@@ -199,7 +237,9 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	/**
 	 * Initializes the plot window if not already initialized, otherwise refreshes the window and sets it visible again
 	 */
+	@Override
 	public void plotSimulation() {
+		logger.debug("Plotting simulation results...");
 		if(plotWindow == null)
 			plotWindow = new PlotWindow(plotCategories, this);
 		else
@@ -212,6 +252,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	/**
 	 * @return if the plot window is visible
 	 */
+	@Override
 	public boolean isPlotWindowVisible() {
 		return (plotWindow == null) ? false : plotWindow.isVisible();
 	}
@@ -240,6 +281,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 * @throws IOException
 	 */
 	public void saveConsoleOutput(File file) throws IOException {
+		logger.debug("Saving console output to: " + file.getAbsolutePath());
 		FileUtilities.saveToCSVFile(file, runSim.getLogsOut());
 	}
 	

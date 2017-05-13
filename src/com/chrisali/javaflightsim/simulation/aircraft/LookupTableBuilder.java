@@ -16,6 +16,8 @@ import org.apache.commons.math3.exception.DimensionMismatchException;
 import org.apache.commons.math3.exception.NoDataException;
 import org.apache.commons.math3.exception.NonMonotonicSequenceException;
 import org.apache.commons.math3.exception.NullArgumentException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
 import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
@@ -29,8 +31,10 @@ import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
  *
  */
 public class LookupTableBuilder {
+	
+	private static final Logger logger = LogManager.getLogger(LookupTableBuilder.class);
 
-	private static final String AIRCRAFT_PATH = SimDirectories.AIRCRAFT.toString() + File.separator; //FileUtilities.FILE_ROOT + File.separator + (For Windows [?])
+	private static final String AIRCRAFT_PATH = SimDirectories.AIRCRAFT.toString(); //FileUtilities.FILE_ROOT + File.separator + (For Windows [?])
 	
 	private static final String LOOKUP_PATH = File.separator + SimDirectories.LOOKUP_TABLE.toString() + File.separator;
 	
@@ -50,6 +54,9 @@ public class LookupTableBuilder {
 		sb.append(AIRCRAFT_PATH).append(File.separator).append(aircraft.getName())
 		  .append(LOOKUP_PATH).append(fileName).append(FileUtilities.CONFIG_EXT);
 		
+		logger.debug("Creating a lookup table for the stability derivative: " + fileName);
+		logger.debug("Opening the configuration file: " + sb.toString());
+		
 		List<Double[]> readAndSplit = new LinkedList<>();
 		PiecewiseBicubicSplineInterpolatingFunction pbsif = null;
 		String readLine = null;
@@ -67,7 +74,7 @@ public class LookupTableBuilder {
 			}
 			
 			// Take readAndSplit list and convert it to a 2D double array
-			Double[][]splitArray = readAndSplit.toArray(new Double[readAndSplit.size()][readAndSplit.get(1).length]);
+			Double[][] splitArray = readAndSplit.toArray(new Double[readAndSplit.size()][readAndSplit.get(1).length]);
 			
 			// Break up 2D array into 2x arrays for lookup breakpoints, and 1 smaller 2D array of lookup values
 			double[]   breakPointFlap  = new double[splitArray[0].length];
@@ -89,35 +96,35 @@ public class LookupTableBuilder {
 			pbsif = new PiecewiseBicubicSplineInterpolatingFunction(breakPointAngle, breakPointFlap, lookUpValues);									 
 			
 		} catch (FileNotFoundException e) {
-			System.err.println("Could not find: " + fileName + FileUtilities.CONFIG_EXT + "!");
+			logger.error("Could not find: " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (IOException e) {
-			System.err.println("Could not read: " + fileName + FileUtilities.CONFIG_EXT + "!");
+			logger.error("Could not read: " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (NullPointerException e) {
-			System.err.println("Bad reference to: " + fileName + FileUtilities.CONFIG_EXT + "!");
+			logger.error("Bad reference to: " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (NumberFormatException e) {
-			System.err.println("Error parsing number data from " + fileName + FileUtilities.CONFIG_EXT + "!");
+			logger.error("Error parsing number data from " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (DimensionMismatchException e) {
-			System.err.println("Lookup table dimensions do not match in " + fileName + FileUtilities.CONFIG_EXT + "!");
+			logger.error("Lookup table dimensions do not match in " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (NonMonotonicSequenceException e) {
-			System.err.println("Lookup table breakpoints do not increase monotonically in " + fileName + FileUtilities.CONFIG_EXT + "!");
+			logger.error("Lookup table breakpoints do not increase monotonically in " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (NullArgumentException e) {
-			System.err.println("Error parsing data from " + fileName + FileUtilities.CONFIG_EXT + "!");
+			logger.error("Error parsing data from " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		catch (NoDataException e) {
-			System.err.println("No lookup table data found in " + fileName + FileUtilities.CONFIG_EXT + "!");
+			logger.error("No lookup table data found in " + fileName + FileUtilities.CONFIG_EXT + "!");
 			createDefaultLookup(fileName);
 		}
 		
@@ -157,8 +164,8 @@ public class LookupTableBuilder {
 				lookUpValues[i][j] = constStabDerVal;
 		}
 		
-		System.err.println("\t- Creating default lookup table for " + fileName + "...");
-		System.err.println("\t- Beware! Aircraft may not handle as expected!");
+		logger.warn("\t- Creating default lookup table for " + fileName + "...");
+		logger.warn("\t- Beware! Aircraft may not handle as expected!");
 		
 		return new PiecewiseBicubicSplineInterpolatingFunction(breakPointAngle, breakPointFlap, lookUpValues);
 	}

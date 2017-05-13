@@ -75,10 +75,9 @@ public class Mouse extends AbstractController {
 
 		// If no mice available, exit function
 		if (controllerList.isEmpty()) {
-			System.err.println("No mice found!");
+			logger.error("No mice found!");
 			return;
 		}
-
 	}
 	
 	/**

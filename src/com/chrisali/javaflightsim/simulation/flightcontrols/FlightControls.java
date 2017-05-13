@@ -23,7 +23,9 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.AbstractController;
@@ -32,6 +34,7 @@ import com.chrisali.javaflightsim.simulation.hidcontrollers.Joystick;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Keyboard;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Mouse;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -49,6 +52,8 @@ import com.chrisali.javaflightsim.simulation.utilities.FlightControlsUtilities;
  */
 public class FlightControls implements Runnable, FlightDataListener {
 
+	private static final Logger logger = LogManager.getLogger(FlightControls.class);
+	
 	private static boolean running;
 	
 	private Map<FlightControlType, Double> controls;
@@ -66,7 +71,9 @@ public class FlightControls implements Runnable, FlightDataListener {
 	 * 
 	 * @param options
 	 */
-	public FlightControls(LWJGLSwingSimulationController controller) {
+	public FlightControls(SimulationController controller) {
+		logger.debug("Initializing flight controls...");
+		
 		SimulationConfiguration configuration = controller.getConfiguration();
 		
 		controls = configuration.getInitialControls();
@@ -83,12 +90,18 @@ public class FlightControls implements Runnable, FlightDataListener {
 	public void run() {
 		// Use controllers for pilot in loop simulation if ANALYSIS_MODE not enabled 
 		if (!options.contains(Options.ANALYSIS_MODE)) {
-			if (options.contains(Options.USE_JOYSTICK))
+			if (options.contains(Options.USE_JOYSTICK)) {
+				logger.debug("Joystick controller selected");
 				hidController = new Joystick(controls);
-			else if (options.contains(Options.USE_MOUSE))
+			}
+			else if (options.contains(Options.USE_MOUSE)){
+				logger.debug("Mouse controller selected");
 				hidController = new Mouse(controls);
-			else if (options.contains(Options.USE_CH_CONTROLS))
+			}
+			else if (options.contains(Options.USE_CH_CONTROLS)) {
+				logger.debug("CH Controller suite selected");
 				hidController = new CHControls(controls);
+			}
 		}
 		
 		running = true;
@@ -111,7 +124,14 @@ public class FlightControls implements Runnable, FlightDataListener {
 				}
 				
 			} catch (InterruptedException e) {
+				logger.warn("Flight controls thread interrupted, ignoring.");
+				
 				continue;
+			} catch (Exception e) {
+				logger.error("Flight controls encountered an error!");
+				logger.error(e.getMessage());
+				
+				break;
 			}
 		}
 		

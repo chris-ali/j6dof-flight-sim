@@ -104,9 +104,9 @@ public class FlightControlsUtilities {
 							   0.5, 
 							   0.035, 
 							   FlightControlType.ELEVATOR);
+		
 		return controls;
 	}
-	
 	
 	/**
 	 *  Limit control inputs to sensible deflection values based on the minimum and maximum values defines for 
@@ -123,7 +123,8 @@ public class FlightControlsUtilities {
 				map.put(flc, flc.getMaximum());
 			else if (map.get(flc) < flc.getMinimum())
 				map.put(flc, flc.getMinimum());		
-		}	
+		}
+		
 		return map;
 	}
 }

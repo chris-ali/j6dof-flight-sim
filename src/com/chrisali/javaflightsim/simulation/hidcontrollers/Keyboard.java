@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
@@ -54,16 +54,16 @@ public class Keyboard extends AbstractController {
 	// Keep track of reset, so that it can only be run once per pause
 	private boolean wasReset = false;
 	
-	private LWJGLSwingSimulationController simController;
+	private SimulationController simController;
 	private EnumSet<Options> options;
 	
 	/**
 	 *  Constructor for Keyboard class; creates list of controllers using searchForControllers() and
-	 *  creates a reference to a {@link LWJGLSwingSimulationController} object 
+	 *  creates a reference to a {@link SimulationController} object 
 	 * @param controls
 	 * @param simController
 	 */
-	public Keyboard(Map<FlightControlType, Double> controls, LWJGLSwingSimulationController simController) {
+	public Keyboard(Map<FlightControlType, Double> controls, SimulationController simController) {
 		this.simController = simController;
 		controllerList = new ArrayList<>();
 		options = simController.getConfiguration().getSimulationOptions();
@@ -90,7 +90,7 @@ public class Keyboard extends AbstractController {
 
 		// If no keyboards available, exit function
 		if (controllerList.isEmpty()) {
-			System.err.println("No keyboard found!");
+			logger.debug("No keyboard found!");
 			return;
 		}	
 	}
@@ -119,7 +119,7 @@ public class Keyboard extends AbstractController {
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.P.toString())) {
 					if(component.getPollData() == 1.0f && !options.contains(Options.PAUSED) && !pPressed) {
 						options.add(Options.PAUSED);
-						System.err.println("Simulation Paused!");
+						logger.debug("Simulation Paused!");
 						pPressed = true;
 					} else if(component.getPollData() == 1.0f 
 							  && options.contains(Options.PAUSED) && !pPressed) {
@@ -138,7 +138,7 @@ public class Keyboard extends AbstractController {
 					if(component.getPollData() == 1.0f && options.contains(Options.PAUSED) 
 					    && !options.contains(Options.RESET) && !rPressed && !wasReset) {
 						options.add(Options.RESET);
-						System.err.println("Simulation Reset!");
+						logger.debug("Simulation Reset!");
 						wasReset = true;
 						rPressed = true;
 					} else if (component.getPollData() == 0.0f && rPressed) {

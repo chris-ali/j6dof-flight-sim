@@ -19,6 +19,9 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.chrisali.javaflightsim.initializer.Initializer;
 
 /**
@@ -28,8 +31,15 @@ import com.chrisali.javaflightsim.initializer.Initializer;
  *
  */
 public class RunJavaFlightSimulator {
+	private static final Logger logger = LogManager.getLogger(RunJavaFlightSimulator.class);
 	
 	public static void main(String[] args) {
+		logger.debug("===============================================");
+		logger.debug("Java Flight Simulator v0.4a by Christopher Ali");
+		logger.debug("===============================================");
+		
 		Initializer.selectRunConfigurationAndRun();
+		
+		logger.debug("Closing Java Flight Simulator");
 	}
 }

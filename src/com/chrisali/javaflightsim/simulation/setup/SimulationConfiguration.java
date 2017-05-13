@@ -9,6 +9,9 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
@@ -24,6 +27,9 @@ import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
  * configuration to/from external files
  */
 public class SimulationConfiguration {
+	
+	//Logging
+	private static final Logger logger = LogManager.getLogger(SimulationConfiguration.class);
 	
 	// Configuration
 	private EnumMap<DisplayOptions, Integer> displayOptions;
@@ -81,13 +87,20 @@ public class SimulationConfiguration {
 	 */
 	public void updateOptions(EnumSet<Options> newOptions, EnumMap<DisplayOptions, Integer> newDisplayOptions,
 							  EnumMap<AudioOptions, Float> newAudioOptions) {
-		simulationOptions = EnumSet.copyOf(newOptions);
-		displayOptions = newDisplayOptions;
-		audioOptions = newAudioOptions;
+		logger.debug("Updating simulation options...");
 		
-		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.SIMULATION_SETUP.toString(), simulationOptions, ab.getAircraft().getName());
-		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.DISPLAY_SETUP.toString(), newDisplayOptions);
-		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.AUDIO_SETUP.toString(), newAudioOptions);
+		try {
+			simulationOptions = EnumSet.copyOf(newOptions);
+			displayOptions = newDisplayOptions;
+			audioOptions = newAudioOptions;
+			
+			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.SIMULATION_SETUP.toString(), simulationOptions, ab.getAircraft().getName());
+			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.DISPLAY_SETUP.toString(), newDisplayOptions);
+			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.AUDIO_SETUP.toString(), newAudioOptions);			
+		} catch (Exception e) {
+			logger.error("Error updating simulation options!");
+			logger.error(e.getMessage());
+		}
 	}
 	
 	/**
@@ -109,12 +122,19 @@ public class SimulationConfiguration {
 	 * @param payloadWeight
 	 */
 	public void setMassProperties(String aircraftName, double fuelWeight, double payloadWeight) {
-		massProperties = FileUtilities.parseMassProperties(aircraftName);
+		logger.debug("Updating weights for " + aircraftName + "...");
 		
-		massProperties.put(MassProperties.WEIGHT_FUEL, fuelWeight);
-		massProperties.put(MassProperties.WEIGHT_PAYLOAD, payloadWeight);
-		
-		FileUtilities.writeConfigFile(SimDirectories.AIRCRAFT.toString() + File.pathSeparator + aircraftName, SimFiles.MASS_PROPERTIES.toString(), massProperties);
+		try {	
+			massProperties = FileUtilities.parseMassProperties(aircraftName);
+			
+			massProperties.put(MassProperties.WEIGHT_FUEL, fuelWeight);
+			massProperties.put(MassProperties.WEIGHT_PAYLOAD, payloadWeight);
+			
+			FileUtilities.writeConfigFile(SimDirectories.AIRCRAFT.toString() + File.pathSeparator + aircraftName, SimFiles.MASS_PROPERTIES.toString(), massProperties);
+		} catch (Exception e) {
+			logger.error("Error updating mass properties!");
+			logger.error(e.getMessage());
+		}
 	}
 	
 	/**
@@ -128,9 +148,16 @@ public class SimulationConfiguration {
 	 * @param stepSize
 	 */
 	public void setIntegratorConfig(int stepSize) {
-		integratorConfig.put(IntegratorConfig.DT, (1/((double)stepSize)));
+		logger.debug("Updating simulation rate to " + stepSize + " Hz...");
 		
-		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INTEGRATOR_CONFIG.toString(), integratorConfig);
+		try {	
+			integratorConfig.put(IntegratorConfig.DT, (1/((double)stepSize)));
+			
+			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INTEGRATOR_CONFIG.toString(), integratorConfig);
+		} catch (Exception e) {
+			logger.error("Error updating integrator configuration!");
+			logger.error(e.getMessage());
+		}
 	}
 
 	/**
@@ -152,23 +179,30 @@ public class SimulationConfiguration {
 	 * @param airspeed
 	 */
 	public void setInitialConditions(double[] coordinates, double heading, double altitude, double airspeed) {
-		initialConditions.put(InitialConditions.INITLAT, Math.toRadians(coordinates[0]));
-		initialConditions.put(InitialConditions.INITLON, Math.toRadians(coordinates[1]));
-		initialConditions.put(InitialConditions.INITPSI, Math.toRadians(heading));
-		initialConditions.put(InitialConditions.INITU,   SixDOFUtilities.toFtPerSec(airspeed));
-		initialConditions.put(InitialConditions.INITD,   altitude);
+		logger.debug("Updating simulation intitial conditions...");
 		
-		// Temporary method to calcuate north/east position from lat/lon position 
-		initialConditions.put(InitialConditions.INITN, (Math.sin(Math.toRadians(coordinates[0])) * 20903520));
-		initialConditions.put(InitialConditions.INITE, (Math.sin(Math.toRadians(coordinates[1])) * 20903520));
-		
-		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INITIAL_CONDITIONS.toString(), initialConditions);
+		try {	
+			initialConditions.put(InitialConditions.INITLAT, Math.toRadians(coordinates[0]));
+			initialConditions.put(InitialConditions.INITLON, Math.toRadians(coordinates[1]));
+			initialConditions.put(InitialConditions.INITPSI, Math.toRadians(heading));
+			initialConditions.put(InitialConditions.INITU,   SixDOFUtilities.toFtPerSec(airspeed));
+			initialConditions.put(InitialConditions.INITD,   altitude);
+			
+			// Temporary method to calcuate north/east position from lat/lon position 
+			initialConditions.put(InitialConditions.INITN, (Math.sin(Math.toRadians(coordinates[0])) * 20903520));
+			initialConditions.put(InitialConditions.INITE, (Math.sin(Math.toRadians(coordinates[1])) * 20903520));
+			
+			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INITIAL_CONDITIONS.toString(), initialConditions);
+		} catch (Exception e) {
+			logger.error("Error updating simulation initial conditions!");
+			logger.error(e.getMessage());
+		}
 	}
 
 	/**
 	 * Updates the InitialControls config file
 	 */
-	public void setIninitialControls() {
+	public void setInitialControls() {
 		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INITIAL_CONTROLS.toString(), initialControls);
 	}
 	

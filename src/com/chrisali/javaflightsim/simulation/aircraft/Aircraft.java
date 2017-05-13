@@ -24,6 +24,8 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolatingFunction;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.aero.AccelAndMoments;
 import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
@@ -44,6 +46,9 @@ import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
  * create a flight simulation. Stability derivatives (1/rad) can be either Double values or {@link PiecewiseBicubicSplineInterpolatingFunction} 
  */
 public class Aircraft {
+	
+	private static final Logger logger = LogManager.getLogger(Aircraft.class);
+	
 	private String name;
 	
 	private Map<StabilityDerivatives, Object> stabDerivs;
@@ -218,6 +223,7 @@ public class Aircraft {
 		this.groundReaction     = new EnumMap<GroundReaction, Double>(GroundReaction.class);
 		
 		// Aerodynamics
+		logger.debug("Generating aerodynamics for " + aircraftName + "...");
 		ArrayList<String[]> readAeroFile = FileUtilities.readFileAndSplit(aircraftName, SimDirectories.AIRCRAFT.toString(), SimFiles.AERO.toString());
 		
 		// Override constant stability derivative values with the keyword "lookup" in Aero.txt; need to then 
@@ -233,6 +239,7 @@ public class Aircraft {
 		}
 		
 		// Mass Properties
+		logger.debug("Generating mass properties for " + aircraftName + "...");
 		ArrayList<String[]> readMassPropFile = FileUtilities.readFileAndSplit(aircraftName, SimDirectories.AIRCRAFT.toString(), SimFiles.MASS_PROPERTIES.toString());
 		
 		for(MassProperties massPropKey : MassProperties.values()) {
@@ -247,6 +254,7 @@ public class Aircraft {
 												   massProps.get(MassProperties.WEIGHT_EMPTY))      / Environment.getGravity());
 		
 		// Wing Geometry
+		logger.debug("Generating wing geometry for " + aircraftName + "...");
 		ArrayList<String[]> readWingGeomFile = FileUtilities.readFileAndSplit(aircraftName, SimDirectories.AIRCRAFT.toString(), SimFiles.WING_GEOMETRY.toString());
 		
 		for(WingGeometry wingGeoKey : WingGeometry.values()) {
@@ -257,6 +265,7 @@ public class Aircraft {
 		}
 		
 		// Ground Reaction
+		logger.debug("Generating ground reaction for " + aircraftName + "...");
 		ArrayList<String[]> readGndReactFile = FileUtilities.readFileAndSplit(aircraftName, SimDirectories.AIRCRAFT.toString(), SimFiles.GROUND_REACTION.toString());
 		
 		for(GroundReaction gndReactKey : GroundReaction.values()) {

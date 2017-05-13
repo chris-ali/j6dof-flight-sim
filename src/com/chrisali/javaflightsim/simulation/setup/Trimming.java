@@ -23,6 +23,9 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
 import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.simulation.aero.WingGeometry;
@@ -47,6 +50,8 @@ import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
  * @see Principles of Flight Simulation - David Allerton (pp 170-1)
  */
 public class Trimming {
+	
+	private static final Logger logger = LogManager.getLogger(Trimming.class);
 	
 	private static EnumMap<InitialConditions, Double> initialConditions;
 	private static EnumMap<FlightControlType, Double> initialControls;
@@ -93,20 +98,23 @@ public class Trimming {
 		double s = aircraft.getWingGeometry(WingGeometry.S_WING);
 		
 		int counter = 0;
-
+		
+		logger.debug("Finding trim pitch and elevator...");
+		
 		do {
 			alphaTrim = (alphaMin + alphaMax) / 2;
 			
 			// Break out of loop if trim condition not satisfied after 100 attempts
 			if(counter == 100) {
-				System.err.println("Unable to trim elevator and pitch for given conditions!");
+				logger.error("Unable to trim elevator and pitch for given conditions!");
+				
 				break;
 			}
 		
 			//=============================================== Pitch ================================================================
 			
 			// Calculate trim pitch by using (theta = alpha + FPA)
-			thetaTrim = alphaTrim + 0; // Zero for level flight
+			thetaTrim = alphaTrim + 0; // FPA is zero in level flight
 			
 			double[] windParameters = new double[] {trueAirspeed, 0, alphaTrim};
 			
@@ -145,6 +153,8 @@ public class Trimming {
 			counter++;
 					   
 		} while (Math.abs(zForce) > 1);
+		
+		logger.debug("...done!");
 
 		//==================================================== Throttle ============================================================
 		
@@ -154,12 +164,15 @@ public class Trimming {
 		
 		counter = 0;
 		
+		logger.debug("Finding trim throttle...");
+		
 		do {
 			throttleTrim = (throttleMin + throttleMax) / 2;
 			
 			// Break out of loop if trim condition not satisfied after 100 attempts
 			if(counter == 100) {
-				System.err.println("Unable to trim throttle for given conditions!");
+				logger.error("Unable to trim throttle for given conditions!");
+				
 				break;
 			}
 			
@@ -184,20 +197,25 @@ public class Trimming {
 			
 		} while (Math.abs(totalThrust - drag) > 1);
 		
+		logger.debug("...done!");
+		
 		// Update initialControls and initialConditions
 		initialConditions.put(InitialConditions.INITTHETA, thetaTrim);
 		initialConditions.put(InitialConditions.INITW, wVelocityTrim);
 		
 		initialControls.put(FlightControlType.ELEVATOR, -elevTrim);
 		initialControls.put(FlightControlType.AILERON, 0.0);
-		initialControls.put(FlightControlType.RUDDER, 0.0);		
+		initialControls.put(FlightControlType.RUDDER, 0.0);
+		
+		logger.debug("Finished trimming aircraft!");
 		
 		// In test mode do not write any config settings to files
 		if (!testMode) {
+			logger.debug("Updating initial conditions and initial flight controls...");
 			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INITIAL_CONDITIONS.toString(), initialConditions);
 			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INITIAL_CONTROLS.toString(), initialControls);
 		} else {
-			System.out.println(Trimming.outputTrimValues());
+			logger.debug(Trimming.outputTrimValues());
 		}
 	}
 	

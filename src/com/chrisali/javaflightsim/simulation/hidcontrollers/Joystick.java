@@ -72,7 +72,7 @@ public class Joystick extends AbstractController {
 		
 		// If no joysticks available, exit function
 		if (controllerList.isEmpty()) {
-			System.err.println("No joysticks found!");
+			logger.error("No joysticks found!");
 			return;
 		}
 	}

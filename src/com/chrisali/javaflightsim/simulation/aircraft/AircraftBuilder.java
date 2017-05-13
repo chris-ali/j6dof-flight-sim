@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.propulsion.EngineParameters;
@@ -38,6 +41,9 @@ import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
  * in the simulation of the aircraft. 
  */
 public class AircraftBuilder {
+	
+	private static final Logger logger = LogManager.getLogger(AircraftBuilder.class);
+	
 	private Set<Engine> engineList = new LinkedHashSet<>();
 	private Aircraft aircraft;
 	
@@ -57,8 +63,10 @@ public class AircraftBuilder {
 	 * @param aircraftName
 	 */
 	public AircraftBuilder(String aircraftName) {
+		logger.debug("Building a " + aircraftName + "...");
 		this.aircraft = new Aircraft(aircraftName);
 		
+		logger.debug("Getting propulsion settings for " + aircraftName + "...");
 		List<String[]> readPropulsionFile = FileUtilities.readFileAndSplit(aircraftName, SimDirectories.AIRCRAFT.toString(), SimFiles.PROPULSION.toString());
 
 		// Gets the number of engines on the aircraft from the first line of the
@@ -87,19 +95,19 @@ public class AircraftBuilder {
 				switch (engineParams.get(EngineParameters.TYPE)) {
 					case "fixedPitchPropEngine":
 					default:
-					this.engineList.add(new FixedPitchPropEngine(					engineParams.get(EngineParameters.NAME), 
-																 Double.parseDouble(engineParams.get(EngineParameters.MAX_BHP)), 
-																 Double.parseDouble(engineParams.get(EngineParameters.MAX_RPM)), 
-																 Double.parseDouble(engineParams.get(EngineParameters.PROP_DIAMETER)), 
-																 enginePosition, 
-																 i));	
+					logger.debug("Adding a propeller engine...");
+					engineList.add(new FixedPitchPropEngine(engineParams.get(EngineParameters.NAME), 
+															Double.parseDouble(engineParams.get(EngineParameters.MAX_BHP)), 
+															Double.parseDouble(engineParams.get(EngineParameters.MAX_RPM)), 
+															Double.parseDouble(engineParams.get(EngineParameters.PROP_DIAMETER)), 
+															enginePosition, 
+															i));	
 					break;
 				}
-				
 			}
 		} else {
-			System.err.println("Invalid number of engines! Defaulting to single engine...");
-			this.engineList.add(new FixedPitchPropEngine());
+			logger.error("Invalid number of engines! Defaulting to single engine...");
+			engineList.add(new FixedPitchPropEngine());
 		}
 	}
 	

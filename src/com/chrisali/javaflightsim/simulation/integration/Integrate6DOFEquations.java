@@ -30,6 +30,8 @@ import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.aero.AccelAndMoments;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
@@ -69,6 +71,9 @@ import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
  * @see Options
  */
 public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener {
+	//Logging
+	private static final Logger logger = LogManager.getLogger(Integrate6DOFEquations.class);
+	
 	// 6DOF Integration Results
 	private double[] linearVelocities 		= new double[3];
 	private double[] NEDPosition      		= new double[3];
@@ -143,9 +148,12 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		t = integratorConfig[0];
 		
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
+		logger.debug("Setting up Runge Kutta Integrator...");
 		integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[1]);
 		
 		// Set up ground reaction integration
+		logger.debug("Initializing ground reaction model...");
+		
 		groundReaction = new IntegrateGroundReaction(linearVelocities, 
 													 NEDPosition, 
 													 eulerAngles, 
@@ -410,45 +418,54 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	@Override
 	public void run() {
 		// Integration loop
-		try {
-			running = true;
+		running = true;
+
+		while (t < integratorConfig[2] && running) {
+			try {	
+			// If paused and reset selected, reset initialConditions using IntegrationSetup's method 
+			if (options.contains(Options.PAUSED) & options.contains(Options.RESET))				
+				initialConditions = ArrayUtils.toPrimitive(IntegrationSetup.gatherInitialConditions("InitialConditions").values()
+																		   .toArray(new Double[initialConditions.length]));
 			
-			while (t < integratorConfig[2] && running) {
-				// If paused and reset selected, reset initialConditions using IntegrationSetup's method 
-				if (options.contains(Options.PAUSED) & options.contains(Options.RESET))				
- 					initialConditions = ArrayUtils.toPrimitive(IntegrationSetup.gatherInitialConditions("InitialConditions").values()
- 																			   .toArray(new Double[initialConditions.length]));
+			// If paused, skip the integration and update process
+			if (!options.contains(Options.PAUSED)) {
+				// Run a single step of integration each step of the loop
+				y = integrator.singleStep(new SixDOFEquations(), 	  // derivatives
+										  t, 		  				  // start time
+										  initialConditions, 		  // initial conditions
+										  t+integratorConfig[1]);     // end time (t+dt)
 				
-				// If paused, skip the integration and update process
-				if (!options.contains(Options.PAUSED)) {
-					// Run a single step of integration each step of the loop
-					y = integrator.singleStep(new SixDOFEquations(), 	  // derivatives
-											  t, 		  				  // start time
-											  initialConditions, 		  // initial conditions
-											  t+integratorConfig[1]);     // end time (t+dt)
-					
-					// Update data members' values
-					updateDataMembers();
-					
-					// Update initial conditions for next step of integration
-					initialConditions = y;
-					
-					// Update output log
-					logData();
-				}
+				// Update data members' values
+				updateDataMembers();
 				
-				// Pause the integration for dt*1000 milliseconds to emulate real time operation
-				// if ANALYSIS_MODE is false
-				if (!options.contains(Options.ANALYSIS_MODE))
-					Thread.sleep((long)(integratorConfig[1]*1000));
+				// Update initial conditions for next step of integration
+				initialConditions = y;
 				
-				// Increments time using an intrinsic lock
-				incrementTime();
+				// Update output log
+				logData();
 			}
 			
-		} catch (InterruptedException e) {
-		} finally {running = false;} 
+			// Pause the integration for dt*1000 milliseconds to emulate real time operation
+			// if ANALYSIS_MODE is false
+			if (!options.contains(Options.ANALYSIS_MODE))
+				Thread.sleep((long)(integratorConfig[1]*1000));
+			
+			// Increments time using an intrinsic lock
+			incrementTime();
+			
+			} catch (InterruptedException e) {
+				logger.warn("Simulation thread interrupted, ignoring");
+				
+				continue;
+			} catch (Exception e) {
+				logger.error("Simulation thread encountered an error!");
+				logger.error(e.getMessage());
+				
+				break;
+			}
+		}
 		
+		running = false;
 	}
 	
 	//================================= Simulation Logging =====================================================

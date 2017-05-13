@@ -33,6 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -43,6 +46,8 @@ import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
  * Contains various static methods for reading and parsing text configuration files
  */
 public class FileUtilities {
+	
+	private static final Logger logger = LogManager.getLogger(FileUtilities.class);
 
 	public static final String CONFIG_EXT = ".txt";
 
@@ -70,13 +75,15 @@ public class FileUtilities {
 		ArrayList<String[]> readAndSplit = new ArrayList<>();
 		String readLine = null;
 		
+		logger.debug("Reading file: " + sb.toString() + "...");
+		
 		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
 			while ((readLine = br.readLine()) != null)
 				readAndSplit.add(readLine.split(" = "));
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileContents + CONFIG_EXT + "!");}
-		catch (IOException e) {System.err.println("Could not read: " + fileContents + CONFIG_EXT + "!");}
-		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileContents + CONFIG_EXT + "!");} 
-		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileContents + CONFIG_EXT + "!");}
+		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileContents + CONFIG_EXT + "!");}
+		catch (IOException e) {logger.error("Could not read: " + fileContents + CONFIG_EXT + "!");}
+		catch (NullPointerException e) {logger.error("Bad reference when reading: " + fileContents + CONFIG_EXT + "!");} 
+		catch (NumberFormatException e) {logger.error("Error parsing data from " + fileContents + CONFIG_EXT + "!");}
 		
 		return readAndSplit;
 	}
@@ -98,13 +105,15 @@ public class FileUtilities {
 		ArrayList<String[]> readAndSplit = new ArrayList<>();
 		String readLine = null;
 		
+		logger.debug("Reading file: " + sb.toString() + "...");
+		
 		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
 			while ((readLine = br.readLine()) != null)
 				readAndSplit.add(readLine.split(" = "));
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + CONFIG_EXT + "!");}
-		catch (IOException e) {System.err.println("Could not read: " + fileName + CONFIG_EXT + "!");}
-		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + CONFIG_EXT + "!");}
-		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileName + CONFIG_EXT + "!");}
+		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!");}
+		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!");}
+		catch (NullPointerException e) {logger.error("Bad reference when reading: " + fileName + CONFIG_EXT + "!");}
+		catch (NumberFormatException e) {logger.error("Error parsing data from " + fileName + CONFIG_EXT + "!");}
 		
 		return readAndSplit;
 	}
@@ -116,6 +125,7 @@ public class FileUtilities {
 	 * file where *value* contains true  
 	 * 
 	 * @return EnumSet of selected options
+	 * @throws IllegalArgumentException
 	 */
 	public static EnumSet<Options> parseSimulationSetup() throws IllegalArgumentException {
 		ArrayList<String[]> readSimSetupFile = readFileAndSplit(SimFiles.SIMULATION_SETUP.toString(), SimDirectories.SIM_CONFIG.toString());
@@ -136,6 +146,7 @@ public class FileUtilities {
 	 * <br><code>"selectedAircraft = *value*\n"</code></br>
 	 * 
 	 * @return selectedAircraft
+	 * @throws IllegalArgumentException
 	 */
 	public static String parseSimulationSetupForAircraft() throws IllegalArgumentException {
 		ArrayList<String[]> readSimSetupFile = readFileAndSplit(SimFiles.SIMULATION_SETUP.toString(), SimDirectories.SIM_CONFIG.toString());
@@ -156,16 +167,24 @@ public class FileUtilities {
 	 * @return displayOptions EnumMap
 	 */
 	public static EnumMap<DisplayOptions, Integer> parseDisplaySetup() {
+		logger.debug("Parsing display configuration...");
+		
 		EnumMap<DisplayOptions, Integer> displayOptions = new EnumMap<DisplayOptions, Integer>(DisplayOptions.class);
 		
 		// Display options
 		ArrayList<String[]> readDisplaySetupFile = readFileAndSplit(SimFiles.DISPLAY_SETUP.toString(), SimDirectories.SIM_CONFIG.toString());
 		
-		for(DisplayOptions displayOptionsKey : DisplayOptions.values()) {
-			for (String[] readLine : readDisplaySetupFile) {
-				if (displayOptionsKey.toString().equals(readLine[0]))
-					displayOptions.put(displayOptionsKey, Integer.decode(readLine[1]));
+		try {
+			for(DisplayOptions displayOptionsKey : DisplayOptions.values()) {
+				for (String[] readLine : readDisplaySetupFile) {
+						if (displayOptionsKey.toString().equals(readLine[0]))
+							displayOptions.put(displayOptionsKey, Integer.decode(readLine[1]));					
+				}
 			}
+		} catch (Exception e) {
+			// TODO should try to return a default configuration
+			logger.error("Error reading display configuration!");
+			logger.error(e.getMessage());
 		}
 
 		return displayOptions;
@@ -178,18 +197,26 @@ public class FileUtilities {
 	 * @return audioOptions EnumMap
 	 */
 	public static EnumMap<AudioOptions, Float> parseAudioSetup() {
+		logger.debug("Parsing audio configuration...");
+		
 		EnumMap<AudioOptions, Float> audioOptions = new EnumMap<AudioOptions, Float>(AudioOptions.class);
 		
-		// Display options
+		// Audio options
 		ArrayList<String[]> readAudioSetupFile = readFileAndSplit(SimFiles.AUDIO_SETUP.toString(), SimDirectories.SIM_CONFIG.toString());
 		
-		for(AudioOptions audioOptionsKey : AudioOptions.values()) {
-			for (String[] readLine : readAudioSetupFile) {
-				if (audioOptionsKey.toString().equals(readLine[0]))
-					audioOptions.put(audioOptionsKey, Float.valueOf(readLine[1]));
-			}
+		try {
+			for(AudioOptions audioOptionsKey : AudioOptions.values()) {
+				for (String[] readLine : readAudioSetupFile) {
+					if (audioOptionsKey.toString().equals(readLine[0]))
+						audioOptions.put(audioOptionsKey, Float.valueOf(readLine[1]));
+				}
+			}			
+		} catch (Exception e) {
+			// TODO should try to return a default configuration
+			logger.error("Error reading display configuration!");
+			logger.error(e.getMessage());
 		}
-
+		
 		return audioOptions;
 	}
 	
@@ -201,17 +228,25 @@ public class FileUtilities {
 	 * @return massProperties EnumMap
 	 */
 	public static EnumMap<MassProperties, Double> parseMassProperties(String aircraftName) {
+		logger.debug("Parsing mass propertes for " + aircraftName + "...");
+		
 		EnumMap<MassProperties, Double> massProperties = new EnumMap<MassProperties, Double>(MassProperties.class);
 		
 		// Mass Properties
 		ArrayList<String[]> readMassPropFile = readFileAndSplit(aircraftName, SimDirectories.AIRCRAFT.toString(), SimFiles.MASS_PROPERTIES.toString());
 		
-		for(MassProperties massPropKey : MassProperties.values()) {
-			for (String[] readLine : readMassPropFile) {
-				if (massPropKey.toString().equals(readLine[0]))
-					massProperties.put(massPropKey, Double.parseDouble(readLine[1]));
+		try {
+			for(MassProperties massPropKey : MassProperties.values()) {
+				for (String[] readLine : readMassPropFile) {
+					if (massPropKey.toString().equals(readLine[0]))
+						massProperties.put(massPropKey, Double.parseDouble(readLine[1]));
+				}
 			}
-		}
+		} catch (Exception e) {
+			// TODO should try to return a default configuration
+			logger.error("Error reading display configuration!");
+			logger.error(e.getMessage());
+		}		
 
 		return massProperties;
 	}
@@ -248,15 +283,19 @@ public class FileUtilities {
 		StringBuilder sb = new StringBuilder();
 		sb.append(FILE_ROOT).append(filePath).append(File.separator).append(fileName).append(CONFIG_EXT);
 		
+		logger.debug("Saving configuration file to: " + sb.toString());
+		
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sb.toString()))) {
 			for (Map.Entry<?,?> entry : enumMap.entrySet()) {
 				bw.write(entry.getKey().toString() + " = " + entry.getValue());
 				bw.newLine();
 			}
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + CONFIG_EXT + "!");}
-		catch (IOException e) {System.err.println("Could not read: " + fileName + CONFIG_EXT + "!");}
-		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + CONFIG_EXT + "!");}
-		catch (NumberFormatException e) {System.err.println("Error parsing data from " + fileName + CONFIG_EXT + "!");}
+		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!");}
+		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!");}
+		catch (NullPointerException e) {logger.error("Bad reference when reading: " + fileName + CONFIG_EXT + "!");}
+		catch (NumberFormatException e) {logger.error("Error parsing data from " + fileName + CONFIG_EXT + "!");}
+		
+		logger.debug(fileName + CONFIG_EXT + " saved successfully!");
 	}
 	
 	/**
@@ -272,6 +311,8 @@ public class FileUtilities {
 		StringBuilder sb = new StringBuilder();
 		sb.append(FILE_ROOT).append(filePath).append(File.separator).append(fileName).append(CONFIG_EXT);
 		
+		logger.debug("Saving configuration file to: " + sb.toString());
+		
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sb.toString()))) {
 			for (Options option : Options.values()) {
 				bw.write(option.name() + " = " + optionsSet.contains(option));
@@ -279,9 +320,11 @@ public class FileUtilities {
 			}
 			bw.write("selectedAircraft = " + selectedAircraft);
 			bw.newLine();
-		} catch (FileNotFoundException e) {System.err.println("Could not find: SimulationSetup" + CONFIG_EXT + "!");}
-		catch (IOException e) {System.err.println("Could not read: SimulationSetup" + CONFIG_EXT + "!");}
-		catch (NullPointerException e) {System.err.println("Bad reference to: SimulationSetup" + CONFIG_EXT + "!");}
+		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!");}
+		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!");}
+		catch (NullPointerException e) {logger.error("Bad reference to: " + fileName + CONFIG_EXT + "!");}
+		
+		logger.debug(fileName + CONFIG_EXT + " saved successfully!");
 	}
 	
 	/**
@@ -292,6 +335,8 @@ public class FileUtilities {
 	 * @throws IOException
 	 */
 	public static void saveToCSVFile(File file, List<Map<SimOuts, Double>> logsOut) throws IOException {
+		
+		logger.debug("Saving configuration file to: " + file.getAbsolutePath());
 		
 		BufferedWriter bw = new BufferedWriter(new FileWriter(file.getPath()));
 		
@@ -312,5 +357,7 @@ public class FileUtilities {
 		}
 		
 		bw.close();
+		
+		logger.debug(file.getName() + " saved successfully!");
 	}
 }
