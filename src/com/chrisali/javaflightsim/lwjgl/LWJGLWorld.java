@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
@@ -78,6 +80,9 @@ import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
  */
 public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	
+	//Logging
+	private static final Logger logger = LogManager.getLogger(LWJGLWorld.class);
+	
 	private Loader loader;
 	private MasterRenderer masterRenderer;
 	private List<Light> lights;
@@ -118,10 +123,68 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	@Override
 	public void run() {
 		
-		//=================================== Set Up ==========================================================
+		//=================================== Set Up =========================================================
 		
-		// Initializes display window depending on presence of SimulationController's MainFrame object,
+		try { setUp(); } 
+		catch (Exception e) {logger.fatal("Error encountered when setting up LWJGL display!"); logger.fatal(e.getMessage());}
+		
+		try {loadAssets(); }
+		catch (Exception e) {logger.fatal("Error encountered when loading assets for LWJGL display!"); logger.fatal(e.getMessage());}
+		
+		running = true;
+
+		//=============================== Main Loop ==========================================================
+
+		while (!Display.isCloseRequested() && running) {
+			try {
+				//--------- Movement ----------------
+				camera.move(ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z);
+				ownship.move(ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z);
+				
+				//--------- Particles ---------------
+				ParticleMaster.update(camera);
+				
+				//--------- Audio--------------------
+				SoundCollection.update(soundValues, configuration);
+				
+				//----------- UI --------------------
+				texts.get("Paused").setTextString(configuration.getSimulationOptions()
+																.contains(Options.PAUSED) ?
+																		  "PAUSED" : "");
+				
+				//------ Render Everything -----------
+				masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainTree(), 
+												lights, camera, new Vector4f(0, 1, 0, 0));
+				ParticleMaster.renderParticles(camera);
+				TextMaster.render(texts);
+				
+				DisplayManager.updateDisplay();
+			} catch (Exception e) {
+				logger.error("Error encountered while running LWJGL display! Attempting to continue...");
+				logger.error(e.getMessage());
+				
+				continue;
+			}
+		}
+		
+		running = false;
+		
+		//================================ Clean Up =========================================================
+		
+		try { cleanUp(); }
+		catch (Exception e) {logger.fatal("Error encountered when cleaning up LWJGL display!"); logger.fatal(e.getMessage());}
+	}
+	
+	/**
+	 * Sets up all display and rendering processes and prepares them to run
+	 */
+	private void setUp() {
+		
+		// Initialize display window depending on presence of SimulationController's MainFrame object,
 		// set in RunJavaFlightSimulator
+		
+		logger.debug("Starting up LWJGL display...");
+
 		if (controller.getGuiFrame() != null)
 			DisplayManager.createDisplay(controller.getGuiFrame().getSimulationWindow());
 		else
@@ -129,56 +192,40 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		
 		loader = new Loader();
 		
-		// Sets up renderer with fog and sky config
+		// Set up renderer with fog and sky config
+
+		logger.debug("Generating fog and sky...");
+		
 		masterRenderer = new MasterRenderer();
 		MasterRenderer.setSkyColor(new Vector3f(0.70f, 0.90f, 1.0f));
 		MasterRenderer.setFogDensity(0.0005f);
 		MasterRenderer.setFogGradient(3.5f);
 		
 		// Initialize sounds and position of listener
+
+		logger.debug("Initializing audio...");
+		
 		AudioMaster.init();
 		AudioMaster.setListenerData(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0));
 		
 		// Load particles and on-screen text
+		
+		logger.debug("Loading on-screen text and particles...");
+		
 		ParticleMaster.init(loader, masterRenderer.getProjectionMatrix());
 		TextMaster.init(loader);
 		
 		// Load all entities (lights, entities, particles, etc)
-		loadAssets();
 		
-		running = true;
+		logger.debug("Loading entities...");
+	}
+	
+	/**
+	 * Closes all display and rendering processes, and closes display window 
+	 */
+	private void cleanUp() {
 
-		//=============================== Main Loop ==========================================================
-
-		while (!Display.isCloseRequested() && running) {
-			
-			//--------- Movement ----------------
-			camera.move(ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z);
-			ownship.move(ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z);
-			
-			//--------- Particles ---------------
-			ParticleMaster.update(camera);
-			
-			//--------- Audio--------------------
-			SoundCollection.update(soundValues, configuration);
-			
-			//----------- UI --------------------
-			texts.get("Paused").setTextString(configuration.getSimulationOptions()
-														.contains(Options.PAUSED) ?
-																  "PAUSED" : "");
-			
-			//------ Render Everything -----------
-			masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainTree(), 
-											lights, camera, new Vector4f(0, 1, 0, 0));
-			ParticleMaster.renderParticles(camera);
-			TextMaster.render(texts);
-			
-			DisplayManager.updateDisplay();
-		}
-		
-		running = false;
-		
-		//================================ Clean Up ==========================================================
+		logger.debug("Cleaning up and closing LWJGL display...");
 		
 		AudioMaster.cleanUp();
 		ParticleMaster.cleanUp();
@@ -196,14 +243,20 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		
 		//==================================== Sun ===========================================================
 		
+		logger.debug("Generating sun...");
+		
 		lights = new ArrayList<>();
 		lights.add(new Light(new Vector3f(20000, 40000, 20000), new Vector3f(0.95f, 0.95f, 0.95f)));
 		
 		//================================= Entities ==========================================================
 		
+		logger.debug("Generating collections of entities...");
+		
 		entities = new EntityCollections(lights, loader);
 		
 		//================================= Ownship ===========================================================
+		
+		logger.debug("Creating ownship...");
 		
 		// Model used for aircraft; scale set to 0 to be invisible for now
 		TexturedModel bunny =  new TexturedModel(OBJLoader.loadObjModel("bunny", OTWDirectories.ENTITIES.toString(), loader), 
@@ -220,6 +273,8 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		
 		entities.addToStaticEntities(ownship);
 		
+		logger.debug("Setting up camera...");
+		
 		// Camera tied to ownship as first person view
 		camera = new Camera(ownship);
 		camera.setChaseView(false);
@@ -227,10 +282,14 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 
 		//================================= Terrain ==========================================================
 		
+		logger.debug("Generating terrain...");
+		
 		terrainCollection = new TerrainCollection(10, loader, ownship);
 		entities.setTerrainTree(terrainCollection.getTerrainTree());
 		
 		//=============================== Particles ==========================================================
+		
+		logger.debug("Generating clouds...");
 		
 		ParticleTexture clouds = new ParticleTexture(loader.loadTexture("clouds", OTWDirectories.PARTICLES.toString()), 4, true);
 		
@@ -241,11 +300,12 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		
 		//=============================== Interface ==========================================================
 		
+		logger.debug("Generating on-screen text...");
+		
 		// Generates font and on screen text
 		FontType font = new FontType(loader, "ubuntu");
 		texts.put("FlightData", new GUIText("", 0.85f, font, new Vector2f(0, 0), 1f, true));
 		texts.put("Paused", new GUIText("PAUSED", 1.15f, font, new Vector2f(0.5f, 0.5f), 1f, false, new Vector3f(1,0,0)));
-		
 		
 		//==================================== Audio =========================================================
 		
@@ -292,12 +352,22 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		DecimalFormat df0 = new DecimalFormat("0");
 		
 		StringBuffer sb = new StringBuffer();
-		sb.append("AIRSPEED: ").append(df0.format(receivedFlightData.get(FlightDataType.IAS))).append(" KIAS | ")
-		  .append("HEADING: ").append(df0.format(receivedFlightData.get(FlightDataType.HEADING))).append(" DEG | ")
-		  .append("ALTITUDE: ").append(df0.format(receivedFlightData.get(FlightDataType.ALTITUDE))).append(" FT | ")
-		  .append("LATITUDE: ").append(df4.format(receivedFlightData.get(FlightDataType.LATITUDE))).append(" DEG | ")
-		  .append("LONGITUDE: ").append(df4.format(receivedFlightData.get(FlightDataType.LONGITUDE))).append(" DEG | ")
-		  .append("G-FORCE: ").append(df2.format(receivedFlightData.get(FlightDataType.GFORCE))).append(" G ");
+
+		try {
+			sb.append("AIRSPEED: ").append(df0.format(receivedFlightData.get(FlightDataType.IAS))).append(" KIAS | ")
+			  .append("HEADING: ").append(df0.format(receivedFlightData.get(FlightDataType.HEADING))).append(" DEG | ")
+			  .append("ALTITUDE: ").append(df0.format(receivedFlightData.get(FlightDataType.ALTITUDE))).append(" FT | ")
+			  .append("LATITUDE: ").append(df4.format(receivedFlightData.get(FlightDataType.LATITUDE))).append(" DEG | ")
+			  .append("LONGITUDE: ").append(df4.format(receivedFlightData.get(FlightDataType.LONGITUDE))).append(" DEG | ")
+			  .append("G-FORCE: ").append(df2.format(receivedFlightData.get(FlightDataType.GFORCE))).append(" G ");
+		} catch (Exception e) {
+			sb.append("AIRSPEED: ").append("---").append(" KIAS | ")
+			  .append("HEADING: ").append("---").append(" DEG | ")
+			  .append("ALTITUDE: ").append("---").append(" FT | ")
+			  .append("LATITUDE: ").append("--.----").append(" DEG | ")
+			  .append("LONGITUDE: ").append("--.----").append(" DEG | ")
+			  .append("G-FORCE: ").append("-.--").append(" G ");
+		}
 		
 		return sb.toString();
 	}
@@ -330,7 +400,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 			soundValues.put(SoundCategory.STALL_HORN, receivedFlightData.get(FlightDataType.AOA));
 			
 			// Record flight data into text string to display on OTW screen 
-			if (!configuration.getSimulationOptions().contains(Options.INSTRUMENT_PANEL))
+			if (!configuration.getSimulationOptions().contains(Options.INSTRUMENT_PANEL) && texts.get("FlightData") != null)
 				texts.get("FlightData").setTextString(setTextInfo(receivedFlightData));
 			
 			// Record value every other step to ensure a difference between previous and current values; used to 
