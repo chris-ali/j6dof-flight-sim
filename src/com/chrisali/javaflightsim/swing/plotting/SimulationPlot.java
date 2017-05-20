@@ -29,6 +29,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JComponent;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
@@ -48,8 +50,10 @@ import com.chrisali.javaflightsim.simulation.integration.SimOuts;
  */
 public class SimulationPlot extends JComponent {
 
-	private static final long serialVersionUID = 1L;
-	
+	private static final long serialVersionUID = -1885385597969791076L;
+
+	private static final Logger logger = LogManager.getLogger(SimulationPlot.class);
+		
 	private static Map<PlotType, XYPlot> plotLists = new EnumMap<PlotType, XYPlot>(PlotType.class);
 	private ChartPanel chartPanel;
 	
@@ -170,7 +174,7 @@ public class SimulationPlot extends JComponent {
 				add(chartPanel, BorderLayout.CENTER);
 				break;	
 			default:
-				System.err.println("Invalid plot type selected!");
+				logger.error("Invalid plot type selected!");
 				break;
 		}
 	}

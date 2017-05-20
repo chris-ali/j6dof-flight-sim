@@ -23,6 +23,8 @@ import java.util.Map;
 
 import org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolatingFunction;
 import org.apache.commons.math3.exception.OutOfRangeException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
@@ -47,6 +49,8 @@ import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
  * @see Source: Source: <i>Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.</i>
  */
 public class Aerodynamics {
+	
+	private static final Logger logger = LogManager.getLogger(Aerodynamics.class);
 	
 	private Aircraft aircraft;
 	
@@ -201,7 +205,7 @@ public class Aerodynamics {
 			try {
 				interpStabDer = pbsif.value(windParameters[2], controls.get(FlightControlType.FLAPS));
 			} catch (OutOfRangeException e) {
-				System.err.println("Number out of range for interpolation! Returning 0 for value.");
+				logger.error("Number out of range for interpolation! Returning 0 for value.");
 				return 0.0;
 			}
 		}

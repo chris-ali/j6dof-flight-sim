@@ -95,7 +95,7 @@ public class AircraftBuilder {
 				switch (engineParams.get(EngineParameters.TYPE)) {
 					case "fixedPitchPropEngine":
 					default:
-					logger.debug("Adding a propeller engine...");
+					logger.debug("Adding a propeller engine at station: (" + enginePosition[0] + ", " + enginePosition[1] + ", " + enginePosition[2] + ") ft...");
 					engineList.add(new FixedPitchPropEngine(engineParams.get(EngineParameters.NAME), 
 															Double.parseDouble(engineParams.get(EngineParameters.MAX_BHP)), 
 															Double.parseDouble(engineParams.get(EngineParameters.MAX_RPM)), 
@@ -106,7 +106,7 @@ public class AircraftBuilder {
 				}
 			}
 		} else {
-			logger.error("Invalid number of engines! Defaulting to single engine...");
+			logger.error("Invalid number of engines! Defaulting to a single engine propeller engine at (0, 0, 0) ft...");
 			engineList.add(new FixedPitchPropEngine());
 		}
 	}

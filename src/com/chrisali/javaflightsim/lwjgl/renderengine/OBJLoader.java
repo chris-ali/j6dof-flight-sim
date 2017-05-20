@@ -26,6 +26,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -42,6 +44,8 @@ import com.chrisali.javaflightsim.lwjgl.utilities.OTWFiles;
  */
 public class OBJLoader {
 	
+	private static final Logger logger = LogManager.getLogger(OBJLoader.class);
+	
 	/**
 	 * Loads OBJ model into memory by specifying a URI to the model's location 
 	 * 
@@ -54,7 +58,7 @@ public class OBJLoader {
  		FileReader fr = null;
 		
 		try {fr = new FileReader(new File(OTWDirectories.RESOURCES.toString() + File.separator + directory + File.separator + fileName + OTWFiles.MODEL_EXT.toString()));} 
-		catch (FileNotFoundException e) {System.err.println("Could not load model: " + fileName + OTWFiles.MODEL_EXT.toString() + "!");}
+		catch (FileNotFoundException e) {logger.error("Could not load model: " + fileName + OTWFiles.MODEL_EXT.toString() + "!");}
 		
 		BufferedReader reader = new BufferedReader(fr);
 		String line;
@@ -147,5 +151,4 @@ public class OBJLoader {
 		normalsArray[currentVertexPointer*3+1] = currentNorm.y;
 		normalsArray[currentVertexPointer*3+2] = currentNorm.z;
 	}
-	
 }

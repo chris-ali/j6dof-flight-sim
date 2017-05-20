@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
 
 /**
@@ -35,6 +37,9 @@ import org.lwjgl.opengl.Display;
  *
  */
 public class MetaFile {
+	
+	//Logging
+	private static final Logger logger = LogManager.getLogger(MetaFile.class);
 
 	private static final int PAD_TOP = 0;
 	private static final int PAD_LEFT = 1;
@@ -92,19 +97,25 @@ public class MetaFile {
 	private boolean processNextLine() {
 		values.clear();
 		String line = null;
+		
 		try {
 			line = reader.readLine();
-		} catch (IOException e1) {
+		} catch (IOException e) {
+			logger.error("Error reading line in file!");
+			logger.error(e.getMessage());
 		}
+		
 		if (line == null) {
 			return false;
 		}
+		
 		for (String part : line.split(SPLITTER)) {
 			String[] valuePairs = part.split("=");
 			if (valuePairs.length == 2) {
 				values.put(valuePairs[0], valuePairs[1]);
 			}
 		}
+		
 		return true;
 	}
 
@@ -157,8 +168,8 @@ public class MetaFile {
 		try {
 			reader = new BufferedReader(new FileReader(file));
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Couldn't read font meta file!");
+			logger.error("Couldn't read font metafile: " + file.getAbsolutePath() + file.getName());
+			logger.error(e.getMessage());
 		}
 	}
 

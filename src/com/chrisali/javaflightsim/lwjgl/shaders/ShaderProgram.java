@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.FloatBuffer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
@@ -34,6 +36,9 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 public abstract class ShaderProgram {
+	
+	private static final Logger logger = LogManager.getLogger(ShaderProgram.class);
+	
 	protected static final String SHADER_ROOT_PATH = "/com/chrisali/javaflightsim/lwjgl/shaders/"; 
 	
 	private int programID;
@@ -131,7 +136,7 @@ public abstract class ShaderProgram {
 			}
 			reader.close();
 		} catch (IOException e) {
-			System.err.println("Could not read file: " + file);
+			logger.fatal("Could not read shader file: " + file);
 			System.exit(-1);
 		}
 		
@@ -140,8 +145,8 @@ public abstract class ShaderProgram {
 		GL20.glCompileShader(shaderID);
 		
 		if(GL20.glGetShaderi(shaderID, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
-			System.out.println(GL20.glGetShaderInfoLog(shaderID, 500));
-			System.err.println("Could not compile shader: " + file);
+			logger.fatal("Could not compile shader: " + file);
+			logger.fatal(GL20.glGetShaderInfoLog(shaderID, 500));
 			System.exit(-1);
 		}
 		

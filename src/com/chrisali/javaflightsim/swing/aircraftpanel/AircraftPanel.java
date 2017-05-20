@@ -52,6 +52,9 @@ import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
 import com.chrisali.javaflightsim.swing.CancelButtonListener;
@@ -59,6 +62,8 @@ import com.chrisali.javaflightsim.swing.CancelButtonListener;
 public class AircraftPanel extends JPanel {
 
 	private static final long serialVersionUID = -4654745584883998137L;
+	
+	private static final Logger logger = LogManager.getLogger(AircraftPanel.class);
 	
 	private JLabel headerLabel;
 	private JComboBox<String> aircraftComboBox;
@@ -257,7 +262,7 @@ public class AircraftPanel extends JPanel {
 			image = new ImageIcon(imageFile.toURI().toURL());
 		} catch (MalformedURLException e) {
 			JOptionPane.showMessageDialog(AircraftPanel.this, "Unable to load image: " + fileName + SimFiles.PREVIEW_PIC_EXT + "!", 
-					"Error Loading Message", JOptionPane.ERROR_MESSAGE);
+					"Error Loading Image", JOptionPane.ERROR_MESSAGE);
 		}
 
 		return image;
@@ -273,9 +278,22 @@ public class AircraftPanel extends JPanel {
 		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
 			while ((readLine = br.readLine()) != null)
 				readFile.append(readLine).append("\n");
-		} catch (FileNotFoundException e) {System.err.println("Could not find: " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!");}
-		catch (IOException e) {System.err.println("Could not read: " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!");}
-		catch (NullPointerException e) {System.err.println("Bad reference when reading: " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!");}
+		} catch (FileNotFoundException e) {
+			logger.error("Could not find: " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!");
+			
+			JOptionPane.showMessageDialog(AircraftPanel.this, "Unable to load " + aircraftName + " description! Cannot find " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!", 
+					"Error Loading Description", JOptionPane.ERROR_MESSAGE);
+		} catch (IOException e) {
+			logger.error("Could not read: " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!");
+			
+			JOptionPane.showMessageDialog(AircraftPanel.this, "Unable to load " + aircraftName + " description! Cannot read " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!", 
+					"Error Reading Description", JOptionPane.ERROR_MESSAGE);
+		} catch (NullPointerException e) {
+			logger.error("Bad reference when reading: " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!");
+			
+			JOptionPane.showMessageDialog(AircraftPanel.this, "Unable to load " + aircraftName + " description! Bad reference when reading " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!", 
+					"Error Loading Description", JOptionPane.ERROR_MESSAGE);
+		}
 		
 		return readFile.toString();
 	}

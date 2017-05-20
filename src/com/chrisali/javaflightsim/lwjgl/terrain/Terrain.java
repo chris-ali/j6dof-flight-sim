@@ -28,6 +28,8 @@ import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -51,6 +53,9 @@ import com.chrisali.javaflightsim.lwjgl.utilities.RenderingUtilities;
  *
  */
 public class Terrain implements Comparable<Terrain> {
+
+	private static final Logger logger = LogManager.getLogger(Terrain.class);
+	
 	private static final float SIZE = 1600;
 	private static final float MAX_HEIGHT = 20;
 	private static final float MAX_PIXEL_COLOR = 256 * 256 * 256;
@@ -118,7 +123,7 @@ public class Terrain implements Comparable<Terrain> {
 		BufferedImage image = null;
 		
 		try {image = ImageIO.read(new File(OTWDirectories.RESOURCES.toString() + File.separator + directory + File.separator + fileName + OTWFiles.TEXTURE_EXT.toString()));} 
-		catch (IOException e) {System.err.println("Could not load height map: " + fileName + OTWFiles.TEXTURE_EXT.toString() + "!");}
+		catch (IOException e) {logger.error("Could not load height map: " + fileName + OTWFiles.TEXTURE_EXT.toString() + "!");}
 		
 		int VERTEX_COUNT = image.getHeight();
 		int count = VERTEX_COUNT * VERTEX_COUNT;

@@ -30,6 +30,8 @@ import java.util.TreeMap;
 
 import javax.imageio.ImageIO;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.lwjgl.models.TexturedModel;
@@ -50,6 +52,9 @@ import com.chrisali.javaflightsim.lwjgl.utilities.OTWFiles;
  *
  */
 public class EntityCollections {
+	
+	//Logging
+	private static final Logger logger = LogManager.getLogger(EntityCollections.class);
 	
 	private List<Entity> miscStaticEntities = new ArrayList<>();
 	private List<Entity> miscLitEntities = new ArrayList<>();
@@ -133,7 +138,7 @@ public class EntityCollections {
 		BufferedImage image = null;
 		
 		try {image = ImageIO.read(new File(OTWDirectories.RESOURCES.toString() + File.separator + directory + File.separator + fileName + OTWFiles.TEXTURE_EXT.toString()));} 
-		catch (IOException e) {System.err.println("Could not load autogen file: " + fileName + OTWFiles.TEXTURE_EXT.toString() + "!");}
+		catch (IOException e) {logger.error("Could not load autogen file: " + fileName + OTWFiles.TEXTURE_EXT.toString() + "!");}
 		
 		float imageScale = Terrain.getSize()/image.getHeight();
 		float scaledX, scaledZ;
@@ -209,6 +214,8 @@ public class EntityCollections {
 	 * @param scale
 	 */
 	public void createStaticEntity(String entityName, Vector3f position, float xRot, float yRot, float zRot, float scale) {
+		logger.debug("Generating a(n)" + entityName + " at: (" + position.x + ", " + position.y + ", " + position.z + ")...");
+		
 		TexturedModel staticEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, OTWDirectories.ENTITIES.toString(), loader), 
 														new ModelTexture(loader.loadTexture(entityName, OTWDirectories.ENTITIES.toString())));
 		
@@ -226,9 +233,13 @@ public class EntityCollections {
 	 * @param scale
 	 */
 	public void createStaticEntity(String entityName, float xPos, float zPos, float yRot, float scale) {
+		
 		TexturedModel staticEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, OTWDirectories.ENTITIES.toString(), loader), 
 														new ModelTexture(loader.loadTexture(entityName, OTWDirectories.ENTITIES.toString())));
 		float yPos = Terrain.getCurrentTerrain(terrainTree, xPos, zPos).getTerrainHeight(xPos, zPos);
+		
+		logger.debug("Generating a(n)" + entityName + " at: (" + xPos + ", " + yPos + ", " + zPos + ")...");
+
 		Vector3f position = new Vector3f(xPos, yPos, zPos);
 		
 		miscStaticEntities.add(new Entity(staticEntity, position, 0, yRot, 0, scale));
@@ -242,6 +253,9 @@ public class EntityCollections {
 	 * @param scale
 	 */
 	public void createStaticEntity(String entityName, Player player, float scale) {
+		logger.debug("Generating a(n)" + entityName + " at the ownship's postion: (" + 
+					player.getPosition().x + ", " + player.getPosition().y + ", " + player.getPosition().z + ")...");
+		
 		TexturedModel staticEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, OTWDirectories.ENTITIES.toString(), loader), 
 														new ModelTexture(loader.loadTexture(entityName, OTWDirectories.ENTITIES.toString())));
 
@@ -265,6 +279,8 @@ public class EntityCollections {
 	 */
 	public void createLitEntity(String entityName, Vector3f position, float xRot, float yRot, float zRot, float scale, 
 								 Vector3f color, Vector3f attenuation, Vector3f lightPosOffset) {
+		logger.debug("Generating a(n)" + entityName + " at: (" + position.x + ", " + position.y + ", " + position.z + ")...");
+		
 		TexturedModel litEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, OTWDirectories.ENTITIES.toString(), loader), 
 													 new ModelTexture(loader.loadTexture(entityName, OTWDirectories.ENTITIES.toString())));
 		
@@ -297,6 +313,8 @@ public class EntityCollections {
 		float yPos = Terrain.getCurrentTerrain(terrainTree, xPos, zPos).getTerrainHeight(xPos, zPos);
 		Vector3f position = new Vector3f(xPos, yPos, zPos);
 		
+		logger.debug("Generating a(n)" + entityName + " at: (" + xPos + ", " + yPos + ", " + zPos + ")...");
+		
 		miscLitEntities.add(new Entity(litEntity, position, 0, yRot, 0, scale));
 		
 		Light light = new Light(Vector3f.add(position, lightPosOffset, position), color, attenuation);
@@ -318,6 +336,9 @@ public class EntityCollections {
 	 */
 	public void createLitEntity(String entityName, Player player, float scale, 
 								Vector3f color, Vector3f attenuation, Vector3f lightPosOffset) {
+		logger.debug("Generating a(n)" + entityName + " at the ownship's postion: (" + 
+					player.getPosition().x + ", " + player.getPosition().y + ", " + player.getPosition().z + ")...");
+		
 		TexturedModel litEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, OTWDirectories.ENTITIES.toString(), loader), 
 													 new ModelTexture(loader.loadTexture(entityName, OTWDirectories.ENTITIES.toString())));
 		Vector3f position = player.getPosition();

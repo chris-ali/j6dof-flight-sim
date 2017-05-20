@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
@@ -37,11 +39,13 @@ import com.chrisali.javaflightsim.lwjgl.utilities.OTWFiles;
 
 public class AudioMaster {
 	
+	private static final Logger logger = LogManager.getLogger(AudioMaster.class);
+	
 	private static List<Integer> buffers = new ArrayList<Integer>();
 	
 	public static void init() {
 		try {AL.create();} 
-		catch (LWJGLException e) {System.err.println("Unable to initialize OpenAL!\n" + e.getMessage());}
+		catch (LWJGLException e) {logger.error("Unable to initialize OpenAL!"); logger.error(e.getMessage());}
 	}
 	
 	public static void setListenerData(Vector3f position, Vector3f  velocity) {
@@ -59,8 +63,8 @@ public class AudioMaster {
 			AL10.alBufferData(buffer, waveFile.format, waveFile.data, waveFile.samplerate);
 			waveFile.dispose();
 		} catch (IOException | NullPointerException e) {
-			System.err.println("Could not load sound: " + fileName + OTWFiles.SOUND_EXT.toString() + "!");
-			System.err.println(e.getMessage());
+			logger.error("Could not load sound: " + fileName + OTWFiles.SOUND_EXT.toString() + "!");
+			logger.error(e.getMessage());
 		}
 		
 		return buffer;

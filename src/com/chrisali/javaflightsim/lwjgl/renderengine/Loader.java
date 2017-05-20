@@ -27,6 +27,8 @@ import java.nio.IntBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 import org.lwjgl.opengl.GL11;
@@ -50,6 +52,8 @@ import com.chrisali.javaflightsim.lwjgl.utilities.OTWFiles;
  *
  */
 public class Loader {
+	
+	private static final Logger logger = LogManager.getLogger(Loader.class);
 	
 	private static boolean useAnisotropicFiltering;
 
@@ -169,7 +173,7 @@ public class Loader {
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
 		} catch (IOException e) {
-			System.err.println("Could not load texture: " + fileName + OTWFiles.TEXTURE_EXT.toString());
+			logger.error("Could not load texture: " + fileName + OTWFiles.TEXTURE_EXT.toString());
 		}
 
 		int textureID = texture.getTextureID();
