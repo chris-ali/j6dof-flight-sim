@@ -25,6 +25,9 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
@@ -35,20 +38,22 @@ import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
  */
 public class FlightData implements Runnable {
 	
-	private static boolean running;
+	private static final Logger logger = LogManager.getLogger(FlightData.class);
+	
+	private boolean running;
 	private Map<FlightDataType, Double> flightData = Collections.synchronizedMap(new EnumMap<FlightDataType, Double>(FlightDataType.class));
 	
-	private Integrate6DOFEquations runSim;
+	private Integrate6DOFEquations simulation;
 	private List<FlightDataListener> dataListenerList;
 	
 	/**
 	 * Creates an instance of {@link FlightData} with a reference to {@link Integrate6DOFEquations} so
 	 * that the thread in this class knows when the simulation is running
 	 * 
-	 * @param runSim
+	 * @param simulation
 	 */
-	public FlightData(Integrate6DOFEquations runSim) {
-		this.runSim = runSim;
+	public FlightData(Integrate6DOFEquations simulation) {
+		this.simulation = simulation;
 		this.dataListenerList = new ArrayList<>();
 	}
 	
@@ -96,6 +101,7 @@ public class FlightData implements Runnable {
 			
 			flightData.put(FlightDataType.PITCH_RATE, Math.toDegrees(simOut.get(SimOuts.Q)));
 		}
+		
 		fireDataArrived();
 	}
 	
@@ -103,17 +109,49 @@ public class FlightData implements Runnable {
 	public void run() {
 		running = true;
 		
+		while (!simulation.isRunning()) {
+			try {
+				Thread.sleep(250);
+			} catch (Exception e) {
+				continue;
+			}
+		}
+		
 		try {
-			Thread.sleep(5000);
-			
-			while (Integrate6DOFEquations.isRunning() && running) {
+			while (simulation.isRunning() && running) {
+				Thread.sleep(12);
+				
+				if(simulation.getSimOut() != null)
+					updateData(simulation.getSimOut());
+			}
+		} catch (InterruptedException ex) {
+			logger.warn("Flight data thread was interrupted! Ignoring..."); 
+		} finally {running = false;} 
+		
+		/*
+		while (Integrate6DOFEquations.isRunning() && running) {
+			try {
 				Thread.sleep(12);
 				
 				if(runSim.getSimOut() != null)
 					updateData(runSim.getSimOut());
-			}
-		} catch (InterruptedException e) {
-		} finally {running = false;} 
+			} catch (InterruptedException ex) {
+				logger.warn("Flight data thread was interrupted! Ignoring...");
+				
+				continue;
+			} catch (NullPointerException ey) {
+				logger.error("Encountered a null value in the flight data. Attempting to continue...");
+				logger.error(ey.getMessage());
+				
+				continue;
+			} catch (Exception ez) {
+				logger.error("Exception encountered while running flight data thread. Attempting to continue...");
+				logger.error(ez.getMessage());
+				
+				continue;
+			} finally {running = false;} 
+		}
+		*/
 	}
 	
 	/**
@@ -123,6 +161,7 @@ public class FlightData implements Runnable {
 	 * @param dataListener
 	 */
 	public void addFlightDataListener(FlightDataListener dataListener) {
+		logger.debug("Adding flight data listener: " + dataListener.getClass());
 		dataListenerList.add(dataListener);
 	}
 	
@@ -142,7 +181,7 @@ public class FlightData implements Runnable {
 	 * 
 	 * @return Running status of flight data
 	 */
-	public static synchronized boolean isRunning() {return running;}
+	public synchronized boolean isRunning() {return running;}
 	
 	
 	/**
@@ -150,7 +189,7 @@ public class FlightData implements Runnable {
 	 * 
 	 * @param running
 	 */
-	public static synchronized void setRunning(boolean running) {FlightData.running = running;}
+	public synchronized void setRunning(boolean running) {this.running = running;}
 
 	@Override
 	public String toString() {

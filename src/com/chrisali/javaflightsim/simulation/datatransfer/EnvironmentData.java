@@ -25,6 +25,9 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.interfaces.OTWWorld;
@@ -35,7 +38,9 @@ import com.chrisali.javaflightsim.simulation.interfaces.OTWWorld;
  */
 public class EnvironmentData implements Runnable {
 	
-	private static boolean running;
+	private static final Logger logger = LogManager.getLogger(EnvironmentData.class);
+	
+	private boolean running;
 	private Map<EnvironmentDataType, Double> environmentData = Collections.synchronizedMap(new EnumMap<EnvironmentDataType, Double>(EnvironmentDataType.class));
 	
 	private OTWWorld outTheWindow;
@@ -69,19 +74,49 @@ public class EnvironmentData implements Runnable {
 	@Override
 	public void run() {
 		running = true;
+
+		while (!outTheWindow.isRunning()) {
+			try {
+				Thread.sleep(250);
+			} catch (Exception e) {
+				continue;
+			}
+		}
 		
 		try {
-			while (!LWJGLWorld.isRunning()) 
-				Thread.sleep(25);
-			
 			while (running) {
 				Thread.sleep(10);
 				
 				if(outTheWindow != null)
 					updateData(outTheWindow.getTerrainHeight());
 			}
-		} catch (InterruptedException e) {
+		} catch (InterruptedException ex) {
+			logger.warn("Environment data thread was interrupted! Ignoring...");
 		} finally {running = false;} 
+		
+		/*
+		while (running) {
+			try {
+				Thread.sleep(10);
+				
+				if(outTheWindow != null)
+					updateData(outTheWindow.getTerrainHeight());
+			} catch (InterruptedException ex) {
+				logger.warn("Environment data thread was interrupted! Ignoring...");
+				
+				continue;
+			} catch (NullPointerException ey) {
+				logger.error("Encountered a null value in the environment data. Attempting to continue...");
+				logger.error(ey.getMessage());
+				
+				continue;
+			} catch (Exception ez) {
+				logger.error("Exception encountered while running environment data thread. Attempting to continue...");
+				logger.error(ez.getMessage());
+				
+				continue;
+			} finally {running = false;} 
+		}*/
 	}
 	
 	/**
@@ -91,6 +126,7 @@ public class EnvironmentData implements Runnable {
 	 * @param dataListener
 	 */
 	public void addEnvironmentDataListener(EnvironmentDataListener dataListener) {
+		logger.debug("Adding environment data listener: " + dataListener.getClass());
 		dataListenerList.add(dataListener);
 	}
 	
@@ -110,7 +146,7 @@ public class EnvironmentData implements Runnable {
 	 * 
 	 * @return Running status of flight data
 	 */
-	public static synchronized boolean isRunning() {return running;}
+	public synchronized boolean isRunning() {return running;}
 	
 	
 	/**
@@ -118,7 +154,7 @@ public class EnvironmentData implements Runnable {
 	 * 
 	 * @param running
 	 */
-	public static synchronized void setRunning(boolean running) {EnvironmentData.running = running;}
+	public synchronized void setRunning(boolean running) {this.running = running;}
 
 	@Override
 	public String toString() {

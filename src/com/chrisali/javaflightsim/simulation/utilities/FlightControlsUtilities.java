@@ -19,6 +19,7 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.utilities;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
@@ -44,12 +45,12 @@ public class FlightControlsUtilities {
 	
 	/**
 	 * Generates a control doublet in the positive and then negative direction, returning to trim value. The start
-	 * time defines when the double should start, the duration indicates how long the control is held in that direction,
+	 * time defines when the doublet should start, the duration indicates how long the control is held in that direction,
 	 * and the amplitude the amount of deflection in one direction. controlInput uses {@link FlightControlType} to select
 	 * the desired control to use as a doublet 
 	 * 
 	 * @param controls
-	 * @param t
+	 * @param time
 	 * @param startTime
 	 * @param duration
 	 * @param amplitude
@@ -57,15 +58,24 @@ public class FlightControlsUtilities {
 	 * @return flightControls EnumMap 
 	 */
 	public static Map<FlightControlType, Double> makeDoublet(Map<FlightControlType, Double> controls,
-															  double t,
-															  double startTime, 
-															  double duration, 
-															  double amplitude, 
-															  FlightControlType controlType) {
+															 Integer time,
+															 Integer startTime, 
+															 Integer duration, 
+															 double amplitude, 
+															 FlightControlType controlType) {
 		
-		if (t > startTime && t < (startTime+duration))
+		Integer firstHalfEndTime = startTime + duration;
+		Integer doubletEndTime = startTime + (2 * duration);
+		
+		boolean startedFirstHalf = time.compareTo(startTime) == 1 || time.compareTo(startTime) == 0;
+		boolean endedFirstHalf = time.compareTo(firstHalfEndTime) == 1 || time.compareTo(firstHalfEndTime) == 0;
+		
+		boolean startedSecondHalf = time.compareTo(firstHalfEndTime) == 1 || time.compareTo(firstHalfEndTime) == 0;
+		boolean endedSecondHalf = time.compareTo(doubletEndTime) == 1 || time.compareTo(doubletEndTime) == 0;
+		
+		if (startedFirstHalf && !endedFirstHalf)
 			controls.put(controlType,trimControls.get(controlType)+amplitude);
-		else if (t > (startTime+duration) && t < (startTime+(2*duration)))
+		else if (startedSecondHalf && !endedSecondHalf)
 			controls.put(controlType,trimControls.get(controlType)-amplitude);
 		else 
 			controls.put(controlType,trimControls.get(controlType));
@@ -79,29 +89,39 @@ public class FlightControlsUtilities {
 	 *  the aircraft in the simulation
 	 *  
 	 * @param controls
-	 * @param t
+	 * @param time
 	 * @return flightControls EnumMap 
 	 */
-	public static Map<FlightControlType, Double> doubletSeries(Map<FlightControlType, Double> controls, double t) {
+	public static Map<FlightControlType, Double> doubletSeries(Map<FlightControlType, Double> controls, double time) {
+		
+		BigDecimal toMilliseconds = new BigDecimal("1000");
+		
+		Integer roundTime = new BigDecimal(time).multiply(toMilliseconds).intValue();
+		Integer duration = new BigDecimal("1.0").multiply(toMilliseconds).intValue();
+		
+		Integer aileronStart = new BigDecimal("10.0").multiply(toMilliseconds).intValue();
+		Integer rudderStart = new BigDecimal("13.0").multiply(toMilliseconds).intValue();
+		Integer elevatorStart = new BigDecimal("50.0").multiply(toMilliseconds).intValue();
+		
 		// Update controls with an aileron doublet
 		controls = makeDoublet(controls, 
-							   t, 
-							   10.0, 
-							   0.5, 
+							   roundTime, 
+							   aileronStart, 
+							   duration, 
 							   0.035, 
 							   FlightControlType.AILERON);
 		// Update controls with a rudder doublet
 		controls = makeDoublet(controls, 
-							   t, 
-							   13.0, 
-							   0.5, 
+							   roundTime, 
+							   rudderStart, 
+							   duration, 
 							   0.035, 
 							   FlightControlType.RUDDER);
 		// Update controls with an elevator doublet
 		controls = makeDoublet(controls, 
-							   t, 
-							   50.0, 
-							   0.5, 
+							   roundTime, 
+							   elevatorStart, 
+							   duration, 
 							   0.035, 
 							   FlightControlType.ELEVATOR);
 		
@@ -109,7 +129,7 @@ public class FlightControlsUtilities {
 	}
 	
 	/**
-	 *  Limit control inputs to sensible deflection values based on the minimum and maximum values defines for 
+	 *  Limit control inputs to sensible deflection values based on the minimum and maximum values defined for 
 	 *  each member of {@link FlightControlType}
 	 *  
 	 * @param map

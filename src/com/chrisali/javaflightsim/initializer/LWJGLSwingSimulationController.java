@@ -39,6 +39,7 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
+import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
@@ -73,7 +74,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	private FlightControls flightControls;
 	private Thread flightControlsThread;
 	
-	private Integrate6DOFEquations runSim;
+	private Integrate6DOFEquations simulation;
 	private Thread simulationThread;
 	
 	private FlightData flightData;
@@ -117,19 +118,27 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 * @return instance of simulation
 	 */
 	@Override
-	public Integrate6DOFEquations getSimulation() {return runSim;}
+	public Integrate6DOFEquations getSimulation() {return simulation;}
 
 	/**
 	 * @return ArrayList of simulation output data 
 	 * @see SimOuts
 	 */
-	public List<Map<SimOuts, Double>> getLogsOut() {return runSim.getLogsOut();}
+	public List<Map<SimOuts, Double>> getLogsOut() {return simulation.getLogsOut();}
 	
 	/**
-	 * @return if runSim was able to clear simulation data kept in logsOut
+	 * @return if simulation was able to clear data kept in logsOut
 	 */
 	public boolean clearLogsOut() {
-		return (runSim != null) ? runSim.clearLogsOut() : false;
+		return (simulation != null) ? simulation.clearLogsOut() : false;
+	}
+	
+	/**
+	 * @return current elapsed time in the simulation in sec
+	 */
+	@Override
+	public synchronized double getTime() { 
+		return (simulation != null) ? simulation.getTime() : configuration.getIntegratorConfig().get(IntegratorConfig.STARTTIME); 
 	}
 	
 	/**
@@ -148,8 +157,8 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		flightControlsThread = new Thread(flightControls);
 		
 		logger.debug("Initializing simulation (thread)...");
-		runSim = new Integrate6DOFEquations(flightControls, configuration);
-		simulationThread = new Thread(runSim);
+		simulation = new Integrate6DOFEquations(flightControls, configuration);
+		simulationThread = new Thread(simulation);
 
 		logger.debug("Starting flight controls and simulation threads...");
 		flightControlsThread.start();
@@ -171,7 +180,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 				
 				//Stop flight controls thread after analysis finished
 				logger.debug("Stopping flight controls thread...");
-				FlightControls.setRunning(false);
+				flightControls.setRunning(false);
 			} catch (InterruptedException e) {
 				logger.warn("Thread was interrupted, ignoring...");
 			}
@@ -184,7 +193,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 			
 			logger.debug("Initializing environment data transfer (thread)...");
 			environmentData = new EnvironmentData(outTheWindow);
-			environmentData.addEnvironmentDataListener(runSim);
+			environmentData.addEnvironmentDataListener(simulation);
 			
 			environmentDataThread = new Thread(environmentData);
 			
@@ -192,7 +201,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 			environmentDataThread.start();
 			
 			logger.debug("Initializing flight data transfer (thread)...");
-			flightData = new FlightData(runSim);
+			flightData = new FlightData(simulation);
 			flightData.addFlightDataListener(guiFrame.getInstrumentPanel());
 			flightData.addFlightDataListener(outTheWindow);
 			
@@ -211,20 +220,20 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	public void stopSimulation() {
 		logger.debug("Starting simulation...");
 		
-		if (runSim != null && Integrate6DOFEquations.isRunning() && simulationThread != null && simulationThread.isAlive()) {
+		if (simulation != null && simulation.isRunning() && simulationThread != null && simulationThread.isAlive()) {
 			logger.debug("Stopping simulation and flight controls threads...");
-			Integrate6DOFEquations.setRunning(false);
-			FlightControls.setRunning(false);
+			simulation.setRunning(false);
+			flightControls.setRunning(false);
 		}
 		
 		if (flightDataThread != null && flightDataThread.isAlive()) {
 			logger.debug("Stopping flight data transfer thread...");
-			FlightData.setRunning(false);
+			flightData.setRunning(false);
 		}
 		
 		if (outTheWindowThread != null && outTheWindowThread.isAlive()) {
 			logger.debug("Stopping environment data transfer thread...");
-			EnvironmentData.setRunning(false);
+			environmentData.setRunning(false);
 		}	
 		
 		logger.debug("Returning to menus...");
@@ -243,12 +252,17 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		if(plotWindow == null)
 			plotWindow = new PlotWindow(plotCategories, this);
 		else
-			plotWindow.refreshPlots(runSim.getLogsOut());
+			plotWindow.refreshPlots(simulation.getLogsOut());
 		
 		if (!isPlotWindowVisible())
 			plotWindow.setVisible(true);
 	}
 	
+	/**
+	 * @return Instance of the plot window
+	 */
+	public PlotWindow getPlotWindow() { return plotWindow; }
+
 	/**
 	 * @return if the plot window is visible
 	 */
@@ -282,7 +296,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	public void saveConsoleOutput(File file) throws IOException {
 		logger.debug("Saving console output to: " + file.getAbsolutePath());
-		FileUtilities.saveToCSVFile(file, runSim.getLogsOut());
+		FileUtilities.saveToCSVFile(file, simulation.getLogsOut());
 	}
 	
 	//========================== Main Frame Menus =========================================================
@@ -322,7 +336,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 * <a href="http://stackoverflow.com/questions/26199534/how-to-attach-opengl-display-to-a-jframe-and-dispose-of-it-properly">here</a>.
 	 */
 	public void stopOTWThread() {
-		LWJGLWorld.requestClose(); // sets running boolean in RunWorld to false to begin the clean up process
+		outTheWindow.requestClose(); // sets running boolean in RunWorld to false to begin the clean up process
 		
 		try {outTheWindowThread.join();
 		} catch (InterruptedException e) {}

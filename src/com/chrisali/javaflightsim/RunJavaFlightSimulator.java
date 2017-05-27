@@ -39,7 +39,5 @@ public class RunJavaFlightSimulator {
 		logger.debug("===============================================");
 		
 		Initializer.selectRunConfigurationAndRun();
-		
-		logger.debug("Closing Java Flight Simulator");
 	}
 }

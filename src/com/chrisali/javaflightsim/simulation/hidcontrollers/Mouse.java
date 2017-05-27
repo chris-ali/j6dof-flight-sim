@@ -57,7 +57,9 @@ public class Mouse extends AbstractController {
 		trimElevator = controls.get(FlightControlType.ELEVATOR);
 		trimAileron = controls.get(FlightControlType.AILERON);
 		trimRudder = controls.get(FlightControlType.RUDDER);
-
+		
+		logger.debug("Setting up mouse...");
+		
 		searchForControllers();
 	}
 	

@@ -19,6 +19,8 @@ public interface SimulationController {
 	
 	public Integrate6DOFEquations getSimulation();
 	
+	public double getTime();
+	
 	public void plotSimulation();
 	
 	public boolean isPlotWindowVisible();

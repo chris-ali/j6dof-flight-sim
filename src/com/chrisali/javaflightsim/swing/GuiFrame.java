@@ -31,6 +31,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
@@ -61,6 +64,8 @@ import com.chrisali.javaflightsim.swing.optionspanel.OptionsPanel;
 public class GuiFrame extends JFrame {
 
 	private static final long serialVersionUID = -1803264930661591606L;
+	
+	private static final Logger logger = LogManager.getLogger(GuiFrame.class);
 	
 	private LWJGLSwingSimulationController simulationController;
 	private SimulationConfiguration configuration;
@@ -228,6 +233,8 @@ public class GuiFrame extends JFrame {
 				int closeDialog = JOptionPane.showConfirmDialog(GuiFrame.this, "Are you sure you wish to quit?",
 																"Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if (closeDialog == JOptionPane.YES_OPTION) {
+					logger.debug("Closing Java Flight Simulator");
+					
 					System.gc();
 					System.exit(0);
 				}

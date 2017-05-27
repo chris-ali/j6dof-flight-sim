@@ -100,7 +100,6 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 		});
 		add(tabPane, BorderLayout.CENTER);
 		
-
 		//================== Window Settings ====================================
 		
 		setJMenuBar(createMenuBar());

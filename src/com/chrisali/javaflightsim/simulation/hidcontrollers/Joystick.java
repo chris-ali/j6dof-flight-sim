@@ -54,6 +54,8 @@ public class Joystick extends AbstractController {
 		trimAileron  = controls.get(FlightControlType.AILERON);
 		trimRudder   = controls.get(FlightControlType.RUDDER);
 		
+		logger.debug("Setting up joystick...");
+		
 		searchForControllers();
 	}
 	

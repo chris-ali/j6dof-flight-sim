@@ -106,7 +106,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	
 	private Map<String, GUIText> texts = new HashMap<>();
 	
-	private static boolean running = false;
+	private boolean running = false;
 	
 	/**
 	 * Sets up OTW display with {@link DisplayOptions} and {@link AudioOptions}, as well as a link to
@@ -331,12 +331,13 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	/**
 	 * @return If out the window display is running
 	 */
-	public static synchronized boolean isRunning() {return running;}
+	@Override
+	public synchronized boolean isRunning() {return running;}
 	
 	/**
 	 * Sets running boolean in {@link LWJGLWorld} to false to begin the display clean up process
 	 */
-	public static synchronized void requestClose() {LWJGLWorld.running = false;}
+	public synchronized void requestClose() {running = false;}
 	
 	//===================================== Text ============================================================
 	

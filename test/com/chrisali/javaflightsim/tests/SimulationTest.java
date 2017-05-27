@@ -19,45 +19,26 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.tests;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
 import javax.swing.JFrame;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
-import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
-import com.chrisali.javaflightsim.simulation.setup.Trimming;
-import com.chrisali.javaflightsim.swing.plotting.PlotWindow;
 
 /**
  * Runs a test of the flight simulation module in Analysis mode to test an aircraft and the simulation 
- * workings; uses {@link LWJGLSwingSimulationController} to set the options, {@link AircraftBuilder} to initalize 
- * the aircraft to test, {@link FlightControls} thread to run doublet inputs and {@link PlotWindow} to
- * plot the simulation results at the end
+ * workings; uses {@link LWJGLSwingSimulationController} to configure and run all threads necessary, and 
+ * then plots the simulation results at the end
  * 
  * @author Christopher Ali
  *
  */
 public class SimulationTest {
 	
-	private FlightControls flightControls;
-	private Thread flightControlsThread;
-	
-	private Integrate6DOFEquations runSim;
-	private Thread simulationThread;
-	
-	private LWJGLSwingSimulationController controller;
-	private SimulationConfiguration configuration;
-	
-	private PlotWindow plots;
-	
 	public SimulationTest() {
-		configuration = new SimulationConfiguration();
-		controller = new LWJGLSwingSimulationController(configuration);
+		SimulationConfiguration configuration = new SimulationConfiguration();
+		LWJGLSwingSimulationController controller = new LWJGLSwingSimulationController(configuration);
 		
 		configuration.getSimulationOptions().clear();
 		configuration.getSimulationOptions().add(Options.ANALYSIS_MODE);
@@ -65,25 +46,8 @@ public class SimulationTest {
 		//configuration.setAircraftBuilder(new AircraftBuilder()); // Default Navion with Lycoming IO-360
 		//configuration.setAircraftBuilder(new AircraftBuilder("Navion")); // Navion with lookup tables with Lycoming IO-360
 		
-		Trimming.trimSim(configuration, false);
-
-		this.flightControls = new FlightControls(controller);
-		this.flightControlsThread = new Thread(flightControls);
-		
-		this.runSim = new Integrate6DOFEquations(flightControls, configuration);
-		this.simulationThread = new Thread(runSim);
-
-		flightControlsThread.start();
-		simulationThread.start();
-		
-		try {Thread.sleep(1000);} 
-		catch (InterruptedException e) {}
-		
-		this.plots = new PlotWindow(new HashSet<String>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous")),
-						 			controller);
-		plots.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		FlightControls.setRunning(false);
+		controller.startSimulation();
+		controller.getPlotWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
 	public static void main(String[] args) {new SimulationTest();}

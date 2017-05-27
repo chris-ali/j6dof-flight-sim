@@ -10,4 +10,9 @@ public interface OTWWorld {
 	 * @return Height of terrain at the aircraft's current position
 	 */
 	public float getTerrainHeight();
+
+	/**
+	 * @return If out the window display is running
+	 */
+	boolean isRunning();
 }

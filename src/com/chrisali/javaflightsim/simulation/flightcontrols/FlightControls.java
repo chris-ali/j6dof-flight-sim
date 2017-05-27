@@ -33,7 +33,6 @@ import com.chrisali.javaflightsim.simulation.hidcontrollers.CHControls;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Joystick;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Keyboard;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Mouse;
-import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -54,13 +53,14 @@ public class FlightControls implements Runnable, FlightDataListener {
 
 	private static final Logger logger = LogManager.getLogger(FlightControls.class);
 	
-	private static boolean running;
+	private boolean running;
 	
 	private Map<FlightControlType, Double> controls;
-	
 	private Map<IntegratorConfig, Double> integratorConfig;
 	private EnumSet<Options> options;
 //	private Map<FlightDataType, Double> flightData;
+	
+	private SimulationController simController;
 	
 	private AbstractController hidController;
 	private Keyboard hidKeyboard;
@@ -69,18 +69,19 @@ public class FlightControls implements Runnable, FlightDataListener {
 	 * Constructor for {@link FlightControls}; {@link SimulationConfiguration} argument to initialize {@link IntegratorConfig} 
 	 * EnumMap, the {@link Options} EnumSet, as well as to update simulation options and call simulation methods
 	 * 
-	 * @param options
+	 * @param simController
 	 */
-	public FlightControls(SimulationController controller) {
+	public FlightControls(SimulationController simController) {
 		logger.debug("Initializing flight controls...");
 		
-		SimulationConfiguration configuration = controller.getConfiguration();
+		this.simController = simController;
+		SimulationConfiguration configuration = simController.getConfiguration();
 		
 		controls = configuration.getInitialControls();
 		integratorConfig = configuration.getIntegratorConfig();
 		options = configuration.getSimulationOptions();
 		
-		hidKeyboard = new Keyboard(controls, controller);
+		hidKeyboard = new Keyboard(controls, simController);
 		
 		// initializes static EnumMap that contains trim values of controls for doublets 
 		FlightControlsUtilities.init();
@@ -106,9 +107,10 @@ public class FlightControls implements Runnable, FlightDataListener {
 		
 		running = true;
 		
-		while (running) {
-			try {
+		try {
+			while (running) {
 				// if not running in analysis mode, controls and options should be updated using updateFlightControls()/updateOptions()
+				// otherwise, controls updated using generated doublets instead of pilot input
 				if (!options.contains(Options.ANALYSIS_MODE)) {
 					if (hidController != null) 
 						controls = hidController.updateFlightControls(controls);
@@ -118,24 +120,43 @@ public class FlightControls implements Runnable, FlightDataListener {
 					hidKeyboard.hotKeys();
 					
 					Thread.sleep((long) (integratorConfig.get(IntegratorConfig.DT)*1000));
-				// in analysis mode, controls updated using generated doublets instead of pilot input
 				} else {
-					controls = FlightControlsUtilities.doubletSeries(controls, Integrate6DOFEquations.getTime());
-				}
-				
-			} catch (InterruptedException e) {
-				logger.warn("Flight controls thread interrupted, ignoring.");
-				
-				continue;
-			} catch (Exception e) {
-				logger.error("Flight controls encountered an error!");
-				logger.error(e.getMessage());
-				
-				break;
+					controls = FlightControlsUtilities.doubletSeries(controls, simController.getTime());
+				}	
 			}
-		}
-		
-		running = false;
+		} catch (InterruptedException e) {
+			logger.warn("Flight controls thread interrupted, ignoring.");
+		} catch (Exception e) {
+			logger.error("Flight controls encountered an error!");
+			logger.error(e.getMessage());
+		} finally {running = false;} 
+		/*
+		try {
+			// if not running in analysis mode, controls and options should be updated using updateFlightControls()/updateOptions()
+			// otherwise, controls updated using generated doublets instead of pilot input
+			if (!options.contains(Options.ANALYSIS_MODE)) {
+				if (hidController != null) 
+					controls = hidController.updateFlightControls(controls);
+				
+				controls = hidKeyboard.updateFlightControls(controls);
+				
+				hidKeyboard.hotKeys();
+				
+				Thread.sleep((long) (integratorConfig.get(IntegratorConfig.DT)*1000));
+			} else {
+				controls = FlightControlsUtilities.doubletSeries(controls, simulation.getTime());
+			}
+		} catch (InterruptedException e) {
+			logger.warn("Flight controls thread interrupted, ignoring.");
+			
+			continue;
+		} catch (Exception e) {
+			logger.error("Flight controls encountered an error!");
+			logger.error(e.getMessage());
+			
+			break;
+		} 
+		*/
 	}
 
 	/**
@@ -159,14 +180,14 @@ public class FlightControls implements Runnable, FlightDataListener {
 	 * 
 	 * @return if {@link FlightControls} thread is running
 	 */
-	public static synchronized boolean isRunning() {return running;}
+	public synchronized boolean isRunning() {return running;}
 
 	/**
 	 * Lets other objects request to stop the {@link FlightControls} thread by setting running to false
 	 * 
 	 * @param running
 	 */
-	public static synchronized void setRunning(boolean running) {FlightControls.running = running;}
+	public synchronized void setRunning(boolean running) {this.running = running;}
 
 	@Override
 	public String toString() {

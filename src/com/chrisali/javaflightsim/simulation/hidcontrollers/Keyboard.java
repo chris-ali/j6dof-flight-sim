@@ -55,6 +55,7 @@ public class Keyboard extends AbstractController {
 	private boolean wasReset = false;
 	
 	private SimulationController simController;
+	private Integrate6DOFEquations simulation;
 	private EnumSet<Options> options;
 	
 	/**
@@ -65,6 +66,7 @@ public class Keyboard extends AbstractController {
 	 */
 	public Keyboard(Map<FlightControlType, Double> controls, SimulationController simController) {
 		this.simController = simController;
+		simulation = simController.getSimulation();
 		controllerList = new ArrayList<>();
 		options = simController.getConfiguration().getSimulationOptions();
 		
@@ -72,6 +74,8 @@ public class Keyboard extends AbstractController {
 		trimElevator = controls.get(FlightControlType.ELEVATOR);
 		trimAileron  = controls.get(FlightControlType.AILERON);
 		trimRudder   = controls.get(FlightControlType.RUDDER);
+		
+		logger.debug("Setting up keyboard...");
 		
 		searchForControllers();
 	}
@@ -151,7 +155,7 @@ public class Keyboard extends AbstractController {
 				
 				// Quits simulation
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.Q.toString())) {
-					if(component.getPollData() == 1.0f && Integrate6DOFEquations.isRunning()) {
+					if(component.getPollData() == 1.0f && simulation.isRunning()) {
 						simController.stopSimulation();
 					}
 					
@@ -161,7 +165,7 @@ public class Keyboard extends AbstractController {
 				// Plots simulation
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.L.toString())) {
 					if(component.getPollData() == 1.0f && simController.getSimulation() != null 
-						&& Integrate6DOFEquations.isRunning() && !simController.isPlotWindowVisible()) {
+						&& simulation.isRunning() && !simController.isPlotWindowVisible()) {
 						simController.plotSimulation();
 					}
 					

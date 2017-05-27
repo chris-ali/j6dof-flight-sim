@@ -48,19 +48,21 @@ public class ConsoleTablePanel extends JFrame {
 	
 	private JTable table;
 	private ConsoleTableModel consoleTableModel;
-	private LWJGLSwingSimulationController simController;
+	private LWJGLSwingSimulationController controller;
+	private Integrate6DOFEquations simulation;
 	private SwingWorker<Void,Integer> tableRefreshWorker;
 	
 	public ConsoleTablePanel(LWJGLSwingSimulationController controller) {
 		super("Raw Data Output");
 		
-		this.simController = controller;
+		this.controller = controller;
+		simulation = controller.getSimulation();
 		setLayout(new BorderLayout());
 		
 		//-------------- Table Panel ------------------------
 		
 		consoleTableModel = new ConsoleTableModel();
-		consoleTableModel.setData(simController.getLogsOut());
+		consoleTableModel.setData(controller.getLogsOut());
 		table = new JTable(consoleTableModel);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setColumnSelectionAllowed(true);
@@ -74,7 +76,7 @@ public class ConsoleTablePanel extends JFrame {
 
 			@Override
 			protected Void doInBackground() throws Exception {
-				while (Integrate6DOFEquations.isRunning()) {
+				while (simulation.isRunning()) {
 					consoleTableModel.fireTableDataChanged();
 					Thread.sleep(50);
 				}
@@ -123,7 +125,7 @@ public class ConsoleTablePanel extends JFrame {
 			public void actionPerformed(ActionEvent ev) {
 				if (fileChooser.showSaveDialog(ConsoleTablePanel.this) == JFileChooser.APPROVE_OPTION) {
 					try {
-						simController.saveConsoleOutput(fileChooser.getSelectedFile());
+						controller.saveConsoleOutput(fileChooser.getSelectedFile());
 					} catch (IOException ex) {
 						JOptionPane.showMessageDialog(ConsoleTablePanel.this, 
 								"Could not save data to file", "Error", JOptionPane.ERROR_MESSAGE);

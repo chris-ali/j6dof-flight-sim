@@ -56,6 +56,8 @@ public class CHControls extends AbstractController {
 		
 		flaps = controls.get(FlightControlType.FLAPS);
 		
+		logger.debug("Setting up CH Flight Controls...");
+		
 		searchForControllers();
 	}
 	

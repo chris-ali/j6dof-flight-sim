@@ -53,7 +53,7 @@ public class FlightControlsTest implements Runnable {
 		try {
 			Thread.sleep(500);
 			
-			while (FlightControls.isRunning()) {
+			while (flightControls.isRunning()) {
 				System.out.println(flightControls.toString());
 				System.out.println();
 				System.out.println(configuation.getSimulationOptions());

@@ -25,6 +25,8 @@ import java.util.Map;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
 import org.apache.commons.math3.ode.nonstiff.ClassicalRungeKuttaIntegrator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.GroundReaction;
@@ -47,6 +49,9 @@ import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
  *
  */
 public class IntegrateGroundReaction {
+	//Logging
+	private static final Logger logger = LogManager.getLogger(IntegrateGroundReaction.class);
+	
 	// Tire Properties
 	private static final double TIRE_STATIC_FRICTION  = 0.5;
 	private static final double TIRE_ROLLING_FRICTION = 0.06;
@@ -131,6 +136,8 @@ public class IntegrateGroundReaction {
 			y0[2*i] = -3.0;
 			y0[2*i+1] = 0.0;
 		}
+		
+		logger.debug("Setting up Runge Kutta Integrator for 6DOF calculations...");
 		
 		integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
 		t = integratorConfig[0];
