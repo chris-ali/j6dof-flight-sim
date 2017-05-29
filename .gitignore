@@ -7,6 +7,5 @@
 *.project
 *.log
 *.txt
-*.sh
 /target/
 /natives/
