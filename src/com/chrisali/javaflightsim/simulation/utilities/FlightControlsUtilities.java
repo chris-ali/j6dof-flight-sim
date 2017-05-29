@@ -51,7 +51,7 @@ public class FlightControlsUtilities {
 	 * 
 	 * @param controls
 	 * @param time
-	 * @param startTime
+	 * @param doubletstartTime
 	 * @param duration
 	 * @param amplitude
 	 * @param controlType
@@ -59,24 +59,23 @@ public class FlightControlsUtilities {
 	 */
 	public static Map<FlightControlType, Double> makeDoublet(Map<FlightControlType, Double> controls,
 															 Integer time,
-															 Integer startTime, 
+															 Integer doubletstartTime, 
 															 Integer duration, 
 															 double amplitude, 
 															 FlightControlType controlType) {
+		Integer firstHalfEndTime = doubletstartTime + duration;
+		Integer doubletEndTime   = doubletstartTime + (2 * duration);
 		
-		Integer firstHalfEndTime = startTime + duration;
-		Integer doubletEndTime = startTime + (2 * duration);
-		
-		boolean startedFirstHalf = time.compareTo(startTime) == 1 || time.compareTo(startTime) == 0;
-		boolean endedFirstHalf = time.compareTo(firstHalfEndTime) == 1 || time.compareTo(firstHalfEndTime) == 0;
+		boolean startedFirstHalf = time.compareTo(doubletstartTime) == 1 || time.compareTo(doubletstartTime) == 0;
+		boolean endedFirstHalf   = time.compareTo(firstHalfEndTime) == 1 || time.compareTo(firstHalfEndTime) == 0;
 		
 		boolean startedSecondHalf = time.compareTo(firstHalfEndTime) == 1 || time.compareTo(firstHalfEndTime) == 0;
-		boolean endedSecondHalf = time.compareTo(doubletEndTime) == 1 || time.compareTo(doubletEndTime) == 0;
+		boolean endedSecondHalf   = time.compareTo(doubletEndTime)   == 1 || time.compareTo(doubletEndTime)   == 0;
 		
 		if (startedFirstHalf && !endedFirstHalf)
-			controls.put(controlType,trimControls.get(controlType)+amplitude);
+			controls.put(controlType,trimControls.get(controlType) + amplitude);
 		else if (startedSecondHalf && !endedSecondHalf)
-			controls.put(controlType,trimControls.get(controlType)-amplitude);
+			controls.put(controlType,trimControls.get(controlType) - amplitude);
 		else 
 			controls.put(controlType,trimControls.get(controlType));
 
@@ -97,11 +96,11 @@ public class FlightControlsUtilities {
 		BigDecimal toMilliseconds = new BigDecimal("1000");
 		
 		Integer roundTime = new BigDecimal(time).multiply(toMilliseconds).intValue();
-		Integer duration = new BigDecimal("1.0").multiply(toMilliseconds).intValue();
+		Integer duration = new BigDecimal("0.5").multiply(toMilliseconds).intValue();
 		
 		Integer aileronStart = new BigDecimal("10.0").multiply(toMilliseconds).intValue();
-		Integer rudderStart = new BigDecimal("13.0").multiply(toMilliseconds).intValue();
-		Integer elevatorStart = new BigDecimal("50.0").multiply(toMilliseconds).intValue();
+		Integer rudderStart = new BigDecimal("14.0").multiply(toMilliseconds).intValue();
+		Integer elevatorStart = new BigDecimal("52.0").multiply(toMilliseconds).intValue();
 		
 		// Update controls with an aileron doublet
 		controls = makeDoublet(controls, 

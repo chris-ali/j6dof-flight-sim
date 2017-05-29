@@ -49,6 +49,7 @@ import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.SaturationUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
@@ -104,8 +105,8 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	private double[] y					    = new double[14];
 	private double[] initialConditions      = new double[14]; 
 	
-	// Static fields for concurrency
-	private double[] integratorConfig = new double[3];
+	// Time Properties
+	private double[] integratorConfig 		= new double[3];
 	private double   time;
 	
 	// Aircraft Properties
@@ -424,7 +425,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 			try {	
 				// If paused and reset selected, reset initialConditions using IntegrationSetup's method 
 				if (options.contains(Options.PAUSED) & options.contains(Options.RESET))				
-					initialConditions = ArrayUtils.toPrimitive(IntegrationSetup.gatherInitialConditions("InitialConditions").values()
+					initialConditions = ArrayUtils.toPrimitive(IntegrationSetup.gatherInitialConditions(SimFiles.INITIAL_CONDITIONS.toString()).values()
 																			   .toArray(new Double[initialConditions.length]));
 				
 				// If paused, skip the integration and update process
@@ -443,6 +444,9 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 					
 					// Update output log
 					logData();
+
+					// Increments time using an intrinsic lock
+					incrementTime();
 				}
 				
 				// Pause the integration for dt*1000 milliseconds to emulate real time operation
@@ -450,9 +454,6 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 				if (!options.contains(Options.ANALYSIS_MODE))
 					Thread.sleep((long)(integratorConfig[1]*1000));
 				
-				// Increments time using an intrinsic lock
-				incrementTime();
-			
 			} catch (InterruptedException e) {
 				logger.warn("Simulation thread interrupted, ignoring");
 				

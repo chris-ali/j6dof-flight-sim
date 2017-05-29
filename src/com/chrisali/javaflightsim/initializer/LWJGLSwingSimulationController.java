@@ -137,8 +137,8 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 * @return current elapsed time in the simulation in sec
 	 */
 	@Override
-	public synchronized double getTime() { 
-		return (simulation != null) ? simulation.getTime() : configuration.getIntegratorConfig().get(IntegratorConfig.STARTTIME); 
+	public double getTime() {
+		return (simulation != null) ? simulation.getTime() : configuration.getIntegratorConfig().get(IntegratorConfig.STARTTIME);
 	}
 	
 	/**
@@ -165,7 +165,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		simulationThread.start();
 		
 		if (configuration.getSimulationOptions().contains(Options.CONSOLE_DISPLAY)) {
-			logger.debug("Starting console...");
+			logger.debug("Starting flight data console...");
 			initializeConsole();
 		}
 		
