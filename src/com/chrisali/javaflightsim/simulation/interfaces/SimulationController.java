@@ -1,5 +1,7 @@
 package com.chrisali.javaflightsim.simulation.interfaces;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -19,7 +21,10 @@ public interface SimulationController {
 	
 	public Integrate6DOFEquations getSimulation();
 	
-	public double getTime();
+	/**
+	 * @return current elapsed time in the simulation in millisec
+	 */
+	public AtomicInteger getTime();
 	
 	public void plotSimulation();
 	

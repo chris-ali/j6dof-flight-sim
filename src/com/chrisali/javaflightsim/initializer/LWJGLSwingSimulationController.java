@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,7 +40,6 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
-import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
@@ -134,11 +134,11 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	}
 	
 	/**
-	 * @return current elapsed time in the simulation in sec
+	 * @return current elapsed time in the simulation in millisec
 	 */
 	@Override
-	public double getTime() {
-		return (simulation != null) ? simulation.getTime() : configuration.getIntegratorConfig().get(IntegratorConfig.STARTTIME);
+	public AtomicInteger getTime() {
+		return (simulation != null) ? simulation.getTime() : new AtomicInteger();
 	}
 	
 	/**

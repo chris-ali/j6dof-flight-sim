@@ -19,8 +19,8 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.utilities;
 
-import java.math.BigDecimal;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
@@ -58,11 +58,12 @@ public class FlightControlsUtilities {
 	 * @return flightControls EnumMap 
 	 */
 	public static Map<FlightControlType, Double> makeDoublet(Map<FlightControlType, Double> controls,
-															 Integer time,
+															 AtomicInteger actomicTime,
 															 Integer doubletstartTime, 
 															 Integer duration, 
 															 double amplitude, 
 															 FlightControlType controlType) {
+		Integer time = actomicTime.get();
 		Integer firstHalfEndTime = doubletstartTime + duration;
 		Integer doubletEndTime   = doubletstartTime + (2 * duration);
 		
@@ -88,37 +89,36 @@ public class FlightControlsUtilities {
 	 *  the aircraft in the simulation
 	 *  
 	 * @param controls
-	 * @param time
+	 * @param atomicTime
 	 * @return flightControls EnumMap 
 	 */
-	public static Map<FlightControlType, Double> doubletSeries(Map<FlightControlType, Double> controls, double time) {
+	public static Map<FlightControlType, Double> doubletSeries(Map<FlightControlType, Double> controls, AtomicInteger atomicTime) {
 		
-		BigDecimal toMilliseconds = new BigDecimal("1000");
+		int toMilliseconds = 1000;
+
+		Integer duration 	  = (int)(0.5 * toMilliseconds);
 		
-		Integer roundTime = new BigDecimal(time).multiply(toMilliseconds).intValue();
-		Integer duration = new BigDecimal("0.5").multiply(toMilliseconds).intValue();
-		
-		Integer aileronStart = new BigDecimal("10.0").multiply(toMilliseconds).intValue();
-		Integer rudderStart = new BigDecimal("14.0").multiply(toMilliseconds).intValue();
-		Integer elevatorStart = new BigDecimal("52.0").multiply(toMilliseconds).intValue();
+		Integer aileronStart  = (int)(10.0 * toMilliseconds);
+		Integer rudderStart   = (int)(14.0 * toMilliseconds);
+		Integer elevatorStart = (int)(52.0 * toMilliseconds);
 		
 		// Update controls with an aileron doublet
 		controls = makeDoublet(controls, 
-							   roundTime, 
+							   atomicTime, 
 							   aileronStart, 
 							   duration, 
 							   0.035, 
 							   FlightControlType.AILERON);
 		// Update controls with a rudder doublet
 		controls = makeDoublet(controls, 
-							   roundTime, 
+							   atomicTime, 
 							   rudderStart, 
 							   duration, 
 							   0.035, 
 							   FlightControlType.RUDDER);
 		// Update controls with an elevator doublet
 		controls = makeDoublet(controls, 
-							   roundTime, 
+							   atomicTime, 
 							   elevatorStart, 
 							   duration, 
 							   0.035, 
