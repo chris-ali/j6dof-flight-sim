@@ -33,6 +33,7 @@ import com.chrisali.javaflightsim.simulation.hidcontrollers.CHControls;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Joystick;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Keyboard;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Mouse;
+import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -60,21 +61,21 @@ public class FlightControls implements Runnable, FlightDataListener {
 	private EnumSet<Options> options;
 //	private Map<FlightDataType, Double> flightData;
 	
-	private SimulationController simController;
+	private Integrate6DOFEquations simulation;
 	
 	private AbstractController hidController;
 	private Keyboard hidKeyboard;
 	
 	/**
 	 * Constructor for {@link FlightControls}; {@link SimulationConfiguration} argument to initialize {@link IntegratorConfig} 
-	 * EnumMap, the {@link Options} EnumSet, as well as to update simulation options and call simulation methods
+	 * EnumMap, the {@link Options} EnumSet, as well as to update simulation options and call simulation methods. Ensure that
+	 * {@link FlightControls#setIntegrate6DOFEquations(Integrate6DOFEquations)}
 	 * 
 	 * @param simController
 	 */
 	public FlightControls(SimulationController simController) {
 		logger.debug("Initializing flight controls...");
 		
-		this.simController = simController;
 		SimulationConfiguration configuration = simController.getConfiguration();
 		
 		controls = configuration.getInitialControls();
@@ -89,6 +90,9 @@ public class FlightControls implements Runnable, FlightDataListener {
 	
 	@Override
 	public void run() {
+		if (simulation == null)
+			logger.error("Unable to get a valid reference to the simulation! Some keyboard hotkeys will be disabled.");
+		
 		// Use controllers for pilot in loop simulation if ANALYSIS_MODE not enabled 
 		if (!options.contains(Options.ANALYSIS_MODE)) {
 			if (options.contains(Options.USE_JOYSTICK)) {
@@ -117,11 +121,13 @@ public class FlightControls implements Runnable, FlightDataListener {
 					
 					controls = hidKeyboard.updateFlightControls(controls);
 					
-					hidKeyboard.hotKeys();
+					if (simulation != null && simulation.isRunning())
+						hidKeyboard.hotKeys();
 					
 					Thread.sleep((long) (integratorConfig.get(IntegratorConfig.DT)*1000));
 				} else {
-					controls = FlightControlsUtilities.doubletSeries(controls, simController.getTime());
+					if (simulation != null)
+						controls = FlightControlsUtilities.doubletSeries(controls, simulation.getTime());
 				}
 			} catch (InterruptedException e) {
 				logger.warn("Flight controls thread interrupted, ignoring.");
@@ -145,6 +151,10 @@ public class FlightControls implements Runnable, FlightDataListener {
 	public void onFlightDataReceived(FlightData flightData) {
 //		if (flightData!= null)
 //			this.flightData = flightData.getFlightData();
+	}
+	
+	public void setIntegrate6DOFEquations(Integrate6DOFEquations simulation) {
+		this.simulation = simulation;
 	}
 	
 	/**

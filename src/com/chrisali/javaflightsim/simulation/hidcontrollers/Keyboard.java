@@ -24,7 +24,6 @@ import java.util.EnumSet;
 import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
-import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -55,7 +54,6 @@ public class Keyboard extends AbstractController {
 	private boolean wasReset = false;
 	
 	private SimulationController simController;
-	private Integrate6DOFEquations simulation;
 	private EnumSet<Options> options;
 	
 	/**
@@ -66,7 +64,6 @@ public class Keyboard extends AbstractController {
 	 */
 	public Keyboard(Map<FlightControlType, Double> controls, SimulationController simController) {
 		this.simController = simController;
-		simulation = simController.getSimulation();
 		controllerList = new ArrayList<>();
 		options = simController.getConfiguration().getSimulationOptions();
 		
@@ -154,7 +151,7 @@ public class Keyboard extends AbstractController {
 				
 				// Quits simulation
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.Q.toString())) {
-					if(component.getPollData() == 1.0f && simulation.isRunning()) {
+					if(component.getPollData() == 1.0f) {
 						simController.stopSimulation();
 					}
 					
@@ -164,7 +161,7 @@ public class Keyboard extends AbstractController {
 				// Plots simulation
 				if (componentIdentifier.getName().matches(Component.Identifier.Key.L.toString())) {
 					if(component.getPollData() == 1.0f && simController.getSimulation() != null 
-						&& simulation.isRunning() && !simController.isPlotWindowVisible()) {
+						&& !simController.isPlotWindowVisible()) {
 						simController.plotSimulation();
 					}
 					

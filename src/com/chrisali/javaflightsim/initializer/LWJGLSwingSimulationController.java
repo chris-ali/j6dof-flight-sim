@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -124,21 +123,15 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 * @return ArrayList of simulation output data 
 	 * @see SimOuts
 	 */
-	public List<Map<SimOuts, Double>> getLogsOut() {return simulation.getLogsOut();}
+	public List<Map<SimOuts, Double>> getLogsOut() {
+		return (simulation != null) ? simulation.getLogsOut() : null;
+	}
 	
 	/**
 	 * @return if simulation was able to clear data kept in logsOut
 	 */
 	public boolean clearLogsOut() {
 		return (simulation != null) ? simulation.clearLogsOut() : false;
-	}
-	
-	/**
-	 * @return current elapsed time in the simulation in millisec
-	 */
-	@Override
-	public AtomicInteger getTime() {
-		return (simulation != null) ? simulation.getTime() : new AtomicInteger();
 	}
 	
 	/**
@@ -159,6 +152,9 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		logger.debug("Initializing simulation (thread)...");
 		simulation = new Integrate6DOFEquations(flightControls, configuration);
 		simulationThread = new Thread(simulation);
+		
+		// Workaround due to circular reference between simulation and flight controls
+		flightControls.setIntegrate6DOFEquations(simulation);
 
 		logger.debug("Starting flight controls and simulation threads...");
 		flightControlsThread.start();
