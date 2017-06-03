@@ -170,45 +170,11 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		}
 		
 		if (configuration.getSimulationOptions().contains(Options.ANALYSIS_MODE)) {
-			try {
-				logger.debug("Running simulation in Analysis Mode...");
-				// Wait a bit to allow the simulation to finish running
-				Thread.sleep(1000);
-				
-				logger.debug("Generating plots...");
-				plotSimulation();
-				
-				//Stop flight controls thread after analysis finished
-				logger.debug("Stopping flight controls thread...");
-				flightControls.setRunning(false);
-			} catch (InterruptedException e) {
-				logger.warn("Thread was interrupted, ignoring...");
-			}
+			logger.debug("Running simulation in Analysis Mode...");
+			initializeAnalysisMode();
 		} else {
-			logger.debug("Initializing LWJGL world...");
-			outTheWindow = new LWJGLWorld(this);
-			
-			//(Re)initalize simulation window to prevent scaling issues with instrument panel
-			getGuiFrame().initSimulationWindow();
-			
-			logger.debug("Initializing environment data transfer (thread)...");
-			environmentData = new EnvironmentData(outTheWindow);
-			environmentData.addEnvironmentDataListener(simulation);
-			
-			environmentDataThread = new Thread(environmentData);
-			
-			logger.debug("Starting environment data transfer thread...");
-			environmentDataThread.start();
-			
-			logger.debug("Initializing flight data transfer (thread)...");
-			flightData = new FlightData(simulation);
-			flightData.addFlightDataListener(guiFrame.getInstrumentPanel());
-			flightData.addFlightDataListener(outTheWindow);
-			
-			flightDataThread = new Thread(flightData);
-			
-			logger.debug("Starting flight data transfer thread...");
-			flightDataThread.start();
+			logger.debug("Running simulation in Normal Mode...");
+			initializeNormalMode();
 		}
 	}
 	
@@ -241,6 +207,63 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		getGuiFrame().setVisible(true);
 	}
 	
+	/**
+	 * Initalize all processes needed for starting the simulation in analysis mode
+	 */
+	private void initializeAnalysisMode() {
+		try {
+			// Wait a bit to allow the simulation to finish running
+			Thread.sleep(1000);
+			
+			logger.debug("Generating plots...");
+			plotSimulation();
+			
+			//Stop flight controls thread after analysis finished
+			logger.debug("Stopping flight controls thread...");
+			flightControls.setRunning(false);
+		} catch (InterruptedException ex) {
+			logger.warn("Thread was interrupted!");
+		} catch (Exception ey) {
+			logger.error("An error occurred while running in analysis mose!");
+			logger.error(ey.getLocalizedMessage());
+		}
+	}
+	
+	/**
+	 * Initalize all processes needed for starting the simulation in normal (pilot in the loop) mode
+	 */
+	private void initializeNormalMode() {
+		try {
+			logger.debug("Initializing LWJGL world...");
+			outTheWindow = new LWJGLWorld(this);
+			
+			//(Re)initalize simulation window to prevent scaling issues with instrument panel
+			getGuiFrame().initSimulationWindow();
+			
+			logger.debug("Initializing environment data transfer (thread)...");
+			environmentData = new EnvironmentData(outTheWindow);
+			environmentData.addEnvironmentDataListener(simulation);
+			
+			environmentDataThread = new Thread(environmentData);
+			
+			logger.debug("Starting environment data transfer thread...");
+			environmentDataThread.start();
+			
+			logger.debug("Initializing flight data transfer (thread)...");
+			flightData = new FlightData(simulation);
+			flightData.addFlightDataListener(guiFrame.getInstrumentPanel());
+			flightData.addFlightDataListener(outTheWindow);
+			
+			flightDataThread = new Thread(flightData);
+			
+			logger.debug("Starting flight data transfer thread...");
+			flightDataThread.start();				
+		} catch (Exception e) {
+			logger.error("An error occurred while starting normal mode!");
+			logger.error(e.getLocalizedMessage());
+		}
+	}
+	
 	//=============================== Plotting =============================================================
 	
 	/**
@@ -249,13 +272,19 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	@Override
 	public void plotSimulation() {
 		logger.debug("Plotting simulation results...");
-		if(plotWindow == null)
-			plotWindow = new PlotWindow(plotCategories, this);
-		else
-			plotWindow.refreshPlots(simulation.getLogsOut());
 		
-		if (!isPlotWindowVisible())
-			plotWindow.setVisible(true);
+		try {
+			if(plotWindow == null)
+				plotWindow = new PlotWindow(plotCategories, this);
+			else
+				plotWindow.refreshPlots(simulation.getLogsOut());
+			
+			if (!isPlotWindowVisible())
+				plotWindow.setVisible(true);			
+		} catch (Exception e) {
+			logger.error("An error occurred while generating plots!");
+			logger.error(e.getLocalizedMessage());
+		}
 	}
 	
 	/**
@@ -277,8 +306,13 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 * Initializes the raw data console window and starts the auto-refresh of its contents
 	 */
 	public void initializeConsole() {
-		consoleTablePanel = new ConsoleTablePanel(this);
-		consoleTablePanel.startTableRefresh();
+		try {
+			consoleTablePanel = new ConsoleTablePanel(this);
+			consoleTablePanel.startTableRefresh();			
+		} catch (Exception e) {
+			logger.error("An error occurred while starting the console panel!");
+			logger.error(e.getLocalizedMessage());
+		}
 	}
 	
 	/**
@@ -296,7 +330,13 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	public void saveConsoleOutput(File file) throws IOException {
 		logger.debug("Saving console output to: " + file.getAbsolutePath());
-		FileUtilities.saveToCSVFile(file, simulation.getLogsOut());
+		
+		try {			
+			FileUtilities.saveToCSVFile(file, simulation.getLogsOut());
+		} catch (Exception e) {
+			logger.error("An error occurred while saving console output!");
+			logger.error(e.getLocalizedMessage());
+		}
 	}
 	
 	//========================== Main Frame Menus =========================================================

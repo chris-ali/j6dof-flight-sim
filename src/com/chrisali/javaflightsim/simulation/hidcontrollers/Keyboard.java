@@ -125,8 +125,7 @@ public class Keyboard extends AbstractController {
 						options.add(Options.PAUSED);
 						logger.debug("Simulation Paused!");
 						pPressed = true;
-					} else if(component.getPollData() == 1.0f 
-							  && options.contains(Options.PAUSED) && !pPressed) {
+					} else if(component.getPollData() == 1.0f && options.contains(Options.PAUSED) && !pPressed) {
 						options.remove(Options.PAUSED);
 						wasReset = false;
 						pPressed = true;

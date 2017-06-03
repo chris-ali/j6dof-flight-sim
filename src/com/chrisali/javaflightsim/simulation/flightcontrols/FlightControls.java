@@ -107,8 +107,8 @@ public class FlightControls implements Runnable, FlightDataListener {
 		
 		running = true;
 		
-		try {
-			while (running) {
+		while (running) {
+			try {
 				// if not running in analysis mode, controls and options should be updated using updateFlightControls()/updateOptions()
 				// otherwise, controls updated using generated doublets instead of pilot input
 				if (!options.contains(Options.ANALYSIS_MODE)) {
@@ -122,41 +122,20 @@ public class FlightControls implements Runnable, FlightDataListener {
 					Thread.sleep((long) (integratorConfig.get(IntegratorConfig.DT)*1000));
 				} else {
 					controls = FlightControlsUtilities.doubletSeries(controls, simController.getTime());
-				}	
+				}
+			} catch (InterruptedException e) {
+				logger.warn("Flight controls thread interrupted, ignoring.");
+				
+				continue;
+			} catch (Exception e) {
+				logger.error("Flight controls encountered an error! Attempting to continue...");
+				logger.error(e.getLocalizedMessage());
+				
+				continue;
 			}
-		} catch (InterruptedException e) {
-			logger.warn("Flight controls thread interrupted, ignoring.");
-		} catch (Exception e) {
-			logger.error("Flight controls encountered an error!");
-			logger.error(e.getMessage());
-		} finally {running = false;} 
-		/*
-		try {
-			// if not running in analysis mode, controls and options should be updated using updateFlightControls()/updateOptions()
-			// otherwise, controls updated using generated doublets instead of pilot input
-			if (!options.contains(Options.ANALYSIS_MODE)) {
-				if (hidController != null) 
-					controls = hidController.updateFlightControls(controls);
-				
-				controls = hidKeyboard.updateFlightControls(controls);
-				
-				hidKeyboard.hotKeys();
-				
-				Thread.sleep((long) (integratorConfig.get(IntegratorConfig.DT)*1000));
-			} else {
-				controls = FlightControlsUtilities.doubletSeries(controls, simulation.getTime());
-			}
-		} catch (InterruptedException e) {
-			logger.warn("Flight controls thread interrupted, ignoring.");
-			
-			continue;
-		} catch (Exception e) {
-			logger.error("Flight controls encountered an error!");
-			logger.error(e.getMessage());
-			
-			break;
-		} 
-		*/
+		}
+		
+		running = false;
 	}
 
 	/**

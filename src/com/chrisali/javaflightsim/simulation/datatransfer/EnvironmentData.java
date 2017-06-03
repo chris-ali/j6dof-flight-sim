@@ -83,18 +83,6 @@ public class EnvironmentData implements Runnable {
 			}
 		}
 		
-		try {
-			while (running) {
-				Thread.sleep(10);
-				
-				if(outTheWindow != null)
-					updateData(outTheWindow.getTerrainHeight());
-			}
-		} catch (InterruptedException ex) {
-			logger.warn("Environment data thread was interrupted! Ignoring...");
-		} finally {running = false;} 
-		
-		/*
 		while (running) {
 			try {
 				Thread.sleep(10);
@@ -107,16 +95,18 @@ public class EnvironmentData implements Runnable {
 				continue;
 			} catch (NullPointerException ey) {
 				logger.error("Encountered a null value in the environment data. Attempting to continue...");
-				logger.error(ey.getMessage());
+				logger.error(ey.getLocalizedMessage());
 				
 				continue;
 			} catch (Exception ez) {
 				logger.error("Exception encountered while running environment data thread. Attempting to continue...");
-				logger.error(ez.getMessage());
+				logger.error(ez.getLocalizedMessage());
 				
 				continue;
-			} finally {running = false;} 
-		}*/
+			}
+		}
+		
+		running = false;
 	}
 	
 	/**

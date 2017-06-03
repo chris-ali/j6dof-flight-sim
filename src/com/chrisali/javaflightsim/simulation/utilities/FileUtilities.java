@@ -184,7 +184,7 @@ public class FileUtilities {
 		} catch (Exception e) {
 			// TODO should try to return a default configuration
 			logger.error("Error reading display configuration!");
-			logger.error(e.getMessage());
+			logger.error(e.getLocalizedMessage());
 		}
 
 		return displayOptions;
@@ -214,7 +214,7 @@ public class FileUtilities {
 		} catch (Exception e) {
 			// TODO should try to return a default configuration
 			logger.error("Error reading display configuration!");
-			logger.error(e.getMessage());
+			logger.error(e.getLocalizedMessage());
 		}
 		
 		return audioOptions;
@@ -245,7 +245,7 @@ public class FileUtilities {
 		} catch (Exception e) {
 			// TODO should try to return a default configuration
 			logger.error("Error reading display configuration!");
-			logger.error(e.getMessage());
+			logger.error(e.getLocalizedMessage());
 		}		
 
 		return massProperties;

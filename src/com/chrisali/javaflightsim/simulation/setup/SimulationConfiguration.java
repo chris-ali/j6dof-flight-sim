@@ -99,7 +99,7 @@ public class SimulationConfiguration {
 			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.AUDIO_SETUP.toString(), newAudioOptions);			
 		} catch (Exception e) {
 			logger.error("Error updating simulation options!");
-			logger.error(e.getMessage());
+			logger.error(e.getLocalizedMessage());
 		}
 	}
 	
@@ -133,7 +133,7 @@ public class SimulationConfiguration {
 			FileUtilities.writeConfigFile(SimDirectories.AIRCRAFT.toString() + File.pathSeparator + aircraftName, SimFiles.MASS_PROPERTIES.toString(), massProperties);
 		} catch (Exception e) {
 			logger.error("Error updating mass properties!");
-			logger.error(e.getMessage());
+			logger.error(e.getLocalizedMessage());
 		}
 	}
 	
@@ -156,7 +156,7 @@ public class SimulationConfiguration {
 			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INTEGRATOR_CONFIG.toString(), integratorConfig);
 		} catch (Exception e) {
 			logger.error("Error updating integrator configuration!");
-			logger.error(e.getMessage());
+			logger.error(e.getLocalizedMessage());
 		}
 	}
 
@@ -195,7 +195,7 @@ public class SimulationConfiguration {
 			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INITIAL_CONDITIONS.toString(), initialConditions);
 		} catch (Exception e) {
 			logger.error("Error updating simulation initial conditions!");
-			logger.error(e.getMessage());
+			logger.error(e.getLocalizedMessage());
 		}
 	}
 

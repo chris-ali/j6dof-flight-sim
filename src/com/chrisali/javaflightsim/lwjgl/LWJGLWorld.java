@@ -126,10 +126,10 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		//=================================== Set Up =========================================================
 		
 		try { setUp(); } 
-		catch (Exception e) {logger.fatal("Error encountered when setting up LWJGL display!"); logger.fatal(e.getMessage());}
+		catch (Exception e) {logger.fatal("Error encountered when setting up LWJGL display!"); logger.fatal(e.getLocalizedMessage());}
 		
 		try {loadAssets(); }
-		catch (Exception e) {logger.fatal("Error encountered when loading assets for LWJGL display!"); logger.fatal(e.getMessage());}
+		catch (Exception e) {logger.fatal("Error encountered when loading assets for LWJGL display!"); logger.fatal(e.getLocalizedMessage());}
 		
 		running = true;
 
@@ -161,7 +161,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 				DisplayManager.updateDisplay();
 			} catch (Exception e) {
 				logger.error("Error encountered while running LWJGL display! Attempting to continue...");
-				logger.error(e.getMessage());
+				logger.error(e.getLocalizedMessage());
 				
 				continue;
 			}
@@ -172,7 +172,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		//================================ Clean Up =========================================================
 		
 		try { cleanUp(); }
-		catch (Exception e) {logger.fatal("Error encountered when cleaning up LWJGL display!"); logger.fatal(e.getMessage());}
+		catch (Exception e) {logger.fatal("Error encountered when cleaning up LWJGL display!"); logger.fatal(e.getLocalizedMessage());}
 	}
 	
 	/**

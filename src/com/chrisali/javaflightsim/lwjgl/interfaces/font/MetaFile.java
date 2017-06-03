@@ -169,7 +169,7 @@ public class MetaFile {
 			reader = new BufferedReader(new FileReader(file));
 		} catch (Exception e) {
 			logger.error("Couldn't read font metafile: " + file.getAbsolutePath() + file.getName());
-			logger.error(e.getMessage());
+			logger.error(e.getLocalizedMessage());
 		}
 	}
 

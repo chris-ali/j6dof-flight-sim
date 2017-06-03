@@ -116,42 +116,31 @@ public class FlightData implements Runnable {
 				continue;
 			}
 		}
-		
-		try {
-			while (simulation.isRunning() && running) {
+
+		while (simulation.isRunning() && running) {
+			try {
 				Thread.sleep(12);
 				
 				if(simulation.getSimOut() != null)
 					updateData(simulation.getSimOut());
-			}
-		} catch (InterruptedException ex) {
-			logger.warn("Flight data thread was interrupted! Ignoring..."); 
-		} finally {running = false;} 
-		
-		/*
-		while (Integrate6DOFEquations.isRunning() && running) {
-			try {
-				Thread.sleep(12);
-				
-				if(runSim.getSimOut() != null)
-					updateData(runSim.getSimOut());
 			} catch (InterruptedException ex) {
 				logger.warn("Flight data thread was interrupted! Ignoring...");
 				
 				continue;
 			} catch (NullPointerException ey) {
 				logger.error("Encountered a null value in the flight data. Attempting to continue...");
-				logger.error(ey.getMessage());
+				logger.error(ey.getLocalizedMessage());
 				
 				continue;
 			} catch (Exception ez) {
 				logger.error("Exception encountered while running flight data thread. Attempting to continue...");
-				logger.error(ez.getMessage());
+				logger.error(ez.getLocalizedMessage());
 				
 				continue;
-			} finally {running = false;} 
+			} 
 		}
-		*/
+		
+		running = false;
 	}
 	
 	/**

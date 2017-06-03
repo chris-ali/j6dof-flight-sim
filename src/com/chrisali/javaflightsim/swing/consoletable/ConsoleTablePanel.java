@@ -39,12 +39,18 @@ import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 public class ConsoleTablePanel extends JFrame {
 
 	private static final long serialVersionUID = 555700867777925736L;
+	
+	private static final Logger logger = LogManager.getLogger(EnvironmentData.class);
 	
 	private JTable table;
 	private ConsoleTableModel consoleTableModel;
@@ -129,6 +135,8 @@ public class ConsoleTablePanel extends JFrame {
 					} catch (IOException ex) {
 						JOptionPane.showMessageDialog(ConsoleTablePanel.this, 
 								"Could not save data to file", "Error", JOptionPane.ERROR_MESSAGE);
+						logger.error("Unable to save CSV file!");
+						logger.error(ex.getLocalizedMessage());
 					}
 				}
 			}

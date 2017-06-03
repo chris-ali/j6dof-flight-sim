@@ -467,14 +467,14 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 					Thread.sleep(1);
 				
 			} catch (InterruptedException e) {
-				logger.warn("Simulation thread interrupted, ignoring");
+				logger.warn("Simulation thread interrupted, ignoring...");
 				
 				continue;
 			} catch (Exception e) {
-				logger.error("Simulation thread encountered an error!");
-				logger.error(e.getMessage());
+				logger.error("Simulation thread encountered an error! Attempting to continue...");
+				logger.error(e.getLocalizedMessage());
 				
-				break;
+				continue;
 			}
 		}
 		

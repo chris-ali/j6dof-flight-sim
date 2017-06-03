@@ -234,10 +234,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 						publish(count);
 					}
 						
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				
+				} catch (InterruptedException e) {}
 				
 				return null;
 			}

@@ -39,7 +39,7 @@ public class FlightControlsTest implements Runnable {
 	private SimulationController simController;
 	
 	public FlightControlsTest() {
-		configuation = simController.getConfiguration();
+		configuation = new SimulationConfiguration();
 		simController = new LWJGLSwingSimulationController(configuation);
 		configuation.getSimulationOptions().add(Options.USE_CH_CONTROLS);
 		flightControls = new FlightControls(simController);
@@ -57,7 +57,7 @@ public class FlightControlsTest implements Runnable {
 				System.out.println(flightControls.toString());
 				System.out.println();
 				System.out.println(configuation.getSimulationOptions());
-				Thread.sleep((long) (100));
+				Thread.sleep((long) (250));
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();

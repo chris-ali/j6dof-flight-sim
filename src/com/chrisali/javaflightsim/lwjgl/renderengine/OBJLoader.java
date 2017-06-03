@@ -118,7 +118,8 @@ public class OBJLoader {
 			reader.close();
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("An error occurred while reading the model: " + fileName);
+			logger.error(e.getLocalizedMessage());
 		}
 		
 		verticesArray= new float[vertices.size()*3];
