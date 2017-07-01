@@ -1,10 +1,10 @@
-elevator = 0.036
+elevator = 0.03480597829767064
 aileron = 0.0
 rudder = 0.0
-throttle_1 = 0.65
-throttle_2 = 0.65
-throttle_3 = 0.65
-throttle_4 = 0.65
+throttle_1 = 0.421875
+throttle_2 = 0.421875
+throttle_3 = 0.421875
+throttle_4 = 0.421875
 propeller_1 = 1.0
 propeller_2 = 1.0
 propeller_3 = 1.0
