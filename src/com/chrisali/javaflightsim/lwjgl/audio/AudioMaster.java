@@ -45,7 +45,7 @@ public class AudioMaster {
 	
 	public static void init() {
 		try {AL.create();} 
-		catch (LWJGLException e) {logger.error("Unable to initialize OpenAL!"); logger.error(e.getMessage());}
+		catch (LWJGLException e) {logger.error("Unable to initialize OpenAL!", e);}
 	}
 	
 	public static void setListenerData(Vector3f position, Vector3f  velocity) {
@@ -63,8 +63,7 @@ public class AudioMaster {
 			AL10.alBufferData(buffer, waveFile.format, waveFile.data, waveFile.samplerate);
 			waveFile.dispose();
 		} catch (IOException | NullPointerException e) {
-			logger.error("Could not load sound: " + fileName + OTWFiles.SOUND_EXT.toString() + "!");
-			logger.error(e.getMessage());
+			logger.error("Could not load sound: " + fileName + OTWFiles.SOUND_EXT.toString() + "!", e);
 		}
 		
 		return buffer;

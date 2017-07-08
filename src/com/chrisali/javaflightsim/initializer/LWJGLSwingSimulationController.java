@@ -209,7 +209,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	private void initializeAnalysisMode() {
 		try {
 			// Wait a bit to allow the simulation to finish running
-			Thread.sleep(1000);
+			Thread.sleep(5000);
 			
 			logger.debug("Generating plots...");
 			plotSimulation();
@@ -220,8 +220,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		} catch (InterruptedException ex) {
 			logger.warn("Thread was interrupted!");
 		} catch (Exception ey) {
-			logger.error("An error occurred while running in analysis mose!");
-			logger.error(ey.getLocalizedMessage());
+			logger.error("An error occurred while running in analysis mose!", ey);
 		}
 	}
 	
@@ -255,8 +254,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 			logger.debug("Starting flight data transfer thread...");
 			flightDataThread.start();				
 		} catch (Exception e) {
-			logger.error("An error occurred while starting normal mode!");
-			logger.error(e.getLocalizedMessage());
+			logger.error("An error occurred while starting normal mode!", e);
 		}
 	}
 	
@@ -278,8 +276,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 			if (!isPlotWindowVisible())
 				plotWindow.setVisible(true);			
 		} catch (Exception e) {
-			logger.error("An error occurred while generating plots!");
-			logger.error(e.getLocalizedMessage());
+			logger.error("An error occurred while generating plots!", e);
 		}
 	}
 	
@@ -306,8 +303,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 			consoleTablePanel = new ConsoleTablePanel(this);
 			consoleTablePanel.startTableRefresh();			
 		} catch (Exception e) {
-			logger.error("An error occurred while starting the console panel!");
-			logger.error(e.getLocalizedMessage());
+			logger.error("An error occurred while starting the console panel!", e);
 		}
 	}
 	
@@ -330,8 +326,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		try {			
 			FileUtilities.saveToCSVFile(file, simulation.getLogsOut());
 		} catch (Exception e) {
-			logger.error("An error occurred while saving console output!");
-			logger.error(e.getLocalizedMessage());
+			logger.error("An error occurred while saving console output!", e);
 		}
 	}
 	

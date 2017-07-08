@@ -58,7 +58,7 @@ public class OBJLoader {
  		FileReader fr = null;
 		
 		try {fr = new FileReader(new File(OTWDirectories.RESOURCES.toString() + File.separator + directory + File.separator + fileName + OTWFiles.MODEL_EXT.toString()));} 
-		catch (FileNotFoundException e) {logger.error("Could not load model: " + fileName + OTWFiles.MODEL_EXT.toString() + "!");}
+		catch (FileNotFoundException e) {logger.error("Could not load model: " + fileName + OTWFiles.MODEL_EXT.toString() + "!", e);}
 		
 		BufferedReader reader = new BufferedReader(fr);
 		String line;
@@ -118,8 +118,7 @@ public class OBJLoader {
 			reader.close();
 			
 		} catch (Exception e) {
-			logger.error("An error occurred while reading the model: " + fileName);
-			logger.error(e.getLocalizedMessage());
+			logger.error("An error occurred while reading the model: " + fileName, e);
 		}
 		
 		verticesArray= new float[vertices.size()*3];

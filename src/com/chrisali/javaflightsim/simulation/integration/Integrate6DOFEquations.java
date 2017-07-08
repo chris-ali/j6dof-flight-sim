@@ -471,8 +471,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 				
 				continue;
 			} catch (Exception e) {
-				logger.error("Simulation thread encountered an error! Attempting to continue...");
-				logger.error(e.getLocalizedMessage());
+				logger.error("Simulation thread encountered an error! Attempting to continue...", e);
 				
 				continue;
 			}

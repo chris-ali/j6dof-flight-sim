@@ -135,8 +135,7 @@ public class ConsoleTablePanel extends JFrame {
 					} catch (IOException ex) {
 						JOptionPane.showMessageDialog(ConsoleTablePanel.this, 
 								"Could not save data to file", "Error", JOptionPane.ERROR_MESSAGE);
-						logger.error("Unable to save CSV file!");
-						logger.error(ex.getLocalizedMessage());
+						logger.error("Unable to save CSV file!", ex);
 					}
 				}
 			}

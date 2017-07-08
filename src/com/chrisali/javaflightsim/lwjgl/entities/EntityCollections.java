@@ -138,7 +138,7 @@ public class EntityCollections {
 		BufferedImage image = null;
 		
 		try {image = ImageIO.read(new File(OTWDirectories.RESOURCES.toString() + File.separator + directory + File.separator + fileName + OTWFiles.TEXTURE_EXT.toString()));} 
-		catch (IOException e) {logger.error("Could not load autogen file: " + fileName + OTWFiles.TEXTURE_EXT.toString() + "!");}
+		catch (IOException e) {logger.error("Could not load autogen file: " + fileName + OTWFiles.TEXTURE_EXT.toString() + "!", e);}
 		
 		float imageScale = Terrain.getSize()/image.getHeight();
 		float scaledX, scaledZ;

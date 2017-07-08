@@ -208,6 +208,8 @@ public class Trimming {
 		initialControls.put(FlightControlType.RUDDER, 0.0);
 		
 		logger.debug("Finished trimming aircraft!");
+		logger.debug(String.format("Trim controls are: \nElevator: %.4f rad\nThrottle: %.4f", elevTrim, throttleTrim));
+		logger.debug(String.format("Trim states are: \nW Velocity: %3.4f ft/sec\nTheta: %.4f rad\nAlpha: %.4f rad", wVelocityTrim, thetaTrim, alphaTrim));
 		
 		// In test mode do not write any config settings to files
 		if (!testMode) {

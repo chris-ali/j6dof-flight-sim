@@ -101,8 +101,7 @@ public class MetaFile {
 		try {
 			line = reader.readLine();
 		} catch (IOException e) {
-			logger.error("Error reading line in file!");
-			logger.error(e.getMessage());
+			logger.error("Error reading line in file!", e);
 		}
 		
 		if (line == null) {
@@ -154,7 +153,7 @@ public class MetaFile {
 		try {
 			reader.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Error closing font file reader!", e);
 		}
 	}
 
@@ -168,8 +167,7 @@ public class MetaFile {
 		try {
 			reader = new BufferedReader(new FileReader(file));
 		} catch (Exception e) {
-			logger.error("Couldn't read font metafile: " + file.getAbsolutePath() + file.getName());
-			logger.error(e.getLocalizedMessage());
+			logger.error("Couldn't read font metafile: " + file.getAbsolutePath() + file.getName(), e);
 		}
 	}
 

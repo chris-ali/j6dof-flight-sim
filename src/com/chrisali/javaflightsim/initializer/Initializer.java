@@ -88,8 +88,7 @@ public class Initializer {
 					// Pass in mainFrame reference so that OTW display can get Canvas reference
 					controller.setGuiFrame(guiFrame);								
 				} catch (Exception e) {
-					logger.fatal("Error setting up Swing GUI and controller: ");
-					logger.fatal(e.getMessage());
+					logger.fatal("Error setting up Swing GUI and controller: ", e);
 					
 					return;
 				}
@@ -112,8 +111,7 @@ public class Initializer {
 					
 					new GuiFrame(controller);
 				} catch (Exception e) {
-					logger.fatal("Error setting up Swing GUI and controller: ");
-					logger.fatal(e.getMessage());
+					logger.fatal("Error setting up Swing GUI and controller: ", e);
 					
 					return;
 				}		

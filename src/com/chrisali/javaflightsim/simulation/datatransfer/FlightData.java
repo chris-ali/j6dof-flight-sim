@@ -128,13 +128,11 @@ public class FlightData implements Runnable {
 				
 				continue;
 			} catch (NullPointerException ey) {
-				logger.error("Encountered a null value in the flight data. Attempting to continue...");
-				logger.error(ey.getLocalizedMessage());
+				logger.error("Encountered a null value in the flight data. Attempting to continue...", ey);
 				
 				continue;
 			} catch (Exception ez) {
-				logger.error("Exception encountered while running flight data thread. Attempting to continue...");
-				logger.error(ez.getLocalizedMessage());
+				logger.error("Exception encountered while running flight data thread. Attempting to continue...", ez);
 				
 				continue;
 			} 

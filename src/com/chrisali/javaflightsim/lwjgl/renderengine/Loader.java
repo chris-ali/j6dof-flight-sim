@@ -173,7 +173,7 @@ public class Loader {
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
 		} catch (IOException e) {
-			logger.error("Could not load texture: " + fileName + OTWFiles.TEXTURE_EXT.toString());
+			logger.error("Could not load texture: " + fileName + OTWFiles.TEXTURE_EXT.toString(), e);
 		}
 
 		int textureID = texture.getTextureID();

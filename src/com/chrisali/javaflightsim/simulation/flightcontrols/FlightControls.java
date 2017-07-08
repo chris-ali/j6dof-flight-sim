@@ -126,16 +126,17 @@ public class FlightControls implements Runnable, FlightDataListener {
 					
 					Thread.sleep((long) (integratorConfig.get(IntegratorConfig.DT)*1000));
 				} else {
-					if (simulation != null)
+					if (simulation != null) {
 						controls = FlightControlsUtilities.doubletSeries(controls, simulation.getTime());
+						Thread.sleep(1);
+					}
 				}
 			} catch (InterruptedException e) {
 				logger.warn("Flight controls thread interrupted, ignoring.");
 				
 				continue;
 			} catch (Exception e) {
-				logger.error("Flight controls encountered an error! Attempting to continue...");
-				logger.error(e.getLocalizedMessage());
+				logger.error("Flight controls encountered an error! Attempting to continue...", e);
 				
 				continue;
 			}

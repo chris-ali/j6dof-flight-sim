@@ -123,7 +123,7 @@ public class Terrain implements Comparable<Terrain> {
 		BufferedImage image = null;
 		
 		try {image = ImageIO.read(new File(OTWDirectories.RESOURCES.toString() + File.separator + directory + File.separator + fileName + OTWFiles.TEXTURE_EXT.toString()));} 
-		catch (IOException e) {logger.error("Could not load height map: " + fileName + OTWFiles.TEXTURE_EXT.toString() + "!");}
+		catch (IOException e) {logger.error("Could not load height map: " + fileName + OTWFiles.TEXTURE_EXT.toString() + "!", e);}
 		
 		int VERTEX_COUNT = image.getHeight();
 		int count = VERTEX_COUNT * VERTEX_COUNT;

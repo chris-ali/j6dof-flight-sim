@@ -264,6 +264,7 @@ public class AircraftPanel extends JPanel {
 		} catch (MalformedURLException e) {
 			JOptionPane.showMessageDialog(AircraftPanel.this, "Unable to load image: " + fileName + SimFiles.PREVIEW_PIC_EXT + "!", 
 					"Error Loading Image", JOptionPane.ERROR_MESSAGE);
+			logger.error("Could not find image: " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!");
 		}
 
 		return image;

@@ -94,13 +94,11 @@ public class EnvironmentData implements Runnable {
 				
 				continue;
 			} catch (NullPointerException ey) {
-				logger.error("Encountered a null value in the environment data. Attempting to continue...");
-				logger.error(ey.getLocalizedMessage());
+				logger.error("Encountered a null value in the environment data. Attempting to continue...", ey);
 				
 				continue;
 			} catch (Exception ez) {
-				logger.error("Exception encountered while running environment data thread. Attempting to continue...");
-				logger.error(ez.getLocalizedMessage());
+				logger.error("Exception encountered while running environment data thread. Attempting to continue...", ez);
 				
 				continue;
 			}
