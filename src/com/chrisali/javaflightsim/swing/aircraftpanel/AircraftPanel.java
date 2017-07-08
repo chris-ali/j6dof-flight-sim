@@ -243,7 +243,8 @@ public class AircraftPanel extends JPanel {
 		});
 		
 		for (File file : directories) {
-			String[] splitPath = file.toString().split(File.separator);
+			String splitter = File.separator.replace("\\", "\\\\");
+			String[] splitPath = file.toString().split(splitter);
 			comboBox.addElement(splitPath[splitPath.length - 1]);
 		}
 		
