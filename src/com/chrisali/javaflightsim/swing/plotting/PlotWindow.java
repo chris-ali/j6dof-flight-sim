@@ -214,19 +214,23 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 			
 			@Override
 			protected Void doInBackground() throws Exception {
-				
 				try {
 					int count = 0;
 					
+					tabPane.removeAll();
+					plotList.clear();
+
 					// Pause a bit to give SimulationPlot object time to initialize 
-					Thread.sleep(2000);
+					Thread.sleep(6000);
 					
 					for (String plotTitle : simPlotCategories) {
 					
+						Thread.sleep(125);
+						
 						SimulationPlot plotObject = new SimulationPlot(logsOut, plotTitle);
 						
-						Thread.sleep(250);
-
+						Thread.sleep(125);
+						
 						tabPane.add(plotTitle, plotObject);
 						plotList.add(plotObject);
 						
@@ -240,43 +244,6 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 			}
 		};
 		tabPaneWorker.execute();
-	}
-	
-	/**
-	 * Commands each plot in the plotList ArrayList to update its XYSeries values using data from logsOut. 
-	 * This will also set the plot window visible again if it has been closed.
-	 * 
-	 * @param logsOut
-	 */
-	public void refreshPlots(List<Map<SimOuts, Double>> logsOut) {
-		progressDialog.setMaximum(simPlotCategories.size());
-		progressDialog.setTitle("Refreshing Plots");
-		progressDialog.setVisible(true);
-		
-		// Run process in Thread instead of SwingWorker to allow re-execution
-		refreshPlotThread = new Thread(){
-			@Override
-			public void run() {
-				try {
-					int count = 0;
-					
-					SimulationPlot.updateXYSeriesData(logsOut);
-					
-					for (SimulationPlot plot : plotList) {
-						plot.getChartPanel().repaint();
-						
-						Thread.sleep(125);
-						progressDialog.setValue(count);
-						
-						count++;
-					}
-				} 
-				catch (InterruptedException e) {} 
-				finally {progressDialog.setVisible(false);}
-			}
-		};
-		
-		refreshPlotThread.start();
 	}
 	
 	@Override

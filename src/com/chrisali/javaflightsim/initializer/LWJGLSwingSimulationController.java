@@ -140,6 +140,11 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	@Override
 	public void startSimulation() {
+		if (simulation != null && simulation.isRunning()) {
+			logger.warn("Simulation is already running! Please wait until it has finished");
+			return;
+		}
+			
 		logger.debug("Starting simulation...");
 		
 		logger.debug("Trimming aircraft...");
@@ -180,7 +185,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	@Override
 	public void stopSimulation() {
-		logger.debug("Starting simulation...");
+		logger.debug("Stopping simulation...");
 		
 		if (simulation != null && simulation.isRunning() && simulationThread != null && simulationThread.isAlive()) {
 			logger.debug("Stopping simulation and flight controls threads...");
@@ -207,16 +212,17 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 * Initalize all processes needed for starting the simulation in analysis mode
 	 */
 	private void initializeAnalysisMode() {
-		try {
+		try {						
 			// Wait a bit to allow the simulation to finish running
-			Thread.sleep(5000);
+			while(simulation.isRunning()) {				
+				Thread.sleep(1500);
+			}
+			
+			logger.debug("Stopping flight controls thread...");
+			flightControls.setRunning(false);
 			
 			logger.debug("Generating plots...");
 			plotSimulation();
-			
-			//Stop flight controls thread after analysis finished
-			logger.debug("Stopping flight controls thread...");
-			flightControls.setRunning(false);
 		} catch (InterruptedException ex) {
 			logger.warn("Thread was interrupted!");
 		} catch (Exception ey) {
@@ -268,13 +274,10 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		logger.debug("Plotting simulation results...");
 		
 		try {
-			if(plotWindow == null)
-				plotWindow = new PlotWindow(plotCategories, this);
-			else
-				plotWindow.refreshPlots(simulation.getLogsOut());
-			
-			if (!isPlotWindowVisible())
-				plotWindow.setVisible(true);			
+			if(plotWindow != null)
+				plotWindow.setVisible(false);
+				
+			plotWindow = new PlotWindow(plotCategories, this);		
 		} catch (Exception e) {
 			logger.error("An error occurred while generating plots!", e);
 		}
