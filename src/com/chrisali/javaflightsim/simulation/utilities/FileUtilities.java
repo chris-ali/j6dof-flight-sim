@@ -39,8 +39,10 @@ import org.apache.logging.log4j.Logger;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Contains various static methods for reading and parsing text configuration files
@@ -58,7 +60,7 @@ public class FileUtilities {
 	//===================================================================================================
 	
 	/**
-	 * Splits a config file called "fileContents".txt located in the folder 
+	 * Splits a config file called "fileContents".{@link FileUtilities#CONFIG_EXT} located in the folder 
 	 * specified by filePath whose general syntax on each line is:
 	 *  <br><code>*parameter name* = *double value*</code></br>
 	 *  into an ArrayList of string arrays resembling:
@@ -89,7 +91,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Splits a config file called "fileName".txt located in the folder 
+	 * Splits a config file called "fileName".{@link FileUtilities#CONFIG_EXT} located in the folder 
 	 * specified by filePath whose general syntax on each line is:
 	 *  <br><code>*parameter name* = *double value*</code></br>
 	 *  into an ArrayList of string arrays resembling:
@@ -119,7 +121,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Parses a config file called SimulationSetup.txt located in SimConfig\
+	 * Parses a config file called SimulationSetup.{@link FileUtilities#CONFIG_EXT} located in SimConfig\
 	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
 	 * and returns an EnumSet containing enums from Options for each line in the
 	 * file where *value* contains true  
@@ -140,7 +142,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Parses a config file called SimulationSetup.txt located in SimConfig\
+	 * Parses a config file called SimulationSetup.{@link FileUtilities#CONFIG_EXT} located in SimConfig\
 	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
 	 * and returns a String of the right hand side value contained on the line
 	 * <br><code>"selectedAircraft = *value*\n"</code></br>
@@ -161,7 +163,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Parses the DisplaySetup.txt file in SimConfig\ and returns an EnumMap with {@link DisplayOptions}
+	 * Parses the DisplaySetup.{@link FileUtilities#CONFIG_EXT} file in SimConfig\ and returns an EnumMap with {@link DisplayOptions}
 	 * as the keys
 	 * 
 	 * @return displayOptions EnumMap
@@ -190,7 +192,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Parses the AudioSetup.txt file in SimConfig\ and returns an EnumMap with {@link DisplayOptions}
+	 * Parses the AudioSetup.{@link FileUtilities#CONFIG_EXT} file in SimConfig\ and returns an EnumMap with {@link DisplayOptions}
 	 * as the keys
 	 * 
 	 * @return audioOptions EnumMap
@@ -219,7 +221,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Parses the MassProperties.txt file in Aircraft\aircraftName and returns an EnumMap with {@link MassProperties}
+	 * Parses the MassProperties.{@link FileUtilities#CONFIG_EXT} file in Aircraft\aircraftName and returns an EnumMap with {@link MassProperties}
 	 * as the keys
 	 * 
 	 * @param aircraftName
@@ -248,6 +250,25 @@ public class FileUtilities {
 		return massProperties;
 	}
 	
+	public static SimulationConfiguration readSimulationConfiguration() {
+		String fileName = "SimulationConfiguration";
+		StringBuilder sb = new StringBuilder();
+		sb.append(FILE_ROOT).append(SimDirectories.SIM_CONFIG.toString()).append(File.separator).append(fileName).append(".json");
+				
+		logger.debug("Reading file: " + sb.toString() + "...");
+		
+		SimulationConfiguration configuration = new SimulationConfiguration();
+		ObjectMapper mapper = new ObjectMapper();
+		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
+			configuration = mapper.readValue(br, SimulationConfiguration.class);
+		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!");}
+		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!");}
+		catch (NullPointerException e) {logger.error("Bad reference when reading: " + fileName + CONFIG_EXT + "!");}
+		catch (NumberFormatException e) {logger.error("Error parsing data from " + fileName + CONFIG_EXT + "!");}
+		
+		return configuration;
+	}
+	
 	/**
 	 * @param fileName
 	 * @return string containing the file's extension 
@@ -268,7 +289,7 @@ public class FileUtilities {
 	//===================================================================================================
 	
 	/**
-	 * Creates a config file called "fileName".txt located in the folder 
+	 * Creates a config file called "fileName".{@link FileUtilities#CONFIG_EXT} located in the folder 
 	 * specified by filePath using an EnumMap where each line is written as:
 	 *  <br><code>"*parameter name* = *double value*\n"</code></br>
 	 *  
@@ -296,7 +317,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Creates a config file called "fileName".txt located in the folder specified by filePath 
+	 * Creates a config file called "fileName".{@link FileUtilities#CONFIG_EXT} located in the folder specified by filePath 
 	 * using the opstionsSet EnumSet of selected options and the selected aircraft's name,
 	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
 	 *  
@@ -324,6 +345,31 @@ public class FileUtilities {
 		logger.debug(fileName + CONFIG_EXT + " saved successfully!");
 	}
 	
+	/**
+	 * Creates a configuration file called SimulationConfiguration.json
+	 * 
+	 * @param filePath
+	 * @param fileName
+	 * @param configuration
+	 */
+	public static void writeConfigFile(String filePath, SimulationConfiguration configuration) {
+		String fileName = "SimulationConfigruation";
+		StringBuilder sb = new StringBuilder();
+		sb.append(FILE_ROOT).append(filePath).append(File.separator).append(fileName).append(".json");
+		
+		logger.debug("Saving configuration file to: " + sb.toString());
+		
+		ObjectMapper mapper = new ObjectMapper();		
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sb.toString()))) {
+			mapper.writeValue(bw, configuration);
+			
+		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!");}
+		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!");}
+		catch (NullPointerException e) {logger.error("Bad reference to: " + fileName + CONFIG_EXT + "!");}
+		
+		logger.debug(fileName + CONFIG_EXT + " saved successfully!");
+	}
+			
 	/**
 	 * Writes a CSV file from data contained within the logsOut ArrayList 
 	 * 

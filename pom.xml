@@ -129,12 +129,40 @@
 			<artifactId>commons-math3</artifactId>
 			<version>3.6.1</version>
 		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-csv</artifactId>
+		    <version>1.3</version>
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.bidib.jbidib.eu.hansolo/SteelSeries -->
 		<dependency>
 			<groupId>org.bidib.jbidib.eu.hansolo</groupId>
 			<artifactId>SteelSeries</artifactId>
 			<version>3.9.31.1</version>
+		</dependency>
+		
+		 <!-- the core, which includes Streaming API, shared low-level abstractions (but NOT data-binding) -->
+		 <dependency>
+		   <groupId>com.fasterxml.jackson.core</groupId>
+		   <artifactId>jackson-core</artifactId>
+		   <version>2.9.0</version>
+		 </dependency>
+		
+		 <!-- Just the annotations; use this dependency if you want to attach annotations
+		      to classes without connecting them to the code. -->
+		 <dependency>
+		   <groupId>com.fasterxml.jackson.core</groupId>
+		   <artifactId>jackson-annotations</artifactId>
+		   <version>2.9.0</version>
+		</dependency>
+		
+		<!-- databinding; ObjectMapper, JsonNode and related classes are here -->
+		<dependency>
+		  <groupId>com.fasterxml.jackson.core</groupId>
+		  <artifactId>jackson-databind</artifactId>
+		  <version>2.9.0</version>
 		</dependency>
 		
 		<dependency>

@@ -21,6 +21,7 @@ import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Contains collections and methods used to configure the simulation and save/load 
@@ -29,6 +30,7 @@ import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
 public class SimulationConfiguration {
 	
 	//Logging
+	@JsonIgnore
 	private static final Logger logger = LogManager.getLogger(SimulationConfiguration.class);
 	
 	// Configuration
@@ -40,7 +42,10 @@ public class SimulationConfiguration {
 	private EnumMap<FlightControlType, Double> initialControls; 
 	
 	// Aircraft
+	private String selectedAircraft;
+	@JsonIgnore
 	private AircraftBuilder ab;
+	@JsonIgnore
 	private EnumMap<MassProperties, Double> massProperties;
 
 	/**
@@ -56,8 +61,8 @@ public class SimulationConfiguration {
 		integratorConfig = IntegrationSetup.gatherIntegratorConfig(null);
 		initialControls = IntegrationSetup.gatherInitialControls(null);
 		
-		String aircraftName = FileUtilities.parseSimulationSetupForAircraft();
-		ab = new AircraftBuilder(aircraftName);
+		selectedAircraft = FileUtilities.parseSimulationSetupForAircraft();
+		ab = new AircraftBuilder(selectedAircraft);
 	}
 	
 	/**
@@ -100,17 +105,6 @@ public class SimulationConfiguration {
 		} catch (Exception e) {
 			logger.error("Error updating simulation options!", e);
 		}
-	}
-	
-	/**
-	 * Calls the {@link AircraftBuilder} constructor with using the aircraftName argument and updates the SimulationSetup.txt
-	 * configuration file with the new selected aircraft
-	 * 
-	 * @param aircraftName
-	 */
-	public void setAircraftBuilder(String aircraftName) {
-		ab = new AircraftBuilder(aircraftName);
-		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.SIMULATION_SETUP.toString(), simulationOptions, aircraftName);
 	}
 	
 	/**
@@ -161,7 +155,13 @@ public class SimulationConfiguration {
 	 * @return initialControls EnumMap
 	 */
 	public EnumMap<FlightControlType, Double> getInitialControls() {return initialControls;}
-	
+
+	/**
+	 * Updates the InitialControls config file
+	 */
+	public void setInitialControls() {
+		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INITIAL_CONTROLS.toString(), initialControls);
+	}	
 	/**
 	 * @return initialConditions EnumMap
 	 */
@@ -194,13 +194,6 @@ public class SimulationConfiguration {
 			logger.error("Error updating simulation initial conditions!", e);
 		}
 	}
-
-	/**
-	 * Updates the InitialControls config file
-	 */
-	public void setInitialControls() {
-		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INITIAL_CONTROLS.toString(), initialControls);
-	}
 	
 	/**
 	 * @return {@link AircraftBuilder} object
@@ -209,9 +202,33 @@ public class SimulationConfiguration {
 	
 	/**
 	 * Allows {@link AircraftBuilder} to be changed to a different aircraft outside of being parsed in
-	 * the SimulationSetup.txt configuration file
+	 * the SimulationSetup configuration file
 	 * 
 	 * @param ab
 	 */
 	public void setAircraftBuilder(AircraftBuilder ab) {this.ab = ab;}
+		
+	/**
+	 * Calls the {@link AircraftBuilder} constructor with using the aircraftName argument and updates the SimulationSetup
+	 * configuration file with the new selected aircraft
+	 * 
+	 * @param aircraftName
+	 */
+	public void setAircraftBuilder(String aircraftName) {
+		selectedAircraft = aircraftName;
+		ab = new AircraftBuilder(aircraftName);
+		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.SIMULATION_SETUP.toString(), simulationOptions, aircraftName);
+	}
+
+	public String getSelectedAircraft() { return selectedAircraft; }
+
+	/**
+	 * Sets the selectedAircraft field and also calls {@link SimulationConfiguration#setAircraftBuilder(String)}
+	 * 
+	 * @param selectedAircraft
+	 */
+	public void setSelectedAircraft(String selectedAircraft) {
+		this.selectedAircraft = selectedAircraft;
+		setAircraftBuilder(selectedAircraft);
+	}	
 }
