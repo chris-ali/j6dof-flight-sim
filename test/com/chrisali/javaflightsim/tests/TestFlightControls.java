@@ -32,13 +32,13 @@ import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
  * @author Christopher Ali
  *
  */
-public class FlightControlsTest implements Runnable {
+public class TestFlightControls implements Runnable {
 	private FlightControls flightControls;
 	private Thread flightControlsThread;
 	private SimulationConfiguration configuation;
 	private SimulationController simController;
 	
-	public FlightControlsTest() {
+	public TestFlightControls() {
 		configuation = new SimulationConfiguration();
 		simController = new LWJGLSwingSimulationController(configuation);
 		configuation.getSimulationOptions().add(Options.USE_CH_CONTROLS);
@@ -64,5 +64,5 @@ public class FlightControlsTest implements Runnable {
 		}
 	}
 	
-	public static void main(String[] args) {new Thread(new FlightControlsTest()).start();}
+	public static void main(String[] args) {new Thread(new TestFlightControls()).start();}
 }

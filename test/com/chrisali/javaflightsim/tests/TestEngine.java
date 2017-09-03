@@ -41,10 +41,10 @@ import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 
-public class EngineTest extends ApplicationFrame {
+public class TestEngine extends ApplicationFrame {
 	private static final long serialVersionUID = 1L;
 	
-	public EngineTest(String testType) {
+	public TestEngine(String testType) {
 		super("Engine Test");
 		
 		EnumMap<FlightControlType, Double> controls = IntegrationSetup.gatherInitialControls("InitialControls");
@@ -213,6 +213,6 @@ public class EngineTest extends ApplicationFrame {
 	
 	public static void main(String[] args) {
 		for (String test : new String[]{"Altitude","Throttle","Airspeed"})
-			new EngineTest(test);
+			new TestEngine(test);
 	}
 }

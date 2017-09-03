@@ -19,36 +19,17 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.tests;
 
-import javax.swing.JFrame;
-
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
-import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
-/**
- * Runs a test of the flight simulation module in Analysis mode to test an aircraft and the simulation 
- * workings; uses {@link LWJGLSwingSimulationController} to configure and run all threads necessary, and 
- * then plots the simulation results at the end
- * 
- * @author Christopher Ali
- *
- */
-public class SimulationTest {
+public class TestWorld {
 	
-	public SimulationTest() {
+	public static void main(String[] args) {
 		SimulationConfiguration configuration = new SimulationConfiguration();
-		LWJGLSwingSimulationController controller = new LWJGLSwingSimulationController(configuration);
 		
-		configuration.getSimulationOptions().clear();
-		configuration.getSimulationOptions().add(Options.ANALYSIS_MODE);
-		configuration.setAircraftBuilder(new AircraftBuilder("TwinNavion")); // Twin Navion with 2 Lycoming IO-360
-		//configuration.setAircraftBuilder(new AircraftBuilder()); // Default Navion with Lycoming IO-360
-		//configuration.setAircraftBuilder(new AircraftBuilder("Navion")); // Navion with lookup tables with Lycoming IO-360
-		
-		controller.startSimulation();
-		controller.getPlotWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Thread worldThread = new Thread(new LWJGLWorld(new LWJGLSwingSimulationController(configuration)));
+		worldThread.start();
 	}
 	
-	public static void main(String[] args) {new SimulationTest();}
 }

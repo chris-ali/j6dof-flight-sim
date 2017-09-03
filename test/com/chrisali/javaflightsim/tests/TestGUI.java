@@ -19,21 +19,22 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.tests;
 
-import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
-/**
- * This class tests the parsing methods defined in the Aircraft class. It helps ensure that the data needed to define an aircraft is being
- * parsed correctly, and allows for debugging of file integrity checking methods. It runs the default constructor first, followed by the 
- * constructor using file parsing. The Aircraft class toString method outputs the stability derivatives, mass properties, and wing geometry
- * of each aircraft
- */
-public class AircraftTest {
-	public AircraftTest(String aircraftName) {
-		System.out.println("Default Aircraft:\n");
-		System.out.println(new Aircraft().toString());
-		
-		System.out.println(aircraftName + " File Parsing:\n");
-		System.out.println(new Aircraft(aircraftName).toString());
+import javax.swing.SwingUtilities;
+
+import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.swing.GuiFrame;
+
+public class TestGUI {
+
+	public static void main(String[] args) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {runApp();}
+		});
 	}
-	
-	public static void main(String[] args) {new AircraftTest("Navion");}
+
+	private static void runApp() {
+		new GuiFrame(new LWJGLSwingSimulationController(new SimulationConfiguration()));
+	}
 }

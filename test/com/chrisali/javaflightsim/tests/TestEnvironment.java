@@ -37,10 +37,10 @@ import org.jfree.ui.RefineryUtilities;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 
-public class EnvironmentTest extends ApplicationFrame {
+public class TestEnvironment extends ApplicationFrame {
 	private static final long serialVersionUID = 1L;
 
-	public EnvironmentTest() {
+	public TestEnvironment() {
 		super("Environment Test");
 		
 		Map<EnvironmentParameters, Double> envData = new EnumMap<EnvironmentParameters, Double>(EnvironmentParameters.class);
@@ -152,6 +152,6 @@ public class EnvironmentTest extends ApplicationFrame {
 		this.setVisible(true);
 	}
 
-	public static void main(String[] args) {new EnvironmentTest();}
+	public static void main(String[] args) {new TestEnvironment();}
 
 }

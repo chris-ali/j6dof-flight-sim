@@ -22,8 +22,8 @@ package com.chrisali.javaflightsim.tests;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 
-public class AircraftBuilderTest {	
-	public AircraftBuilderTest() {
+public class TestAircraftBuilder {	
+	public TestAircraftBuilder() {
 		
 		System.out.println("============================");
 		System.out.println("============================");
@@ -41,7 +41,7 @@ public class AircraftBuilderTest {
 		}
 	}
 	
-	public AircraftBuilderTest(String aircraftName) {
+	public TestAircraftBuilder(String aircraftName) {
 		
 		System.out.println("============================");
 		System.out.println("============================");
@@ -60,8 +60,8 @@ public class AircraftBuilderTest {
 	}
 
 	public static void main(String[] args) {
-		new AircraftBuilderTest();
-		new AircraftBuilderTest("Navion");
-		new AircraftBuilderTest("TwinNavion");
+		new TestAircraftBuilder();
+		new TestAircraftBuilder("Navion");
+		new TestAircraftBuilder("TwinNavion");
 	}
 }

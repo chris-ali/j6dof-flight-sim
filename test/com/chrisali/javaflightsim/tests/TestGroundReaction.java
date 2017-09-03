@@ -28,7 +28,7 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.IntegrateGroundReaction;
 import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 
-public class GroundReactionTest {
+public class TestGroundReaction {
 
 	private IntegrateGroundReaction groundReaction;
 	private AircraftBuilder ab = new AircraftBuilder("Navion");
@@ -48,7 +48,7 @@ public class GroundReactionTest {
 	private double[] sixDOFDerivatives		  = new double[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	
 	public static void main(String[] args) {
-		GroundReactionTest test = new GroundReactionTest();
+		TestGroundReaction test = new TestGroundReaction();
 		test.setup();
 		test.run();
 	}

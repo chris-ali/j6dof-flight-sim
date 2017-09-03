@@ -40,7 +40,7 @@ import com.chrisali.javaflightsim.swing.instrumentpanel.InstrumentPanel;
  * @author Christopher Ali
  *
  */
-public class InstrumentPanelTest {
+public class TestInstrumentPanel {
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {

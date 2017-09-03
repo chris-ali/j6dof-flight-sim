@@ -19,20 +19,21 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.tests;
 
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
-import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
-import com.chrisali.javaflightsim.simulation.setup.Trimming;
-
-public class TrimmingTest {
-	public static void main(String[] args) {
-		new TrimmingTest("Navion");
-		new TrimmingTest("TwinNavion");
+import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
+/**
+ * This class tests the parsing methods defined in the Aircraft class. It helps ensure that the data needed to define an aircraft is being
+ * parsed correctly, and allows for debugging of file integrity checking methods. It runs the default constructor first, followed by the 
+ * constructor using file parsing. The Aircraft class toString method outputs the stability derivatives, mass properties, and wing geometry
+ * of each aircraft
+ */
+public class TestAircraft {
+	public TestAircraft(String aircraftName) {
+		System.out.println("Default Aircraft:\n");
+		System.out.println(new Aircraft().toString());
+		
+		System.out.println(aircraftName + " File Parsing:\n");
+		System.out.println(new Aircraft(aircraftName).toString());
 	}
 	
-	private TrimmingTest(String aircraftName) {
-		SimulationConfiguration configuration = new SimulationConfiguration();
-		configuration.setAircraftBuilder(new AircraftBuilder(aircraftName));
-		
-		Trimming.trimSim(configuration, true);
-	}
+	public static void main(String[] args) {new TestAircraft("Navion");}
 }

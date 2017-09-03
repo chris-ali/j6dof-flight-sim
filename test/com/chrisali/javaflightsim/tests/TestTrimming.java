@@ -19,22 +19,20 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.tests;
 
-import javax.swing.SwingUtilities;
-
-import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
-import com.chrisali.javaflightsim.swing.GuiFrame;
+import com.chrisali.javaflightsim.simulation.setup.Trimming;
 
-public class GUITest {
-
+public class TestTrimming {
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {runApp();}
-		});
+		new TestTrimming("Navion");
+		new TestTrimming("TwinNavion");
 	}
-
-	private static void runApp() {
-		new GuiFrame(new LWJGLSwingSimulationController(new SimulationConfiguration()));
+	
+	private TestTrimming(String aircraftName) {
+		SimulationConfiguration configuration = new SimulationConfiguration();
+		configuration.setAircraftBuilder(new AircraftBuilder(aircraftName));
+		
+		Trimming.trimSim(configuration, true);
 	}
 }
