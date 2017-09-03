@@ -6,8 +6,6 @@ package com.chrisali.javaflightsim.simulation.setup;
 import java.io.File;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,6 +44,7 @@ public class SimulationConfiguration {
 	// Aircraft
 	@JsonIgnore
 	private AircraftBuilder ab;
+	
 	@JsonIgnore
 	private EnumMap<MassProperties, Double> massProperties;
 
@@ -82,10 +81,12 @@ public class SimulationConfiguration {
 	public EnumMap<AudioOptions, Float> getAudioOptions() {return audioOptions;}
 	
 	/**
-	 * Updates simulation and display options and then saves the configurations to text files using either
-	 * <p>{@link FileUtilities#writeConfigFile(String, String, Set, String)}</p>
-	 * <br/>or
-	 * <p>{@link FileUtilities#writeConfigFile(String, String, Map, String)}</p>
+	 * Saves all configuration fields in this instance to a JSON file via {@link FileUtilities#writeConfigFile(String, SimulationConfiguration)}
+	 */
+	public void save() { FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), this); }
+	
+	/**
+	 * Updates simulation and display options and then saves the configurations to json files
 	 * 
 	 * @param newOptions
 	 * @param newDisplayOptions
@@ -100,9 +101,7 @@ public class SimulationConfiguration {
 			displayOptions = newDisplayOptions;
 			audioOptions = newAudioOptions;
 			
-			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.SIMULATION_SETUP.toString(), simulationOptions, ab.getAircraft().getName());
-			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.DISPLAY_SETUP.toString(), newDisplayOptions);
-			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.AUDIO_SETUP.toString(), newAudioOptions);			
+			save();
 		} catch (Exception e) {
 			logger.error("Error updating simulation options!", e);
 		}
@@ -146,7 +145,7 @@ public class SimulationConfiguration {
 		try {	
 			integratorConfig.put(IntegratorConfig.DT, (1/((double)stepSize)));
 			
-			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INTEGRATOR_CONFIG.toString(), integratorConfig);
+			save();
 		} catch (Exception e) {
 			logger.error("Error updating integrator configuration!", e);
 		}
@@ -158,15 +157,31 @@ public class SimulationConfiguration {
 	public EnumMap<FlightControlType, Double> getInitialControls() {return initialControls;}
 
 	/**
-	 * Updates the InitialControls config file
+	 * Updates initialControls EnumMap with provided value and saves sonfiguration to a json file
+	 * 
+	 * @param initialControls
 	 */
-	public void setInitialControls() {
-		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INITIAL_CONTROLS.toString(), initialControls);
-	}	
+	public void setInitialControls(EnumMap<FlightControlType, Double> initialControls) {
+		this.initialControls = initialControls;
+		
+		save();
+	}
+	
 	/**
 	 * @return initialConditions EnumMap
 	 */
 	public EnumMap<InitialConditions, Double> getInitialConditions() {return initialConditions;}
+	
+	/**
+	 * Updates initialConditions EnumMap with provided value and saves sonfiguration to a json file
+	 * 
+	 * @param initialConditions
+	 */
+	public void setInitialConditions(EnumMap<InitialConditions, Double> initialConditions) {
+		this.initialConditions = initialConditions;
+		
+		save();
+	}
 	
 	/**
 	 * Updates initialConditions file with the following arguments, converted to radians and ft/sec:
@@ -190,7 +205,7 @@ public class SimulationConfiguration {
 			initialConditions.put(InitialConditions.INITN, (Math.sin(Math.toRadians(coordinates[0])) * 20903520));
 			initialConditions.put(InitialConditions.INITE, (Math.sin(Math.toRadians(coordinates[1])) * 20903520));
 			
-			FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.INITIAL_CONDITIONS.toString(), initialConditions);
+			save();
 		} catch (Exception e) {
 			logger.error("Error updating simulation initial conditions!", e);
 		}
@@ -218,7 +233,8 @@ public class SimulationConfiguration {
 	public void setAircraftBuilder(String aircraftName) {
 		selectedAircraft = aircraftName;
 		ab = new AircraftBuilder(aircraftName);
-		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), SimFiles.SIMULATION_SETUP.toString(), simulationOptions, aircraftName);
+		
+		save();
 	}
 
 	public String getSelectedAircraft() { return selectedAircraft; }

@@ -1,0 +1,56 @@
+{
+  "displayOptions" : {
+    "DISPLAY_WIDTH" : 1440,
+    "DISPLAY_HEIGHT" : 900,
+    "ANTI_ALIASING" : 0
+  },
+  "audioOptions" : {
+    "ENGINE_VOLUME" : 0.7,
+    "SYSTEMS_VOLUME" : 0.19,
+    "ENVIRONMENT_VOLUME" : 0.54
+  },
+  "simulationOptions" : [ "UNLIMITED_FLIGHT", "USE_JOYSTICK" ],
+  "initialConditions" : {
+    "INITU" : 210.0,
+    "INITV" : 0.0,
+    "INITW" : 2.944089344258892,
+    "INITN" : 0.0,
+    "INITE" : 0.0,
+    "INITD" : 5000.0,
+    "INITPHI" : 0.0,
+    "INITTHETA" : 0.0140185546875,
+    "INITPSI" : 6.125704248772137,
+    "INITP" : 0.0,
+    "INITQ" : 0.0,
+    "INITR" : 0.0,
+    "INITLAT" : 0.0,
+    "INITLON" : 0.0
+  },
+  "integratorConfig" : {
+    "STARTTIME" : 0.0,
+    "DT" : 0.03333333333333333,
+    "ENDTIME" : 100.0
+  },
+  "initialControls" : {
+    "ELEVATOR" : 0.011295045664612676,
+    "AILERON" : 0.0,
+    "RUDDER" : 0.0,
+    "THROTTLE_1" : 0.466796875,
+    "THROTTLE_2" : 0.466796875,
+    "THROTTLE_3" : 0.466796875,
+    "THROTTLE_4" : 0.466796875,
+    "PROPELLER_1" : 1.0,
+    "PROPELLER_2" : 1.0,
+    "PROPELLER_3" : 1.0,
+    "PROPELLER_4" : 1.0,
+    "MIXTURE_1" : 1.0,
+    "MIXTURE_2" : 1.0,
+    "MIXTURE_3" : 1.0,
+    "MIXTURE_4" : 1.0,
+    "FLAPS" : 0.0,
+    "GEAR" : 0.0,
+    "BRAKE_L" : 0.0,
+    "BRAKE_R" : 0.0
+  },
+  "selectedAircraft" : "TwinNavion"
+}

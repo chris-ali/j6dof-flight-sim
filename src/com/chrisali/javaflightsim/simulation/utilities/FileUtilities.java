@@ -31,7 +31,6 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -255,7 +254,7 @@ public class FileUtilities {
 	}
 	
 	public static SimulationConfiguration readSimulationConfiguration() {
-		String filename = SimulationConfiguration.class.getName();
+		String filename = SimulationConfiguration.class.getSimpleName();
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append(FILE_ROOT).append(SimDirectories.SIM_CONFIG.toString()).append(File.separator).append(filename).append(JSON_EXT);
@@ -325,35 +324,6 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Creates a config file called "fileName"{@value #CONFIG_EXT}  located in the folder specified by filePath 
-	 * using the opstionsSet EnumSet of selected options and the selected aircraft's name,
-	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
-	 *  
-	 * @param optionsSet
-	 * @param selectedAircraft
-	 * @param enumMap
-	 */
-	public static void writeConfigFile(String filePath, String fileName, Set<Options> optionsSet, String selectedAircraft) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(FILE_ROOT).append(filePath).append(File.separator).append(fileName).append(CONFIG_EXT);
-		
-		logger.debug("Saving configuration file to: " + sb.toString());
-		
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sb.toString()))) {
-			for (Options option : Options.values()) {
-				bw.write(option.name() + " = " + optionsSet.contains(option));
-				bw.newLine();
-			}
-			bw.write("selectedAircraft = " + selectedAircraft);
-			bw.newLine();
-		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!", e);}
-		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!", e);}
-		catch (NullPointerException e) {logger.error("Bad reference to: " + fileName + CONFIG_EXT + "!", e);}
-		
-		logger.debug(fileName + CONFIG_EXT + " saved successfully!");
-	}
-	
-	/**
 	 * Serializes a configuration file called {@link SimulationConfiguration}{@value #JSON_EXT} located 
 	 * in the folder specified by filePath
 	 * 
@@ -361,7 +331,7 @@ public class FileUtilities {
 	 * @param configuration
 	 */
 	public static void writeConfigFile(String filePath, SimulationConfiguration configuration) {
-		String filename = configuration.getClass().getName();
+		String filename = configuration.getClass().getSimpleName();
 		StringBuilder sb = new StringBuilder();
 		sb.append(FILE_ROOT).append(filePath).append(File.separator).append(filename).append(JSON_EXT);
 		
