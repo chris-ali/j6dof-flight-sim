@@ -35,11 +35,13 @@ import com.chrisali.javaflightsim.simulation.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 
 /**
  * Wrapper class to build a complete aircraft with a "body" ({@link Aircraft}) and a LinkedHashSet of {@link Engine}(s). This object is used by {@link Integrate6DOFEquations}
  * in the simulation of the aircraft. 
  */
+@JsonIgnoreType
 public class AircraftBuilder {
 	
 	private static final Logger logger = LogManager.getLogger(AircraftBuilder.class);

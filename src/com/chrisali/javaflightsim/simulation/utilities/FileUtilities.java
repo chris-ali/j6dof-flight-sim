@@ -43,6 +43,8 @@ import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 /**
  * Contains various static methods for reading and parsing text configuration files
@@ -52,6 +54,8 @@ public class FileUtilities {
 	private static final Logger logger = LogManager.getLogger(FileUtilities.class);
 
 	public static final String CONFIG_EXT = ".txt";
+	
+	public static final String JSON_EXT = ".json";
 
 	public static final String FILE_ROOT = ""; //"." + File.separator;
 	
@@ -60,7 +64,7 @@ public class FileUtilities {
 	//===================================================================================================
 	
 	/**
-	 * Splits a config file called "fileContents".{@link FileUtilities#CONFIG_EXT} located in the folder 
+	 * Splits a config file called "fileContents"{@value #CONFIG_EXT} located in the folder 
 	 * specified by filePath whose general syntax on each line is:
 	 *  <br><code>*parameter name* = *double value*</code></br>
 	 *  into an ArrayList of string arrays resembling:
@@ -82,16 +86,16 @@ public class FileUtilities {
 		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
 			while ((readLine = br.readLine()) != null)
 				readAndSplit.add(readLine.split(" = "));
-		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileContents + CONFIG_EXT + "!");}
-		catch (IOException e) {logger.error("Could not read: " + fileContents + CONFIG_EXT + "!");}
-		catch (NullPointerException e) {logger.error("Bad reference when reading: " + fileContents + CONFIG_EXT + "!");} 
-		catch (NumberFormatException e) {logger.error("Error parsing data from " + fileContents + CONFIG_EXT + "!");}
+		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileContents + CONFIG_EXT + "!", e);}
+		catch (IOException e) {logger.error("Could not read: " + fileContents + CONFIG_EXT + "!", e);}
+		catch (NullPointerException e) {logger.error("Bad reference when reading: " + fileContents + CONFIG_EXT + "!", e);} 
+		catch (NumberFormatException e) {logger.error("Error parsing data from " + fileContents + CONFIG_EXT + "!", e);}
 		
 		return readAndSplit;
 	}
 	
 	/**
-	 * Splits a config file called "fileName".{@link FileUtilities#CONFIG_EXT} located in the folder 
+	 * Splits a config file called "fileName"{@value #CONFIG_EXT} located in the folder 
 	 * specified by filePath whose general syntax on each line is:
 	 *  <br><code>*parameter name* = *double value*</code></br>
 	 *  into an ArrayList of string arrays resembling:
@@ -112,16 +116,16 @@ public class FileUtilities {
 		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
 			while ((readLine = br.readLine()) != null)
 				readAndSplit.add(readLine.split(" = "));
-		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!");}
-		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!");}
-		catch (NullPointerException e) {logger.error("Bad reference when reading: " + fileName + CONFIG_EXT + "!");}
-		catch (NumberFormatException e) {logger.error("Error parsing data from " + fileName + CONFIG_EXT + "!");}
+		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!", e);}
+		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!", e);}
+		catch (NullPointerException e) {logger.error("Bad reference when reading: " + fileName + CONFIG_EXT + "!", e);}
+		catch (NumberFormatException e) {logger.error("Error parsing data from " + fileName + CONFIG_EXT + "!", e);}
 		
 		return readAndSplit;
 	}
 	
 	/**
-	 * Parses a config file called SimulationSetup.{@link FileUtilities#CONFIG_EXT} located in SimConfig\
+	 * Parses a config file called SimulationSetup{@value #CONFIG_EXT} located in SimConfig\
 	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
 	 * and returns an EnumSet containing enums from Options for each line in the
 	 * file where *value* contains true  
@@ -142,7 +146,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Parses a config file called SimulationSetup.{@link FileUtilities#CONFIG_EXT} located in SimConfig\
+	 * Parses a config file called SimulationSetup{@value #CONFIG_EXT} located in SimConfig\
 	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
 	 * and returns a String of the right hand side value contained on the line
 	 * <br><code>"selectedAircraft = *value*\n"</code></br>
@@ -163,7 +167,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Parses the DisplaySetup.{@link FileUtilities#CONFIG_EXT} file in SimConfig\ and returns an EnumMap with {@link DisplayOptions}
+	 * Parses the DisplaySetup{@value #CONFIG_EXT} file in SimConfig\ and returns an EnumMap with {@link DisplayOptions}
 	 * as the keys
 	 * 
 	 * @return displayOptions EnumMap
@@ -192,7 +196,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Parses the AudioSetup.{@link FileUtilities#CONFIG_EXT} file in SimConfig\ and returns an EnumMap with {@link DisplayOptions}
+	 * Parses the AudioSetup{@value #CONFIG_EXT} file in SimConfig\ and returns an EnumMap with {@link DisplayOptions}
 	 * as the keys
 	 * 
 	 * @return audioOptions EnumMap
@@ -221,7 +225,7 @@ public class FileUtilities {
 	}
 	
 	/**
-	 * Parses the MassProperties.{@link FileUtilities#CONFIG_EXT} file in Aircraft\aircraftName and returns an EnumMap with {@link MassProperties}
+	 * Parses the MassProperties{@value #CONFIG_EXT} file in Aircraft\aircraftName and returns an EnumMap with {@link MassProperties}
 	 * as the keys
 	 * 
 	 * @param aircraftName
@@ -251,20 +255,24 @@ public class FileUtilities {
 	}
 	
 	public static SimulationConfiguration readSimulationConfiguration() {
-		String fileName = "SimulationConfiguration";
+		String filename = SimulationConfiguration.class.getName();
+		
 		StringBuilder sb = new StringBuilder();
-		sb.append(FILE_ROOT).append(SimDirectories.SIM_CONFIG.toString()).append(File.separator).append(fileName).append(".json");
+		sb.append(FILE_ROOT).append(SimDirectories.SIM_CONFIG.toString()).append(File.separator).append(filename).append(JSON_EXT);
 				
 		logger.debug("Reading file: " + sb.toString() + "...");
 		
 		SimulationConfiguration configuration = new SimulationConfiguration();
 		ObjectMapper mapper = new ObjectMapper();
+		
 		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
 			configuration = mapper.readValue(br, SimulationConfiguration.class);
-		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!");}
-		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!");}
-		catch (NullPointerException e) {logger.error("Bad reference when reading: " + fileName + CONFIG_EXT + "!");}
-		catch (NumberFormatException e) {logger.error("Error parsing data from " + fileName + CONFIG_EXT + "!");}
+			
+		} catch (FileNotFoundException e) {logger.error("Could not find: " + filename + JSON_EXT + "!", e);}
+		catch (MismatchedInputException e) {logger.warn("JSON mismatched while reading: " + filename + JSON_EXT + "! Attempting to continue...");}
+		catch (IOException e) {logger.error("Could not read: " + filename + JSON_EXT + "!", e);}
+		catch (NullPointerException e) {logger.error("Bad reference when reading: " + filename + JSON_EXT + "!", e);}
+		catch (NumberFormatException e) {logger.error("Error parsing data from " + filename + JSON_EXT + "!", e);}
 		
 		return configuration;
 	}
@@ -289,7 +297,7 @@ public class FileUtilities {
 	//===================================================================================================
 	
 	/**
-	 * Creates a config file called "fileName".{@link FileUtilities#CONFIG_EXT} located in the folder 
+	 * Creates a config file called "fileName"{@value #CONFIG_EXT} located in the folder 
 	 * specified by filePath using an EnumMap where each line is written as:
 	 *  <br><code>"*parameter name* = *double value*\n"</code></br>
 	 *  
@@ -308,16 +316,16 @@ public class FileUtilities {
 				bw.write(entry.getKey().toString() + " = " + entry.getValue());
 				bw.newLine();
 			}
-		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!");}
-		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!");}
-		catch (NullPointerException e) {logger.error("Bad reference when reading: " + fileName + CONFIG_EXT + "!");}
-		catch (NumberFormatException e) {logger.error("Error parsing data from " + fileName + CONFIG_EXT + "!");}
+		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!", e);}
+		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!", e);}
+		catch (NullPointerException e) {logger.error("Bad reference when reading: " + fileName + CONFIG_EXT + "!", e);}
+		catch (NumberFormatException e) {logger.error("Error parsing data from " + fileName + CONFIG_EXT + "!", e);}
 		
 		logger.debug(fileName + CONFIG_EXT + " saved successfully!");
 	}
 	
 	/**
-	 * Creates a config file called "fileName".{@link FileUtilities#CONFIG_EXT} located in the folder specified by filePath 
+	 * Creates a config file called "fileName"{@value #CONFIG_EXT}  located in the folder specified by filePath 
 	 * using the opstionsSet EnumSet of selected options and the selected aircraft's name,
 	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
 	 *  
@@ -338,36 +346,38 @@ public class FileUtilities {
 			}
 			bw.write("selectedAircraft = " + selectedAircraft);
 			bw.newLine();
-		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!");}
-		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!");}
-		catch (NullPointerException e) {logger.error("Bad reference to: " + fileName + CONFIG_EXT + "!");}
+		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!", e);}
+		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!", e);}
+		catch (NullPointerException e) {logger.error("Bad reference to: " + fileName + CONFIG_EXT + "!", e);}
 		
 		logger.debug(fileName + CONFIG_EXT + " saved successfully!");
 	}
 	
 	/**
-	 * Creates a configuration file called SimulationConfiguration.json
+	 * Serializes a configuration file called {@link SimulationConfiguration}{@value #JSON_EXT} located 
+	 * in the folder specified by filePath
 	 * 
 	 * @param filePath
-	 * @param fileName
 	 * @param configuration
 	 */
 	public static void writeConfigFile(String filePath, SimulationConfiguration configuration) {
-		String fileName = "SimulationConfigruation";
+		String filename = configuration.getClass().getName();
 		StringBuilder sb = new StringBuilder();
-		sb.append(FILE_ROOT).append(filePath).append(File.separator).append(fileName).append(".json");
+		sb.append(FILE_ROOT).append(filePath).append(File.separator).append(filename).append(JSON_EXT);
 		
 		logger.debug("Saving configuration file to: " + sb.toString());
 		
-		ObjectMapper mapper = new ObjectMapper();		
+		ObjectMapper mapper = new ObjectMapper();	
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sb.toString()))) {
 			mapper.writeValue(bw, configuration);
 			
-		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!");}
-		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!");}
-		catch (NullPointerException e) {logger.error("Bad reference to: " + fileName + CONFIG_EXT + "!");}
+		} catch (FileNotFoundException e) {logger.error("Could not find: " + filename + JSON_EXT + "!", e);}
+		catch (IOException e) {logger.error("Could not read: " + filename + JSON_EXT + "!", e);}
+		catch (NullPointerException e) {logger.error("Bad reference to: " + filename + JSON_EXT + "!", e);}
 		
-		logger.debug(fileName + CONFIG_EXT + " saved successfully!");
+		logger.debug(filename + JSON_EXT + " saved successfully!");
 	}
 			
 	/**

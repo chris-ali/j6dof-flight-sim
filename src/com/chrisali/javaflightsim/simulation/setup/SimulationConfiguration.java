@@ -40,9 +40,10 @@ public class SimulationConfiguration {
 	private EnumMap<InitialConditions, Double> initialConditions;
 	private EnumMap<IntegratorConfig, Double> integratorConfig;
 	private EnumMap<FlightControlType, Double> initialControls; 
+	private String selectedAircraft;
+	
 	
 	// Aircraft
-	private String selectedAircraft;
 	@JsonIgnore
 	private AircraftBuilder ab;
 	@JsonIgnore

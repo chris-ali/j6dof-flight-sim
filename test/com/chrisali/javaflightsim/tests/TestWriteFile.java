@@ -17,7 +17,7 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.simulation.utilities;
+package com.chrisali.javaflightsim.tests;
 
 import java.io.File;
 import java.util.Map;
@@ -26,7 +26,7 @@ import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
-public class WriteFileTest {
+public class TestWriteFile {
 	
 	private static final String FILE_PATH = ".\\SimConfig\\";
 	private static final String OLD_CONFIG_FILE_NAME = "IntegratorConfig";
