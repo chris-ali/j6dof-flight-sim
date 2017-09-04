@@ -10,7 +10,6 @@ import java.util.EnumSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -40,10 +39,7 @@ public class SimulationConfiguration {
 	private EnumMap<FlightControlType, Double> initialControls; 
 	private String selectedAircraft;
 		
-	// Aircraft
-	@JsonIgnore
-	private AircraftBuilder ab;
-	
+	// Aircraft	
 	@JsonIgnore
 	private EnumMap<MassProperties, Double> massProperties;
 
@@ -51,10 +47,7 @@ public class SimulationConfiguration {
 	 * Initializes initial settings, configurations and conditions
 	 * to be edited through the menu options in the view
 	 */
-	public SimulationConfiguration() {		
-		selectedAircraft = FileUtilities.parseSimulationSetupForAircraft();
-		ab = new AircraftBuilder(selectedAircraft);
-	}
+	public SimulationConfiguration() { }
 	
 	/**
 	 * @return simulationOptions EnumSet
@@ -81,7 +74,7 @@ public class SimulationConfiguration {
 	}
 	
 	/**
-	 * Updates simulation and display options and then saves the configurations to json files
+	 * Updates simulation and display options
 	 * 
 	 * @param newOptions
 	 * @param newDisplayOptions
@@ -95,8 +88,6 @@ public class SimulationConfiguration {
 			simulationOptions = EnumSet.copyOf(newOptions);
 			displayOptions = newDisplayOptions;
 			audioOptions = newAudioOptions;
-			
-			save();
 		} catch (Exception e) {
 			logger.error("Error updating simulation options!", e);
 		}
@@ -124,21 +115,10 @@ public class SimulationConfiguration {
 		}
 	}
 	
-	/**
-	 * @return integratorConfig EnumMap
-	 */
-	public EnumMap<IntegratorConfig, Double> getIntegratorConfig() {return integratorConfig;}
+	public EnumMap<IntegratorConfig, Double> getIntegratorConfig() { return integratorConfig; }
 	
-	/**
-	 * Updates initialControls EnumMap with provided value and saves sonfiguration to a json file
-	 * 
-	 * @param integratorConfig
-	 */
-	public void setIntegratorConfig(EnumMap<IntegratorConfig, Double> integratorConfig) {
-		this.integratorConfig = integratorConfig;
-		
-		save();
-	}
+
+	public void setIntegratorConfig(EnumMap<IntegratorConfig, Double> integratorConfig) { this.integratorConfig = integratorConfig;	}
 
 	/**
 	 * Updates the IntegratorConfig file with stepSize inverted and converted to a double  
@@ -150,44 +130,21 @@ public class SimulationConfiguration {
 		
 		try {	
 			integratorConfig.put(IntegratorConfig.DT, (1/((double)stepSize)));
-			
-			save();
 		} catch (Exception e) {
 			logger.error("Error updating integrator configuration!", e);
 		}
 	}
 
-	/**
-	 * @return initialControls EnumMap
-	 */
-	public EnumMap<FlightControlType, Double> getInitialControls() {return initialControls;}
+	public EnumMap<FlightControlType, Double> getInitialControls() { return initialControls; }
 
-	/**
-	 * Updates initialControls EnumMap with provided value and saves sonfiguration to a json file
-	 * 
-	 * @param initialControls
-	 */
-	public void setInitialControls(EnumMap<FlightControlType, Double> initialControls) {
-		this.initialControls = initialControls;
-		
-		save();
-	}
+
+	public void setInitialControls(EnumMap<FlightControlType, Double> initialControls) { this.initialControls = initialControls; }
 	
-	/**
-	 * @return initialConditions EnumMap
-	 */
-	public EnumMap<InitialConditions, Double> getInitialConditions() {return initialConditions;}
+
+	public EnumMap<InitialConditions, Double> getInitialConditions() { return initialConditions; }
 	
-	/**
-	 * Updates initialConditions EnumMap with provided value and saves sonfiguration to a json file
-	 * 
-	 * @param initialConditions
-	 */
-	public void setInitialConditions(EnumMap<InitialConditions, Double> initialConditions) {
-		this.initialConditions = initialConditions;
-		
-		save();
-	}
+
+	public void setInitialConditions(EnumMap<InitialConditions, Double> initialConditions) { this.initialConditions = initialConditions; }
 	
 	/**
 	 * Updates initialConditions file with the following arguments, converted to radians and ft/sec:
@@ -210,48 +167,12 @@ public class SimulationConfiguration {
 			// Temporary method to calcuate north/east position from lat/lon position 
 			initialConditions.put(InitialConditions.INITN, (Math.sin(Math.toRadians(coordinates[0])) * 20903520));
 			initialConditions.put(InitialConditions.INITE, (Math.sin(Math.toRadians(coordinates[1])) * 20903520));
-			
-			save();
 		} catch (Exception e) {
 			logger.error("Error updating simulation initial conditions!", e);
 		}
 	}
-	
-	/**
-	 * @return {@link AircraftBuilder} object
-	 */
-	public AircraftBuilder getAircraftBuilder() {return ab;}
-	
-	/**
-	 * Allows {@link AircraftBuilder} to be changed to a different aircraft outside of being parsed in
-	 * the SimulationSetup configuration file
-	 * 
-	 * @param ab
-	 */
-	public void setAircraftBuilder(AircraftBuilder ab) {this.ab = ab;}
-		
-	/**
-	 * Calls the {@link AircraftBuilder} constructor with using the aircraftName argument and updates the SimulationSetup
-	 * configuration file with the new selected aircraft
-	 * 
-	 * @param aircraftName
-	 */
-	public void setAircraftBuilder(String aircraftName) {
-		selectedAircraft = aircraftName;
-		ab = new AircraftBuilder(aircraftName);
-		
-		save();
-	}
 
 	public String getSelectedAircraft() { return selectedAircraft; }
 
-	/**
-	 * Sets the selectedAircraft field and also calls {@link SimulationConfiguration#setAircraftBuilder(String)}
-	 * 
-	 * @param selectedAircraft
-	 */
-	public void setSelectedAircraft(String selectedAircraft) {
-		this.selectedAircraft = selectedAircraft;
-		setAircraftBuilder(selectedAircraft);
-	}	
+	public void setSelectedAircraft(String selectedAircraft) { this.selectedAircraft = selectedAircraft; }	
 }

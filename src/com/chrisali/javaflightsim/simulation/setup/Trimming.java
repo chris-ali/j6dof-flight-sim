@@ -30,11 +30,13 @@ import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
 import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.simulation.aero.WingGeometry;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
+import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 /**
  * Simple rudimentary method of longitudinally trimming an aircraft by statically equating forces and moments.
@@ -75,7 +77,8 @@ public class Trimming {
 	 * @param testMode
 	 */
 	public static void trimSim(SimulationConfiguration configuration, boolean testMode) {
-		aircraft = configuration.getAircraftBuilder().getAircraft();
+		AircraftBuilder ab = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
+		aircraft = ab.getAircraft();
 		aero = new Aerodynamics(aircraft);
 		
 		initialConditions = configuration.getInitialConditions();
@@ -140,8 +143,8 @@ public class Trimming {
 			
 			// Calculate trim elevator, limiting if necessary
 			double CM_alpha = aero.calculateInterpStabDer(windParameters, initialControls, StabilityDerivatives.CM_ALPHA);
-			double CM_d_elev = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_ELEV);
-			double CM_0 = (double) aircraft.getStabilityDerivative(StabilityDerivatives.CM_0);
+			double CM_d_elev = aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_ELEV).getValue();
+			double CM_0 = aircraft.getStabilityDerivative(StabilityDerivatives.CM_0).getValue();
 			
 			elevTrim = (CM_0 + (CM_alpha * alphaTrim)) / CM_d_elev;
 			elevTrim = elevTrim > FlightControlType.ELEVATOR.getMaximum() ? FlightControlType.ELEVATOR.getMaximum() : 
@@ -155,7 +158,7 @@ public class Trimming {
 
 		//==================================================== Throttle ============================================================
 		
-		Set<Engine> engines = configuration.getAircraftBuilder().getEngineList();
+		Set<Engine> engines = ab.getEngineList();
 		
 		drag = (drag * Math.cos(alphaTrim)) - (lift * Math.sin(alphaTrim)) + (weight * Math.sin(thetaTrim));
 		
@@ -213,6 +216,7 @@ public class Trimming {
 			logger.debug("Updating initial conditions and initial flight controls...");
 			configuration.setInitialConditions(initialConditions);
 			configuration.setInitialControls(initialControls);
+			configuration.save();
 		} else {
 			logger.debug(Trimming.outputTrimValues());
 		}

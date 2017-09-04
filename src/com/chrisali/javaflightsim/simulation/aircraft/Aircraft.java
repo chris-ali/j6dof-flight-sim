@@ -28,7 +28,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.aero.AccelAndMoments;
-import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
+import com.chrisali.javaflightsim.simulation.aero.LookupTable;
+import com.chrisali.javaflightsim.simulation.aero.LookupTableBuilder;
 import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.simulation.aero.WingGeometry;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
@@ -53,10 +54,10 @@ public class Aircraft {
 	
 	private String name;
 	
-	private Map<StabilityDerivatives, Object> stabDerivs;
-	private Map<WingGeometry, Double> 		  wingGeometry;
-	private Map<MassProperties, Double> 	  massProps;
-	private Map<GroundReaction, Double>		  groundReaction;
+	private Map<StabilityDerivatives, LookupTable> stabDerivs;
+	private Map<WingGeometry, Double> 		  	   wingGeometry;
+	private Map<MassProperties, Double> 	  	   massProps;
+	private Map<GroundReaction, Double>		  	   groundReaction;
 	
 	/**
 	 *  Default constructor that gives default values to stability derivatives, wing geometry, mass properties and ground reaction.
@@ -71,55 +72,55 @@ public class Aircraft {
 		// Wing geometry values (Double)
 		// Mass properties		(Double)
 		// Ground reaction      (Double)
-		this.stabDerivs			= new EnumMap<StabilityDerivatives, Object>(StabilityDerivatives.class);
+		this.stabDerivs			= new EnumMap<StabilityDerivatives, LookupTable>(StabilityDerivatives.class);
 		this.wingGeometry		= new EnumMap<WingGeometry, Double>(WingGeometry.class);
 		this.massProps			= new EnumMap<MassProperties, Double>(MassProperties.class);
 		this.groundReaction     = new EnumMap<GroundReaction, Double>(GroundReaction.class);
-		
+		/*
 		// =======================================
 		// Default stability derivatives (Navion)
 		// =======================================
 		
 		// Lift
-		stabDerivs.put(StabilityDerivatives.CL_ALPHA,     new Double(4.44));
-		stabDerivs.put(StabilityDerivatives.CL_0, 	      new Double(0.41));
-		stabDerivs.put(StabilityDerivatives.CL_Q,         new Double(3.80));
-		stabDerivs.put(StabilityDerivatives.CL_ALPHA_DOT, new Double(0.0));
-		stabDerivs.put(StabilityDerivatives.CL_D_ELEV,    new Double(0.355));
-		stabDerivs.put(StabilityDerivatives.CL_D_FLAP,    new Double(0.355));
+		stabDerivs.put(StabilityDerivatives.CL_ALPHA,     new LookupTable(4.44));
+		stabDerivs.put(StabilityDerivatives.CL_0, 	      new LookupTable(0.41));
+		stabDerivs.put(StabilityDerivatives.CL_Q,         new LookupTable(3.80));
+		stabDerivs.put(StabilityDerivatives.CL_ALPHA_DOT, new LookupTable(0.0));
+		stabDerivs.put(StabilityDerivatives.CL_D_ELEV,    new LookupTable(0.355));
+		stabDerivs.put(StabilityDerivatives.CL_D_FLAP,    new LookupTable(0.355));
 		
 		// Side Force
-		stabDerivs.put(StabilityDerivatives.CY_BETA,      new Double(-0.564));
-		stabDerivs.put(StabilityDerivatives.CY_D_RUD,     new Double(0.157));
+		stabDerivs.put(StabilityDerivatives.CY_BETA,      new LookupTable(-0.564));
+		stabDerivs.put(StabilityDerivatives.CY_D_RUD,     new LookupTable(0.157));
 		
 		// Drag
-		stabDerivs.put(StabilityDerivatives.CD_ALPHA,     new Double(0.33));
-		stabDerivs.put(StabilityDerivatives.CD_0,         new Double(0.025));
-		stabDerivs.put(StabilityDerivatives.CD_D_ELEV,    new Double(0.001));
-		stabDerivs.put(StabilityDerivatives.CD_D_FLAP,    new Double(0.02));
-		stabDerivs.put(StabilityDerivatives.CD_D_GEAR,    new Double(0.09));
+		stabDerivs.put(StabilityDerivatives.CD_ALPHA,     new LookupTable(0.33));
+		stabDerivs.put(StabilityDerivatives.CD_0,         new LookupTable(0.025));
+		stabDerivs.put(StabilityDerivatives.CD_D_ELEV,    new LookupTable(0.001));
+		stabDerivs.put(StabilityDerivatives.CD_D_FLAP,    new LookupTable(0.02));
+		stabDerivs.put(StabilityDerivatives.CD_D_GEAR,    new LookupTable(0.09));
 		
 		// Roll Moment
-		stabDerivs.put(StabilityDerivatives.CROLL_BETA,   new Double(-0.074));
-		stabDerivs.put(StabilityDerivatives.CROLL_P,      new Double(-0.410));
-		stabDerivs.put(StabilityDerivatives.CROLL_R,      new Double(0.107));
-		stabDerivs.put(StabilityDerivatives.CROLL_D_AIL,  new Double(-0.134));
-		stabDerivs.put(StabilityDerivatives.CROLL_D_RUD,  new Double(-0.107));
+		stabDerivs.put(StabilityDerivatives.CROLL_BETA,   new LookupTable(-0.074));
+		stabDerivs.put(StabilityDerivatives.CROLL_P,      new LookupTable(-0.410));
+		stabDerivs.put(StabilityDerivatives.CROLL_R,      new LookupTable(0.107));
+		stabDerivs.put(StabilityDerivatives.CROLL_D_AIL,  new LookupTable(-0.134));
+		stabDerivs.put(StabilityDerivatives.CROLL_D_RUD,  new LookupTable(-0.107));
 		
 		// Pitch Moment
-		stabDerivs.put(StabilityDerivatives.CM_ALPHA,     new Double(-0.683));
-		stabDerivs.put(StabilityDerivatives.CM_0,         new Double(0.02));
-		stabDerivs.put(StabilityDerivatives.CM_Q,         new Double(-9.96));
-		stabDerivs.put(StabilityDerivatives.CM_ALPHA_DOT, new Double(-4.36));
-		stabDerivs.put(StabilityDerivatives.CM_D_ELEV,    new Double(-0.923));
-		stabDerivs.put(StabilityDerivatives.CM_D_FLAP,    new Double(-0.050));
+		stabDerivs.put(StabilityDerivatives.CM_ALPHA,     new LookupTable(-0.683));
+		stabDerivs.put(StabilityDerivatives.CM_0,         new LookupTable(0.02));
+		stabDerivs.put(StabilityDerivatives.CM_Q,         new LookupTable(-9.96));
+		stabDerivs.put(StabilityDerivatives.CM_ALPHA_DOT, new LookupTable(-4.36));
+		stabDerivs.put(StabilityDerivatives.CM_D_ELEV,    new LookupTable(-0.923));
+		stabDerivs.put(StabilityDerivatives.CM_D_FLAP,    new LookupTable(-0.050));
 		
 		// Yaw Moment
-		stabDerivs.put(StabilityDerivatives.CN_BETA,      new Double(0.071));
-		stabDerivs.put(StabilityDerivatives.CN_P,      	  new Double(-0.0575));
-		stabDerivs.put(StabilityDerivatives.CN_R,         new Double(-0.125));
-		stabDerivs.put(StabilityDerivatives.CN_D_AIL,     new Double(-0.0035));
-		stabDerivs.put(StabilityDerivatives.CN_D_RUD,     new Double(-0.072));
+		stabDerivs.put(StabilityDerivatives.CN_BETA,      new LookupTable(0.071));
+		stabDerivs.put(StabilityDerivatives.CN_P,      	  new LookupTable(-0.0575));
+		stabDerivs.put(StabilityDerivatives.CN_R,         new LookupTable(-0.125));
+		stabDerivs.put(StabilityDerivatives.CN_D_AIL,     new LookupTable(-0.0035));
+		stabDerivs.put(StabilityDerivatives.CN_D_RUD,     new LookupTable(-0.072));
 		
 		// =======================================
 		// Default wing geometry (Navion)
@@ -191,6 +192,7 @@ public class Aircraft {
 		
 		// Braking Force [lbf]
 		groundReaction.put(GroundReaction.BRAKING_FORCE, 80000.0);
+		*/
 	}
 	
 	/**
@@ -205,7 +207,7 @@ public class Aircraft {
 	 * These files must be in a folder, whose name matches the aircraftName passed into this constructor.
 	 * 
 	 * <p>The constructor also allows for custom look up tables ({@link PiecewiseBicubicSplineInterpolatingFunction}) to be used to better define
-	 * the aerodynamics of the aircraft by using {@link AircraftBuilder#createLookupTable(String, String)}. </p>
+	 * the aerodynamics of the aircraft by using {@link AircraftBuilder#buildLookupTable(String, String)}. </p>
 	 * 
 	 * Look up tables are defined as text files, and must be located in a subfolder of the desired aircraft's folder, with the folder name "LookupTables." 
 	 * The title of a lookup table text file must match the string value of the {@link StabilityDerivatives} Enum that the user wishes to represent as a lookup table 
@@ -214,16 +216,11 @@ public class Aircraft {
 	 */
 	public Aircraft(String aircraftName) {
 		this.name = aircraftName;
-		// Creates EnumMaps and populates them with: 
-		// Stability derivative values (either Double or PiecewiseBicubicSplineInterpolatingFunction)
-		// Wing geometry values (Double)
-		// Mass properties		(Double)
-		// Ground reaction	    (Double)
-		this.stabDerivs			= new EnumMap<StabilityDerivatives, Object>(StabilityDerivatives.class);
+		this.stabDerivs			= new EnumMap<StabilityDerivatives, LookupTable>(StabilityDerivatives.class);
 		this.wingGeometry		= new EnumMap<WingGeometry, Double>(WingGeometry.class);
 		this.massProps			= new EnumMap<MassProperties, Double>(MassProperties.class);
 		this.groundReaction     = new EnumMap<GroundReaction, Double>(GroundReaction.class);
-		
+		/*
 		// Aerodynamics
 		logger.debug("Generating aerodynamics for " + aircraftName + "...");
 		ArrayList<String[]> readAeroFile = FileUtilities.readFileAndSplit(aircraftName, SimDirectories.AIRCRAFT.toString(), SimFiles.AERO.toString());
@@ -234,9 +231,9 @@ public class Aircraft {
 			for (String[] readLine : readAeroFile) {
 				if (stabDerKey.toString().equals(readLine[0]))
 					if (readLine[1].toLowerCase().equals("lookup"))
-						this.stabDerivs.put(stabDerKey, LookupTableBuilder.createLookupTable(this, readLine[0]));
+						this.stabDerivs.put(stabDerKey, LookupTableBuilder.buildLookupTable(this, readLine[0]));
 					else
-						this.stabDerivs.put(stabDerKey, Double.parseDouble(readLine[1]));
+						this.stabDerivs.put(stabDerKey, new LookupTable(Double.parseDouble(readLine[1]), stabDerKey.toString()));
 			}
 		}
 		
@@ -275,7 +272,7 @@ public class Aircraft {
 				if (gndReactKey.toString().equals(readLine[0]))
 					this.groundReaction.put(gndReactKey, Double.parseDouble(readLine[1]));
 			}
-		}
+		}*/
 	}
 	
 	/**
@@ -314,15 +311,13 @@ public class Aircraft {
 														     massProps.get(MassProperties.J_XZ)};}
 	
 	/**
-	 * Returns the value held by the {@link StabilityDerivatives} key in the stabDerivs EnumMap. {@link Aerodynamics} uses this in conjunction with 
-	 * {@link Aerodynamics#calculateInterpStabDer(double[], EnumMap, StabilityDerivatives)} to interpolate the stability derivative value if a
-	 * {@link PiecewiseBicubicSplineInterpolatingFunction} object is detected, or simply return a double value
+	 * Returns the double value held by the {@link LookupTable} value for the {@link StabilityDerivatives} key in the stabDerivs EnumMap. 
 	 * 
 	 * @param stabDer
 	 * @return value of key in stabDerivs
 	 */
 	@JsonIgnore
-	public Object getStabilityDerivative(StabilityDerivatives stabDer) {return stabDerivs.get(stabDer);}
+	public LookupTable getStabilityDerivative(StabilityDerivatives stabDer) {return stabDerivs.get(stabDer);}
 	
 	/**
 	 * Returns the value held by the {@link WingGeometry} key in the wingGeometry EnumMap
@@ -355,9 +350,9 @@ public class Aircraft {
 
 	public void setMassProps(Map<MassProperties, Double> massProps) { this.massProps = massProps; }
 		
-	//public Map<StabilityDerivatives, Object> getStabDerivs() { return stabDerivs; }
+	public Map<StabilityDerivatives, LookupTable> getStabDerivs() { return stabDerivs; }
 
-	//public void setStabDerivs(Map<StabilityDerivatives, Object> stabDerivs) { this.stabDerivs = stabDerivs;	}
+	public void setStabDerivs(Map<StabilityDerivatives, LookupTable> stabDerivs) { this.stabDerivs = stabDerivs;	}
 
 	public Map<WingGeometry, Double> getWingGeometry() { return wingGeometry; }
 

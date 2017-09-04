@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
-import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
 /**
@@ -41,7 +40,7 @@ public class FlightControlsUtilities {
 	 * Initializes trimControls EnumMap in {@link FlightControlsUtilities}; needs to be called each time controls and
 	 * initial conditions are changed so that new trim values can be read from InitialControls.txt
 	 */
-	public static void init() {trimControls = IntegrationSetup.gatherInitialControls(SimFiles.INITIAL_CONTROLS.toString());}
+	public static void init() {trimControls = FileUtilities.readSimulationConfiguration().getInitialControls(); }
 	
 	/**
 	 * Generates a control doublet in the positive and then negative direction, returning to trim value. The start

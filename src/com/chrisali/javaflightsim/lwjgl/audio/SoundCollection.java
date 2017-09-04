@@ -34,6 +34,7 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
 
 /**
@@ -47,6 +48,8 @@ public class SoundCollection {
 	
 	//Logging
 	private static final Logger logger = LogManager.getLogger(SoundCollection.class);
+	
+	private static AircraftBuilder ab;
 	
 	/**
 	 * Inner enums used to identify {@link SoundSource} objects in the soundSources
@@ -120,7 +123,7 @@ public class SoundCollection {
 		logger.debug("Initializing Sound Collections...");
 		
 		Map<AudioOptions, Float> audioOptions = configuration.getAudioOptions();
-		AircraftBuilder ab = configuration.getAircraftBuilder();
+		ab = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
 		
 		engineVolume = audioOptions.get(AudioOptions.ENGINE_VOLUME);
 		systemsVolume = audioOptions.get(AudioOptions.SYSTEMS_VOLUME);
@@ -167,8 +170,7 @@ public class SoundCollection {
 			soundSources.get(engMax).play();
 			soundSources.get(engMax).setPosition(enginePosVector);
 		}
-			
-		
+					
 		//================================ Systems =========================================
 		
 		soundSources.put(SoundEvent.FLAPS, new SoundSource(OTWDirectories.AUDIO.toString(), "flap"));
@@ -197,15 +199,13 @@ public class SoundCollection {
 	/**
 	 * Wrapper method to call setRPM(), setControl(), setWind() and setStallHorn() at once;
 	 * uses an EnumMap of {@link SoundCategory} enums to set the double values retrieved by 
-	 * {@link FlightDataListener} in {@link LWJGLWorld}. Uses {@link AircraftBuilder} from 
-	 * {@link SimulationConfiguration} argument to set RPM values
+	 * {@link FlightDataListener} in {@link LWJGLWorld}.
 	 * 
 	 * @param soundValues
-	 * @param controller
 	 */
-	public static void update(Map<SoundCategory, Double> soundValues, SimulationConfiguration configuration) {
+	public static void update(Map<SoundCategory, Double> soundValues) {
 		if (!soundValues.isEmpty()) {
-			setRPM(configuration.getAircraftBuilder(), soundValues);
+			setRPM(soundValues);
 			setControl(SoundEvent.FLAPS, soundValues);
 			setControl(SoundEvent.GEAR, soundValues);
 			setWind(soundValues.get(SoundCategory.WIND));
@@ -272,7 +272,7 @@ public class SoundCollection {
 	 * @param ab
 	 * @param RPM
 	 */
-	public static void setRPM(AircraftBuilder ab, Map<SoundCategory, Double> soundValues) {
+	public static void setRPM(Map<SoundCategory, Double> soundValues) {
 		float gainLow, pitchLow, gainMed, pitchMed, gainHi, pitchHi, gainMax, pitchMax;
 		double RPM;
 		int engineNumber;

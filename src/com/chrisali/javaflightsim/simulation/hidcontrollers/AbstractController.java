@@ -29,10 +29,9 @@ import org.apache.logging.log4j.Logger;
 import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.FlightControlsUtilities;
-import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
 
 import net.java.games.input.Controller;
 
@@ -48,7 +47,7 @@ public abstract class AbstractController {
 	protected ArrayList<Controller> controllerList;
 
 	// Gets the frame time DT from IntegratorConfig.txt
-	protected double dt = IntegrationSetup.gatherIntegratorConfig(SimFiles.INTEGRATOR_CONFIG.toString()).get(IntegratorConfig.DT);
+	protected double dt = FileUtilities.readSimulationConfiguration().getIntegratorConfig().get(IntegratorConfig.DT);
 	
 	// Add these trim values to getControlDeflection method call to emulate trim deflections
 	protected static double trimElevator = 0.0;

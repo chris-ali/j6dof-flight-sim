@@ -35,13 +35,11 @@ import com.chrisali.javaflightsim.simulation.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
-import com.fasterxml.jackson.annotation.JsonIgnoreType;
 
 /**
  * Wrapper class to build a complete aircraft with a "body" ({@link Aircraft}) and a LinkedHashSet of {@link Engine}(s). This object is used by {@link Integrate6DOFEquations}
  * in the simulation of the aircraft. 
  */
-@JsonIgnoreType
 public class AircraftBuilder {
 	
 	private static final Logger logger = LogManager.getLogger(AircraftBuilder.class);
@@ -67,7 +65,7 @@ public class AircraftBuilder {
 	public AircraftBuilder(String aircraftName) {
 		logger.debug("Building a " + aircraftName + "...");
 		this.aircraft = new Aircraft(aircraftName);
-		
+		/*
 		logger.debug("Getting propulsion settings for " + aircraftName + "...");
 		List<String[]> readPropulsionFile = FileUtilities.readFileAndSplit(aircraftName, SimDirectories.AIRCRAFT.toString(), SimFiles.PROPULSION.toString());
 
@@ -110,7 +108,7 @@ public class AircraftBuilder {
 		} else {
 			logger.error("Invalid number of engines! Defaulting to a single engine propeller engine at (0, 0, 0) ft...");
 			engineList.add(new FixedPitchPropEngine());
-		}
+		}*/
 	}
 	
 	public Aircraft getAircraft() {return this.aircraft;}

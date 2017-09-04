@@ -144,6 +144,8 @@ public class LWJGLSwingSimulationController implements SimulationController {
 			logger.warn("Simulation is already running! Please wait until it has finished");
 			return;
 		}
+		
+		configuration = FileUtilities.readSimulationConfiguration();
 			
 		logger.debug("Starting simulation...");
 		

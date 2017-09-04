@@ -37,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
+import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -112,7 +113,9 @@ public class GuiFrame extends JFrame {
 			@Override
 			public void aircraftConfigured(String aircraftName) {
 				buttonPanel.setAircraftLabel(aircraftName);
-				configuration.setAircraftBuilder(aircraftName);
+				
+				configuration.setSelectedAircraft(aircraftName);
+				configuration.save();
 				
 				setSize(dims);
 				cardPanel.setVisible(false);
@@ -122,6 +125,7 @@ public class GuiFrame extends JFrame {
 			@Override
 			public void weightConfigured(String aircraftName, double fuelWeight, double payloadWeight) {
 				configuration.setMassProperties(aircraftName, fuelWeight, payloadWeight);
+				configuration.save();
 			}
 		});
 		aircraftPanel.setCancelButtonListener(new CancelButtonListener() {
@@ -144,6 +148,7 @@ public class GuiFrame extends JFrame {
 				buttonPanel.setOptionsLabel(options, stepSize);
 				configuration.updateIntegratorStepSize(stepSize);
 				configuration.updateOptions(options, displayOptions, audioOptions);
+				configuration.save();
 				
 				setSize(dims);
 				cardPanel.setVisible(false);
@@ -167,6 +172,7 @@ public class GuiFrame extends JFrame {
 			public void initialConditonsConfigured(double[] coordinates, double heading, double altitude, double airspeed) {
 				buttonPanel.setInitialConditionsLabel(coordinates, heading, altitude, airspeed);
 				configuration.setInitialConditions(coordinates, heading, altitude, airspeed);
+				configuration.save();
 				
 				setSize(dims);
 				cardPanel.setVisible(false);
@@ -260,7 +266,8 @@ public class GuiFrame extends JFrame {
 		}
 		
 		int stepSize = (int)(1/configuration.getIntegratorConfig().get(IntegratorConfig.DT));
-		String aircraftName = configuration.getAircraftBuilder().getAircraft().getName();
+		AircraftBuilder ab = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
+		String aircraftName = ab.getAircraft().getName();
 		
 		buttonPanel.setOptionsLabel(configuration.getSimulationOptions(), stepSize);
 		buttonPanel.setAircraftLabel(aircraftName);

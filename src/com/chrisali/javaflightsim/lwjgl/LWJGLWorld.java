@@ -145,7 +145,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 				ParticleMaster.update(camera);
 				
 				//--------- Audio--------------------
-				SoundCollection.update(soundValues, configuration);
+				SoundCollection.update(soundValues);
 				
 				//----------- UI --------------------
 				texts.get("Paused").setTextString(configuration.getSimulationOptions()

@@ -49,6 +49,7 @@ import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SaturationUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
@@ -133,9 +134,11 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	 */
 	public Integrate6DOFEquations(FlightControls flightControls, SimulationConfiguration configuration) {
 		
+		AircraftBuilder ab = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
+		
 		controls 		   = flightControls.getFlightControls();
-		aircraft 		   = configuration.getAircraftBuilder().getAircraft();
-		engineList   	   = configuration.getAircraftBuilder().getEngineList();
+		aircraft 		   = ab.getAircraft();
+		engineList   	   = ab.getEngineList();
 		options		       = configuration.getSimulationOptions();
 		
 		// Use Apache Commons Lang to convert EnumMap values into primitive double[] 

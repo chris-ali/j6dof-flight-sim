@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.chrisali.javaflightsim.simulation.aircraft;
+package com.chrisali.javaflightsim.simulation.aero;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,8 +19,8 @@ import org.apache.commons.math3.exception.NullArgumentException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
-import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
+import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
+import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 
@@ -49,7 +49,7 @@ public class LookupTableBuilder {
 	 * @param fileName
 	 * @return Lookup table of the type PiecewiseBicubicSplineInterpolatingFunction
 	 */
-	public static PiecewiseBicubicSplineInterpolatingFunction createLookupTable(Aircraft aircraft, String fileName) {
+	public static LookupTable buildLookupTable(Aircraft aircraft, String fileName) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(AIRCRAFT_PATH).append(File.separator).append(aircraft.getName())
 		  .append(LOOKUP_PATH).append(fileName).append(FileUtilities.CONFIG_EXT);
@@ -58,7 +58,7 @@ public class LookupTableBuilder {
 		logger.debug("Opening the configuration file: " + sb.toString());
 		
 		List<Double[]> readAndSplit = new LinkedList<>();
-		PiecewiseBicubicSplineInterpolatingFunction pbsif = null;
+		LookupTable table = null;
 		String readLine = null;
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
@@ -93,59 +93,58 @@ public class LookupTableBuilder {
 					lookUpValues[i-1][j-1] = splitArray[i][j];
 			}
 									
-			pbsif = new PiecewiseBicubicSplineInterpolatingFunction(breakPointAngle, breakPointFlap, lookUpValues);									 
+			table = new LookupTable(breakPointAngle, breakPointFlap, lookUpValues, 0.0, fileName);									 
 			
 		} catch (FileNotFoundException e) {
 			logger.error("Could not find: " + fileName + FileUtilities.CONFIG_EXT + "!");
-			createDefaultLookup(fileName);
+			table = buildDefaultLookup(fileName);
 		}
 		catch (IOException e) {
 			logger.error("Could not read: " + fileName + FileUtilities.CONFIG_EXT + "!");
-			createDefaultLookup(fileName);
+			table = buildDefaultLookup(fileName);
 		}
 		catch (NullPointerException e) {
 			logger.error("Bad reference to: " + fileName + FileUtilities.CONFIG_EXT + "!");
-			createDefaultLookup(fileName);
+			table = buildDefaultLookup(fileName);
 		}
 		catch (NumberFormatException e) {
 			logger.error("Error parsing number data from " + fileName + FileUtilities.CONFIG_EXT + "!");
-			createDefaultLookup(fileName);
+			table = buildDefaultLookup(fileName);
 		}
 		catch (DimensionMismatchException e) {
 			logger.error("Lookup table dimensions do not match in " + fileName + FileUtilities.CONFIG_EXT + "!");
-			createDefaultLookup(fileName);
+			table = buildDefaultLookup(fileName);
 		}
 		catch (NonMonotonicSequenceException e) {
 			logger.error("Lookup table breakpoints do not increase monotonically in " + fileName + FileUtilities.CONFIG_EXT + "!");
-			createDefaultLookup(fileName);
+			table = buildDefaultLookup(fileName);
 		}
 		catch (NullArgumentException e) {
 			logger.error("Error parsing data from " + fileName + FileUtilities.CONFIG_EXT + "!");
-			createDefaultLookup(fileName);
+			table = buildDefaultLookup(fileName);
 		}
 		catch (NoDataException e) {
 			logger.error("No lookup table data found in " + fileName + FileUtilities.CONFIG_EXT + "!");
-			createDefaultLookup(fileName);
+			table = buildDefaultLookup(fileName);
 		}
 		
-		return pbsif;
+		return table;
 	}
 	
 	/**
-	 * If {@link AircraftBuilder#createLookupTable(Aircraft, String)} throws an exception, this method creates a
-	 * lookup table of constant values equal to the stability derivative in question. This prevents any errors
-	 * down the line with attempting to access an erroneous {@link PiecewiseBicubicSplineInterpolatingFunction}
+	 * If {@link AircraftBuilder#buildLookupTable(Aircraft, String)} throws an exception, this method creates a
+	 * lookup table of constant values equal to the stability derivative in question. 
 	 * 
 	 * @param fileName
-	 * @return Lookup table of the type PiecewiseBicubicSplineInterpolatingFunction
+	 * @return LookupTable
 	 */
-	private static PiecewiseBicubicSplineInterpolatingFunction createDefaultLookup(String fileName) {
+	private static LookupTable buildDefaultLookup(String fileName) {
 		// Create default aircraft to get constant value for stability derivative in question
 		Aircraft aircraft = new Aircraft(); 
 		double constStabDerVal = 0.0;
 		for (StabilityDerivatives stabDer : StabilityDerivatives.values()) {
 			if (stabDer.toString().equals(fileName))
-				constStabDerVal = (Double)aircraft.getStabilityDerivative(stabDer);
+				constStabDerVal = aircraft.getStabilityDerivative(stabDer).getValue();
 		}
 		
 		double[]    breakPointFlap = new double[5];
@@ -167,6 +166,6 @@ public class LookupTableBuilder {
 		logger.warn("\t- Creating default lookup table for " + fileName + "...");
 		logger.warn("\t- Beware! Aircraft may not handle as expected!");
 		
-		return new PiecewiseBicubicSplineInterpolatingFunction(breakPointAngle, breakPointFlap, lookUpValues);
+		return new LookupTable(breakPointAngle, breakPointFlap, lookUpValues, 0.0, fileName);
 	}
 }

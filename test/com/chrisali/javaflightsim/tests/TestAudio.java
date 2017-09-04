@@ -164,7 +164,7 @@ public class TestAudio {
 		while (rpm < 2700) {
 			soundValues.put(SoundCategory.RPM_1, (double) rpm);
 			
-			SoundCollection.setRPM(configuration.getAircraftBuilder(), soundValues);
+			SoundCollection.setRPM(soundValues);
 			
 			try {Thread.sleep((int)dT * 5);} 
 			catch (InterruptedException e) {}
