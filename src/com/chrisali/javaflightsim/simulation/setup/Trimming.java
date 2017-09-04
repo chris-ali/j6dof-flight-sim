@@ -182,7 +182,7 @@ public class Trimming {
 			totalThrust = 0.0;
 			for (Engine engine : engines) {
 				engine.updateEngineState(initialControls, environmentParams, new double[]{trueAirspeed,0,0});
-				totalThrust += engine.getThrust()[0];
+				totalThrust += engine.getEngineThrust()[0];
 			}
 			
 			if (totalThrust < drag)

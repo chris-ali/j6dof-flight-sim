@@ -72,7 +72,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	 * @param LWJGLSwingSimulationController controller
 	 */
 	public PlotWindow(Set<String> simPlotCategories, LWJGLSwingSimulationController controller) {
-		super(controller.getConfiguration().getAircraftBuilder().getAircraft().getName() + " Plots");
+		super(controller.getConfiguration().getSelectedAircraft() + " Plots");
 		setLayout(new BorderLayout());
 		
 		this.logsOut = controller.getLogsOut();

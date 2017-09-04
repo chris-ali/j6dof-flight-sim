@@ -38,6 +38,7 @@ import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Aircraft object which consists of {@link StabilityDerivatives} and {@link WingGeometry} to define its aerodynamic properties,
@@ -47,6 +48,7 @@ import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
  */
 public class Aircraft {
 	
+	@JsonIgnore
 	private static final Logger logger = LogManager.getLogger(Aircraft.class);
 	
 	private String name;
@@ -282,6 +284,7 @@ public class Aircraft {
 	 * 
 	 * @return centerOfGravity
 	 */
+	@JsonIgnore
 	public double[] getCenterOfGravity() {return new double[] {massProps.get(MassProperties.CG_X),
 															   massProps.get(MassProperties.CG_Y),
 															   massProps.get(MassProperties.CG_Z)};}
@@ -293,6 +296,7 @@ public class Aircraft {
 	 * 
 	 * @return centerOfGravity
 	 */
+	@JsonIgnore
 	public double[] getAerodynamicCenter() {return new double[] {wingGeometry.get(WingGeometry.AC_X),
 																 wingGeometry.get(WingGeometry.AC_Y),
 																 wingGeometry.get(WingGeometry.AC_Z)};}
@@ -303,6 +307,7 @@ public class Aircraft {
 	 * 
 	 * @return centerOfGravity
 	 */
+	@JsonIgnore
 	public double[] getInertiaValues() {return new double[] {massProps.get(MassProperties.J_X),
 														     massProps.get(MassProperties.J_Y),
 														     massProps.get(MassProperties.J_Z),
@@ -316,6 +321,7 @@ public class Aircraft {
 	 * @param stabDer
 	 * @return value of key in stabDerivs
 	 */
+	@JsonIgnore
 	public Object getStabilityDerivative(StabilityDerivatives stabDer) {return stabDerivs.get(stabDer);}
 	
 	/**
@@ -324,6 +330,7 @@ public class Aircraft {
 	 * @param wingGeom
 	 * @return value of key in wingGeometry
 	 */
+	@JsonIgnore
 	public double getWingGeometry(WingGeometry wingGeom) {return wingGeometry.get(wingGeom);}
 	
 	/**
@@ -332,6 +339,7 @@ public class Aircraft {
 	 * @param massProp
 	 * @return value of key in massProps
 	 */
+	@JsonIgnore
 	public double getMassProperty(MassProperties massProp) {return massProps.get(massProp);}
 	
 	/**
@@ -340,28 +348,28 @@ public class Aircraft {
 	 * @param massProp
 	 * @return wingGeometry
 	 */
+	@JsonIgnore
 	public void setMassProperty(MassProperties massProp, Double value) {massProps.put(massProp, value);}
-		
-	/**
-	 * Returns the EnumMap associated with the aircraft's {@link MassProperties}
-	 * 
-	 * @return massProps
-	 */
-	public Map<MassProperties, Double> getMassProps() {return massProps;}
 	
-	/**
-	 * Returns the EnumMap associated with the aircraft's {@link GroundReaction}
-	 * 
-	 * @return groundReaction
-	 */
+	public Map<MassProperties, Double> getMassProps() {return massProps;}
+
+	public void setMassProps(Map<MassProperties, Double> massProps) { this.massProps = massProps; }
+		
+	//public Map<StabilityDerivatives, Object> getStabDerivs() { return stabDerivs; }
+
+	//public void setStabDerivs(Map<StabilityDerivatives, Object> stabDerivs) { this.stabDerivs = stabDerivs;	}
+
+	public Map<WingGeometry, Double> getWingGeometry() { return wingGeometry; }
+
+	public void setWingGeometry(Map<WingGeometry, Double> wingGeometry) { this.wingGeometry = wingGeometry;	}
+	
 	public Map<GroundReaction, Double> getGroundReaction() {return groundReaction;}
 
-	/**
-	 * Gets the name of the aircraft
-	 * 
-	 * @return name
-	 */
-	public String getName() {return name;}
+	public void setGroundReaction(Map<GroundReaction, Double> groundReaction) { this.groundReaction = groundReaction; }
+
+	public String getName() { return name; }
+	
+	public void setName(String name) { this.name = name; }
 
 	/**
 	 *  Outputs the stability derivatives, mass properties, and wing geometry of an aircraft

@@ -39,8 +39,7 @@ public class SimulationConfiguration {
 	private EnumMap<IntegratorConfig, Double> integratorConfig;
 	private EnumMap<FlightControlType, Double> initialControls; 
 	private String selectedAircraft;
-	
-	
+		
 	// Aircraft
 	@JsonIgnore
 	private AircraftBuilder ab;
@@ -73,9 +72,13 @@ public class SimulationConfiguration {
 	public EnumMap<AudioOptions, Float> getAudioOptions() {return audioOptions;}
 	
 	/**
-	 * Saves all configuration fields in this instance to a JSON file via {@link FileUtilities#serializeSimConfig(String, SimulationConfiguration)}
+	 * Saves all configuration fields in this instance to a JSON file via {@link FileUtilities#serializeSimConfig(String, String, Object)}
 	 */
-	public void save() { FileUtilities.serializeSimConfig(SimDirectories.SIM_CONFIG.toString(), this); }
+	public void save() { 
+		FileUtilities.serializeJson(SimDirectories.SIM_CONFIG.toString(), 
+									this.getClass().getSimpleName(), 
+									this); 
+	}
 	
 	/**
 	 * Updates simulation and display options and then saves the configurations to json files
@@ -115,7 +118,7 @@ public class SimulationConfiguration {
 			massProperties.put(MassProperties.WEIGHT_FUEL, fuelWeight);
 			massProperties.put(MassProperties.WEIGHT_PAYLOAD, payloadWeight);
 			
-			FileUtilities.writeConfigFile(SimDirectories.AIRCRAFT.toString() + File.pathSeparator + aircraftName, SimFiles.MASS_PROPERTIES.toString(), massProperties);
+			FileUtilities.serializeJson(SimDirectories.AIRCRAFT.toString() + File.pathSeparator + aircraftName, SimFiles.MASS_PROPERTIES.toString(), massProperties);
 		} catch (Exception e) {
 			logger.error("Error updating mass properties!", e);
 		}

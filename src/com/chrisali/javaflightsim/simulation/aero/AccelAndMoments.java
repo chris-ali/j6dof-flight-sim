@@ -92,7 +92,7 @@ public class AccelAndMoments {
 		// Create a vector of engine force, iterate through engineList and add the thrust of each engine in list
 		Vector3D engineForceVector = Vector3D.ZERO;
 		for (Engine engine : engineList)
-			engineForceVector = engineForceVector.add(new Vector3D(engine.getThrust()));
+			engineForceVector = engineForceVector.add(new Vector3D(engine.getEngineThrust()));
 
 		linearAccelerations = aeroForceVector.add(engineForceVector).add(groundForceVector)
 											 .scalarMultiply(1/aircraft.getMassProperty(MassProperties.TOTAL_MASS))

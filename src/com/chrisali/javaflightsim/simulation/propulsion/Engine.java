@@ -27,27 +27,33 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * Base abstract class for the flight simulation's engine model. 
  * It uses the 1976 NASA Standard Atmosphere model, and assumes that gravity is constant in the Z direction.
  */
+@JsonDeserialize(as = FixedPitchPropEngine.class)
 public abstract class Engine {
 	
 	// Propeller Engine Parameters
+	@JsonIgnore
 	final static protected double A_P        = 1.132; 
+	@JsonIgnore
 	final static protected double B_P        = 0.132;
+	@JsonIgnore
 	final static protected double RHO_SSL    = 0.002377;
+	@JsonIgnore
 	final static protected double HP_2_FTLBS = 550;
 	
 	protected double maxBHP;            //BHP at standard sea level
 	protected double maxRPM;			//rev/min
 	protected double propDiameter;		//ft
+	@JsonIgnore
 	protected double propArea;			//ft^2
 	protected double propEfficiency;
-	protected double rpm;
-	protected double fuelFlow;
-	
+		
 	// Jet Engine Parameters
 	//TODO add jet/turboprop
 	
@@ -55,8 +61,15 @@ public abstract class Engine {
 	protected String   engineName;
 	protected int      engineNumber;
 	protected double[] enginePosition; 	   			// {eng_x,eng_y,eng_z}  (ft)
-	
+
+	// State Parameters
+	@JsonIgnore
+	protected double rpm;
+	@JsonIgnore
+	protected double fuelFlow;
+	@JsonIgnore
 	protected double[] engineThrust   = {0, 0, 0};	// {T_x,T_y,T_z}	    (lbf)			
+	@JsonIgnore
 	protected double[] engineMoment;				// {M_x,M_y,M_z}        (lbf)
 		
 	//TODO need engine model properties (etaP, advance ratio, bhp curves) for lookup tables
@@ -87,31 +100,57 @@ public abstract class Engine {
 	/**
 	 * @return engine thrust as a double array vector (lbf)
 	 */
-	public double[] getThrust() {return engineThrust;}
+	public double[] getEngineThrust() { return engineThrust; }
 	
 	/**
 	 * @return engine moment as a double array vector (lb*ft)
 	 */
-	public double[] getEngineMoment() {return engineMoment;}
+	public double[] getEngineMoment() { return engineMoment; }
 	
 	/**
 	 * @return engine RPM
 	 */
-	public double getRPM() {return rpm;}
+	public double getRPM() { return rpm; }
 	
 	/**
 	 * @return engine fuel flow (gal/hr)
 	 */
-	public double getFuelFlow() {return fuelFlow;}
-	
-	public String getEngineName() {return engineName;}
-	
-	public int getEngineNumber() {return engineNumber;}
+	public double getFuelFlow() { return fuelFlow; }
+			
+	public double getMaxBHP() { return maxBHP; }
+
+	public void setMaxBHP(double maxBHP) { this.maxBHP = maxBHP; }
+
+	public double getMaxRPM() { return maxRPM; }
+
+	public void setMaxRPM(double maxRPM) { this.maxRPM = maxRPM; }
+
+	public double getPropDiameter() { return propDiameter; }
+
+	public void setPropDiameter(double propDiameter) { this.propDiameter = propDiameter; }
+
+	public double getPropEfficiency() { return propEfficiency; }
+
+	public void setPropEfficiency(double propEfficiency) { this.propEfficiency = propEfficiency; }
+
+	public String getEngineName() { return engineName; }
+
+	public void setEngineName(String engineName) { this.engineName = engineName; }
+
+	public int getEngineNumber() { return engineNumber; }
+
+	public void setEngineNumber(int engineNumber) { this.engineNumber = engineNumber; }
 	
 	/**
 	 * @return engine position relative to aircraft CG [x, y, z] (ft)
 	 */
 	public double[] getEnginePosition() {return enginePosition;}
+	
+	/**
+	 * Sets engine position relative to aircraft CG [x, y, z] (ft)
+	 * @param enginePosition
+	 */
+	public void setEnginePosition(double[] enginePosition) { this.enginePosition = enginePosition; }
 
 	@Override
 	public int hashCode() {

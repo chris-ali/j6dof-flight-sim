@@ -34,10 +34,10 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -170,46 +170,41 @@ public class FileUtilities {
 		return massProperties;
 	}
 	
-	public static Map<MassProperties, Double> deserializeJsonMap(String filepath, String filename) {
+	public static AircraftBuilder readAircraftConfiguration(String aircraftName) {
+		AircraftBuilder ab = deserializeJson(AircraftBuilder.class.getSimpleName(), 
+											 SimDirectories.AIRCRAFT.toString() + File.separator + aircraftName, 
+											 AircraftBuilder.class);
+		
+		return ab;
+	}
+	
+	public static SimulationConfiguration readSimulationConfiguration() {
+		SimulationConfiguration configuration = new SimulationConfiguration();
+		configuration = deserializeJson(SimulationConfiguration.class.getSimpleName(), 
+										SimDirectories.SIM_CONFIG.toString(), 
+										SimulationConfiguration.class);
+		
+		return configuration;
+	}
+	
+	private static <T> T deserializeJson(String filename, String filepath, Class<T> klasse) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(FILE_ROOT).append(filepath).append(File.separator).append(filename).append(JSON_EXT);
 				
 		logger.debug("Reading file: " + sb.toString() + "...");
 		
-		Map<MassProperties, Double> map = null;
+		T objToDeserialize = null;
 		ObjectMapper mapper = new ObjectMapper();
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
-			map = mapper.readValue(br, new TypeReference<Map<MassProperties, Double>>() {});
+			objToDeserialize = mapper.readValue(br, klasse);
 			
 		} catch (FileNotFoundException e) {logger.error("Could not find: " + filename + JSON_EXT + "!", e);}
 		catch (IOException e) {logger.error("Could not read: " + filename + JSON_EXT + "!", e);}
 		catch (NullPointerException e) {logger.error("Bad reference when reading: " + filename + JSON_EXT + "!", e);}
 		catch (NumberFormatException e) {logger.error("Error parsing data from " + filename + JSON_EXT + "!", e);}
 		
-		return map;
-	}
-	
-	public static SimulationConfiguration readSimulationConfiguration() {
-		String filename = SimulationConfiguration.class.getSimpleName();
-		
-		StringBuilder sb = new StringBuilder();
-		sb.append(FILE_ROOT).append(SimDirectories.SIM_CONFIG.toString()).append(File.separator).append(filename).append(JSON_EXT);
-				
-		logger.debug("Reading file: " + sb.toString() + "...");
-		
-		SimulationConfiguration configuration = new SimulationConfiguration();
-		ObjectMapper mapper = new ObjectMapper();
-		
-		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
-			configuration = mapper.readValue(br, SimulationConfiguration.class);
-			
-		} catch (FileNotFoundException e) {logger.error("Could not find: " + filename + JSON_EXT + "!", e);}
-		catch (IOException e) {logger.error("Could not read: " + filename + JSON_EXT + "!", e);}
-		catch (NullPointerException e) {logger.error("Bad reference when reading: " + filename + JSON_EXT + "!", e);}
-		catch (NumberFormatException e) {logger.error("Error parsing data from " + filename + JSON_EXT + "!", e);}
-		
-		return configuration;
+		return objToDeserialize;
 	}
 		
 	/**
@@ -230,32 +225,15 @@ public class FileUtilities {
 	//===================================================================================================
 	//										File Writing
 	//===================================================================================================
-	
+
 	/**
-	 * Creates a config file called "fileName"{@value #CONFIG_EXT} located in the folder 
-	 * specified by filePath using an EnumMap where each line is written as:
-	 *  <br><code>"*parameter name* = *double value*\n"</code></br>
+	 * Serializes an object as a JSON file called "fileName"{@value #JSON_EXT} located in the folder 
+	 * specified by filePath
 	 *  
 	 * @param filepath
 	 * @param filename
-	 * @param enumMap
+	 * @param objToSerialize
 	 */
-	public static void writeConfigFile(String filepath, String filename, Map<?, ?> enumMap) {
-		serializeJson(filepath, filename, enumMap);
-	}
-	
-	/**
-	 * Serializes a configuration file called {@link SimulationConfiguration}{@value #JSON_EXT} located 
-	 * in the folder specified by filePath
-	 * 
-	 * @param filepath
-	 * @param configuration
-	 */
-	public static void serializeSimConfig(String filepath, SimulationConfiguration configuration) {
-		String filename = configuration.getClass().getSimpleName();
-		serializeJson(filepath, filename, configuration);
-	}
-	
 	public static void serializeJson(String filepath, String filename, Object objToSerialize) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(FILE_ROOT).append(filepath).append(File.separator).append(filename).append(JSON_EXT);

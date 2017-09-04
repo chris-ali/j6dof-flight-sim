@@ -82,9 +82,9 @@ public class TestEngine extends ApplicationFrame {
 					
 					
 					
-					thrustXData.add(vTrue, defaultEngine.getThrust()[0]);
-					thrustYData.add(vTrue, defaultEngine.getThrust()[1]);
-					thrustZData.add(vTrue, defaultEngine.getThrust()[2]);
+					thrustXData.add(vTrue, defaultEngine.getEngineThrust()[0]);
+					thrustYData.add(vTrue, defaultEngine.getEngineThrust()[1]);
+					thrustZData.add(vTrue, defaultEngine.getEngineThrust()[2]);
 					
 					momentXData.add(vTrue, defaultEngine.getEngineMoment()[0]);
 					momentYData.add(vTrue, defaultEngine.getEngineMoment()[1]);
@@ -109,9 +109,9 @@ public class TestEngine extends ApplicationFrame {
 													environmentParameters,
 													new double[] {vTrue, 0, 0});
 					
-					thrustXData.add(throttle, defaultEngine.getThrust()[0]);
-					thrustYData.add(throttle, defaultEngine.getThrust()[1]);
-					thrustZData.add(throttle, defaultEngine.getThrust()[2]);
+					thrustXData.add(throttle, defaultEngine.getEngineThrust()[0]);
+					thrustYData.add(throttle, defaultEngine.getEngineThrust()[1]);
+					thrustZData.add(throttle, defaultEngine.getEngineThrust()[2]);
 					
 					momentXData.add(throttle, defaultEngine.getEngineMoment()[0]);
 					momentYData.add(throttle, defaultEngine.getEngineMoment()[1]);
@@ -138,9 +138,9 @@ public class TestEngine extends ApplicationFrame {
 													environmentParameters,
 													new double[] {vTrue, 0, 0});
 					
-					thrustXData.add(altitude, defaultEngine.getThrust()[0]);
-					thrustYData.add(altitude, defaultEngine.getThrust()[1]);
-					thrustZData.add(altitude, defaultEngine.getThrust()[2]);
+					thrustXData.add(altitude, defaultEngine.getEngineThrust()[0]);
+					thrustYData.add(altitude, defaultEngine.getEngineThrust()[1]);
+					thrustZData.add(altitude, defaultEngine.getEngineThrust()[2]);
 					
 					momentXData.add(altitude, defaultEngine.getEngineMoment()[0]);
 					momentYData.add(altitude, defaultEngine.getEngineMoment()[1]);

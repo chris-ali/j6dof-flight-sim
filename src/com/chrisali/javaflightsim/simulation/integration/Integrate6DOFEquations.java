@@ -385,7 +385,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 			for (Engine engine : engineList) {
 				int engineNumber = engine.getEngineNumber();
 				
-				simOut.put(Enum.valueOf(SimOuts.class, "THRUST_" + engineNumber), 	 engine.getThrust()[0]);
+				simOut.put(Enum.valueOf(SimOuts.class, "THRUST_" + engineNumber), 	 engine.getEngineThrust()[0]);
 				simOut.put(Enum.valueOf(SimOuts.class, "RPM_" + engineNumber), 	 	 engine.getRPM());
 				simOut.put(Enum.valueOf(SimOuts.class, "FUEL_FLOW_" + engineNumber), engine.getFuelFlow());
 			}

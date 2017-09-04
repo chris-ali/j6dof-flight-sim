@@ -1,8 +1,12 @@
 package com.chrisali.javaflightsim.simulation.utilities;
 
-import org.junit.Test;
 import static org.junit.Assert.*;
 
+import java.io.File;
+
+import org.junit.Test;
+
+import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 public class ReadWriteJsonTest {
@@ -18,7 +22,7 @@ public class ReadWriteJsonTest {
 		assertNotNull(assertion, configuration.getIntegratorConfig());
 		assertNotNull(assertion, configuration.getInitialControls());
 		
-		FileUtilities.serializeSimConfig(SimDirectories.SIM_CONFIG.toString(), configuration);
+		configuration.save();
 		
 		SimulationConfiguration newConfiguration = FileUtilities.readSimulationConfiguration();
 		assertion = "Deserialized property should not be null";
@@ -28,5 +32,34 @@ public class ReadWriteJsonTest {
 		assertNotNull(assertion, newConfiguration.getInitialConditions());
 		assertNotNull(assertion, newConfiguration.getIntegratorConfig());
 		assertNotNull(assertion, newConfiguration.getInitialControls());
+	}
+	
+	@Test
+	public void WriteThenReadJsonAircraftTest() {
+		String aircraftName = "Navion";
+		AircraftBuilder ab = FileUtilities.readAircraftConfiguration(aircraftName);
+		String assertion = "Property to serialize should not be null";
+		
+		assertNotNull(assertion, ab);
+		assertNotNull(assertion, ab.getAircraft());
+		assertEquals("Names should be equal", aircraftName, ab.getAircraft().getName());
+		assertNotNull(assertion, ab.getAircraft().getMassProps());
+		assertNotNull(assertion, ab.getAircraft().getWingGeometry());
+		//assertNotNull(assertion, ab.getAircraft().getStabDerivs());
+		assertNotNull(assertion, ab.getAircraft().getGroundReaction());
+		
+		String filepath = FileUtilities.FILE_ROOT + SimDirectories.AIRCRAFT.toString() + File.separator + aircraftName;
+		FileUtilities.serializeJson(filepath, ab.getClass().getSimpleName(), ab);
+				
+		AircraftBuilder readAb = FileUtilities.readAircraftConfiguration(aircraftName);
+		assertion = "Deserialized property should not be null";
+		
+		assertNotNull(assertion, readAb);
+		assertNotNull(assertion, readAb.getAircraft());
+		assertEquals("Names should be equal", aircraftName, readAb.getAircraft().getName());
+		assertNotNull(assertion, readAb.getAircraft().getMassProps());
+		assertNotNull(assertion, readAb.getAircraft().getWingGeometry());
+		//assertNotNull(assertion, readAb.getAircraft().getStabDerivs());
+		assertNotNull(assertion, ab.getAircraft().getGroundReaction());
 	}
 }
