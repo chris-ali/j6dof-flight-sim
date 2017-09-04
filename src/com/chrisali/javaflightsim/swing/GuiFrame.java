@@ -142,7 +142,7 @@ public class GuiFrame extends JFrame {
 													EnumMap<DisplayOptions, Integer> displayOptions,
 													EnumMap<AudioOptions, Float> audioOptions) {
 				buttonPanel.setOptionsLabel(options, stepSize);
-				configuration.setIntegratorConfig(stepSize);
+				configuration.updateIntegratorStepSize(stepSize);
 				configuration.updateOptions(options, displayOptions, audioOptions);
 				
 				setSize(dims);
@@ -249,17 +249,13 @@ public class GuiFrame extends JFrame {
 	}
 	
 	/**
-	 * 	Sets all options and text on panels by calling methods in {@link LWJGLSwingSimulationController} to
-	 *  parse setup files and get EnumMap values
+	 * 	Sets all options and text on panels by rereading values saved in {@link SimulationConfiguration} as a json file 
 	 */
 	private void setOptionsAndText() {
 		try {
-			configuration.updateOptions(FileUtilities.parseSimulationSetup(), 
-									    FileUtilities.parseDisplaySetup(),
-									    FileUtilities.parseAudioSetup());
-			configuration.setAircraftBuilder(FileUtilities.parseSimulationSetupForAircraft());
-		} catch (IllegalArgumentException e) {
-			JOptionPane.showMessageDialog(this, "Unable to read SimulationSetup.txt!", 
+			configuration = FileUtilities.readSimulationConfiguration();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Unable to read SimulationConfiguration.json!", 
 					"Error Reading File", JOptionPane.ERROR_MESSAGE);
 		}
 		
@@ -271,8 +267,8 @@ public class GuiFrame extends JFrame {
 		
 		aircraftPanel.setAircraftPanel(aircraftName);
 		optionsPanel.setAllOptions(configuration.getSimulationOptions(), stepSize, 
-				configuration.getDisplayOptions(),
-				configuration.getAudioOptions());
+								   configuration.getDisplayOptions(),
+								   configuration.getAudioOptions());
 	}
 	
 	//=============================== Simulation Window ==============================================

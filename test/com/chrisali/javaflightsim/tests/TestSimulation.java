@@ -25,6 +25,7 @@ import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 /**
  * Runs a test of the flight simulation module in Analysis mode to test an aircraft and the simulation 
@@ -37,7 +38,7 @@ import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 public class TestSimulation {
 	
 	public TestSimulation() {
-		SimulationConfiguration configuration = new SimulationConfiguration();
+		SimulationConfiguration configuration = FileUtilities.readSimulationConfiguration();
 		LWJGLSwingSimulationController controller = new LWJGLSwingSimulationController(configuration);
 		
 		configuration.getSimulationOptions().clear();

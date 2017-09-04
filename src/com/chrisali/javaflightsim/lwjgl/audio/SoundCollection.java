@@ -23,6 +23,8 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
@@ -42,6 +44,9 @@ import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
  *
  */
 public class SoundCollection {
+	
+	//Logging
+	private static final Logger logger = LogManager.getLogger(SoundCollection.class);
 	
 	/**
 	 * Inner enums used to identify {@link SoundSource} objects in the soundSources
@@ -111,6 +116,8 @@ public class SoundCollection {
 	 *  @param configuration
 	 */
 	public static void initializeSounds(SimulationConfiguration configuration) {
+		
+		logger.debug("Initializing Sound Collections...");
 		
 		Map<AudioOptions, Float> audioOptions = configuration.getAudioOptions();
 		AircraftBuilder ab = configuration.getAircraftBuilder();
@@ -185,7 +192,6 @@ public class SoundCollection {
 		soundSources.get(SoundEvent.WIND).setVolume(0.25f);
 		soundSources.get(SoundEvent.WIND).setLooping(true);
 		soundSources.get(SoundEvent.WIND).play();
-		
 	}
 	
 	/**

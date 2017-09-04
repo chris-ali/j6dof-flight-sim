@@ -28,7 +28,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -37,13 +36,10 @@ import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
-import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
-import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
-import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 /**
  * Contains various static methods for reading and parsing text configuration files
@@ -126,27 +122,6 @@ public class FileUtilities {
 	/**
 	 * Parses a config file called SimulationSetup{@value #CONFIG_EXT} located in SimConfig\
 	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
-	 * and returns an EnumSet containing enums from Options for each line in the
-	 * file where *value* contains true  
-	 * 
-	 * @return EnumSet of selected options
-	 * @throws IllegalArgumentException
-	 */
-	public static EnumSet<Options> parseSimulationSetup() throws IllegalArgumentException {
-		ArrayList<String[]> readSimSetupFile = readFileAndSplit(SimFiles.SIMULATION_SETUP.toString(), SimDirectories.SIM_CONFIG.toString());
-		EnumSet<Options> options = EnumSet.noneOf(Options.class);
-		
-		for (String[] readLine : readSimSetupFile) {
-			if (readLine[1].compareTo("true") == 0)
-				options.add(Options.valueOf(readLine[0]));
-		}
-		
-		return options;
-	}
-	
-	/**
-	 * Parses a config file called SimulationSetup{@value #CONFIG_EXT} located in SimConfig\
-	 * where each line is written as  <br><code>"*parameter* = *value*\n"</code></br>
 	 * and returns a String of the right hand side value contained on the line
 	 * <br><code>"selectedAircraft = *value*\n"</code></br>
 	 * 
@@ -163,64 +138,6 @@ public class FileUtilities {
 		}
 		
 		return selectedAircraft;
-	}
-	
-	/**
-	 * Parses the DisplaySetup{@value #CONFIG_EXT} file in SimConfig\ and returns an EnumMap with {@link DisplayOptions}
-	 * as the keys
-	 * 
-	 * @return displayOptions EnumMap
-	 */
-	public static EnumMap<DisplayOptions, Integer> parseDisplaySetup() {
-		logger.debug("Parsing display configuration...");
-		
-		EnumMap<DisplayOptions, Integer> displayOptions = new EnumMap<DisplayOptions, Integer>(DisplayOptions.class);
-		
-		// Display options
-		ArrayList<String[]> readDisplaySetupFile = readFileAndSplit(SimFiles.DISPLAY_SETUP.toString(), SimDirectories.SIM_CONFIG.toString());
-		
-		try {
-			for(DisplayOptions displayOptionsKey : DisplayOptions.values()) {
-				for (String[] readLine : readDisplaySetupFile) {
-						if (displayOptionsKey.toString().equals(readLine[0]))
-							displayOptions.put(displayOptionsKey, Integer.decode(readLine[1]));					
-				}
-			}
-		} catch (Exception e) {
-			// TODO should try to return a default configuration
-			logger.error("Error reading display configuration!", e);
-		}
-
-		return displayOptions;
-	}
-	
-	/**
-	 * Parses the AudioSetup{@value #CONFIG_EXT} file in SimConfig\ and returns an EnumMap with {@link DisplayOptions}
-	 * as the keys
-	 * 
-	 * @return audioOptions EnumMap
-	 */
-	public static EnumMap<AudioOptions, Float> parseAudioSetup() {
-		logger.debug("Parsing audio configuration...");
-		
-		EnumMap<AudioOptions, Float> audioOptions = new EnumMap<AudioOptions, Float>(AudioOptions.class);
-		
-		// Audio options
-		ArrayList<String[]> readAudioSetupFile = readFileAndSplit(SimFiles.AUDIO_SETUP.toString(), SimDirectories.SIM_CONFIG.toString());
-		
-		try {
-			for(AudioOptions audioOptionsKey : AudioOptions.values()) {
-				for (String[] readLine : readAudioSetupFile) {
-					if (audioOptionsKey.toString().equals(readLine[0]))
-						audioOptions.put(audioOptionsKey, Float.valueOf(readLine[1]));
-				}
-			}			
-		} catch (Exception e) {
-			// TODO should try to return a default configuration
-			logger.error("Error reading display configuration!", e);
-		}
-		
-		return audioOptions;
 	}
 	
 	/**
@@ -253,6 +170,26 @@ public class FileUtilities {
 		return massProperties;
 	}
 	
+	public static Map<MassProperties, Double> deserializeJsonMap(String filepath, String filename) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(FILE_ROOT).append(filepath).append(File.separator).append(filename).append(JSON_EXT);
+				
+		logger.debug("Reading file: " + sb.toString() + "...");
+		
+		Map<MassProperties, Double> map = null;
+		ObjectMapper mapper = new ObjectMapper();
+		
+		try (BufferedReader br = new BufferedReader(new FileReader(sb.toString()))) {
+			map = mapper.readValue(br, new TypeReference<Map<MassProperties, Double>>() {});
+			
+		} catch (FileNotFoundException e) {logger.error("Could not find: " + filename + JSON_EXT + "!", e);}
+		catch (IOException e) {logger.error("Could not read: " + filename + JSON_EXT + "!", e);}
+		catch (NullPointerException e) {logger.error("Bad reference when reading: " + filename + JSON_EXT + "!", e);}
+		catch (NumberFormatException e) {logger.error("Error parsing data from " + filename + JSON_EXT + "!", e);}
+		
+		return map;
+	}
+	
 	public static SimulationConfiguration readSimulationConfiguration() {
 		String filename = SimulationConfiguration.class.getSimpleName();
 		
@@ -268,14 +205,13 @@ public class FileUtilities {
 			configuration = mapper.readValue(br, SimulationConfiguration.class);
 			
 		} catch (FileNotFoundException e) {logger.error("Could not find: " + filename + JSON_EXT + "!", e);}
-		catch (MismatchedInputException e) {logger.warn("JSON mismatched while reading: " + filename + JSON_EXT + "! Attempting to continue...");}
 		catch (IOException e) {logger.error("Could not read: " + filename + JSON_EXT + "!", e);}
 		catch (NullPointerException e) {logger.error("Bad reference when reading: " + filename + JSON_EXT + "!", e);}
 		catch (NumberFormatException e) {logger.error("Error parsing data from " + filename + JSON_EXT + "!", e);}
 		
 		return configuration;
 	}
-	
+		
 	/**
 	 * @param fileName
 	 * @return string containing the file's extension 
@@ -300,40 +236,29 @@ public class FileUtilities {
 	 * specified by filePath using an EnumMap where each line is written as:
 	 *  <br><code>"*parameter name* = *double value*\n"</code></br>
 	 *  
-	 * @param fileName
-	 * @param filePath
+	 * @param filepath
+	 * @param filename
 	 * @param enumMap
 	 */
-	public static void writeConfigFile(String filePath, String fileName, Map<?, ?> enumMap) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(FILE_ROOT).append(filePath).append(File.separator).append(fileName).append(CONFIG_EXT);
-		
-		logger.debug("Saving configuration file to: " + sb.toString());
-		
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sb.toString()))) {
-			for (Map.Entry<?,?> entry : enumMap.entrySet()) {
-				bw.write(entry.getKey().toString() + " = " + entry.getValue());
-				bw.newLine();
-			}
-		} catch (FileNotFoundException e) {logger.error("Could not find: " + fileName + CONFIG_EXT + "!", e);}
-		catch (IOException e) {logger.error("Could not read: " + fileName + CONFIG_EXT + "!", e);}
-		catch (NullPointerException e) {logger.error("Bad reference when reading: " + fileName + CONFIG_EXT + "!", e);}
-		catch (NumberFormatException e) {logger.error("Error parsing data from " + fileName + CONFIG_EXT + "!", e);}
-		
-		logger.debug(fileName + CONFIG_EXT + " saved successfully!");
+	public static void writeConfigFile(String filepath, String filename, Map<?, ?> enumMap) {
+		serializeJson(filepath, filename, enumMap);
 	}
 	
 	/**
 	 * Serializes a configuration file called {@link SimulationConfiguration}{@value #JSON_EXT} located 
 	 * in the folder specified by filePath
 	 * 
-	 * @param filePath
+	 * @param filepath
 	 * @param configuration
 	 */
-	public static void writeConfigFile(String filePath, SimulationConfiguration configuration) {
+	public static void serializeSimConfig(String filepath, SimulationConfiguration configuration) {
 		String filename = configuration.getClass().getSimpleName();
+		serializeJson(filepath, filename, configuration);
+	}
+	
+	public static void serializeJson(String filepath, String filename, Object objToSerialize) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(FILE_ROOT).append(filePath).append(File.separator).append(filename).append(JSON_EXT);
+		sb.append(FILE_ROOT).append(filepath).append(File.separator).append(filename).append(JSON_EXT);
 		
 		logger.debug("Saving configuration file to: " + sb.toString());
 		
@@ -341,7 +266,7 @@ public class FileUtilities {
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
 		
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(sb.toString()))) {
-			mapper.writeValue(bw, configuration);
+			mapper.writeValue(bw, objToSerialize);
 			
 		} catch (FileNotFoundException e) {logger.error("Could not find: " + filename + JSON_EXT + "!", e);}
 		catch (IOException e) {logger.error("Could not read: " + filename + JSON_EXT + "!", e);}

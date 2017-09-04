@@ -24,6 +24,7 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 /**
  * Test class for {@link FlightControls}. Creates flight controls object and thread to
@@ -39,7 +40,7 @@ public class TestFlightControls implements Runnable {
 	private SimulationController simController;
 	
 	public TestFlightControls() {
-		configuation = new SimulationConfiguration();
+		configuation = FileUtilities.readSimulationConfiguration();
 		simController = new LWJGLSwingSimulationController(configuation);
 		configuation.getSimulationOptions().add(Options.USE_CH_CONTROLS);
 		flightControls = new FlightControls(simController);

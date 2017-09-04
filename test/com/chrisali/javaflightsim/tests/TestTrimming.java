@@ -22,6 +22,7 @@ package com.chrisali.javaflightsim.tests;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 public class TestTrimming {
 	public static void main(String[] args) {
@@ -30,7 +31,7 @@ public class TestTrimming {
 	}
 	
 	private TestTrimming(String aircraftName) {
-		SimulationConfiguration configuration = new SimulationConfiguration();
+		SimulationConfiguration configuration = FileUtilities.readSimulationConfiguration();
 		configuration.setAircraftBuilder(new AircraftBuilder(aircraftName));
 		
 		Trimming.trimSim(configuration, true);

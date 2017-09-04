@@ -9,7 +9,7 @@ public class ReadWriteJsonTest {
 
 	@Test
 	public void WriteThenReadJsonConfigTest() {
-		SimulationConfiguration configuration = new SimulationConfiguration();
+		SimulationConfiguration configuration = FileUtilities.readSimulationConfiguration();
 		String assertion = "Property to serialize should not be null"; 
 		
 		assertNotNull(assertion, configuration.getAudioOptions());
@@ -18,7 +18,7 @@ public class ReadWriteJsonTest {
 		assertNotNull(assertion, configuration.getIntegratorConfig());
 		assertNotNull(assertion, configuration.getInitialControls());
 		
-		FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), configuration);
+		FileUtilities.serializeSimConfig(SimDirectories.SIM_CONFIG.toString(), configuration);
 		
 		SimulationConfiguration newConfiguration = FileUtilities.readSimulationConfiguration();
 		assertion = "Deserialized property should not be null";

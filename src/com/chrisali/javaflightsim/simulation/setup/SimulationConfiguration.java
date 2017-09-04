@@ -52,15 +52,7 @@ public class SimulationConfiguration {
 	 * Initializes initial settings, configurations and conditions
 	 * to be edited through the menu options in the view
 	 */
-	public SimulationConfiguration() {
-		simulationOptions = FileUtilities.parseSimulationSetup();
-		displayOptions = FileUtilities.parseDisplaySetup();
-		audioOptions = FileUtilities.parseAudioSetup();
-		
-		initialConditions = IntegrationSetup.gatherInitialConditions(null);
-		integratorConfig = IntegrationSetup.gatherIntegratorConfig(null);
-		initialControls = IntegrationSetup.gatherInitialControls(null);
-		
+	public SimulationConfiguration() {		
 		selectedAircraft = FileUtilities.parseSimulationSetupForAircraft();
 		ab = new AircraftBuilder(selectedAircraft);
 	}
@@ -81,9 +73,9 @@ public class SimulationConfiguration {
 	public EnumMap<AudioOptions, Float> getAudioOptions() {return audioOptions;}
 	
 	/**
-	 * Saves all configuration fields in this instance to a JSON file via {@link FileUtilities#writeConfigFile(String, SimulationConfiguration)}
+	 * Saves all configuration fields in this instance to a JSON file via {@link FileUtilities#serializeSimConfig(String, SimulationConfiguration)}
 	 */
-	public void save() { FileUtilities.writeConfigFile(SimDirectories.SIM_CONFIG.toString(), this); }
+	public void save() { FileUtilities.serializeSimConfig(SimDirectories.SIM_CONFIG.toString(), this); }
 	
 	/**
 	 * Updates simulation and display options and then saves the configurations to json files
@@ -133,13 +125,24 @@ public class SimulationConfiguration {
 	 * @return integratorConfig EnumMap
 	 */
 	public EnumMap<IntegratorConfig, Double> getIntegratorConfig() {return integratorConfig;}
+	
+	/**
+	 * Updates initialControls EnumMap with provided value and saves sonfiguration to a json file
+	 * 
+	 * @param integratorConfig
+	 */
+	public void setIntegratorConfig(EnumMap<IntegratorConfig, Double> integratorConfig) {
+		this.integratorConfig = integratorConfig;
+		
+		save();
+	}
 
 	/**
 	 * Updates the IntegratorConfig file with stepSize inverted and converted to a double  
 	 * 
 	 * @param stepSize
 	 */
-	public void setIntegratorConfig(int stepSize) {
+	public void updateIntegratorStepSize(int stepSize) {
 		logger.debug("Updating simulation rate to " + stepSize + " Hz...");
 		
 		try {	

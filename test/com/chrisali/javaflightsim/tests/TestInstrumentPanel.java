@@ -30,6 +30,7 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.swing.instrumentpanel.InstrumentPanel;
 
 /**
@@ -50,7 +51,7 @@ public class TestInstrumentPanel {
 	}
 
 	private static void runApp() {
-		SimulationConfiguration configuration = new SimulationConfiguration();
+		SimulationConfiguration configuration = FileUtilities.readSimulationConfiguration();;
 		LWJGLSwingSimulationController controller = new LWJGLSwingSimulationController(configuration);
 		
 		configuration.getSimulationOptions().clear();

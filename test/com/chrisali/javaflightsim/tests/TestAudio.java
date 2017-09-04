@@ -32,6 +32,7 @@ import com.chrisali.javaflightsim.lwjgl.audio.SoundSource;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection.SoundCategory;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection.SoundEvent;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 public class TestAudio {
 
@@ -62,7 +63,7 @@ public class TestAudio {
 	private Map<SoundCategory, Double> soundValues = new EnumMap<>(SoundCategory.class);
 	
 	private TestAudio() {
-		configuration = new SimulationConfiguration();
+		configuration = FileUtilities.readSimulationConfiguration();
 		
 		AudioMaster.init();
 		AudioMaster.setListenerData(playerPostion, playerVelocity);

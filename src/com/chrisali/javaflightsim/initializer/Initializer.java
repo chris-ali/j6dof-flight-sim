@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.swing.GuiFrame;
 
 /**
@@ -35,7 +36,7 @@ public class Initializer {
 		try {
 			logger.debug("Reading configuration files...");
 			
-			configuration = new SimulationConfiguration();
+			configuration = FileUtilities.readSimulationConfiguration();
 		} catch (Exception e) {
 			logger.fatal("Error initializing configuration!");
 			logger.fatal(e.getMessage());
