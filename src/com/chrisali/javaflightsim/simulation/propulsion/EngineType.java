@@ -19,10 +19,10 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.propulsion;
 
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 
 /**
- *	Provides the switch cases for {@link AircraftBuilder} to determine which type of engine is 
+ *	Provides the switch cases for {@link Aircraft} to determine which type of engine is 
  *	defined in the Propulsion text file when parsing it
  */
 public enum EngineType {

@@ -25,6 +25,6 @@ package com.chrisali.javaflightsim.simulation.interfaces;
  * @author Christopher
  *
  */
-public interface Savable {
+public interface Saveable {
 	public void save();
 }

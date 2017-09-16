@@ -29,7 +29,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
@@ -49,7 +49,7 @@ public class SoundCollection {
 	//Logging
 	private static final Logger logger = LogManager.getLogger(SoundCollection.class);
 	
-	private static AircraftBuilder ab;
+	private static Aircraft aircraft;
 	
 	/**
 	 * Inner enums used to identify {@link SoundSource} objects in the soundSources
@@ -123,7 +123,7 @@ public class SoundCollection {
 		logger.debug("Initializing Sound Collections...");
 		
 		Map<AudioOptions, Float> audioOptions = configuration.getAudioOptions();
-		ab = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
+		aircraft = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
 		
 		engineVolume = audioOptions.get(AudioOptions.ENGINE_VOLUME);
 		systemsVolume = audioOptions.get(AudioOptions.SYSTEMS_VOLUME);
@@ -134,7 +134,7 @@ public class SoundCollection {
 		Vector3f enginePosVector = new Vector3f();
 		int engineNumber;
 		double[] enginePosition;
-		Set<Engine> engineList = ab.getEngineList();
+		Set<Engine> engineList = aircraft.getEngines();
 				
 		for (Engine engine : engineList) {
 			engineNumber    = engine.getEngineNumber(); 
@@ -269,14 +269,14 @@ public class SoundCollection {
 	 * Uses sound blending with cosine and linear functions with volume and pitch properties, respectively 
 	 * to mesh together engine sounds as a function of RPM
 	 * 
-	 * @param ab
+	 * @param aircraft
 	 * @param RPM
 	 */
 	public static void setRPM(Map<SoundCategory, Double> soundValues) {
 		float gainLow, pitchLow, gainMed, pitchMed, gainHi, pitchHi, gainMax, pitchMax;
 		double RPM;
 		int engineNumber;
-		Set<Engine> engineList = ab.getEngineList();
+		Set<Engine> engineList = aircraft.getEngines();
 				
 		for (Engine engine : engineList) {
 			engineNumber = engine.getEngineNumber(); 

@@ -58,7 +58,6 @@ import com.chrisali.javaflightsim.lwjgl.terrain.Terrain;
 import com.chrisali.javaflightsim.lwjgl.terrain.TerrainCollection;
 import com.chrisali.javaflightsim.lwjgl.textures.ModelTexture;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
@@ -109,8 +108,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	private boolean running = false;
 	
 	/**
-	 * Sets up OTW display with {@link DisplayOptions} and {@link AudioOptions}, as well as a link to
-	 * {@link AircraftBuilder} to determine if multiple engines in aircraft. If {@link LWJGLSwingSimulationController}
+	 * Sets up OTW display with {@link DisplayOptions} and {@link AudioOptions}. If {@link LWJGLSwingSimulationController}
 	 * object specified, display will embed itself within {@link SimulationWindow} in {@link GuiFrame} 
 	 * 
 	 * @param controller

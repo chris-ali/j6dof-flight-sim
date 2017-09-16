@@ -32,7 +32,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,10 +53,10 @@ public class FileUtilities {
 	//										File Reading
 	//===================================================================================================
 		
-	public static AircraftBuilder readAircraftConfiguration(String aircraftName) {
-		AircraftBuilder ab = deserializeJson(AircraftBuilder.class.getSimpleName(), 
-											 SimDirectories.AIRCRAFT.toString() + File.separator + aircraftName, 
-											 AircraftBuilder.class);
+	public static Aircraft readAircraftConfiguration(String aircraftName) {
+		Aircraft ab = deserializeJson(Aircraft.class.getSimpleName(), 
+									  SimDirectories.AIRCRAFT.toString() + File.separator + aircraftName, 
+									  Aircraft.class);
 		
 		return ab;
 	}

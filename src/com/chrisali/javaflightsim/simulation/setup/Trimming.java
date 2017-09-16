@@ -30,7 +30,6 @@ import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
 import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.simulation.aero.WingGeometry;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
@@ -77,8 +76,7 @@ public class Trimming {
 	 * @param testMode
 	 */
 	public static void trimSim(SimulationConfiguration configuration, boolean testMode) {
-		AircraftBuilder ab = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
-		aircraft = ab.getAircraft();
+		Aircraft aircraft = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
 		aero = new Aerodynamics(aircraft);
 		
 		initialConditions = configuration.getInitialConditions();
@@ -158,7 +156,7 @@ public class Trimming {
 
 		//==================================================== Throttle ============================================================
 		
-		Set<Engine> engines = ab.getEngineList();
+		Set<Engine> engines = aircraft.getEngines();
 		
 		drag = (drag * Math.cos(alphaTrim)) - (lift * Math.sin(alphaTrim)) + (weight * Math.sin(thetaTrim));
 		

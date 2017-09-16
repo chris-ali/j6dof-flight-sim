@@ -19,8 +19,11 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.aircraft;
 
+import java.io.File;
 import java.util.EnumMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolatingFunction;
 import org.apache.logging.log4j.LogManager;
@@ -31,23 +34,27 @@ import com.chrisali.javaflightsim.simulation.aero.LookupTable;
 import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.simulation.aero.WingGeometry;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.interfaces.Saveable;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SaturationUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Aircraft object which consists of {@link StabilityDerivatives} and {@link WingGeometry} to define its aerodynamic properties,
- * and {@link MassProperties} to define its mass and inertia, and {@link GroundReaction} to define the landing gear geometry and properties. 
- * Uses {@link AircraftBuilder} to create a package with a set of {@link Engine}s to be used in {@link Integrate6DOFEquations} to 
- * create a flight simulation. Stability derivatives (1/rad) can be either Double values or {@link PiecewiseBicubicSplineInterpolatingFunction} 
+ * {@link MassProperties} to define its mass and inertia, {@link GroundReaction} to define the landing gear geometry and properties, 
+ * and a LinkedHashSet of {@link Engine}(s). This object is used in {@link Integrate6DOFEquations} to create a flight simulation. 
+ * Stability derivatives (1/rad) can be either Double values or {@link PiecewiseBicubicSplineInterpolatingFunction} 
  */
-public class Aircraft {
+public class Aircraft implements Saveable {
 	
 	@JsonIgnore
 	private static final Logger logger = LogManager.getLogger(Aircraft.class);
 	
 	private String name;
-	
+	private Set<Engine> 						   engines;
 	private Map<StabilityDerivatives, LookupTable> stabDerivs;
 	private Map<WingGeometry, Double> 		  	   wingGeometry;
 	private Map<MassProperties, Double> 	  	   massProps;
@@ -63,11 +70,12 @@ public class Aircraft {
 	 * @param aircraftName
 	 */
 	public Aircraft(String aircraftName) {
-		this.name = aircraftName;
-		this.stabDerivs			= new EnumMap<StabilityDerivatives, LookupTable>(StabilityDerivatives.class);
-		this.wingGeometry		= new EnumMap<WingGeometry, Double>(WingGeometry.class);
-		this.massProps			= new EnumMap<MassProperties, Double>(MassProperties.class);
-		this.groundReaction     = new EnumMap<GroundReaction, Double>(GroundReaction.class);
+		name = aircraftName;
+		stabDerivs			= new EnumMap<StabilityDerivatives, LookupTable>(StabilityDerivatives.class);
+		wingGeometry		= new EnumMap<WingGeometry, Double>(WingGeometry.class);
+		massProps			= new EnumMap<MassProperties, Double>(MassProperties.class);
+		groundReaction      = new EnumMap<GroundReaction, Double>(GroundReaction.class);
+		engines 			= new LinkedHashSet<>();
 	}
 	
 	/**
@@ -75,8 +83,17 @@ public class Aircraft {
 	 *   
 	 *   @see https://en.wikipedia.org/wiki/Ryan_Navion
 	 */
-	public Aircraft() {
-		this("Navion");
+	public Aircraft() { this("Navion");	}
+	
+	/**
+	 * Saves all properties in this instance to a JSON file in "Aircraft/{aircraft.getName()}" 
+	 * via {@link FileUtilities#serializeJson(String, String, Object)}
+	 */
+	@Override
+	public void save() { 
+		FileUtilities.serializeJson(SimDirectories.AIRCRAFT.toString() + File.separator + name, 
+									this.getClass().getSimpleName(), 
+									this); 
 	}
 	
 	/**
@@ -149,6 +166,28 @@ public class Aircraft {
 	@JsonIgnore
 	public void setMassProperty(MassProperties massProp, Double value) {massProps.put(massProp, value);}
 	
+	/**
+	 * Updates the MassProperties config file with weight percentages
+	 * 
+	 * @param fuelWeightPercent (0.0 - 1.0)
+	 * @param payloadWeightPercent (0.0 - 1.0)
+	 */
+	@JsonIgnore
+	public void updateWeightPercentages(double fuelWeightPercent, double payloadWeightPercent) {
+		fuelWeightPercent = SaturationUtilities.saturatePercentage(fuelWeightPercent);
+		payloadWeightPercent = SaturationUtilities.saturatePercentage(payloadWeightPercent);
+		
+		logger.debug("Updating weights for " + name + " to " + fuelWeightPercent 
+				+ " percent fuel and " + payloadWeightPercent + " percent payload...");
+		
+		try {	
+			massProps.put(MassProperties.WEIGHT_FUEL, fuelWeightPercent);
+			massProps.put(MassProperties.WEIGHT_PAYLOAD, payloadWeightPercent);
+		} catch (Exception e) {
+			logger.error("Error updating mass properties!", e);
+		}
+	}
+	
 	public Map<MassProperties, Double> getMassProps() {return massProps;}
 
 	public void setMassProps(Map<MassProperties, Double> massProps) { this.massProps = massProps; }
@@ -164,6 +203,10 @@ public class Aircraft {
 	public Map<GroundReaction, Double> getGroundReaction() {return groundReaction;}
 
 	public void setGroundReaction(Map<GroundReaction, Double> groundReaction) { this.groundReaction = groundReaction; }
+	
+	public Set<Engine> getEngines() { return engines; }
+
+	public void setEngines(Set<Engine> engines) { this.engines = engines; }
 
 	public String getName() { return name; }
 	
@@ -180,7 +223,12 @@ public class Aircraft {
 		sb.append(this.name).append(" Aircraft Parameters:\n");
 		sb.append("======================\n\n");
 		
-		sb.append("Stability Derivatives\n\n");
+		sb.append("Engines\n\n");
+		
+		for (Engine engine : engines)
+			sb.append(engine.toString()).append("\n");
+		
+		sb.append("\\nStability Derivatives\n\n");
 		
 		for (StabilityDerivatives stabDer : stabDerivs.keySet())
 			sb.append(stabDer.toString()).append(": ").append(stabDerivs.get(stabDer)).append("\n");

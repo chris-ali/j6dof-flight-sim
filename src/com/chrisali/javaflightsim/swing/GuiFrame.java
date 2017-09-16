@@ -37,7 +37,7 @@ import org.apache.logging.log4j.Logger;
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -71,7 +71,7 @@ public class GuiFrame extends JFrame {
 	
 	private LWJGLSwingSimulationController simulationController;
 	private SimulationConfiguration configuration;
-	private AircraftBuilder ab;
+	private Aircraft aircraft;
 	
 	private ButtonPanel buttonPanel;
 	private AircraftPanel aircraftPanel;
@@ -127,9 +127,9 @@ public class GuiFrame extends JFrame {
 		aircraftPanel.setWeightConfiguredListener(new WeightConfiguredListener() {
 			@Override
 			public void weightConfigured(double fuelWeight, double payloadWeight) {
-				if (ab != null) {
-					ab.setMassProps(fuelWeight, payloadWeight);
-					ab.save();					
+				if (aircraft != null) {
+					aircraft.updateWeightPercentages(fuelWeight, payloadWeight);
+					aircraft.save();					
 				}
 			}
 		});
@@ -143,10 +143,10 @@ public class GuiFrame extends JFrame {
 		aircraftPanel.setAircraftSelectedListener(new AircraftDropDownListener() {
 			@Override
 			public void aircraftSelected(String aircraftName) {
-				ab = FileUtilities.readAircraftConfiguration(aircraftName);
+				aircraft = FileUtilities.readAircraftConfiguration(aircraftName);
 				
 				if (aircraftPanel != null && aircraftPanel.getWeightDialog() != null)
-					aircraftPanel.getWeightDialog().refreshWeightOptions(ab.getAircraft());
+					aircraftPanel.getWeightDialog().refreshWeightOptions(aircraft);
 			}
 		});
 		cardPanel.add(aircraftPanel, "aircraft");

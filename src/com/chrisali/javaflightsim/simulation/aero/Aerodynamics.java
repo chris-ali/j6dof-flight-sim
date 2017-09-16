@@ -27,15 +27,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
  * This class calculates aerodynamic forces and moments in the stability coordinate frame. The aerodynamic forces are then converted to the 
- * body frame to calculate accelerations and moments in {@link AccelAndMoments}. Depending on the stability derivatives specified upon aircraft creation
- * in {@link AircraftBuilder} the stability derivatives can be either a constant double or interpolated linearly using a lookup table
+ * body frame to calculate accelerations and moments in {@link AccelAndMoments}. The stability derivatives are {@link LookupTable} objects,
+ * which are either constant or linerally interpolatable 
  * 
  * @param EnumMap controls                            
  * @param windParameters 								

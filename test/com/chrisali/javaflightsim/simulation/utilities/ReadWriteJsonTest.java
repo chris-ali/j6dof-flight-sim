@@ -7,7 +7,7 @@ import java.io.File;
 
 import org.junit.Test;
 
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
@@ -39,38 +39,36 @@ public class ReadWriteJsonTest {
 	@Test
 	public void WriteThenReadJsonAircraftTest() {
 		String aircraftName = "TwinNavion";
-		AircraftBuilder ab = FileUtilities.readAircraftConfiguration(aircraftName); //new AircraftBuilder(aircraftName); //
+		Aircraft aircraft = FileUtilities.readAircraftConfiguration(aircraftName);
 		String assertion = "Property to serialize should not be null";
 		
-		assertNotNull(assertion, ab);
-		assertNotNull(assertion, ab.getAircraft());
-		assertEquals("Names should be equal", aircraftName, ab.getAircraft().getName());
-		assertNotNull(assertion, ab.getAircraft().getMassProps());
-		assertNotNull(assertion, ab.getAircraft().getWingGeometry());
-		assertNotNull(assertion, ab.getAircraft().getStabDerivs());
-		assertNotNull(assertion, ab.getAircraft().getGroundReaction());
-		assertNotNull(assertion, ab.getEngineList());
+		assertNotNull(assertion, aircraft);
+		assertEquals("Names should be equal", aircraftName, aircraft.getName());
+		assertNotNull(assertion, aircraft.getMassProps());
+		assertNotNull(assertion, aircraft.getWingGeometry());
+		assertNotNull(assertion, aircraft.getStabDerivs());
+		assertNotNull(assertion, aircraft.getGroundReaction());
+		assertNotNull(assertion, aircraft.getEngines());
 		
-		for(Engine engine : ab.getEngineList()) {
+		for(Engine engine : aircraft.getEngines()) {
 			assertNotNull(assertion, engine);
 		}
 		
 		String filepath = FileUtilities.FILE_ROOT + SimDirectories.AIRCRAFT.toString() + File.separator + aircraftName;
-		FileUtilities.serializeJson(filepath, ab.getClass().getSimpleName(), ab);
+		FileUtilities.serializeJson(filepath, aircraft.getClass().getSimpleName(), aircraft);
 				
-		AircraftBuilder readAb = FileUtilities.readAircraftConfiguration(aircraftName);
+		Aircraft readAircraft = FileUtilities.readAircraftConfiguration(aircraftName);
 		assertion = "Deserialized property should not be null";
 		
-		assertNotNull(assertion, readAb);
-		assertNotNull(assertion, readAb.getAircraft());
-		assertEquals("Names should be equal", aircraftName, readAb.getAircraft().getName());
-		assertNotNull(assertion, readAb.getAircraft().getMassProps());
-		assertNotNull(assertion, readAb.getAircraft().getWingGeometry());
-		assertNotNull(assertion, readAb.getAircraft().getStabDerivs());
-		assertNotNull(assertion, readAb.getAircraft().getGroundReaction());
-		assertNotNull(assertion, readAb.getEngineList());
+		assertNotNull(assertion, readAircraft);
+		assertEquals("Names should be equal", aircraftName, readAircraft.getName());
+		assertNotNull(assertion, readAircraft.getMassProps());
+		assertNotNull(assertion, readAircraft.getWingGeometry());
+		assertNotNull(assertion, readAircraft.getStabDerivs());
+		assertNotNull(assertion, readAircraft.getGroundReaction());
+		assertNotNull(assertion, readAircraft.getEngines());
 		
-		for(Engine engine : readAb.getEngineList()) {
+		for(Engine engine : readAircraft.getEngines()) {
 			assertNotNull(assertion, engine);
 		}
 	}

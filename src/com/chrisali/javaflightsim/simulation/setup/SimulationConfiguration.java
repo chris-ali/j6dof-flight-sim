@@ -10,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
-import com.chrisali.javaflightsim.simulation.interfaces.Savable;
+import com.chrisali.javaflightsim.simulation.interfaces.Saveable;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * Contains collections and methods used to configure the simulation and save/load 
  * configuration to/from external files
  */
-public class SimulationConfiguration implements Savable {
+public class SimulationConfiguration implements Saveable {
 	
 	//Logging
 	@JsonIgnore

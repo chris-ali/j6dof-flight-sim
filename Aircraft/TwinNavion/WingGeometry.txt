@@ -1,9 +1,0 @@
-% Wing Geometry
-s_wing = 184.0
-b_wing = 33.4
-c_bar = 5.7
-
-% AC Position
-acX = 0.0
-acY = 0.0
-acZ = 0.0

@@ -1,23 +1,22 @@
 {
-  "engineList" : [ {
-    "maxBHP" : 200.0,
-    "maxRPM" : 2700.0,
-    "propDiameter" : 6.5,
-    "propEfficiency" : 0.85,
-    "engineName" : "Lycoming IO-360",
-    "engineNumber" : 1,
-    "enginePosition" : [ 0.0, 5.0, 0.0 ]
-  }, {
-    "maxBHP" : 200.0,
-    "maxRPM" : 2700.0,
-    "propDiameter" : 6.5,
-    "propEfficiency" : 0.85,
-    "engineName" : "Lycoming IO-360",
-    "engineNumber" : 2,
-    "enginePosition" : [ 0.0, -5.0, 0.0 ]
-  } ],
-  "aircraft" : {
     "name" : "TwinNavion",
+	"engines" : [ {
+		"maxBHP" : 200.0,
+		"maxRPM" : 2700.0,
+		"propDiameter" : 6.5,
+		"propEfficiency" : 0.85,
+		"engineName" : "Lycoming IO-360",
+		"engineNumber" : 1,
+		"enginePosition" : [ 0.0, 5.0, 0.0 ]
+	  }, {
+		"maxBHP" : 200.0,
+		"maxRPM" : 2700.0,
+		"propDiameter" : 6.5,
+		"propEfficiency" : 0.85,
+		"engineName" : "Lycoming IO-360",
+		"engineNumber" : 2,
+		"enginePosition" : [ 0.0, -5.0, 0.0 ]
+	  } ],
     "stabDerivs" : {
       "CL_ALPHA" : {
         "breakPointAngle" : [ -0.2792526803190927, -0.24434609527920614, -0.20943951023931953, -0.17453292519943295, -0.13962634015954636, -0.10471975511965977, -0.06981317007977318, -0.03490658503988659, 0.0, 0.03490658503988659, 0.06981317007977318, 0.10471975511965977, 0.13962634015954636, 0.17453292519943295, 0.20943951023931953, 0.24434609527920614, 0.2792526803190927 ],
@@ -153,9 +152,9 @@
     "massProps" : {
       "TOTAL_MASS" : 122.16350637239664,
       "MAX_WEIGHT_FUEL" : 450.0,
-      "WEIGHT_FUEL" : 1.0,
+      "WEIGHT_FUEL" : 0.11,
       "MAX_WEIGHT_PAYLOAD" : 530.0,
-      "WEIGHT_PAYLOAD" : 1.0,
+      "WEIGHT_PAYLOAD" : 0.13,
       "WEIGHT_EMPTY" : 2950.0,
       "J_X" : 1048.0,
       "J_Y" : 3000.0,

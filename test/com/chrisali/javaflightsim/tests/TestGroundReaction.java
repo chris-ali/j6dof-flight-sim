@@ -23,7 +23,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
+import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.IntegrateGroundReaction;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -32,7 +32,7 @@ import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 public class TestGroundReaction {
 	private SimulationConfiguration configuration = FileUtilities.readSimulationConfiguration();
 	private IntegrateGroundReaction groundReaction;
-	private AircraftBuilder ab = new AircraftBuilder("Navion");
+	private Aircraft aircraft = new Aircraft("Navion");
 	private double terrainHeight;
 	double[] integratorConfig 				 = ArrayUtils.toPrimitive(configuration.getIntegratorConfig().values()
 				  																	  .toArray(new Double[3]));
@@ -65,7 +65,7 @@ public class TestGroundReaction {
 													 windParameters,
 													 integratorConfig,
 													 sixDOFDerivatives,
-													 ab.getAircraft(),
+													 aircraft,
 													 controls);
 	}
 	
