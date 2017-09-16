@@ -42,15 +42,13 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
-import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 public class WeightDialog extends JDialog {
 
 	private static final long serialVersionUID = -8651284577042494696L;
 
-	private String aircraftName;
-	
 	private JSlider fuelSlider;
 	private double fuelFraction;
 	private JSlider payloadSlider;
@@ -69,12 +67,9 @@ public class WeightDialog extends JDialog {
 	
 	private WeightConfiguredListener weightConfiguredListener;
 	
-	public WeightDialog(JFrame parent, String aircraft) {
+	public WeightDialog(JFrame parent) {
 		super(parent, "Weight", false);
-		
-		aircraftName = aircraft;
-		updateFields();
-		
+				
 		//-------------------- Panels ---------------------------
 		
 		JPanel controlsPanel = new JPanel();
@@ -207,7 +202,7 @@ public class WeightDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (weightConfiguredListener != null)
-					weightConfiguredListener.weightConfigured(aircraftName, fuelFraction, payloadFraction);
+					weightConfiguredListener.weightConfigured(fuelFraction, payloadFraction);
 				setVisible(false);
 			}
 		});
@@ -245,18 +240,21 @@ public class WeightDialog extends JDialog {
 			fuelWeightLabel.setText(String.valueOf(fuelWeightValue));
 			totalWeightLabel.setText(String.valueOf(totalWeightValue));
 		}
+		
+		if (payloadSlider != null && fuelSlider != null) {
+			payloadSlider.setValue((int)(100*payloadFraction));
+			fuelSlider.setValue((int)(100*fuelFraction));
+		}
 	}
 	
-	protected void updateFields() {
-		massProperties = FileUtilities.parseMassProperties(aircraftName);
+	public void refreshWeightOptions(Aircraft aircraft) {
+		massProperties = aircraft.getMassProps();
 		fuelFraction = massProperties.get(MassProperties.WEIGHT_FUEL);
 		payloadFraction = massProperties.get(MassProperties.WEIGHT_PAYLOAD);
 		
 		recalculateWeights();
 	}
 		
-	public void setAircraftName(String newAircraftName) {aircraftName = newAircraftName;}
-	
 	public void setWeightConfiguredListener(WeightConfiguredListener weightConfiguredListener) {
 		this.weightConfiguredListener = weightConfiguredListener;
 	}

@@ -39,7 +39,8 @@ import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.propulsion.FixedPitchPropEngine;
-import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 public class TestEngine extends ApplicationFrame {
 	private static final long serialVersionUID = 1L;
@@ -47,7 +48,9 @@ public class TestEngine extends ApplicationFrame {
 	public TestEngine(String testType) {
 		super("Engine Test");
 		
-		EnumMap<FlightControlType, Double> controls = IntegrationSetup.gatherInitialControls("InitialControls");
+		SimulationConfiguration configuration = FileUtilities.readSimulationConfiguration();
+		
+		EnumMap<FlightControlType, Double> controls = configuration.getInitialControls();
 		Map<EnvironmentParameters, Double> environmentParameters = Environment.getAndUpdateEnvironmentParams(new double[] {0,0,0});
 		StringBuilder constraint = new StringBuilder();
 		

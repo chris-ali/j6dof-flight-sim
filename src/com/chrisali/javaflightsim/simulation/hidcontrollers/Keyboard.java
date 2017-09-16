@@ -25,7 +25,6 @@ import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
-import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
 import net.java.games.input.Component;
@@ -40,8 +39,7 @@ import net.java.games.input.ControllerEnvironment;
  * and assigning these to each respective key in the controls EnumMap and options EnumSet. 
  * Up/Down and Left/Right control the elevator and ailerons, respectively, and all throttles are 
  * controlled by Page Up/Down. The simulation can be toggled paused by pressing P, and while paused
- * the simulation can be reset to initial conditions defined by 
- * {@link IntegrationSetup#gatherInitialConditions(String)} by pressing R.
+ * the simulation can be reset to initial conditions by pressing R.
  * The simulation is quit by pressing Q and L plots the simulation.
  * @see AbstractController
  */

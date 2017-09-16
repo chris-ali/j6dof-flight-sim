@@ -44,6 +44,7 @@ import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.swing.aircraftpanel.AircraftConfigurationListener;
+import com.chrisali.javaflightsim.swing.aircraftpanel.AircraftDropDownListener;
 import com.chrisali.javaflightsim.swing.aircraftpanel.AircraftPanel;
 import com.chrisali.javaflightsim.swing.aircraftpanel.WeightConfiguredListener;
 import com.chrisali.javaflightsim.swing.initialconditionspanel.InitialConditionsConfigurationListener;
@@ -70,6 +71,7 @@ public class GuiFrame extends JFrame {
 	
 	private LWJGLSwingSimulationController simulationController;
 	private SimulationConfiguration configuration;
+	private AircraftBuilder ab;
 	
 	private ButtonPanel buttonPanel;
 	private AircraftPanel aircraftPanel;
@@ -90,6 +92,7 @@ public class GuiFrame extends JFrame {
 		
 		simulationController = controller;
 		configuration = controller.getConfiguration();
+		//ab = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft()); 
 		
 		setLayout(new BorderLayout());
 		Dimension dims = new Dimension(200, 400);
@@ -116,16 +119,18 @@ public class GuiFrame extends JFrame {
 				
 				configuration.setSelectedAircraft(aircraftName);
 				configuration.save();
-				
+
 				setSize(dims);
 				cardPanel.setVisible(false);
 			}
 		});
 		aircraftPanel.setWeightConfiguredListener(new WeightConfiguredListener() {
 			@Override
-			public void weightConfigured(String aircraftName, double fuelWeight, double payloadWeight) {
-				configuration.setMassProperties(aircraftName, fuelWeight, payloadWeight);
-				configuration.save();
+			public void weightConfigured(double fuelWeight, double payloadWeight) {
+				if (ab != null) {
+					ab.setMassProps(fuelWeight, payloadWeight);
+					ab.save();					
+				}
 			}
 		});
 		aircraftPanel.setCancelButtonListener(new CancelButtonListener() {
@@ -133,6 +138,15 @@ public class GuiFrame extends JFrame {
 			public void cancelButtonClicked() {
 				setSize(dims);
 				cardPanel.setVisible(false);
+			}
+		});
+		aircraftPanel.setAircraftSelectedListener(new AircraftDropDownListener() {
+			@Override
+			public void aircraftSelected(String aircraftName) {
+				ab = FileUtilities.readAircraftConfiguration(aircraftName);
+				
+				if (aircraftPanel != null && aircraftPanel.getWeightDialog() != null)
+					aircraftPanel.getWeightDialog().refreshWeightOptions(ab.getAircraft());
 			}
 		});
 		cardPanel.add(aircraftPanel, "aircraft");
@@ -189,7 +203,7 @@ public class GuiFrame extends JFrame {
 		
 		//-------------------------- Button Panel --------------------------------------------------
 		
-		buttonPanel = new ButtonPanel();
+		buttonPanel = new ButtonPanel(configuration);
 		buttonPanel.setAircraftButtonListener(new AircraftButtonListener() {
 			@Override
 			public void buttonEventOccurred() {
@@ -266,8 +280,7 @@ public class GuiFrame extends JFrame {
 		}
 		
 		int stepSize = (int)(1/configuration.getIntegratorConfig().get(IntegratorConfig.DT));
-		AircraftBuilder ab = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
-		String aircraftName = ab.getAircraft().getName();
+		String aircraftName = configuration.getSelectedAircraft();
 		
 		buttonPanel.setOptionsLabel(configuration.getSimulationOptions(), stepSize);
 		buttonPanel.setAircraftLabel(aircraftName);

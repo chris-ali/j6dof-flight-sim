@@ -25,10 +25,12 @@ import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
 import com.chrisali.javaflightsim.simulation.aero.StabilityDerivatives;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
-import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 public class TestLookupTable {
-	private EnumMap<FlightControlType, Double> controls = IntegrationSetup.gatherInitialControls("InitialControls");
+	private SimulationConfiguration configuration = FileUtilities.readSimulationConfiguration();
+	private EnumMap<FlightControlType, Double> controls = configuration.getInitialControls();
 	private double[] alpha = new double[] {-14, -12, -10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10, 12, 14, 16};
 	private double[] dFlap = new double[] {0, 10, 20, 30, 40};
 	AircraftBuilder ab;

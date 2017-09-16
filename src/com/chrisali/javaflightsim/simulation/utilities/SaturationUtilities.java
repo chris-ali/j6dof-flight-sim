@@ -268,5 +268,13 @@ public class SaturationUtilities {
 		
 		return NEDPosition;
 	}
-	
+
+	/**
+	 * @param percent
+	 * @return double limited from 0.0 to 1.0
+	 */
+	public static double saturatePercentage(double percent) { 
+		return percent < 0.0 ? 0.0 : 
+			   percent > 1.0 ? 1.0 : percent; 
+	}
 }

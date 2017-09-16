@@ -78,12 +78,13 @@ public class AircraftPanel extends JPanel {
 	private JButton okButton;
 	private JButton cancelButton;
 	
+	private AircraftDropDownListener aircraftDropDownListener;
 	private AircraftConfigurationListener aircraftConfigurationListener;
 	private WeightConfiguredListener weightConfiguredListener;
 	private CancelButtonListener cancelButtonListener;
-	
+		
 	public AircraftPanel(JFrame parent) {
-				
+								
 		//-------------------- Panels ---------------------------
 		
 		JPanel headerPanel = new JPanel();
@@ -140,8 +141,14 @@ public class AircraftPanel extends JPanel {
 		aircraftComboBox.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				pictureArea.setIcon(createPreviewPicture((String)aircraftComboBox.getSelectedItem(), SimFiles.PREVIEW_PICTURE.toString()));
-				descriptionArea.setText(createDescriptionText((String)aircraftComboBox.getSelectedItem(), SimFiles.DESCRIPTION.toString()));
+				String selectedName = (String)aircraftComboBox.getSelectedItem();
+				pictureArea.setIcon(createPreviewPicture(selectedName, SimFiles.PREVIEW_PICTURE.toString()));
+				descriptionArea.setText(createDescriptionText(selectedName, SimFiles.DESCRIPTION.toString()));
+				
+				weightDialog.setVisible(false);
+				
+				if (aircraftDropDownListener != null)
+					aircraftDropDownListener.aircraftSelected(selectedName);
 			}
 		});
 		controlsPanel.add(aircraftComboBox, gc);
@@ -154,8 +161,6 @@ public class AircraftPanel extends JPanel {
 		weightButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				weightDialog.setAircraftName((String)aircraftComboBox.getSelectedItem());
-				weightDialog.updateFields();
 				weightDialog.setVisible(true);
 			}
 		});
@@ -192,12 +197,12 @@ public class AircraftPanel extends JPanel {
 		
 		//--------------- Weight Dialog --------------------------
 
-		weightDialog = new WeightDialog(parent, (String)aircraftComboBox.getSelectedItem());
+		weightDialog = new WeightDialog(parent);
 		weightDialog.setWeightConfiguredListener(new WeightConfiguredListener() {
 			@Override
-			public void weightConfigured(String aircraftName, double fuelWeight, double payloadWeight) {
+			public void weightConfigured(double fuelWeight, double payloadWeight) {
 				if (weightConfiguredListener != null)
-					weightConfiguredListener.weightConfigured(aircraftName, fuelWeight, payloadWeight);
+					weightConfiguredListener.weightConfigured(fuelWeight, payloadWeight);
 			}
 		});
 		
@@ -300,6 +305,10 @@ public class AircraftPanel extends JPanel {
 		return readFile.toString();
 	}
 	
+	public WeightDialog getWeightDialog() {
+		return weightDialog;
+	}
+
 	public void setAircraftPanel(String aircraftName) {
 		for(int i=0; i<aircraftComboBoxModel.getSize(); i++) {
 			if (aircraftComboBoxModel.getElementAt(i).compareTo(aircraftName) == 0)
@@ -317,5 +326,9 @@ public class AircraftPanel extends JPanel {
 	
 	public void setWeightConfiguredListener(WeightConfiguredListener weightConfiguredListener) {
 		this.weightConfiguredListener = weightConfiguredListener;
+	}
+	
+	public void setAircraftSelectedListener(AircraftDropDownListener aircraftDropDownListener) {
+		this.aircraftDropDownListener = aircraftDropDownListener;
 	}
 }

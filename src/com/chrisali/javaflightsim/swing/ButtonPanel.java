@@ -37,8 +37,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
-import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 public class ButtonPanel extends JPanel {
@@ -63,7 +63,11 @@ public class ButtonPanel extends JPanel {
 	private OptionsButtonListener optionsButtonListener;
 	private StartSimulationButtonListener startSimulationButtonListener;
 	
-	public ButtonPanel() {
+	private SimulationConfiguration configuration;
+	
+	public ButtonPanel(SimulationConfiguration configuration) {
+		
+		this.configuration = configuration;
 		
 		//-------------------------- Borders and Insets  --------------------------------------
 		
@@ -189,7 +193,7 @@ public class ButtonPanel extends JPanel {
 	}
 	
 	public void setInitialConditionsLabel() {
-		Map<InitialConditions,Double> initialConditions = IntegrationSetup.gatherInitialConditions("InitialConditions");
+		Map<InitialConditions,Double> initialConditions = configuration.getInitialConditions();
 		
 		StringBuilder sb = new StringBuilder();
 		

@@ -26,17 +26,18 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.chrisali.javaflightsim.simulation.aircraft.AircraftBuilder;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.IntegrateGroundReaction;
-import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 public class TestGroundReaction {
-
+	private SimulationConfiguration configuration = FileUtilities.readSimulationConfiguration();
 	private IntegrateGroundReaction groundReaction;
 	private AircraftBuilder ab = new AircraftBuilder("Navion");
 	private double terrainHeight;
-	double[] integratorConfig 				 = ArrayUtils.toPrimitive(IntegrationSetup.gatherInitialConditions("IntegratorConfig").values()
+	double[] integratorConfig 				 = ArrayUtils.toPrimitive(configuration.getIntegratorConfig().values()
 				  																	  .toArray(new Double[3]));
 	private double t;
-	private Map<FlightControlType, Double> controls = IntegrationSetup.gatherInitialControls("InitialControls");
+	private Map<FlightControlType, Double> controls = configuration.getInitialControls();
 	
 	// 6DOF Integration Results
 	private double[] linearVelocities 		  = new double[]{5,0,0};

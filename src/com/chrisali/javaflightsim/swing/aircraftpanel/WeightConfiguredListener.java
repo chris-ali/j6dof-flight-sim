@@ -22,5 +22,5 @@ package com.chrisali.javaflightsim.swing.aircraftpanel;
 import java.util.EventListener;
 
 public interface WeightConfiguredListener extends EventListener {
-	public void weightConfigured(String aircraftName, double fuelWeight, double payloadWeight);
+	public void weightConfigured(double fuelWeight, double payloadWeight);
 }

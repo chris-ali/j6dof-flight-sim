@@ -45,7 +45,6 @@ import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
-import com.chrisali.javaflightsim.simulation.setup.IntegrationSetup;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -104,7 +103,8 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	private ClassicalRungeKuttaIntegrator integrator;
 	private double[] sixDOFDerivatives		= new double[14];
 	private double[] y					    = new double[14];
-	private double[] initialConditions      = new double[14]; 
+	private double[] initialConditions      = new double[14];
+	private double[] resetInitialConditions = new double[14]; 
 	
 	// Time Properties (sec for calculations in this thread, millisec elsewhere)
 	private double[] integratorConfigS 		= new double[3];
@@ -142,7 +142,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		options		       = configuration.getSimulationOptions();
 		
 		// Use Apache Commons Lang to convert EnumMap values into primitive double[] 
-		initialConditions = ArrayUtils.toPrimitive(configuration.getInitialConditions().values()
+		initialConditions = resetInitialConditions = ArrayUtils.toPrimitive(configuration.getInitialConditions().values()
 				   												.toArray(new Double[initialConditions.length]));
 		integratorConfigS  = ArrayUtils.toPrimitive(configuration.getIntegratorConfig().values()
 				   												.toArray(new Double[integratorConfigS.length]));
@@ -436,10 +436,11 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 
 		while (timeS < integratorConfigS[2] && running) {
 			try {	
-				// If paused and reset selected, reset initialConditions using IntegrationSetup's method 
-				if (options.contains(Options.PAUSED) & options.contains(Options.RESET))				
-					initialConditions = ArrayUtils.toPrimitive(IntegrationSetup.gatherInitialConditions(null).values()
-																			   .toArray(new Double[initialConditions.length]));
+				// If paused and reset selected, reset initialConditions to saved values in configuration
+				if (options.contains(Options.PAUSED) & options.contains(Options.RESET)) {
+					logger.debug("Simulation reset to initial conditions!");
+					initialConditions = resetInitialConditions;
+				}
 				
 				// If paused, skip the integration and update process
 				if (!options.contains(Options.PAUSED)) {

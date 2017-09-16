@@ -3,18 +3,16 @@
  */
 package com.chrisali.javaflightsim.simulation.setup;
 
-import java.io.File;
 import java.util.EnumMap;
 import java.util.EnumSet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.chrisali.javaflightsim.simulation.interfaces.Savable;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
-import com.chrisali.javaflightsim.simulation.utilities.SimFiles;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
@@ -24,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * Contains collections and methods used to configure the simulation and save/load 
  * configuration to/from external files
  */
-public class SimulationConfiguration {
+public class SimulationConfiguration implements Savable {
 	
 	//Logging
 	@JsonIgnore
@@ -38,10 +36,6 @@ public class SimulationConfiguration {
 	private EnumMap<IntegratorConfig, Double> integratorConfig;
 	private EnumMap<FlightControlType, Double> initialControls; 
 	private String selectedAircraft;
-		
-	// Aircraft	
-	@JsonIgnore
-	private EnumMap<MassProperties, Double> massProperties;
 
 	/**
 	 * Initializes initial settings, configurations and conditions
@@ -65,8 +59,9 @@ public class SimulationConfiguration {
 	public EnumMap<AudioOptions, Float> getAudioOptions() {return audioOptions;}
 	
 	/**
-	 * Saves all configuration fields in this instance to a JSON file via {@link FileUtilities#serializeSimConfig(String, String, Object)}
+	 * Saves all configuration fields in this instance to a JSON file via {@link FileUtilities#serializeJson(String, String, Object)}
 	 */
+	@Override
 	public void save() { 
 		FileUtilities.serializeJson(SimDirectories.SIM_CONFIG.toString(), 
 									this.getClass().getSimpleName(), 
@@ -92,32 +87,9 @@ public class SimulationConfiguration {
 			logger.error("Error updating simulation options!", e);
 		}
 	}
-	
-	/**
-	 * Updates the MassProperties config file for the selected aircraft using aircraftName
-	 * 
-	 * @param aircraftName
-	 * @param fuelWeight
-	 * @param payloadWeight
-	 */
-	public void setMassProperties(String aircraftName, double fuelWeight, double payloadWeight) {
-		logger.debug("Updating weights for " + aircraftName + "...");
 		
-		try {	
-			massProperties = FileUtilities.parseMassProperties(aircraftName);
-			
-			massProperties.put(MassProperties.WEIGHT_FUEL, fuelWeight);
-			massProperties.put(MassProperties.WEIGHT_PAYLOAD, payloadWeight);
-			
-			FileUtilities.serializeJson(SimDirectories.AIRCRAFT.toString() + File.pathSeparator + aircraftName, SimFiles.MASS_PROPERTIES.toString(), massProperties);
-		} catch (Exception e) {
-			logger.error("Error updating mass properties!", e);
-		}
-	}
-	
 	public EnumMap<IntegratorConfig, Double> getIntegratorConfig() { return integratorConfig; }
 	
-
 	public void setIntegratorConfig(EnumMap<IntegratorConfig, Double> integratorConfig) { this.integratorConfig = integratorConfig;	}
 
 	/**
