@@ -19,7 +19,7 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.hidcontrollers;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -28,8 +28,6 @@ import org.apache.logging.log4j.Logger;
 import com.chrisali.javaflightsim.simulation.aircraft.Aerodynamics;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
-import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 import net.java.games.input.Controller;
 
@@ -42,85 +40,12 @@ public abstract class AbstractController {
 	
 	protected static final Logger logger = LogManager.getLogger(AbstractController.class);
 	
-	protected ArrayList<Controller> controllerList;
-
-	// Gets the frame time DT from IntegratorConfig.txt
-	protected double dt = FileUtilities.readSimulationConfiguration().getIntegratorConfig().get(IntegratorConfig.DT);
-	
-	// Add these trim values to getControlDeflection method call to emulate trim deflections
-	protected static double trimElevator = 0.0;
-	protected static double trimAileron  = 0.0;
-	protected static double trimRudder   = 0.0;
-	
-	// Flaps deflection
-	protected static double flaps   	 = 0.0;
+	protected List<Controller> controllerList;
 
 	public abstract void searchForControllers();
 	
-	protected abstract Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls);
-	
-	/**
-	 * Standardizes rate of control deflection of keyboard and joystick button inputs regardless of the 
-	 * simulation update rate based on the {@link FlightControl} argument provided and the 
-	 * 
-	 * @param type
-	 */
-	protected double getDeflectionRate(FlightControl type) {
-		switch (type) {
-		case AILERON:
-		case ELEVATOR:
-		case RUDDER:
-			return 0.12 * dt;
-		case THROTTLE_1:
-		case THROTTLE_2:
-		case THROTTLE_3:
-		case THROTTLE_4:
-		case PROPELLER_1:
-		case PROPELLER_2:
-		case PROPELLER_3:
-		case PROPELLER_4:
-		case MIXTURE_1:
-		case MIXTURE_2:
-		case MIXTURE_3:
-		case MIXTURE_4:
-			return 0.5 * dt;
-		case FLAPS:
-			return 0.15 * dt;
-		default:
-			return 0;
-		}
-	}
+	public abstract Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls);
 		
-	/**
-	 *  Uses maximum and minimum values defined in {@link FlightControl} to convert normalized 
-	 *  joystick axis value to actual control deflection 
-	 *  
-	 * @param controlType
-	 * @param axisValue
-	 * @return Actual control deflection
-	 */
-	protected double calculateDeflection(FlightControl controlType, double axisValue) {
-		// Calculate positive and negative slope
-		// (elevator has different values for positive/negative max)
-		if (axisValue <= 0) 
-			return (controlType.getMaximum()*Math.abs(axisValue));
-		else
-			return (controlType.getMinimum()*axisValue);
-	}
-	
-	/**
-	 * Squares a value without removing its sign if negative
-	 * 
-	 * @param value
-	 * @return value squared that retains its original sign
-	 */
-	protected double negativeSquare(double value) {
-		if (value < 0)
-			return -(Math.pow(value, 2));
-		else
-			return Math.pow(value, 2);
-	}
-	
 	/**
 	 *  Limit control inputs to sensible deflection values based on the minimum and maximum values defined for 
 	 *  each member of {@link FlightControl}
@@ -128,8 +53,8 @@ public abstract class AbstractController {
 	 * @param controls
 	 * @return flightControls EnumMap 
 	 */
-	public Map<FlightControl, Double> limitControls(Map<FlightControl, Double> controls) {		
-		// Loop through enum list; if value in EnumMap controls is greater/less than max/min specified in FlightControls enum, 
+	protected Map<FlightControl, Double> limitControls(Map<FlightControl, Double> controls) {		
+		// Loop through enum values; if value in EnumMap controls is greater/less than max/min specified in FlightControls enum, 
 		// set that EnumMap value to Enum's max/min value
 		for (FlightControl flc : FlightControl.values()) {
 			if (controls.get(flc) > flc.getMaximum())

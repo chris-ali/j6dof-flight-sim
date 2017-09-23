@@ -46,6 +46,10 @@ public class Mouse extends AbstractController {
 	private double tempElev  = 0.0;
 	private double tempAil   = 0.0;
 	private double tempThrot = 0.0;
+	
+	// Add these trim values to getControlDeflection method call to emulate trim deflections
+	private double trimElevator = 0.0;
+	private double trimAileron  = 0.0;
 
 	/**
 	 *  Constructor for Joystick class; creates list of controllers using searchForControllers()
@@ -57,7 +61,6 @@ public class Mouse extends AbstractController {
 		// Get initial trim values from initial values in controls EnumMap (rad)
 		trimElevator = controls.get(FlightControl.ELEVATOR);
 		trimAileron = controls.get(FlightControl.AILERON);
-		trimRudder = controls.get(FlightControl.RUDDER);
 		
 		logger.debug("Setting up mouse...");
 		
@@ -90,7 +93,7 @@ public class Mouse extends AbstractController {
 	 *  @return controls Map
 	 */
 	@Override
-	protected Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls) {
+	public Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls) {
 		// Iterate through all controllers connected
 		for (Controller controller : controllerList) {
 			
@@ -107,7 +110,7 @@ public class Mouse extends AbstractController {
 					if(component.getPollData() == 1.0f) {
 						// Button index (nothing implemented yet)
 					}
-					continue; // Go to next component
+					continue;
 				}
 
 				// Mouse Axes - Read raw mouse relative value, add relative value to temp* variable, and add trim value
@@ -121,7 +124,7 @@ public class Mouse extends AbstractController {
 							tempElev += axisValue;
 							controls.put(FlightControl.ELEVATOR, -(tempElev+trimElevator));
 						}
-						continue; // Go to next component
+						continue;
 					}
 					// X axis (Aileron)
 					if(componentIdentifier == Axis.X) {
@@ -129,7 +132,7 @@ public class Mouse extends AbstractController {
 							tempAil += axisValue;
 							controls.put(FlightControl.AILERON, -(tempAil+trimAileron));
 						}
-						continue; // Go to next component
+						continue;
 					}
 					// Z axis (Throttle)
 					if(componentIdentifier == Axis.Z) {
@@ -138,7 +141,7 @@ public class Mouse extends AbstractController {
 							controls.put(FlightControl.THROTTLE_1, tempThrot*250);
 							controls.put(FlightControl.THROTTLE_2, tempThrot*250);
 						}
-						continue; // Go to next component
+						continue;
 					}
 				}
 			}

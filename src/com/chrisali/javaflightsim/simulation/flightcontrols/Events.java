@@ -1,6 +1,28 @@
+/*******************************************************************************
+ * Copyright (C) 2016-2017 Christopher Ali
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ *  If you have any questions about this project, you can visit
+ *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
+ ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.flightcontrols;
 
 import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.hidcontrollers.AbstractController;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
@@ -15,6 +37,8 @@ import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
  */
 public class Events {
 	
+	private static final Logger logger = LogManager.getLogger(Events.class);
+	
 	/**
 	 * Initializes class with trim control values and integration step size values 
 	 * from {@link SimulationConfiguration}
@@ -22,6 +46,8 @@ public class Events {
 	 * @param configuration
 	 */
 	public static void init(SimulationConfiguration configuration) {
+		logger.debug("Initializing flight control events...");
+		
 		dt = configuration.getIntegratorConfig().get(IntegratorConfig.DT);
 		trimAileron = configuration.getInitialControls().get(FlightControl.AILERON);
 		trimElevator= configuration.getInitialControls().get(FlightControl.ELEVATOR);
@@ -52,20 +78,20 @@ public class Events {
 	 * need to release key to extend or retract gear again
 	 * 
 	 * @param controls
-	 * @param componentPollData
+	 * @param buttonPressed
 	 */
-	public static void cycleGear(Map<FlightControl, Double> controls, float componentPollData) {
+	public static void cycleGear(Map<FlightControl, Double> controls, boolean buttonPressed) {
 		if (!gearPressed && controls.get(FlightControl.GEAR) < 0.5) {
-			if(componentPollData == 1.0f) {
+			if(buttonPressed) {
 				controls.put(FlightControl.GEAR, 1.0);
 				gearPressed = true;
 			}
 		} else if (!gearPressed && controls.get(FlightControl.GEAR) > 0.5) {
-			if(componentPollData == 1.0f) {
+			if(buttonPressed) {
 				controls.put(FlightControl.GEAR, 0.0);
 				gearPressed = true;
 			}
-		} else if (gearPressed && componentPollData == 0.0f) {
+		} else if (gearPressed && !buttonPressed) {
 			gearPressed = false;
 		} 
 	}
@@ -82,12 +108,12 @@ public class Events {
 	
 	public static void aileronTrimLeft() {
 		if(trimAileron >= FlightControl.AILERON.getMinimum()) 
-			trimAileron -= getRate(FlightControl.AILERON)/10;
+			trimAileron += getRate(FlightControl.AILERON)/10;
 	}
 	
 	public static void aileronTrimRight() {
 		if(trimAileron <= FlightControl.AILERON.getMaximum()) 
-			trimAileron += getRate(FlightControl.AILERON)/10;
+			trimAileron -= getRate(FlightControl.AILERON)/10;
 	}
 	
 	public static void rudderTrimRight() {
@@ -137,12 +163,12 @@ public class Events {
 	
 	public static void aileronLeft(Map<FlightControl, Double> controls) {
 		if (controls.get(FlightControl.AILERON) >= FlightControl.AILERON.getMinimum())
-			controls.put(FlightControl.AILERON, controls.get(FlightControl.AILERON) - getRate(FlightControl.AILERON));
+			controls.put(FlightControl.AILERON, controls.get(FlightControl.AILERON) + getRate(FlightControl.AILERON));
 	}
 	
 	public static void aileronRight(Map<FlightControl, Double> controls) {
 		if (controls.get(FlightControl.AILERON) <= FlightControl.AILERON.getMaximum())
-			controls.put(FlightControl.AILERON, controls.get(FlightControl.AILERON) + getRate(FlightControl.AILERON));
+			controls.put(FlightControl.AILERON, controls.get(FlightControl.AILERON) - getRate(FlightControl.AILERON));
 	}
 	
 	public static void rudderLeft(Map<FlightControl, Double> controls) {

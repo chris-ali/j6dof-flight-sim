@@ -20,6 +20,7 @@
 package com.chrisali.javaflightsim.tests;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.simulation.flightcontrols.Events;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -41,6 +42,7 @@ public class TestFlightControls implements Runnable {
 	
 	public TestFlightControls() {
 		configuation = FileUtilities.readSimulationConfiguration();
+		Events.init(configuation);
 		simController = new LWJGLSwingSimulationController(configuation);
 		configuation.getSimulationOptions().add(Options.USE_CH_CONTROLS);
 		flightControls = new FlightControls(simController);

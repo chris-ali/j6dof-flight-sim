@@ -22,6 +22,7 @@ package com.chrisali.javaflightsim.simulation.hidcontrollers;
 import java.util.ArrayList;
 import java.util.Map;
 
+import com.chrisali.javaflightsim.simulation.flightcontrols.Events;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 
 import net.java.games.input.Component;
@@ -49,12 +50,7 @@ public class Joystick extends AbstractController {
 	 */
 	public Joystick(Map<FlightControl, Double> controls) {
 		this.controllerList = new ArrayList<>();
-		
-		// Get initial trim values from initial values in controls EnumMap (rad)
-		trimElevator = controls.get(FlightControl.ELEVATOR);
-		trimAileron  = controls.get(FlightControl.AILERON);
-		trimRudder   = controls.get(FlightControl.RUDDER);
-		
+
 		logger.debug("Setting up joystick...");
 		
 		searchForControllers();
@@ -69,8 +65,10 @@ public class Joystick extends AbstractController {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		
 		for(Controller controller : controllers){
-			if (controller.getType() == Controller.Type.STICK || controller.getType() == Controller.Type.GAMEPAD)
+			if (controller.getType() == Controller.Type.STICK || controller.getType() == Controller.Type.GAMEPAD) {
 				controllerList.add(controller);
+				logger.debug("Found a joystick: " + controller.getName());
+			}
 		}
 		
 		// If no joysticks available, exit function
@@ -86,7 +84,7 @@ public class Joystick extends AbstractController {
 	 *  @return controls Map
 	 */
 	@Override
-	protected Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls) {
+	public Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls) {
 		// Iterate through all controllers connected
 		for (Controller controller : controllerList) {
 			
@@ -103,40 +101,41 @@ public class Joystick extends AbstractController {
 					if(component.getPollData() == 1.0f) {
 						switch(componentIdentifier.toString()) {
 						case "0":
-							controls.put(FlightControl.BRAKE_L, negativeSquare(FlightControl.BRAKE_L.getMaximum()));
-							controls.put(FlightControl.BRAKE_R, negativeSquare(FlightControl.BRAKE_R.getMaximum()));
+							Events.brakeLeft(controls, FlightControl.BRAKE_L.getMaximum());
+							Events.brakeRight(controls, FlightControl.BRAKE_R.getMaximum());
 							break;
 						case "4":
-							controls.put(FlightControl.GEAR, FlightControl.GEAR.getMaximum());
+							Events.extendGear(controls);
 							break;
 						case "5":
-							controls.put(FlightControl.GEAR, FlightControl.GEAR.getMinimum());
+							Events.retractGear(controls);
 							break;
 						case "6":
-							if (flaps >= FlightControl.FLAPS.getMinimum())	controls.put(FlightControl.FLAPS, (flaps -= getDeflectionRate(FlightControl.FLAPS)));
+							Events.retractFlaps(controls);
 							break;
 						case "7":
-							if (flaps <= FlightControl.FLAPS.getMaximum()) controls.put(FlightControl.FLAPS, (flaps += getDeflectionRate(FlightControl.FLAPS)));
+							Events.extendFlaps(controls);
 							break;
 						}
 					}
-					continue; // Go to next component
+					
+					continue;
 				}
 
 				// POV Hat Switch - Control elevator and aileron trim 
 				if(componentIdentifier == Axis.POV) {
 					float povValue = component.getPollData();
 					
-					if      (Float.compare(povValue, POV.UP)    == 0 & trimElevator <= FlightControl.ELEVATOR.getMaximum())
-						trimElevator += getDeflectionRate(FlightControl.ELEVATOR)/10; 
-					else if (Float.compare(povValue, POV.DOWN)  == 0 & trimElevator >= FlightControl.ELEVATOR.getMinimum()) 
-						trimElevator -= getDeflectionRate(FlightControl.ELEVATOR)/10;
-					else if (Float.compare(povValue, POV.LEFT)  == 0 & trimAileron  >= FlightControl.AILERON.getMinimum()) 
-						trimAileron  += getDeflectionRate(FlightControl.AILERON)/20;
-					else if (Float.compare(povValue, POV.RIGHT) == 0 & trimAileron  <= FlightControl.AILERON.getMaximum())
-						trimAileron  -= getDeflectionRate(FlightControl.AILERON)/20;
+					if      (Float.compare(povValue, POV.UP)    == 0)
+						Events.elevatorTrimDown(); 
+					else if (Float.compare(povValue, POV.DOWN)  == 0) 
+						Events.elevatorTrimUp();
+					else if (Float.compare(povValue, POV.LEFT)  == 0) 
+						Events.aileronTrimLeft();
+					else if (Float.compare(povValue, POV.RIGHT) == 0)
+						Events.aileronTrimRight();
 					
-					continue; // Go to next component
+					continue;
 				}
 
 				// Joystick Axes - Read raw joystick value, square to reduce its sensitivity, convert to control deflection, and add trim value
@@ -145,34 +144,29 @@ public class Joystick extends AbstractController {
 
 					// Y axis (Elevator)
 					if(componentIdentifier == Axis.Y) {
-						controls.put(FlightControl.ELEVATOR, 
-								 	 calculateDeflection(FlightControl.ELEVATOR, 
-								 			 		   	  		negativeSquare(axisValue))+trimElevator);
-						continue; // Go to next component
+						Events.elevator(controls, axisValue);
+						continue;
 					}
 					// X axis (Aileron)
 					if(componentIdentifier == Axis.X) {
-						controls.put(FlightControl.AILERON, 
-									 calculateDeflection(FlightControl.AILERON, 
-											 					negativeSquare(axisValue))+trimAileron);
-						continue; // Go to next component
+						Events.aileron(controls, axisValue);
+						continue;
 					}
 					// Z axis (Rudder)
 					if(componentIdentifier == Axis.RZ) {
-						controls.put(FlightControl.RUDDER, 
-								 	 calculateDeflection(FlightControl.RUDDER, 
-								 			 					negativeSquare(axisValue))+trimRudder);
-						continue; // Go to next component
+						Events.rudder(controls, axisValue);
+						continue;
 					}
 					// Slider axis (Throttle)
 					if(componentIdentifier == Axis.SLIDER) {
-						controls.put(FlightControl.THROTTLE_1,-(axisValue-1)/2);
-						controls.put(FlightControl.THROTTLE_2,-(axisValue-1)/2);
-						continue; // Go to next component
+						Events.throttle1(controls, axisValue);
+						Events.throttle2(controls, axisValue);
+						continue;
 					}
 				}
 			}
 		}
-		return controls;
+		
+		return limitControls(controls);
 	}
 }

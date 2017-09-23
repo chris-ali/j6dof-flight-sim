@@ -85,6 +85,7 @@ public class FlightControls implements Runnable, FlightDataListener {
 		
 		// initializes static EnumMap that contains trim values of controls for doublets 
 		DoubletGenerator.init();
+		Events.init(configuration);
 	}
 	
 	@Override
@@ -116,9 +117,9 @@ public class FlightControls implements Runnable, FlightDataListener {
 				// otherwise, controls updated using generated doublets instead of pilot input
 				if (!options.contains(Options.ANALYSIS_MODE)) {
 					if (hidController != null) 
-						controls = hidController.limitControls(controls);
+						controls = hidController.calculateControllerValues(controls);
 					
-					controls = hidKeyboard.limitControls(controls);
+					controls = hidKeyboard.calculateControllerValues(controls);
 					
 					if (simulation != null && simulation.isRunning())
 						hidKeyboard.hotKeys();

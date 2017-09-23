@@ -22,6 +22,7 @@ package com.chrisali.javaflightsim.simulation.hidcontrollers;
 import java.util.ArrayList;
 import java.util.Map;
 
+import com.chrisali.javaflightsim.simulation.flightcontrols.Events;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 
 import net.java.games.input.Component;
@@ -48,15 +49,8 @@ public class CHControls extends AbstractController {
 	 * @param controls
 	 */
 	public CHControls(Map<FlightControl, Double> controls) {
-		this.controllerList = new ArrayList<>();
-		
-		// Get initial trim values from initial values in controls EnumMap (rad)
-		trimElevator = controls.get(FlightControl.ELEVATOR);
-		trimAileron  = controls.get(FlightControl.AILERON);
-		trimRudder   = controls.get(FlightControl.RUDDER);
-		
-		flaps = controls.get(FlightControl.FLAPS);
-		
+		controllerList = new ArrayList<>();
+
 		logger.debug("Setting up CH Flight Controls...");
 		
 		searchForControllers();
@@ -71,8 +65,10 @@ public class CHControls extends AbstractController {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		
 		for(Controller controller : controllers){
-			if (controller.getType() == Controller.Type.STICK)
+			if (controller.getType() == Controller.Type.STICK) {
 				controllerList.add(controller);
+				logger.debug("Found a joystick: " + controller.getName());
+			}
 		}
 		
 		// If no joysticks available, exit function
@@ -89,7 +85,7 @@ public class CHControls extends AbstractController {
 	 *  @return controls Map
 	 */
 	@Override
-	protected Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls) {
+	public Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls) {
 		// Iterate through all controllers connected
 		for (Controller controller : controllerList) {
 			
@@ -102,65 +98,66 @@ public class CHControls extends AbstractController {
 			// Iterate through all components of the controller.
 			for(Component component : controller.getComponents()) {
 				Identifier componentIdentifier = component.getIdentifier();
+				boolean isPressed = component.getPollData() == 1.0f;
 
 				// Buttons
 				if(componentIdentifier.getName().matches("^[0-9]*$")) { // If the component identifier contains only numbers, it is a button
-					if(component.getPollData() == 1.0f && controllerName.compareTo("ch flight sim yoke usb") == 0) {
+					if(isPressed && controllerName.compareTo("ch flight sim yoke usb") == 0) {
 						// Button index
-						switch(component.getIdentifier().toString()) {
+						switch(componentIdentifier.toString()) {
 						case "2":
-							if(trimAileron >= FlightControl.AILERON.getMinimum()) trimAileron  += getDeflectionRate(FlightControl.ELEVATOR)/10;
+							Events.aileronTrimLeft();
 							break;
 						case "3":
-							if(trimAileron <= FlightControl.AILERON.getMaximum()) trimAileron  -= getDeflectionRate(FlightControl.ELEVATOR)/10;
+							Events.aileronTrimRight();
 							break;
 						case "4":
-							controls.put(FlightControl.GEAR, FlightControl.GEAR.getMinimum()); // Retract landing gear
+							Events.retractGear(controls);
 							break;
 						case "5":
-							controls.put(FlightControl.GEAR, FlightControl.GEAR.getMaximum()); // Extend landing gear
+							Events.extendGear(controls);
 							break;
 						case "6":
-							if (flaps >= FlightControl.FLAPS.getMinimum())	controls.put(FlightControl.FLAPS, (flaps -= getDeflectionRate(FlightControl.FLAPS)));
+							Events.retractFlaps(controls);
 							break;
 						case "7":
-							if (flaps <= FlightControl.FLAPS.getMaximum()) controls.put(FlightControl.FLAPS, (flaps += getDeflectionRate(FlightControl.FLAPS)));
+							Events.extendFlaps(controls);
 							break;
 						case "10":
-							if (trimElevator <= FlightControl.ELEVATOR.getMaximum()) trimElevator += getDeflectionRate(FlightControl.AILERON)/20;
+							Events.elevatorTrimDown();
 							break;	
 						case "11":
-							if (trimElevator >= FlightControl.ELEVATOR.getMinimum()) trimElevator -= getDeflectionRate(FlightControl.AILERON)/20;
+							Events.elevatorTrimUp();
 							break;
 						}
-					} else if(component.getPollData() == 1.0f && controllerName.compareTo("ch throttle quadrant usb") == 0) {
+					} else if(isPressed && controllerName.compareTo("ch throttle quadrant usb") == 0) {
 						// Button index
-						switch(component.getIdentifier().toString()) {
+						switch(componentIdentifier.toString()) {
 						case "0":
-							if (trimElevator <= FlightControl.ELEVATOR.getMaximum()) trimElevator += getDeflectionRate(FlightControl.ELEVATOR)/10;
+							Events.elevatorTrimDown();
 							break;
 						case "1":
-							if (trimElevator >= FlightControl.ELEVATOR.getMinimum()) trimElevator -= getDeflectionRate(FlightControl.ELEVATOR)/10;
+							Events.elevatorTrimUp();
 							break;
 						}
 					}
-					continue; // Go to next component
+					continue;
 				}
 
 				// POV Hat Switch - Control elevator and aileron trim 
 				if(componentIdentifier == Axis.POV) {
 					float povValue = component.getPollData();
 					
-					if      (Float.compare(povValue, POV.UP)    == 0 & trimElevator <= FlightControl.ELEVATOR.getMaximum())
-						trimElevator += 0.001; 
-					else if (Float.compare(povValue, POV.DOWN)  == 0 & trimElevator >= FlightControl.ELEVATOR.getMinimum()) 
-						trimElevator -= 0.001;
-					else if (Float.compare(povValue, POV.LEFT)  == 0 & trimAileron  >= FlightControl.AILERON.getMinimum()) 
-						trimAileron  += 0.001;
-					else if (Float.compare(povValue, POV.RIGHT) == 0 & trimAileron  <= FlightControl.AILERON.getMaximum())
-						trimAileron  -= 0.001;
+					if      (Float.compare(povValue, POV.UP)    == 0)
+						Events.elevatorTrimDown(); 
+					else if (Float.compare(povValue, POV.DOWN)  == 0) 
+						Events.elevatorTrimUp();
+					else if (Float.compare(povValue, POV.LEFT)  == 0) 
+						Events.aileronTrimLeft();
+					else if (Float.compare(povValue, POV.RIGHT) == 0)
+						Events.aileronTrimRight();
 					
-					continue; // Go to next component
+					continue;
 				}
 
 				// Controller Axes - Read raw controller value, square to reduce its sensitivity, convert to control deflection, and add trim value
@@ -169,74 +166,69 @@ public class CHControls extends AbstractController {
 
 					// Y axis (Elevator)
 					if(componentIdentifier == Axis.Y) {
-						controls.put(FlightControl.ELEVATOR, 
-								 	 calculateDeflection(FlightControl.ELEVATOR, 
-								 			 		   	  		negativeSquare(axisValue))+trimElevator);
-						continue; // Go to next component
+						Events.elevator(controls, axisValue);
+						continue;
 					}
 					// X axis (Aileron)
 					if(componentIdentifier == Axis.X) {
-						controls.put(FlightControl.AILERON, 
-									 calculateDeflection(FlightControl.AILERON, 
-											 					negativeSquare(axisValue))+trimAileron);
-						continue; // Go to next component
+						Events.aileron(controls, axisValue);
+						continue;
 					}
 				} else if(component.isAnalog() && controllerName.compareTo("ch pro pedals usb") == 0){
 					double axisValue = (double)component.getPollData();
 
 					// Y axis (Elevator)
 					if(componentIdentifier == Axis.Y) {
-						controls.put(FlightControl.BRAKE_R, negativeSquare(axisValue));
-						continue; // Go to next component
+						Events.brakeLeft(controls, axisValue);
+						continue;
 					}
 					// X axis (Aileron)
 					if(componentIdentifier == Axis.X) {
-						controls.put(FlightControl.BRAKE_L, negativeSquare(axisValue));
-						continue; // Go to next component
+						Events.brakeRight(controls, axisValue);
+						continue;
 					}
 					// Z axis (Rudder)
 					if(componentIdentifier == Axis.Z) {
-						controls.put(FlightControl.RUDDER, 
-								 	 calculateDeflection(FlightControl.RUDDER, 
-								 			 					negativeSquare(axisValue))+trimRudder);
-						continue; // Go to next component
+						Events.rudder(controls, axisValue);
+						continue;
 					}
 				} else if(component.isAnalog() && controllerName.compareTo("ch throttle quadrant usb") == 0){
 					double axisValue = (double)component.getPollData();
 
 					// X axis (Throttle 1)
 					if(componentIdentifier == Axis.X) {
-						controls.put(FlightControl.THROTTLE_1,-(axisValue-1)/2);
-						continue; // Go to next component
+						Events.throttle1(controls, axisValue);
+						continue;
 					}
 					// Y axis (Throttle 2)
 					if(componentIdentifier == Axis.Y) {
-						controls.put(FlightControl.THROTTLE_2,-(axisValue-1)/2);
-						continue; // Go to next component
+						Events.throttle2(controls, axisValue);
+						continue;
 					}
 					// Z axis (Propeller 1)
 					if(componentIdentifier == Axis.Z) {
-						controls.put(FlightControl.PROPELLER_1,-(axisValue-1)/2);
-						continue; // Go to next component
+						Events.propeller1(controls, axisValue);
+						continue;
 					}
 					// RZ axis (Propeller 2)
 					if(componentIdentifier == Axis.RZ) {
-						controls.put(FlightControl.PROPELLER_2,-(axisValue-1)/2);
-						continue; // Go to next component
+						Events.propeller2(controls, axisValue);
+						continue;
 					}
 					// RY axis (Mixture 1)
 					if(componentIdentifier == Axis.RY) {
-						controls.put(FlightControl.MIXTURE_1,-(axisValue-1)/2);
-						continue; // Go to next component
+						Events.mixture1(controls, axisValue);
+						continue;
 					}
 					// RX axis (Mixture 2)
 					if(componentIdentifier == Axis.RX) {
-						controls.put(FlightControl.MIXTURE_2,-(axisValue-1)/2);
-						continue; // Go to next component
+						Events.mixture2(controls, axisValue);
+						continue;
 					}
 				}
 			}
 		}
-		return controls;
+		
+		return limitControls(controls);
 	}
 }
