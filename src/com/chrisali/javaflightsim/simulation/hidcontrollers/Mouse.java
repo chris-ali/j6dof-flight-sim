@@ -26,6 +26,7 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
+import net.java.games.input.Component.Identifier.Axis;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
@@ -67,7 +68,7 @@ public class Mouse extends AbstractController {
 	 * Search for and add controllers of type Controller.Type.KEYBOARD to controllerList
 	 */
 	@Override
-	protected void searchForControllers() {
+	public void searchForControllers() {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
 
 		for (Controller controller : controllers) {
@@ -115,7 +116,7 @@ public class Mouse extends AbstractController {
 					double axisValue = (double)component.getPollData()/10000;
 					
 					// Y axis (Elevator)
-					if(componentIdentifier == Component.Identifier.Axis.Y) {
+					if(componentIdentifier == Axis.Y) {
 						if(axisValue != 0) {
 							tempElev += axisValue;
 							controls.put(FlightControlType.ELEVATOR, -(tempElev+trimElevator));
@@ -123,7 +124,7 @@ public class Mouse extends AbstractController {
 						continue; // Go to next component
 					}
 					// X axis (Aileron)
-					if(componentIdentifier == Component.Identifier.Axis.X) {
+					if(componentIdentifier == Axis.X) {
 						if(axisValue != 0) {
 							tempAil += axisValue;
 							controls.put(FlightControlType.AILERON, -(tempAil+trimAileron));
@@ -131,7 +132,7 @@ public class Mouse extends AbstractController {
 						continue; // Go to next component
 					}
 					// Z axis (Throttle)
-					if(componentIdentifier == Component.Identifier.Axis.Z) {
+					if(componentIdentifier == Axis.Z) {
 						if(axisValue != 0) {
 							tempThrot += axisValue;
 							controls.put(FlightControlType.THROTTLE_1, tempThrot*250);

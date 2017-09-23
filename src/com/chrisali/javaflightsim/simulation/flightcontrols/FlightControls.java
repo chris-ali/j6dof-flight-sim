@@ -38,7 +38,6 @@ import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
-import com.chrisali.javaflightsim.simulation.utilities.FlightControlsUtilities;
 
 /**
  * Contains the Flight Controls thread used to handle flight controls actuated by human interface devices, such as
@@ -85,7 +84,7 @@ public class FlightControls implements Runnable, FlightDataListener {
 		hidKeyboard = new Keyboard(controls, simController);
 		
 		// initializes static EnumMap that contains trim values of controls for doublets 
-		FlightControlsUtilities.init();
+		DoubletGenerator.init();
 	}
 	
 	@Override
@@ -117,9 +116,9 @@ public class FlightControls implements Runnable, FlightDataListener {
 				// otherwise, controls updated using generated doublets instead of pilot input
 				if (!options.contains(Options.ANALYSIS_MODE)) {
 					if (hidController != null) 
-						controls = hidController.updateFlightControls(controls);
+						controls = hidController.limitFlightControls(controls);
 					
-					controls = hidKeyboard.updateFlightControls(controls);
+					controls = hidKeyboard.limitFlightControls(controls);
 					
 					if (simulation != null && simulation.isRunning())
 						hidKeyboard.hotKeys();
@@ -127,7 +126,7 @@ public class FlightControls implements Runnable, FlightDataListener {
 					Thread.sleep((long) (integratorConfig.get(IntegratorConfig.DT)*1000));
 				} else {
 					if (simulation != null) {
-						controls = FlightControlsUtilities.doubletSeries(controls, simulation.getTime());
+						controls = DoubletGenerator.doubletSeries(controls, simulation.getTime());
 						Thread.sleep(1);
 					}
 				}

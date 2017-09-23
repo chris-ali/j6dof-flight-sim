@@ -20,7 +20,6 @@
 package com.chrisali.javaflightsim.simulation.hidcontrollers;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -31,7 +30,6 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
-import com.chrisali.javaflightsim.simulation.utilities.FlightControlsUtilities;
 
 import net.java.games.input.Controller;
 
@@ -57,7 +55,7 @@ public abstract class AbstractController {
 	// Flaps deflection
 	protected static double flaps   	 = 0.0;
 
-	protected abstract void searchForControllers();
+	public abstract void searchForControllers();
 	
 	protected abstract Map<FlightControlType, Double> calculateControllerValues(Map<FlightControlType, Double> controls);
 	
@@ -124,12 +122,22 @@ public abstract class AbstractController {
 	}
 	
 	/**
-	 *  Updates values for controls in controls EnumMap, limiting their max/min via limitControls method
+	 *  Limit control inputs to sensible deflection values based on the minimum and maximum values defined for 
+	 *  each member of {@link FlightControlType}
+	 *  
 	 * @param controls
-	 * @return flightControls EnumMap limited by {@link FlightControlsUtilities#limitControls(EnumMap)}
+	 * @return flightControls EnumMap 
 	 */
-	public Map<FlightControlType, Double> updateFlightControls(Map<FlightControlType, Double> controls) {		
-		return FlightControlsUtilities.limitControls(calculateControllerValues(controls));
+	public Map<FlightControlType, Double> limitFlightControls(Map<FlightControlType, Double> controls) {		
+		// Loop through enum list; if value in EnumMap controls is greater/less than max/min specified in FlightControls enum, 
+		// set that EnumMap value to Enum's max/min value
+		for (FlightControlType flc : FlightControlType.values()) {
+			if (controls.get(flc) > flc.getMaximum())
+				controls.put(flc, flc.getMaximum());
+			else if (controls.get(flc) < flc.getMinimum())
+				controls.put(flc, flc.getMinimum());		
+		}
+		
+		return controls;
 	}
-	
 }

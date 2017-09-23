@@ -19,19 +19,19 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.setup;
 
+import com.chrisali.javaflightsim.simulation.hidcontrollers.CHControls;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Joystick;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Keyboard;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Mouse;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.simulation.utilities.FlightControlsUtilities;
 import com.chrisali.javaflightsim.swing.SimulationWindow;
 import com.chrisali.javaflightsim.swing.instrumentpanel.InstrumentPanel;
 
 /**
  * Provides Enums for the options EnumSet to provide the following options:
  * 
- *	<p>ANALYSIS_MODE - Removes real-time aspect of the simulation, generates 3 doublets (aileron, rudder and elevator) using {@link FlightControlsUtilities#doubletSeries(java.util.EnumMap, double)} 
- *  into controls, and generates plots at the end of the run; used to analyze transient dynamics of the aircraft </p>
+ *	<p>ANALYSIS_MODE - Removes real-time aspect of the simulation, injects doublet flight control inputs and generates plots at the end of the run; 
+ *	used to analyze transient dynamics of the aircraft </p>
  *	<p>UNLIMITED_FLIGHT - Removes the end of the simulation to allow for infinite flight; data logging is limited to the last 100 seconds of simulation</p>
  *	<p>PAUSED - Pauses the integration and therefore the simulation; used in combination with RESET to return the simulation to initial conditions</p>
  *	<p>RESET - Resets the integration to initial conditions using {@link IntegrationSetup#gatherInitialConditions(String)}</p>

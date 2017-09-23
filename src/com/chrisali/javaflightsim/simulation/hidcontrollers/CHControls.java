@@ -26,6 +26,7 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
+import net.java.games.input.Component.Identifier.Axis;
 import net.java.games.input.Component.POV;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
@@ -66,7 +67,7 @@ public class CHControls extends AbstractController {
 	 * to controllerList
 	 */ 
 	@Override
-	protected void searchForControllers() {
+	public void searchForControllers() {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		
 		for(Controller controller : controllers){
@@ -145,7 +146,7 @@ public class CHControls extends AbstractController {
 				}
 
 				// POV Hat Switch - Control elevator and aileron trim 
-				if(componentIdentifier == Component.Identifier.Axis.POV) {
+				if(componentIdentifier == Axis.POV) {
 					float povValue = component.getPollData();
 					
 					if      (Float.compare(povValue, POV.UP)    == 0 & trimElevator <= FlightControlType.ELEVATOR.getMaximum())
@@ -165,14 +166,14 @@ public class CHControls extends AbstractController {
 					double axisValue = (double)component.getPollData();
 
 					// Y axis (Elevator)
-					if(componentIdentifier == Component.Identifier.Axis.Y) {
+					if(componentIdentifier == Axis.Y) {
 						controls.put(FlightControlType.ELEVATOR, 
 								 	 calculateControlDeflection(FlightControlType.ELEVATOR, 
 								 			 		   	  		negativeSquare(axisValue))+trimElevator);
 						continue; // Go to next component
 					}
 					// X axis (Aileron)
-					if(componentIdentifier == Component.Identifier.Axis.X) {
+					if(componentIdentifier == Axis.X) {
 						controls.put(FlightControlType.AILERON, 
 									 calculateControlDeflection(FlightControlType.AILERON, 
 											 					negativeSquare(axisValue))+trimAileron);
@@ -182,17 +183,17 @@ public class CHControls extends AbstractController {
 					double axisValue = (double)component.getPollData();
 
 					// Y axis (Elevator)
-					if(componentIdentifier == Component.Identifier.Axis.Y) {
+					if(componentIdentifier == Axis.Y) {
 						controls.put(FlightControlType.BRAKE_R, negativeSquare(axisValue));
 						continue; // Go to next component
 					}
 					// X axis (Aileron)
-					if(componentIdentifier == Component.Identifier.Axis.X) {
+					if(componentIdentifier == Axis.X) {
 						controls.put(FlightControlType.BRAKE_L, negativeSquare(axisValue));
 						continue; // Go to next component
 					}
 					// Z axis (Rudder)
-					if(componentIdentifier == Component.Identifier.Axis.Z) {
+					if(componentIdentifier == Axis.Z) {
 						controls.put(FlightControlType.RUDDER, 
 								 	 calculateControlDeflection(FlightControlType.RUDDER, 
 								 			 					negativeSquare(axisValue))+trimRudder);
@@ -202,32 +203,32 @@ public class CHControls extends AbstractController {
 					double axisValue = (double)component.getPollData();
 
 					// X axis (Throttle 1)
-					if(componentIdentifier == Component.Identifier.Axis.X) {
+					if(componentIdentifier == Axis.X) {
 						controls.put(FlightControlType.THROTTLE_1,-(axisValue-1)/2);
 						continue; // Go to next component
 					}
 					// Y axis (Throttle 2)
-					if(componentIdentifier == Component.Identifier.Axis.Y) {
+					if(componentIdentifier == Axis.Y) {
 						controls.put(FlightControlType.THROTTLE_2,-(axisValue-1)/2);
 						continue; // Go to next component
 					}
 					// Z axis (Propeller 1)
-					if(componentIdentifier == Component.Identifier.Axis.Z) {
+					if(componentIdentifier == Axis.Z) {
 						controls.put(FlightControlType.PROPELLER_1,-(axisValue-1)/2);
 						continue; // Go to next component
 					}
 					// RZ axis (Propeller 2)
-					if(componentIdentifier == Component.Identifier.Axis.RZ) {
+					if(componentIdentifier == Axis.RZ) {
 						controls.put(FlightControlType.PROPELLER_2,-(axisValue-1)/2);
 						continue; // Go to next component
 					}
 					// RY axis (Mixture 1)
-					if(componentIdentifier == Component.Identifier.Axis.RY) {
+					if(componentIdentifier == Axis.RY) {
 						controls.put(FlightControlType.MIXTURE_1,-(axisValue-1)/2);
 						continue; // Go to next component
 					}
 					// RX axis (Mixture 2)
-					if(componentIdentifier == Component.Identifier.Axis.RX) {
+					if(componentIdentifier == Axis.RX) {
 						controls.put(FlightControlType.MIXTURE_2,-(axisValue-1)/2);
 						continue; // Go to next component
 					}

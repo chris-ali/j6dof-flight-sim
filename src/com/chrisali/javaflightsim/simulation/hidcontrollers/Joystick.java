@@ -26,6 +26,7 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
+import net.java.games.input.Component.Identifier.Axis;
 import net.java.games.input.Component.POV;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
@@ -64,7 +65,7 @@ public class Joystick extends AbstractController {
 	 * to controllerList
 	 */ 
 	@Override
-	protected void searchForControllers() {
+	public void searchForControllers() {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
 		
 		for(Controller controller : controllers){
@@ -100,8 +101,7 @@ public class Joystick extends AbstractController {
 				// Buttons
 				if(componentIdentifier.getName().matches("^[0-9]*$")) { // If the component identifier contains only numbers, it is a button
 					if(component.getPollData() == 1.0f) {
-						// Button index (nothing implemented yet)
-						switch(component.getIdentifier().toString()) {
+						switch(componentIdentifier.toString()) {
 						case "0":
 							controls.put(FlightControlType.BRAKE_L, negativeSquare(FlightControlType.BRAKE_L.getMaximum()));
 							controls.put(FlightControlType.BRAKE_R, negativeSquare(FlightControlType.BRAKE_R.getMaximum()));
@@ -124,7 +124,7 @@ public class Joystick extends AbstractController {
 				}
 
 				// POV Hat Switch - Control elevator and aileron trim 
-				if(componentIdentifier == Component.Identifier.Axis.POV) {
+				if(componentIdentifier == Axis.POV) {
 					float povValue = component.getPollData();
 					
 					if      (Float.compare(povValue, POV.UP)    == 0 & trimElevator <= FlightControlType.ELEVATOR.getMaximum())
@@ -144,28 +144,28 @@ public class Joystick extends AbstractController {
 					double axisValue = (double)component.getPollData();
 
 					// Y axis (Elevator)
-					if(componentIdentifier == Component.Identifier.Axis.Y) {
+					if(componentIdentifier == Axis.Y) {
 						controls.put(FlightControlType.ELEVATOR, 
 								 	 calculateControlDeflection(FlightControlType.ELEVATOR, 
 								 			 		   	  		negativeSquare(axisValue))+trimElevator);
 						continue; // Go to next component
 					}
 					// X axis (Aileron)
-					if(componentIdentifier == Component.Identifier.Axis.X) {
+					if(componentIdentifier == Axis.X) {
 						controls.put(FlightControlType.AILERON, 
 									 calculateControlDeflection(FlightControlType.AILERON, 
 											 					negativeSquare(axisValue))+trimAileron);
 						continue; // Go to next component
 					}
 					// Z axis (Rudder)
-					if(componentIdentifier == Component.Identifier.Axis.RZ) {
+					if(componentIdentifier == Axis.RZ) {
 						controls.put(FlightControlType.RUDDER, 
 								 	 calculateControlDeflection(FlightControlType.RUDDER, 
 								 			 					negativeSquare(axisValue))+trimRudder);
 						continue; // Go to next component
 					}
 					// Slider axis (Throttle)
-					if(componentIdentifier == Component.Identifier.Axis.SLIDER) {
+					if(componentIdentifier == Axis.SLIDER) {
 						controls.put(FlightControlType.THROTTLE_1,-(axisValue-1)/2);
 						controls.put(FlightControlType.THROTTLE_2,-(axisValue-1)/2);
 						continue; // Go to next component

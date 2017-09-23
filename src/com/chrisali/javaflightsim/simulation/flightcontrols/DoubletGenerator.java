@@ -17,19 +17,18 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.simulation.utilities;
+package com.chrisali.javaflightsim.simulation.flightcontrols;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 /**
- * Contains methods to modify the aircraft's flight controls to generate doublets for dynamic stability analysis,
- * or limiting flight control deflections
+ * Contains static methods to modify the aircraft's flight controls to generate doublets for dynamic stability analysis
  */
-public class FlightControlsUtilities {
+public class DoubletGenerator {
 	
 	/**
 	 * Main trim values of flight controls to determine default value if doublet input not underway
@@ -37,8 +36,8 @@ public class FlightControlsUtilities {
 	private static Map<FlightControlType, Double> trimControls; 
 
 	/**
-	 * Initializes trimControls EnumMap in {@link FlightControlsUtilities}; needs to be called each time controls and
-	 * initial conditions are changed so that new trim values can be read from InitialControls.txt
+	 * Initializes trimControls EnumMap in {@link DoubletGenerator}; needs to be called each time controls and
+	 * initial conditions are changed so that new trim values can be read from the configuration file
 	 */
 	public static void init() { trimControls = FileUtilities.readSimulationConfiguration().getInitialControls(); }
 	
@@ -124,25 +123,5 @@ public class FlightControlsUtilities {
 							   FlightControlType.ELEVATOR);
 		
 		return controls;
-	}
-	
-	/**
-	 *  Limit control inputs to sensible deflection values based on the minimum and maximum values defined for 
-	 *  each member of {@link FlightControlType}
-	 *  
-	 * @param map
-	 * @return flightControls EnumMap 
-	 */
-	public static Map<FlightControlType, Double> limitControls(Map<FlightControlType, Double> map) {
-		// Loop through enum list; if value in EnumMap controls is greater/less than max/min specified in FlightControls enum, 
-		// set that EnumMap value to Enum's max/min value
-		for (FlightControlType flc : FlightControlType.values()) {
-			if (map.get(flc) > flc.getMaximum())
-				map.put(flc, flc.getMaximum());
-			else if (map.get(flc) < flc.getMinimum())
-				map.put(flc, flc.getMinimum());		
-		}
-		
-		return map;
 	}
 }
