@@ -19,7 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.setup;
 
-import java.util.EnumMap;
 import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.interfaces.Saveable;
@@ -38,7 +37,7 @@ import net.java.games.input.Component.POV;
  */
 public class ControlsConfiguration implements Saveable {
 
-	private EnumMap<KeyCommand, Key> keyboardAssignments;
+	private Map<KeyCommand, Key> keyboardAssignments;
 	
 	/**
 	 * String key is the name of the joystick discovered by jinput
@@ -48,12 +47,12 @@ public class ControlsConfiguration implements Saveable {
 	/**
 	 * String key is the name of the joystick discovered by jinput
 	 */
-	private Map<String, EnumMap<KeyCommand, String>> joystickButtonAssignments;
+	private Map<String, Map<KeyCommand, String>> joystickButtonAssignments;
 	
 	/**
 	 * String key is the name of the joystick discovered by jinput
 	 */
-	private Map<String, EnumMap<KeyCommand, POV>> joystickHatAssignments;
+	private Map<String, Map<KeyCommand, POV>> joystickHatAssignments;
 
 	public ControlsConfiguration() { }
 	
@@ -62,19 +61,19 @@ public class ControlsConfiguration implements Saveable {
 		FileUtilities.serializeJson(SimDirectories.SIM_CONFIG.toString(), this.getClass().getSimpleName(), this.getClass());		
 	}
 
-	public EnumMap<KeyCommand, Key> getKeyboardAssignments() { return keyboardAssignments; }
+	public Map<KeyCommand, Key> getKeyboardAssignments() { return keyboardAssignments; }
 
-	public void setKeyboardAssignments(EnumMap<KeyCommand, Key> keyboardAssignments) { this.keyboardAssignments = keyboardAssignments; }
+	public void setKeyboardAssignments(Map<KeyCommand, Key> keyboardAssignments) { this.keyboardAssignments = keyboardAssignments; }
 
 	public Map<String, JoystickAxis[]> getJoystickAxisAssignments() { return joystickAxisAssignments; }
 
 	public void setJoystickAxisAssignments(Map<String, JoystickAxis[]> joystickAxisAssignments) { this.joystickAxisAssignments = joystickAxisAssignments; }
 
-	public Map<String, EnumMap<KeyCommand, String>> getJoystickButtonAssignments() { return joystickButtonAssignments;	}
+	public Map<String, Map<KeyCommand, String>> getJoystickButtonAssignments() { return joystickButtonAssignments;	}
 
-	public void setJoystickButtonAssignments(Map<String, EnumMap<KeyCommand, String>> joystickButtonAssignments) { this.joystickButtonAssignments = joystickButtonAssignments;	}
+	public void setJoystickButtonAssignments(Map<String, Map<KeyCommand, String>> joystickButtonAssignments) { this.joystickButtonAssignments = joystickButtonAssignments;	}
 
-	public Map<String, EnumMap<KeyCommand, POV>> getJoystickHatAssignments() { return joystickHatAssignments;}
+	public Map<String, Map<KeyCommand, POV>> getJoystickHatAssignments() { return joystickHatAssignments;}
 
-	public void setJoystickHatAssignments(Map<String, EnumMap<KeyCommand, POV>> joystickHatAssignments) { this.joystickHatAssignments = joystickHatAssignments;	}
+	public void setJoystickHatAssignments(Map<String, Map<KeyCommand, POV>> joystickHatAssignments) { this.joystickHatAssignments = joystickHatAssignments;	}
 }
