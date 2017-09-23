@@ -26,5 +26,8 @@ package com.chrisali.javaflightsim.simulation.interfaces;
  *
  */
 public interface Saveable {
+	/**
+	 * Wrapper method that should implent a method to serialize the POJO to JSON
+	 */
 	public void save();
 }

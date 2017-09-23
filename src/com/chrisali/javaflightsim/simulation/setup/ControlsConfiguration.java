@@ -22,6 +22,10 @@ package com.chrisali.javaflightsim.simulation.setup;
 import java.util.EnumMap;
 import java.util.Map;
 
+import com.chrisali.javaflightsim.simulation.interfaces.Saveable;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
+import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
+
 import net.java.games.input.Component.Identifier.Key;
 import net.java.games.input.Component.POV;
 
@@ -32,7 +36,7 @@ import net.java.games.input.Component.POV;
  * @author Christopher
  *
  */
-public class ControlsConfiguration {
+public class ControlsConfiguration implements Saveable {
 
 	private EnumMap<KeyCommand, Key> keyboardAssignments;
 	
@@ -52,6 +56,11 @@ public class ControlsConfiguration {
 	private Map<String, EnumMap<KeyCommand, POV>> joystickHatAssignments;
 
 	public ControlsConfiguration() { }
+	
+	@Override
+	public void save() {
+		FileUtilities.serializeJson(SimDirectories.SIM_CONFIG.toString(), this.getClass().getSimpleName(), this.getClass());		
+	}
 
 	public EnumMap<KeyCommand, Key> getKeyboardAssignments() { return keyboardAssignments; }
 

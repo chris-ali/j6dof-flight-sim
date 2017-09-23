@@ -34,6 +34,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
+import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -52,7 +53,14 @@ public class FileUtilities {
 	//===================================================================================================
 	//										File Reading
 	//===================================================================================================
-		
+	
+	/**
+	 * Creates an {@link Aircraft} object by deserializing a JSON file in the Aircraft/{aircraftName} directory 
+	 * called Aircraft.json 
+	 * 
+	 * @param aircraftName
+	 * @return desrialized {@link Aircraft}
+	 */
 	public static Aircraft readAircraftConfiguration(String aircraftName) {
 		Aircraft ab = deserializeJson(Aircraft.class.getSimpleName(), 
 									  SimDirectories.AIRCRAFT.toString() + File.separator + aircraftName, 
@@ -61,6 +69,12 @@ public class FileUtilities {
 		return ab;
 	}
 	
+	/**
+	 * Creates a {@link SimulationConfiguration} object by deserializing a JSON file in the SimConfig directory 
+	 * called SimulationConfiguration.json
+	 * 
+	 * @return deserialized {@link SimulationConfiguration}
+	 */
 	public static SimulationConfiguration readSimulationConfiguration() {
 		SimulationConfiguration configuration = new SimulationConfiguration();
 		configuration = deserializeJson(SimulationConfiguration.class.getSimpleName(), 
@@ -70,6 +84,29 @@ public class FileUtilities {
 		return configuration;
 	}
 	
+	/**
+	 * Creates a {@link ControlsConfiguration} object by deserializing a JSON file in the SimConfig directory 
+	 * called ControlsConfiguration.json
+	 * 
+	 * @return deserialized {@link ControlsConfiguration}
+	 */
+	public static ControlsConfiguration readControlsConfiguration() {
+		ControlsConfiguration configuration = new ControlsConfiguration();
+		configuration = deserializeJson(ControlsConfiguration.class.getSimpleName(), 
+										SimDirectories.SIM_CONFIG.toString(), 
+										ControlsConfiguration.class);
+		
+		return configuration;
+	}
+	
+	/**
+	 * Deserializes an JSON file into a T object based on the file name, file path and class provided
+	 * 
+	 * @param filename
+	 * @param filepath
+	 * @param klasse
+	 * @return deserialized POJO
+	 */
 	private static <T> T deserializeJson(String filename, String filepath, Class<T> klasse) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(FILE_ROOT).append(filepath).append(File.separator).append(filename).append(CONFIG_EXT);

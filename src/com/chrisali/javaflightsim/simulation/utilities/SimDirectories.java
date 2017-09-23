@@ -11,7 +11,6 @@ package com.chrisali.javaflightsim.simulation.utilities;
  */
 public enum SimDirectories {
 	AIRCRAFT      ("Aircraft"),
-	LOOKUP_TABLE  ("LookupTables"),
 	SIM_CONFIG	  ("SimConfig");
 	
 	private String directory;
