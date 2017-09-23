@@ -33,7 +33,7 @@ public class DoubletGenerator {
 	/**
 	 * Main trim values of flight controls to determine default value if doublet input not underway
 	 */
-	private static Map<FlightControlType, Double> trimControls; 
+	private static Map<FlightControl, Double> trimControls; 
 
 	/**
 	 * Initializes trimControls EnumMap in {@link DoubletGenerator}; needs to be called each time controls and
@@ -44,7 +44,7 @@ public class DoubletGenerator {
 	/**
 	 * Generates a control doublet in the positive and then negative direction, returning to trim value. The start
 	 * time defines when the doublet should start, the duration indicates how long the control is held in that direction,
-	 * and the amplitude the amount of deflection in one direction. controlInput uses {@link FlightControlType} to select
+	 * and the amplitude the amount of deflection in one direction. controlInput uses {@link FlightControl} to select
 	 * the desired control to use as a doublet 
 	 * 
 	 * @param controls
@@ -55,12 +55,12 @@ public class DoubletGenerator {
 	 * @param controlType
 	 * @return flightControls EnumMap 
 	 */
-	public static Map<FlightControlType, Double> makeDoublet(Map<FlightControlType, Double> controls,
+	public static Map<FlightControl, Double> makeDoublet(Map<FlightControl, Double> controls,
 															 AtomicInteger actomicTime,
 															 Integer doubletstartTime, 
 															 Integer duration, 
 															 double amplitude, 
-															 FlightControlType controlType) {
+															 FlightControl controlType) {
 		Integer time = actomicTime.get();
 		Integer firstHalfEndTime = doubletstartTime + duration;
 		Integer doubletEndTime   = doubletstartTime + (2 * duration);
@@ -90,7 +90,7 @@ public class DoubletGenerator {
 	 * @param atomicTime
 	 * @return flightControls EnumMap 
 	 */
-	public static Map<FlightControlType, Double> doubletSeries(Map<FlightControlType, Double> controls, AtomicInteger atomicTime) {
+	public static Map<FlightControl, Double> doubletSeries(Map<FlightControl, Double> controls, AtomicInteger atomicTime) {
 		
 		int toMilliseconds = 1000;
 
@@ -106,21 +106,21 @@ public class DoubletGenerator {
 							   aileronStart, 
 							   duration, 
 							   0.035, 
-							   FlightControlType.AILERON);
+							   FlightControl.AILERON);
 		// Update controls with a rudder doublet
 		controls = makeDoublet(controls, 
 							   atomicTime, 
 							   rudderStart, 
 							   duration, 
 							   0.035, 
-							   FlightControlType.RUDDER);
+							   FlightControl.RUDDER);
 		// Update controls with an elevator doublet
 		controls = makeDoublet(controls, 
 							   atomicTime, 
 							   elevatorStart, 
 							   duration, 
 							   0.035, 
-							   FlightControlType.ELEVATOR);
+							   FlightControl.ELEVATOR);
 		
 		return controls;
 	}

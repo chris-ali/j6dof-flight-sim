@@ -17,9 +17,7 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.simulation.aero;
-
-import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
+package com.chrisali.javaflightsim.simulation.aircraft;
 
 /**
  * Provides Enum values to define stability derivatives that make up the aerodynamics of an {@link Aircraft}. 

@@ -19,7 +19,7 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.setup;
 
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 
 import net.java.games.input.Component.Identifier.Axis;
 
@@ -34,7 +34,7 @@ public class JoystickAxis {
 
 	private Axis axisAssignment;
 
-	private FlightControlType flightControl;
+	private FlightControl flightControl;
 	
 	private double deadZone;
 	
@@ -46,9 +46,9 @@ public class JoystickAxis {
 	
 	public void setAxisAssignment(Axis axisAssignment) { this.axisAssignment = axisAssignment; }
 
-	public FlightControlType getFlightControl() { return flightControl;	}
+	public FlightControl getFlightControl() { return flightControl;	}
 
-	public void setFlightControl(FlightControlType flightControl) { this.flightControl = flightControl;	}
+	public void setFlightControl(FlightControl flightControl) { this.flightControl = flightControl;	}
 
 	public double getDeadZone() { return deadZone; }
 

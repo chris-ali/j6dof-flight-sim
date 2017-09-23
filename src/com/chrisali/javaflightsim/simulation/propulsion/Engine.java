@@ -26,7 +26,7 @@ import java.util.Map;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -82,7 +82,7 @@ public abstract class Engine {
 	 * @param environmentParameters
 	 * @param windParameters
 	 */
-	public abstract void updateEngineState(Map<FlightControlType, Double> controls,				
+	public abstract void updateEngineState(Map<FlightControl, Double> controls,				
 										   Map<EnvironmentParameters, Double> environmentParameters,
 										   double[] windParameters);
 	

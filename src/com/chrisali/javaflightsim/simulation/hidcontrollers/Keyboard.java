@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -61,15 +61,15 @@ public class Keyboard extends AbstractController {
 	 * @param controls
 	 * @param simController
 	 */
-	public Keyboard(Map<FlightControlType, Double> controls, SimulationController simController) {
+	public Keyboard(Map<FlightControl, Double> controls, SimulationController simController) {
 		this.simController = simController;
 		controllerList = new ArrayList<>();
 		options = simController.getConfiguration().getSimulationOptions();
 		
 		// Get initial trim values from initial values in controls EnumMap (rad)
-		trimElevator = controls.get(FlightControlType.ELEVATOR);
-		trimAileron  = controls.get(FlightControlType.AILERON);
-		trimRudder   = controls.get(FlightControlType.RUDDER);
+		trimElevator = controls.get(FlightControl.ELEVATOR);
+		trimAileron  = controls.get(FlightControl.AILERON);
+		trimRudder   = controls.get(FlightControl.RUDDER);
 		
 		logger.debug("Setting up keyboard...");
 		
@@ -176,7 +176,7 @@ public class Keyboard extends AbstractController {
 	 *  @return flightControls Map
 	 */
 	@Override
-	protected Map<FlightControlType, Double> calculateControllerValues(Map<FlightControlType, Double> controls) {
+	protected Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls) {
 		// Iterate through all controllers connected
 		for (Controller controller : controllerList) {
 			// Poll controller for data; if disconnected, break out of componentIdentification loop
@@ -189,56 +189,56 @@ public class Keyboard extends AbstractController {
 				
 				// Elevator (Pitch) Down
 				if (componentName.matches(Key.UP.toString()) && 
-					controls.get(FlightControlType.ELEVATOR) <= FlightControlType.ELEVATOR.getMaximum()) {
+					controls.get(FlightControl.ELEVATOR) <= FlightControl.ELEVATOR.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f)
-						controls.put(FlightControlType.ELEVATOR, controls.get(FlightControlType.ELEVATOR) + getDeflectionRate(FlightControlType.ELEVATOR));
+						controls.put(FlightControl.ELEVATOR, controls.get(FlightControl.ELEVATOR) + getDeflectionRate(FlightControl.ELEVATOR));
 					
 					continue;
 				}
 				
 				// Elevator (Pitch) Up
 				if (componentName.matches(Key.DOWN.toString()) &&
-					controls.get(FlightControlType.ELEVATOR) >= FlightControlType.ELEVATOR.getMinimum()) {
+					controls.get(FlightControl.ELEVATOR) >= FlightControl.ELEVATOR.getMinimum()) {
 					
 					if(component.getPollData() == 1.0f)
-						controls.put(FlightControlType.ELEVATOR, controls.get(FlightControlType.ELEVATOR) - getDeflectionRate(FlightControlType.ELEVATOR));
+						controls.put(FlightControl.ELEVATOR, controls.get(FlightControl.ELEVATOR) - getDeflectionRate(FlightControl.ELEVATOR));
 					
 					continue;
 				}
 				
 				// Left Aileron
 				if (componentName.matches(Key.LEFT.toString()) && 
-					controls.get(FlightControlType.AILERON) >= FlightControlType.AILERON.getMinimum()) {
+					controls.get(FlightControl.AILERON) >= FlightControl.AILERON.getMinimum()) {
 					
 					if(component.getPollData() == 1.0f)
-						controls.put(FlightControlType.AILERON, controls.get(FlightControlType.AILERON) + getDeflectionRate(FlightControlType.AILERON));
+						controls.put(FlightControl.AILERON, controls.get(FlightControl.AILERON) + getDeflectionRate(FlightControl.AILERON));
 					
 					continue;
 				}
 				
 				// Right Aileron
 				if (componentName.matches(Key.RIGHT.toString()) && 
-					controls.get(FlightControlType.AILERON) <= FlightControlType.AILERON.getMaximum()) {
+					controls.get(FlightControl.AILERON) <= FlightControl.AILERON.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f)
-						controls.put(FlightControlType.AILERON, controls.get(FlightControlType.AILERON) - getDeflectionRate(FlightControlType.AILERON));
+						controls.put(FlightControl.AILERON, controls.get(FlightControl.AILERON) - getDeflectionRate(FlightControl.AILERON));
 					
 					continue;
 				}
 				
 				// Increase Throttle
 				if (componentName.matches(Key.PAGEUP.toString()) && 
-					controls.get(FlightControlType.THROTTLE_1) <= FlightControlType.THROTTLE_1.getMaximum() &&
-					controls.get(FlightControlType.THROTTLE_2) <= FlightControlType.THROTTLE_2.getMaximum() &&
-					controls.get(FlightControlType.THROTTLE_3) <= FlightControlType.THROTTLE_3.getMaximum() &&
-					controls.get(FlightControlType.THROTTLE_4) <= FlightControlType.THROTTLE_4.getMaximum()) {
+					controls.get(FlightControl.THROTTLE_1) <= FlightControl.THROTTLE_1.getMaximum() &&
+					controls.get(FlightControl.THROTTLE_2) <= FlightControl.THROTTLE_2.getMaximum() &&
+					controls.get(FlightControl.THROTTLE_3) <= FlightControl.THROTTLE_3.getMaximum() &&
+					controls.get(FlightControl.THROTTLE_4) <= FlightControl.THROTTLE_4.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f) {
-						controls.put(FlightControlType.THROTTLE_1, controls.get(FlightControlType.THROTTLE_1) + getDeflectionRate(FlightControlType.THROTTLE_1));
-						controls.put(FlightControlType.THROTTLE_2, controls.get(FlightControlType.THROTTLE_2) + getDeflectionRate(FlightControlType.THROTTLE_2));
-						controls.put(FlightControlType.THROTTLE_3, controls.get(FlightControlType.THROTTLE_3) + getDeflectionRate(FlightControlType.THROTTLE_3));
-						controls.put(FlightControlType.THROTTLE_4, controls.get(FlightControlType.THROTTLE_4) + getDeflectionRate(FlightControlType.THROTTLE_4));
+						controls.put(FlightControl.THROTTLE_1, controls.get(FlightControl.THROTTLE_1) + getDeflectionRate(FlightControl.THROTTLE_1));
+						controls.put(FlightControl.THROTTLE_2, controls.get(FlightControl.THROTTLE_2) + getDeflectionRate(FlightControl.THROTTLE_2));
+						controls.put(FlightControl.THROTTLE_3, controls.get(FlightControl.THROTTLE_3) + getDeflectionRate(FlightControl.THROTTLE_3));
+						controls.put(FlightControl.THROTTLE_4, controls.get(FlightControl.THROTTLE_4) + getDeflectionRate(FlightControl.THROTTLE_4));
 					}
 					
 					continue;
@@ -246,16 +246,16 @@ public class Keyboard extends AbstractController {
 				
 				// Decrease Throttle
 				if (componentName.matches(Key.PAGEDOWN.toString()) && 
-					controls.get(FlightControlType.THROTTLE_1) >= FlightControlType.THROTTLE_1.getMinimum() &&
-					controls.get(FlightControlType.THROTTLE_2) >= FlightControlType.THROTTLE_2.getMinimum() &&
-					controls.get(FlightControlType.THROTTLE_3) >= FlightControlType.THROTTLE_3.getMinimum() &&
-					controls.get(FlightControlType.THROTTLE_4) >= FlightControlType.THROTTLE_4.getMinimum()) {
+					controls.get(FlightControl.THROTTLE_1) >= FlightControl.THROTTLE_1.getMinimum() &&
+					controls.get(FlightControl.THROTTLE_2) >= FlightControl.THROTTLE_2.getMinimum() &&
+					controls.get(FlightControl.THROTTLE_3) >= FlightControl.THROTTLE_3.getMinimum() &&
+					controls.get(FlightControl.THROTTLE_4) >= FlightControl.THROTTLE_4.getMinimum()) {
 					
 					if(component.getPollData() == 1.0f) {
-						controls.put(FlightControlType.THROTTLE_1, controls.get(FlightControlType.THROTTLE_1) - getDeflectionRate(FlightControlType.THROTTLE_1));
-						controls.put(FlightControlType.THROTTLE_2, controls.get(FlightControlType.THROTTLE_2) - getDeflectionRate(FlightControlType.THROTTLE_2));
-						controls.put(FlightControlType.THROTTLE_3, controls.get(FlightControlType.THROTTLE_3) - getDeflectionRate(FlightControlType.THROTTLE_3));
-						controls.put(FlightControlType.THROTTLE_4, controls.get(FlightControlType.THROTTLE_4) - getDeflectionRate(FlightControlType.THROTTLE_4));
+						controls.put(FlightControl.THROTTLE_1, controls.get(FlightControl.THROTTLE_1) - getDeflectionRate(FlightControl.THROTTLE_1));
+						controls.put(FlightControl.THROTTLE_2, controls.get(FlightControl.THROTTLE_2) - getDeflectionRate(FlightControl.THROTTLE_2));
+						controls.put(FlightControl.THROTTLE_3, controls.get(FlightControl.THROTTLE_3) - getDeflectionRate(FlightControl.THROTTLE_3));
+						controls.put(FlightControl.THROTTLE_4, controls.get(FlightControl.THROTTLE_4) - getDeflectionRate(FlightControl.THROTTLE_4));
 					}
 					
 					continue;
@@ -263,20 +263,20 @@ public class Keyboard extends AbstractController {
 				
 				// Flaps Down
 				if (componentName.matches(Key.F7.toString()) && 
-					controls.get(FlightControlType.FLAPS) <= FlightControlType.FLAPS.getMaximum()) {
+					controls.get(FlightControl.FLAPS) <= FlightControl.FLAPS.getMaximum()) {
 					
 					if(component.getPollData() == 1.0f)
-						controls.put(FlightControlType.FLAPS, (flaps += getDeflectionRate(FlightControlType.FLAPS)));
+						controls.put(FlightControl.FLAPS, (flaps += getDeflectionRate(FlightControl.FLAPS)));
 					
 					continue;
 				}
 				
 				// Flaps Up
 				if (componentName.matches(Key.F6.toString()) && 
-						controls.get(FlightControlType.FLAPS) >= FlightControlType.FLAPS.getMinimum()) {
+						controls.get(FlightControl.FLAPS) >= FlightControl.FLAPS.getMinimum()) {
 						
 					if(component.getPollData() == 1.0f)
-						controls.put(FlightControlType.FLAPS, (flaps -= getDeflectionRate(FlightControlType.FLAPS)));
+						controls.put(FlightControl.FLAPS, (flaps -= getDeflectionRate(FlightControl.FLAPS)));
 					
 					continue;
 				}
@@ -286,20 +286,20 @@ public class Keyboard extends AbstractController {
 				// need to release key to extend or retract gear again
 				if (componentName.matches(Key.G.toString()) && 
 						!gearPressed &&
-						controls.get(FlightControlType.GEAR) < 0.5) {
+						controls.get(FlightControl.GEAR) < 0.5) {
 					
 					if(component.getPollData() == 1.0f) {
-						controls.put(FlightControlType.GEAR, 1.0);
+						controls.put(FlightControl.GEAR, 1.0);
 						gearPressed = true;
 					}
 					
 					continue;
 				} else if (componentName.matches(Key.G.toString()) && 
 						!gearPressed &&
-						controls.get(FlightControlType.GEAR) > 0.5) {
+						controls.get(FlightControl.GEAR) > 0.5) {
 					
 					if(component.getPollData() == 1.0f) {
-						controls.put(FlightControlType.GEAR, 0.0);
+						controls.put(FlightControl.GEAR, 0.0);
 						gearPressed = true;
 					}
 					

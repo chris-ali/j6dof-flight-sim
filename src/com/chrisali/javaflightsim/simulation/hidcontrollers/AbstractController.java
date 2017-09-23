@@ -25,8 +25,8 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.simulation.aero.Aerodynamics;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.chrisali.javaflightsim.simulation.aircraft.Aerodynamics;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -57,15 +57,15 @@ public abstract class AbstractController {
 
 	public abstract void searchForControllers();
 	
-	protected abstract Map<FlightControlType, Double> calculateControllerValues(Map<FlightControlType, Double> controls);
+	protected abstract Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls);
 	
 	/**
 	 * Standardizes rate of control deflection of keyboard and joystick button inputs regardless of the 
-	 * simulation update rate based on the {@link FlightControlType} argument provided and the 
+	 * simulation update rate based on the {@link FlightControl} argument provided and the 
 	 * 
 	 * @param type
 	 */
-	protected double getDeflectionRate(FlightControlType type) {
+	protected double getDeflectionRate(FlightControl type) {
 		switch (type) {
 		case AILERON:
 		case ELEVATOR:
@@ -92,14 +92,14 @@ public abstract class AbstractController {
 	}
 		
 	/**
-	 *  Uses maximum and minimum values defined in {@link FlightControlType} to convert normalized 
+	 *  Uses maximum and minimum values defined in {@link FlightControl} to convert normalized 
 	 *  joystick axis value to actual control deflection 
 	 *  
 	 * @param controlType
 	 * @param axisValue
 	 * @return Actual control deflection
 	 */
-	protected double calculateControlDeflection(FlightControlType controlType, double axisValue) {
+	protected double calculateDeflection(FlightControl controlType, double axisValue) {
 		// Calculate positive and negative slope
 		// (elevator has different values for positive/negative max)
 		if (axisValue <= 0) 
@@ -123,15 +123,15 @@ public abstract class AbstractController {
 	
 	/**
 	 *  Limit control inputs to sensible deflection values based on the minimum and maximum values defined for 
-	 *  each member of {@link FlightControlType}
+	 *  each member of {@link FlightControl}
 	 *  
 	 * @param controls
 	 * @return flightControls EnumMap 
 	 */
-	public Map<FlightControlType, Double> limitFlightControls(Map<FlightControlType, Double> controls) {		
+	public Map<FlightControl, Double> limitControls(Map<FlightControl, Double> controls) {		
 		// Loop through enum list; if value in EnumMap controls is greater/less than max/min specified in FlightControls enum, 
 		// set that EnumMap value to Enum's max/min value
-		for (FlightControlType flc : FlightControlType.values()) {
+		for (FlightControl flc : FlightControl.values()) {
 			if (controls.get(flc) > flc.getMaximum())
 				controls.put(flc, flc.getMaximum());
 			else if (controls.get(flc) < flc.getMinimum())

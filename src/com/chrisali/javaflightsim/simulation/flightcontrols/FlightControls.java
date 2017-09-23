@@ -55,7 +55,7 @@ public class FlightControls implements Runnable, FlightDataListener {
 	
 	private boolean running;
 	
-	private Map<FlightControlType, Double> controls;
+	private Map<FlightControl, Double> controls;
 	private Map<IntegratorConfig, Double> integratorConfig;
 	private EnumSet<Options> options;
 //	private Map<FlightDataType, Double> flightData;
@@ -116,9 +116,9 @@ public class FlightControls implements Runnable, FlightDataListener {
 				// otherwise, controls updated using generated doublets instead of pilot input
 				if (!options.contains(Options.ANALYSIS_MODE)) {
 					if (hidController != null) 
-						controls = hidController.limitFlightControls(controls);
+						controls = hidController.limitControls(controls);
 					
-					controls = hidKeyboard.limitFlightControls(controls);
+					controls = hidKeyboard.limitControls(controls);
 					
 					if (simulation != null && simulation.isRunning())
 						hidKeyboard.hotKeys();
@@ -158,11 +158,11 @@ public class FlightControls implements Runnable, FlightDataListener {
 	}
 	
 	/**
-	 * Returns thread-safe map containing flight controls data, with {@link FlightControlType} as the keys 
+	 * Returns thread-safe map containing flight controls data, with {@link FlightControl} as the keys 
 	 * 
 	 * @return controls
 	 */
-	public synchronized Map<FlightControlType, Double> getFlightControls() {return Collections.unmodifiableMap(controls);}
+	public synchronized Map<FlightControl, Double> getFlightControls() {return Collections.unmodifiableMap(controls);}
 
 	/**
 	 * Lets other objects know if {@link FlightControls} thread is running
@@ -182,7 +182,7 @@ public class FlightControls implements Runnable, FlightDataListener {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		
-		for (Map.Entry<FlightControlType, Double> entry : controls.entrySet()) {
+		for (Map.Entry<FlightControl, Double> entry : controls.entrySet()) {
 			sb.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
 		}
 		sb.append("\n");

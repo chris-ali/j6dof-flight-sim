@@ -36,7 +36,7 @@ import org.jfree.ui.RefineryUtilities;
 
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.propulsion.FixedPitchPropEngine;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -50,7 +50,7 @@ public class TestEngine extends ApplicationFrame {
 		
 		SimulationConfiguration configuration = FileUtilities.readSimulationConfiguration();
 		
-		EnumMap<FlightControlType, Double> controls = configuration.getInitialControls();
+		EnumMap<FlightControl, Double> controls = configuration.getInitialControls();
 		Map<EnvironmentParameters, Double> environmentParameters = Environment.getAndUpdateEnvironmentParams(new double[] {0,0,0});
 		StringBuilder constraint = new StringBuilder();
 		
@@ -75,7 +75,7 @@ public class TestEngine extends ApplicationFrame {
 		switch(testType) {
 			case "Airspeed": {
 				constraint.append("Constant Throttle (")
-							  .append((controls.get(FlightControlType.THROTTLE_1)*100)) 
+							  .append((controls.get(FlightControl.THROTTLE_1)*100)) 
 							  .append("%) and Altitude (Sea Level)");
 				
 				for (double vTrue = 0; vTrue < 500; vTrue += 1) {
@@ -106,7 +106,7 @@ public class TestEngine extends ApplicationFrame {
 							  .append(" ft/sec) and Altitude (Sea Level)");
 				
 				for (double throttle = 0; throttle < 1.0; throttle += 0.01) {
-					controls.put(FlightControlType.THROTTLE_1, throttle);
+					controls.put(FlightControl.THROTTLE_1, throttle);
 					
 					defaultEngine.updateEngineState(controls, 
 													environmentParameters,
@@ -129,7 +129,7 @@ public class TestEngine extends ApplicationFrame {
 				double vTrue = 210;
 				
 				constraint.append("Constant Throttle (")
-							  .append((controls.get(FlightControlType.THROTTLE_1)*100)) 
+							  .append((controls.get(FlightControl.THROTTLE_1)*100)) 
 							  .append("%) and Airspeed (")
 							  .append(vTrue)
 							  .append(" ft/sec)");

@@ -31,7 +31,7 @@ import org.apache.logging.log4j.Logger;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.GroundReaction;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
@@ -58,7 +58,7 @@ public class IntegrateGroundReaction {
 	
 	// Aircraft Properties
 	private double mass;
-	private Map<FlightControlType, Double> controls;
+	private Map<FlightControl, Double> controls;
 	private Map<GroundReaction, Double> groundReaction;
 	private boolean weightOnWheels = false;
 	
@@ -115,7 +115,7 @@ public class IntegrateGroundReaction {
 								   double[] sixDOFDerivatives,
 								   double[] integratorConfig,
 								   Aircraft aircraft,
-								   Map<FlightControlType, Double> controls) {
+								   Map<FlightControl, Double> controls) {
 		
 		this.NEDPosition = NEDPosition;
 		this.linearVelocities = linearVelocities;
@@ -301,18 +301,18 @@ public class IntegrateGroundReaction {
 		// Braking
 		// Taper force off as forward velocity nears 0 
 		if (linearVelocities[0] < 2) {
-			leftGroundForces[0]  -= groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControlType.BRAKE_L) * linearVelocities[0]/2;
-			rightGroundForces[0] -= groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControlType.BRAKE_R) * linearVelocities[0]/2;
+			leftGroundForces[0]  -= groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControl.BRAKE_L) * linearVelocities[0]/2;
+			rightGroundForces[0] -= groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControl.BRAKE_R) * linearVelocities[0]/2;
 		} else {
-			leftGroundForces[0]  -= groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControlType.BRAKE_L);
-			rightGroundForces[0] -= groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControlType.BRAKE_R);
+			leftGroundForces[0]  -= groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControl.BRAKE_L);
+			rightGroundForces[0] -= groundReaction.get(GroundReaction.BRAKING_FORCE) * controls.get(FlightControl.BRAKE_R);
 		}
 		
 		// Y Forces
 		// Nosewheel steering friction force based on a fraction of the rudder deflection to the maximum deflection
 		if (linearVelocities[0] > 20) {
 			noseGroundForces[1]  =   Math.abs(noseGroundForces[2]) * TIRE_ROLLING_FRICTION 
-								  * (controls.get(FlightControlType.RUDDER)/FlightControlType.RUDDER.getMaximum())/10;
+								  * (controls.get(FlightControl.RUDDER)/FlightControl.RUDDER.getMaximum())/10;
 									// Create side force to yaw aircraft in direction of velocity vector
 			leftGroundForces[1]  = - Math.abs(leftGroundForces[2])  * TIRE_STATIC_FRICTION * windParameters[1]; 
 			rightGroundForces[1] =   Math.abs(rightGroundForces[2]) * TIRE_STATIC_FRICTION * windParameters[1];

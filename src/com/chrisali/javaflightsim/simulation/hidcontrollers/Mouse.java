@@ -22,7 +22,7 @@ package com.chrisali.javaflightsim.simulation.hidcontrollers;
 import java.util.ArrayList;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
@@ -34,7 +34,7 @@ import net.java.games.input.ControllerEnvironment;
  * The Mouse object uses JInput to integrate mouse functionality into the simulation as a joystick substitute.
  * It works by generating an ArrayList of mice connected to the computer, polling each one's active components 
  * (buttons, axes), using the polled data to calculate control deflections, and assigning these to each respective key 
- * in the controls EnumMap. These deflections are limited by the constants defined in {@link FlightControlType}. Ailerons 
+ * in the controls EnumMap. These deflections are limited by the constants defined in {@link FlightControl}. Ailerons 
  * and Elevator are controlled by horizontal and vertical mouse movement, respectively, and all throttles are controlled 
  * by the mouse wheel.
  * @see AbstractController
@@ -51,13 +51,13 @@ public class Mouse extends AbstractController {
 	 *  Constructor for Joystick class; creates list of controllers using searchForControllers()
 	 * @param controls
 	 */
-	public Mouse(Map<FlightControlType, Double> controls) {
+	public Mouse(Map<FlightControl, Double> controls) {
 		this.controllerList = new ArrayList<>();
 
 		// Get initial trim values from initial values in controls EnumMap (rad)
-		trimElevator = controls.get(FlightControlType.ELEVATOR);
-		trimAileron = controls.get(FlightControlType.AILERON);
-		trimRudder = controls.get(FlightControlType.RUDDER);
+		trimElevator = controls.get(FlightControl.ELEVATOR);
+		trimAileron = controls.get(FlightControl.AILERON);
+		trimRudder = controls.get(FlightControl.RUDDER);
 		
 		logger.debug("Setting up mouse...");
 		
@@ -90,7 +90,7 @@ public class Mouse extends AbstractController {
 	 *  @return controls Map
 	 */
 	@Override
-	protected Map<FlightControlType, Double> calculateControllerValues(Map<FlightControlType, Double> controls) {
+	protected Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls) {
 		// Iterate through all controllers connected
 		for (Controller controller : controllerList) {
 			
@@ -119,7 +119,7 @@ public class Mouse extends AbstractController {
 					if(componentIdentifier == Axis.Y) {
 						if(axisValue != 0) {
 							tempElev += axisValue;
-							controls.put(FlightControlType.ELEVATOR, -(tempElev+trimElevator));
+							controls.put(FlightControl.ELEVATOR, -(tempElev+trimElevator));
 						}
 						continue; // Go to next component
 					}
@@ -127,7 +127,7 @@ public class Mouse extends AbstractController {
 					if(componentIdentifier == Axis.X) {
 						if(axisValue != 0) {
 							tempAil += axisValue;
-							controls.put(FlightControlType.AILERON, -(tempAil+trimAileron));
+							controls.put(FlightControl.AILERON, -(tempAil+trimAileron));
 						}
 						continue; // Go to next component
 					}
@@ -135,8 +135,8 @@ public class Mouse extends AbstractController {
 					if(componentIdentifier == Axis.Z) {
 						if(axisValue != 0) {
 							tempThrot += axisValue;
-							controls.put(FlightControlType.THROTTLE_1, tempThrot*250);
-							controls.put(FlightControlType.THROTTLE_2, tempThrot*250);
+							controls.put(FlightControl.THROTTLE_1, tempThrot*250);
+							controls.put(FlightControl.THROTTLE_2, tempThrot*250);
 						}
 						continue; // Go to next component
 					}

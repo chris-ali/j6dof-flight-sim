@@ -24,7 +24,7 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.integration.IntegrateGroundReaction;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -37,7 +37,7 @@ public class TestGroundReaction {
 	double[] integratorConfig 				 = ArrayUtils.toPrimitive(configuration.getIntegratorConfig().values()
 				  																	  .toArray(new Double[3]));
 	private double t;
-	private Map<FlightControlType, Double> controls = configuration.getInitialControls();
+	private Map<FlightControl, Double> controls = configuration.getInitialControls();
 	
 	// 6DOF Integration Results
 	private double[] linearVelocities 		  = new double[]{5,0,0};
@@ -74,7 +74,7 @@ public class TestGroundReaction {
 			
 			NEDPosition[2] = 1.75;
 			//controls.put(FlightControls.BRAKE_L, 0.8);
-			controls.put(FlightControlType.RUDDER, -0.0);
+			controls.put(FlightControl.RUDDER, -0.0);
 			
 			groundReaction.integrateStep(terrainHeight);
 			

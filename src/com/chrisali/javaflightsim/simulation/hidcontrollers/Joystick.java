@@ -22,7 +22,7 @@ package com.chrisali.javaflightsim.simulation.hidcontrollers;
 import java.util.ArrayList;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
@@ -37,7 +37,7 @@ import net.java.games.input.ControllerEnvironment;
  * to the computer, polling each one's active components (buttons, axes, POV hat), using 
  * the polled data to calculate control deflections, and assigning these to each respective key 
  * in the controls EnumMap. These deflections are limited by the constants defined in the 
- * {@link FlightControlType}. Aileron and Elevator trim are handled by the POV hat switch, and all
+ * {@link FlightControl}. Aileron and Elevator trim are handled by the POV hat switch, and all
  * throttles are controlled by the throttle slider.
  * @see AbstractController
  */
@@ -47,13 +47,13 @@ public class Joystick extends AbstractController {
 	 *  Constructor for Joystick class creates list of controllers using searchForControllers()
 	 * @param controls
 	 */
-	public Joystick(Map<FlightControlType, Double> controls) {
+	public Joystick(Map<FlightControl, Double> controls) {
 		this.controllerList = new ArrayList<>();
 		
 		// Get initial trim values from initial values in controls EnumMap (rad)
-		trimElevator = controls.get(FlightControlType.ELEVATOR);
-		trimAileron  = controls.get(FlightControlType.AILERON);
-		trimRudder   = controls.get(FlightControlType.RUDDER);
+		trimElevator = controls.get(FlightControl.ELEVATOR);
+		trimAileron  = controls.get(FlightControl.AILERON);
+		trimRudder   = controls.get(FlightControl.RUDDER);
 		
 		logger.debug("Setting up joystick...");
 		
@@ -86,7 +86,7 @@ public class Joystick extends AbstractController {
 	 *  @return controls Map
 	 */
 	@Override
-	protected Map<FlightControlType, Double> calculateControllerValues(Map<FlightControlType, Double> controls) {
+	protected Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls) {
 		// Iterate through all controllers connected
 		for (Controller controller : controllerList) {
 			
@@ -103,20 +103,20 @@ public class Joystick extends AbstractController {
 					if(component.getPollData() == 1.0f) {
 						switch(componentIdentifier.toString()) {
 						case "0":
-							controls.put(FlightControlType.BRAKE_L, negativeSquare(FlightControlType.BRAKE_L.getMaximum()));
-							controls.put(FlightControlType.BRAKE_R, negativeSquare(FlightControlType.BRAKE_R.getMaximum()));
+							controls.put(FlightControl.BRAKE_L, negativeSquare(FlightControl.BRAKE_L.getMaximum()));
+							controls.put(FlightControl.BRAKE_R, negativeSquare(FlightControl.BRAKE_R.getMaximum()));
 							break;
 						case "4":
-							controls.put(FlightControlType.GEAR, FlightControlType.GEAR.getMaximum());
+							controls.put(FlightControl.GEAR, FlightControl.GEAR.getMaximum());
 							break;
 						case "5":
-							controls.put(FlightControlType.GEAR, FlightControlType.GEAR.getMinimum());
+							controls.put(FlightControl.GEAR, FlightControl.GEAR.getMinimum());
 							break;
 						case "6":
-							if (flaps >= FlightControlType.FLAPS.getMinimum())	controls.put(FlightControlType.FLAPS, (flaps -= getDeflectionRate(FlightControlType.FLAPS)));
+							if (flaps >= FlightControl.FLAPS.getMinimum())	controls.put(FlightControl.FLAPS, (flaps -= getDeflectionRate(FlightControl.FLAPS)));
 							break;
 						case "7":
-							if (flaps <= FlightControlType.FLAPS.getMaximum()) controls.put(FlightControlType.FLAPS, (flaps += getDeflectionRate(FlightControlType.FLAPS)));
+							if (flaps <= FlightControl.FLAPS.getMaximum()) controls.put(FlightControl.FLAPS, (flaps += getDeflectionRate(FlightControl.FLAPS)));
 							break;
 						}
 					}
@@ -127,14 +127,14 @@ public class Joystick extends AbstractController {
 				if(componentIdentifier == Axis.POV) {
 					float povValue = component.getPollData();
 					
-					if      (Float.compare(povValue, POV.UP)    == 0 & trimElevator <= FlightControlType.ELEVATOR.getMaximum())
-						trimElevator += getDeflectionRate(FlightControlType.ELEVATOR)/10; 
-					else if (Float.compare(povValue, POV.DOWN)  == 0 & trimElevator >= FlightControlType.ELEVATOR.getMinimum()) 
-						trimElevator -= getDeflectionRate(FlightControlType.ELEVATOR)/10;
-					else if (Float.compare(povValue, POV.LEFT)  == 0 & trimAileron  >= FlightControlType.AILERON.getMinimum()) 
-						trimAileron  += getDeflectionRate(FlightControlType.AILERON)/20;
-					else if (Float.compare(povValue, POV.RIGHT) == 0 & trimAileron  <= FlightControlType.AILERON.getMaximum())
-						trimAileron  -= getDeflectionRate(FlightControlType.AILERON)/20;
+					if      (Float.compare(povValue, POV.UP)    == 0 & trimElevator <= FlightControl.ELEVATOR.getMaximum())
+						trimElevator += getDeflectionRate(FlightControl.ELEVATOR)/10; 
+					else if (Float.compare(povValue, POV.DOWN)  == 0 & trimElevator >= FlightControl.ELEVATOR.getMinimum()) 
+						trimElevator -= getDeflectionRate(FlightControl.ELEVATOR)/10;
+					else if (Float.compare(povValue, POV.LEFT)  == 0 & trimAileron  >= FlightControl.AILERON.getMinimum()) 
+						trimAileron  += getDeflectionRate(FlightControl.AILERON)/20;
+					else if (Float.compare(povValue, POV.RIGHT) == 0 & trimAileron  <= FlightControl.AILERON.getMaximum())
+						trimAileron  -= getDeflectionRate(FlightControl.AILERON)/20;
 					
 					continue; // Go to next component
 				}
@@ -145,29 +145,29 @@ public class Joystick extends AbstractController {
 
 					// Y axis (Elevator)
 					if(componentIdentifier == Axis.Y) {
-						controls.put(FlightControlType.ELEVATOR, 
-								 	 calculateControlDeflection(FlightControlType.ELEVATOR, 
+						controls.put(FlightControl.ELEVATOR, 
+								 	 calculateDeflection(FlightControl.ELEVATOR, 
 								 			 		   	  		negativeSquare(axisValue))+trimElevator);
 						continue; // Go to next component
 					}
 					// X axis (Aileron)
 					if(componentIdentifier == Axis.X) {
-						controls.put(FlightControlType.AILERON, 
-									 calculateControlDeflection(FlightControlType.AILERON, 
+						controls.put(FlightControl.AILERON, 
+									 calculateDeflection(FlightControl.AILERON, 
 											 					negativeSquare(axisValue))+trimAileron);
 						continue; // Go to next component
 					}
 					// Z axis (Rudder)
 					if(componentIdentifier == Axis.RZ) {
-						controls.put(FlightControlType.RUDDER, 
-								 	 calculateControlDeflection(FlightControlType.RUDDER, 
+						controls.put(FlightControl.RUDDER, 
+								 	 calculateDeflection(FlightControl.RUDDER, 
 								 			 					negativeSquare(axisValue))+trimRudder);
 						continue; // Go to next component
 					}
 					// Slider axis (Throttle)
 					if(componentIdentifier == Axis.SLIDER) {
-						controls.put(FlightControlType.THROTTLE_1,-(axisValue-1)/2);
-						controls.put(FlightControlType.THROTTLE_2,-(axisValue-1)/2);
+						controls.put(FlightControl.THROTTLE_1,-(axisValue-1)/2);
+						controls.put(FlightControl.THROTTLE_2,-(axisValue-1)/2);
 						continue; // Go to next component
 					}
 				}

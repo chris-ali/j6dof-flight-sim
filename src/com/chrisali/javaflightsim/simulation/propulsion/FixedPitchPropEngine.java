@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 /**
@@ -77,26 +77,26 @@ public class FixedPitchPropEngine extends Engine {
 	/**
 	 * Updates all fields of engine; called by {@link Integrate6DOFEquations} to recalculate thrust, moment, fuel flow and RPM for this engine
 	 */
-	public void updateEngineState(Map<FlightControlType, Double> controls,				
+	public void updateEngineState(Map<FlightControl, Double> controls,				
 								  Map<EnvironmentParameters, Double> environmentParameters,
 								  double[] windParameters) {		//{vTrue,beta,alpha}
 		// Assign engine controls depending on engine number specified
 		switch (engineNumber) {
 			case 1:
-				mixture  = controls.get(FlightControlType.MIXTURE_1);
-				throttle = controls.get(FlightControlType.THROTTLE_1);
+				mixture  = controls.get(FlightControl.MIXTURE_1);
+				throttle = controls.get(FlightControl.THROTTLE_1);
 				break;
 			case 2:
-				mixture  = controls.get(FlightControlType.MIXTURE_2);
-				throttle = controls.get(FlightControlType.THROTTLE_2);
+				mixture  = controls.get(FlightControl.MIXTURE_2);
+				throttle = controls.get(FlightControl.THROTTLE_2);
 				break;
 			case 3:
-				mixture  = controls.get(FlightControlType.MIXTURE_3);
-				throttle = controls.get(FlightControlType.THROTTLE_3);
+				mixture  = controls.get(FlightControl.MIXTURE_3);
+				throttle = controls.get(FlightControl.THROTTLE_3);
 				break;
 			case 4:
-				mixture  = controls.get(FlightControlType.MIXTURE_4);
-				throttle = controls.get(FlightControlType.THROTTLE_4);
+				mixture  = controls.get(FlightControl.MIXTURE_4);
+				throttle = controls.get(FlightControl.THROTTLE_4);
 				break;
 		}
 		

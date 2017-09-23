@@ -17,7 +17,7 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.simulation.aero;
+package com.chrisali.javaflightsim.simulation.aircraft;
 
 import java.util.Map;
 
@@ -26,9 +26,8 @@ import org.apache.commons.math3.exception.OutOfRangeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
@@ -72,7 +71,7 @@ public class Aerodynamics {
 	 */
 	private double calculateCL(double[] angularRates,
 						  	   double[] windParameters,
-						  	   Map<FlightControlType, Double> controls,
+						  	   Map<FlightControl, Double> controls,
 						  	   double alphaDot,
 						  	   double heightAGL) {
 		double rotaryTerm = aircraft.getWingGeometry(WingGeometry.C_BAR)/(2*windParameters[0]);
@@ -81,8 +80,8 @@ public class Aerodynamics {
 			   aircraft.getStabilityDerivative(StabilityDerivatives.CL_0).getValue()+	
 			   aircraft.getStabilityDerivative(StabilityDerivatives.CL_Q).getValue()*angularRates[1]*rotaryTerm+
 			   aircraft.getStabilityDerivative(StabilityDerivatives.CL_ALPHA_DOT).getValue()*alphaDot*rotaryTerm+
-			   aircraft.getStabilityDerivative(StabilityDerivatives.CL_D_ELEV).getValue()*controls.get(FlightControlType.ELEVATOR)+	
-			   aircraft.getStabilityDerivative(StabilityDerivatives.CL_D_FLAP).getValue()*controls.get(FlightControlType.FLAPS);		
+			   aircraft.getStabilityDerivative(StabilityDerivatives.CL_D_ELEV).getValue()*controls.get(FlightControl.ELEVATOR)+	
+			   aircraft.getStabilityDerivative(StabilityDerivatives.CL_D_FLAP).getValue()*controls.get(FlightControl.FLAPS);		
 	}
 	
 	/**
@@ -93,9 +92,9 @@ public class Aerodynamics {
 	 * @return CY
 	 */
 	private double calculateCY(double[] windParameters,
-						 	   Map<FlightControlType, Double> controls) {
+						 	   Map<FlightControl, Double> controls) {
 		return aircraft.getStabilityDerivative(StabilityDerivatives.CY_BETA).getValue()*windParameters[1]+
-			   aircraft.getStabilityDerivative(StabilityDerivatives.CY_D_RUD).getValue()*controls.get(FlightControlType.RUDDER);	
+			   aircraft.getStabilityDerivative(StabilityDerivatives.CY_D_RUD).getValue()*controls.get(FlightControl.RUDDER);	
 	}
 	
 	/**
@@ -107,13 +106,13 @@ public class Aerodynamics {
 	 * @return CD
 	 */
 	private double calculateCD(double[] windParameters,
-					 	  	   Map<FlightControlType, Double> controls,
+					 	  	   Map<FlightControl, Double> controls,
 					 	  	   double heightAGL) {
 		return calculateInterpStabDer(windParameters, controls, StabilityDerivatives.CD_ALPHA)*Math.abs(windParameters[2])/groundEffect(heightAGL)+ // Need absolute value to prevent negative drag at negative alpha
 			   aircraft.getStabilityDerivative(StabilityDerivatives.CD_0).getValue()+
-			   aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_FLAP).getValue()*controls.get(FlightControlType.FLAPS)+
-			   aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_ELEV).getValue()*controls.get(FlightControlType.ELEVATOR)+
-			   aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_GEAR).getValue()*controls.get(FlightControlType.GEAR);		
+			   aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_FLAP).getValue()*controls.get(FlightControl.FLAPS)+
+			   aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_ELEV).getValue()*controls.get(FlightControl.ELEVATOR)+
+			   aircraft.getStabilityDerivative(StabilityDerivatives.CD_D_GEAR).getValue()*controls.get(FlightControl.GEAR);		
 	}
 	
 	/**
@@ -126,14 +125,14 @@ public class Aerodynamics {
 	 */
 	private double calculateCRoll(double[] angularRates,
 					  	    	  double[] windParameters,
-					  	    	  Map<FlightControlType, Double> controls) {
+					  	    	  Map<FlightControl, Double> controls) {
 		double helixAngle = aircraft.getWingGeometry(WingGeometry.B_WING)/(2*windParameters[0]);
 		
 		return aircraft.getStabilityDerivative(StabilityDerivatives.CROLL_BETA).getValue()*windParameters[1]+
 			   aircraft.getStabilityDerivative(StabilityDerivatives.CROLL_P).getValue()*angularRates[0]*helixAngle+
 			   aircraft.getStabilityDerivative(StabilityDerivatives.CROLL_R).getValue()*angularRates[2]*helixAngle+
-			   aircraft.getStabilityDerivative(StabilityDerivatives.CROLL_D_AIL).getValue()*controls.get(FlightControlType.AILERON)+
-			   aircraft.getStabilityDerivative(StabilityDerivatives.CROLL_D_RUD).getValue()*controls.get(FlightControlType.RUDDER);
+			   aircraft.getStabilityDerivative(StabilityDerivatives.CROLL_D_AIL).getValue()*controls.get(FlightControl.AILERON)+
+			   aircraft.getStabilityDerivative(StabilityDerivatives.CROLL_D_RUD).getValue()*controls.get(FlightControl.RUDDER);
 	}
 	
 	/**
@@ -147,7 +146,7 @@ public class Aerodynamics {
 	 */
 	private double calculateCM(double[] angularRates,
 						 	   double[] windParameters,
-						 	   Map<FlightControlType, Double> controls,
+						 	   Map<FlightControl, Double> controls,
 						 	   double alphaDot) {
 		double rotaryTerm = aircraft.getWingGeometry(WingGeometry.C_BAR)/(2*windParameters[0]);
 		
@@ -155,8 +154,8 @@ public class Aerodynamics {
 			   aircraft.getStabilityDerivative(StabilityDerivatives.CM_0).getValue()+
 			   aircraft.getStabilityDerivative(StabilityDerivatives.CM_Q).getValue()*angularRates[1]*rotaryTerm+
 			   aircraft.getStabilityDerivative(StabilityDerivatives.CM_ALPHA_DOT).getValue()*alphaDot*rotaryTerm+
-			   aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_ELEV).getValue()*controls.get(FlightControlType.ELEVATOR)+
-			   aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_FLAP).getValue()*controls.get(FlightControlType.FLAPS);
+			   aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_ELEV).getValue()*controls.get(FlightControl.ELEVATOR)+
+			   aircraft.getStabilityDerivative(StabilityDerivatives.CM_D_FLAP).getValue()*controls.get(FlightControl.FLAPS);
 	}
 	
 	/**
@@ -169,14 +168,14 @@ public class Aerodynamics {
 	 */
 	private double calculateCN(double[] angularRates,
 						 	   double[] windParameters,
-						 	   Map<FlightControlType, Double> controls) {
+						 	   Map<FlightControl, Double> controls) {
 		double helixAngle = aircraft.getWingGeometry(WingGeometry.B_WING)/(2*windParameters[0]);
 		
 		return aircraft.getStabilityDerivative(StabilityDerivatives.CN_BETA).getValue()*windParameters[1]+
 			   aircraft.getStabilityDerivative(StabilityDerivatives.CN_P).getValue()*angularRates[0]*helixAngle+
 			   aircraft.getStabilityDerivative(StabilityDerivatives.CN_R).getValue()*angularRates[2]*helixAngle+
-			   aircraft.getStabilityDerivative(StabilityDerivatives.CN_D_AIL).getValue()*controls.get(FlightControlType.AILERON)+
-			   aircraft.getStabilityDerivative(StabilityDerivatives.CN_D_RUD).getValue()*controls.get(FlightControlType.RUDDER);	
+			   aircraft.getStabilityDerivative(StabilityDerivatives.CN_D_AIL).getValue()*controls.get(FlightControl.AILERON)+
+			   aircraft.getStabilityDerivative(StabilityDerivatives.CN_D_RUD).getValue()*controls.get(FlightControl.RUDDER);	
 	}
 	
 	/**
@@ -189,13 +188,13 @@ public class Aerodynamics {
 	 * @return interpStabDer
 	 */
 	public Double calculateInterpStabDer(double[] windParameters,
-			 							 Map<FlightControlType, Double> controls,
+			 							 Map<FlightControl, Double> controls,
 			 							 StabilityDerivatives stabDer) {
 		Double interpStabDer;		
 		LookupTable lookup = aircraft.getStabilityDerivative(stabDer);
 		
 		try {
-			interpStabDer = lookup.interpolate(windParameters[2], controls.get(FlightControlType.FLAPS));
+			interpStabDer = lookup.interpolate(windParameters[2], controls.get(FlightControl.FLAPS));
 		} catch (OutOfRangeException e) {
 			logger.error("Number out of range for interpolation! Returning 0 for value.");
 			return 0.0;
@@ -234,7 +233,7 @@ public class Aerodynamics {
 	public double[] calculateBodyForces(double[] windParameters,
 									  	double[] angularRates,
 										Map<EnvironmentParameters, Double> environmentParameters,
-									    Map<FlightControlType, Double> controls,
+									    Map<FlightControl, Double> controls,
 										double alphaDot,
 										double heightAGL) {
 		double qBar = environmentParameters.get(EnvironmentParameters.RHO)*Math.pow(windParameters[0], 2)/2;
@@ -264,7 +263,7 @@ public class Aerodynamics {
 	public double[] calculateAeroMoments(double[] windParameters,
 									     double[] angularRates,
 									     Map<EnvironmentParameters, Double> environmentParameters,
-									     Map<FlightControlType, Double> controls,
+									     Map<FlightControl, Double> controls,
 									     double alphaDot) {
 		double qBar = environmentParameters.get(EnvironmentParameters.RHO)*Math.pow(windParameters[0], 2)/2;
 		

@@ -9,7 +9,7 @@ import java.util.EnumSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlType;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.interfaces.Saveable;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
@@ -34,7 +34,7 @@ public class SimulationConfiguration implements Saveable {
 	private EnumSet<Options> simulationOptions;
 	private EnumMap<InitialConditions, Double> initialConditions;
 	private EnumMap<IntegratorConfig, Double> integratorConfig;
-	private EnumMap<FlightControlType, Double> initialControls; 
+	private EnumMap<FlightControl, Double> initialControls; 
 	private String selectedAircraft;
 
 	/**
@@ -107,10 +107,10 @@ public class SimulationConfiguration implements Saveable {
 		}
 	}
 
-	public EnumMap<FlightControlType, Double> getInitialControls() { return initialControls; }
+	public EnumMap<FlightControl, Double> getInitialControls() { return initialControls; }
 
 
-	public void setInitialControls(EnumMap<FlightControlType, Double> initialControls) { this.initialControls = initialControls; }
+	public void setInitialControls(EnumMap<FlightControl, Double> initialControls) { this.initialControls = initialControls; }
 	
 
 	public EnumMap<InitialConditions, Double> getInitialConditions() { return initialConditions; }
