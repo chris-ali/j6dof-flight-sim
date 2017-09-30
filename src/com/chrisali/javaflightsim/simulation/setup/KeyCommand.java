@@ -32,8 +32,16 @@ public enum KeyCommand {
 	AILERON_RIGHT		("Aileron Right"),
 	RUDDER_LEFT			("Rudder Left"),
 	RUDDER_RIGHT		("Rudder Right"),
+	ELEVATOR_TRIM_DOWN 	("Elevator Trim Down"),
+	ELEVATOR_TRIM_UP 	("Elevator Trim Up"),
+	AILERON_TRIM_LEFT	("Aileron Trim Left"),
+	AILERON_TRIM_RIGHT	("Aileron Trim Right"),
+	RUDDER_TRIM_LEFT	("Rudder Trim Left"),
+	RUDDER_TRIM_RIGHT	("Rudder Trim Right"),
 	CENTER_CONTROLS		("Center Flight Controls"),
-	GEAR_UP_DOWN		("Elevator Up/Down"),
+	GEAR_UP				("Extend Landing Gear"),
+	GEAR_DOWN			("Retract Landing Gear"),
+	GEAR_UP_DOWN		("Landing Gear Extend/Retract"),
 	INCREASE_FLAPS		("Increase Flaps"),
 	DECREASE_FLAPS		("Decrease Flaps"),
 	INCREASE_THROTTLE	("Increase Throttle"),
@@ -45,7 +53,7 @@ public enum KeyCommand {
 	BRAKES				("Apply Brakes"),
 	EXIT_SIMULATION		("Exit Simulation"),
 	GENERATE_PLOTS		("Generate Plots"),
-	PAUSR_UNPAUSE_SIM	("Pause/Unpause Simulation"),
+	PAUSE_UNPAUSE_SIM	("Pause/Unpause Simulation"),
 	RESET_SIM			("Reset Simulation");
 	
 	private String name;

@@ -30,14 +30,14 @@ import net.java.games.input.Component.POV;
 
 /**
  * Contains user-defined key, button (and eventually axis) bindings for each controller for jinput 
- * to control the aircraft in the simulation 
+ * to control the aircraft in the simulation. Used to (de)serialize the file ControlsConfiguration.json
  * 
  * @author Christopher
  *
  */
 public class ControlsConfiguration implements Saveable {
 
-	private Map<KeyCommand, Key> keyboardAssignments;
+	private Map<Key, KeyCommand> keyboardAssignments;
 	
 	/**
 	 * String key is the name of the joystick discovered by jinput
@@ -47,12 +47,12 @@ public class ControlsConfiguration implements Saveable {
 	/**
 	 * String key is the name of the joystick discovered by jinput
 	 */
-	private Map<String, Map<KeyCommand, String>> joystickButtonAssignments;
+	private Map<String, Map<String, KeyCommand>> joystickButtonAssignments;
 	
 	/**
 	 * String key is the name of the joystick discovered by jinput
 	 */
-	private Map<String, Map<KeyCommand, POV>> joystickHatAssignments;
+	private Map<String, Map<POV, KeyCommand>> joystickHatAssignments;
 
 	public ControlsConfiguration() { }
 	
@@ -61,19 +61,19 @@ public class ControlsConfiguration implements Saveable {
 		FileUtilities.serializeJson(SimDirectories.SIM_CONFIG.toString(), this.getClass().getSimpleName(), this.getClass());		
 	}
 
-	public Map<KeyCommand, Key> getKeyboardAssignments() { return keyboardAssignments; }
+	public Map<Key, KeyCommand> getKeyboardAssignments() { return keyboardAssignments; }
 
-	public void setKeyboardAssignments(Map<KeyCommand, Key> keyboardAssignments) { this.keyboardAssignments = keyboardAssignments; }
+	public void setKeyboardAssignments(Map<Key, KeyCommand> keyboardAssignments) { this.keyboardAssignments = keyboardAssignments; }
 
 	public Map<String, JoystickAxis[]> getJoystickAxisAssignments() { return joystickAxisAssignments; }
 
 	public void setJoystickAxisAssignments(Map<String, JoystickAxis[]> joystickAxisAssignments) { this.joystickAxisAssignments = joystickAxisAssignments; }
 
-	public Map<String, Map<KeyCommand, String>> getJoystickButtonAssignments() { return joystickButtonAssignments;	}
+	public Map<String, Map<String, KeyCommand>> getJoystickButtonAssignments() { return joystickButtonAssignments;	}
 
-	public void setJoystickButtonAssignments(Map<String, Map<KeyCommand, String>> joystickButtonAssignments) { this.joystickButtonAssignments = joystickButtonAssignments;	}
+	public void setJoystickButtonAssignments(Map<String, Map<String, KeyCommand>> joystickButtonAssignments) { this.joystickButtonAssignments = joystickButtonAssignments;	}
 
-	public Map<String, Map<KeyCommand, POV>> getJoystickHatAssignments() { return joystickHatAssignments;}
+	public Map<String, Map<POV, KeyCommand>> getJoystickHatAssignments() { return joystickHatAssignments;}
 
-	public void setJoystickHatAssignments(Map<String, Map<KeyCommand, POV>> joystickHatAssignments) { this.joystickHatAssignments = joystickHatAssignments;	}
+	public void setJoystickHatAssignments(Map<String, Map<POV, KeyCommand>> joystickHatAssignments) { this.joystickHatAssignments = joystickHatAssignments;	}
 }

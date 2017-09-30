@@ -46,12 +46,6 @@ import net.java.games.input.ControllerEnvironment;
  * @see AbstractController
  */
 public class Keyboard extends AbstractController {
-	// Keep track if button is pressed, so events occur only once if button held down 
-	private boolean pausePressed = false;
-	private boolean resetPressed = false;
-	// Keep track of reset, so that it can only be run once per pause
-	private boolean wasReset = false;
-	
 	private SimulationController simController;
 	private EnumSet<Options> options;
 	
@@ -113,52 +107,20 @@ public class Keyboard extends AbstractController {
 				String componentName = component.getIdentifier().getName();
 				boolean isPressed = component.getPollData() == 1.0f; 
 				
-				// When simulation paused, can be reset once per pause with "R" key
 				if (componentName.matches(Key.P.toString())) {
-					if(isPressed && !options.contains(Options.PAUSED) && !pausePressed) {
-						options.add(Options.PAUSED);
-						logger.debug("Simulation Paused!");
-						pausePressed = true;
-					} else if(isPressed && options.contains(Options.PAUSED) && !pausePressed) {
-						options.remove(Options.PAUSED);
-						wasReset = false;
-						pausePressed = true;
-					} else if(!isPressed && pausePressed) {
-						pausePressed = false;
-					}
-
-					continue;
+					Events.pauseSimulation(options, isPressed);
 				}
 				
-				// Reset simulation
 				if (componentName.matches(Key.R.toString())) {
-					if(isPressed && options.contains(Options.PAUSED) 
-					    && !options.contains(Options.RESET) && !resetPressed && !wasReset) {
-						options.add(Options.RESET);
-						logger.debug("Simulation Reset!");
-						wasReset = true;
-						resetPressed = true;
-					} else if (!isPressed && resetPressed) {
-						options.remove(Options.RESET);
-						resetPressed = false;
-					}
-					
-					continue;
+					Events.resetSimulation(options, isPressed);
 				}
 				
-				// Quits simulation
-				if (componentName.matches(Key.Q.toString()) && isPressed) {
-					simController.stopSimulation();
-					continue;
+				if (componentName.matches(Key.Q.toString())) {
+					Events.stopSimulation(simController);
 				}
 				
-				// Plots simulation
-				if (componentName.matches(Key.L.toString()) && isPressed) {
-					if(simController.getSimulation() != null && !simController.isPlotWindowVisible()) {
-						simController.plotSimulation();
-					}
-					
-					continue;
+				if (componentName.matches(Key.L.toString())) {
+					Events.plotSimulation(simController);
 				}
 			}
 		}
@@ -177,62 +139,68 @@ public class Keyboard extends AbstractController {
 			if(!controller.poll()) 
 				break;
 			
-			// Iterate through all components (keys) of the controller.
+			/*
+			// Get all pressed components (keys) of controller
+			List<Component> pressedComponents = Arrays.asList(controller.getComponents())
+													.stream()
+													.filter(com -> com.getPollData() == 1.0f)
+													.collect(Collectors.toList());
+			
+			for (Component component : pressedComponents) {*/
 			for (Component component : controller.getComponents()) {
 				String componentName = component.getIdentifier().getName();
-				boolean isPressed = component.getPollData() == 1.0f; 
 								
 				// Elevator (Pitch) Down
-				if (componentName.matches(Key.UP.toString()) && isPressed) {
+				if (componentName.matches(Key.UP.toString())) {
 					Events.elevatorDown(controls);
 					continue;
 				}
 				
 				// Elevator (Pitch) Up
-				if (componentName.matches(Key.DOWN.toString()) && isPressed) {
+				if (componentName.matches(Key.DOWN.toString())) {
 					Events.elevatorUp(controls);
 					continue;
 				}
 				
 				// Left Aileron
-				if (componentName.matches(Key.LEFT.toString()) && isPressed) {
+				if (componentName.matches(Key.LEFT.toString())) {
 					Events.aileronLeft(controls);
 					continue;
 				}
 				
 				// Right Aileron
-				if (componentName.matches(Key.RIGHT.toString()) && isPressed) {
+				if (componentName.matches(Key.RIGHT.toString())) {
 					Events.aileronRight(controls);
 					continue;
 				}
 				
 				// Increase Throttle
-				if (componentName.matches(Key.PAGEUP.toString()) && isPressed) {
+				if (componentName.matches(Key.PAGEUP.toString())) {
 					Events.increaseThrottle(controls);
 					continue;
 				}
 				
 				// Decrease Throttle
-				if (componentName.matches(Key.PAGEDOWN.toString()) && isPressed) {
+				if (componentName.matches(Key.PAGEDOWN.toString())) {
 					Events.decreaseThrottle(controls);
 					continue;
 				}
 				
 				// Flaps Down
-				if (componentName.matches(Key.F7.toString()) && isPressed) {
+				if (componentName.matches(Key.F7.toString())) {
 					Events.extendFlaps(controls);
 					continue;
 				}
 				
 				// Flaps Up
-				if (componentName.matches(Key.F6.toString()) && isPressed) {
+				if (componentName.matches(Key.F6.toString())) {
 					Events.retractFlaps(controls);
 					continue;
 				}
 				
 				// Landing Gear Down/Up
 				if (componentName.matches(Key.G.toString())) {
-					Events.cycleGear(controls, isPressed);
+					Events.cycleGear(controls, false);
 					continue;
 				} 
 			}

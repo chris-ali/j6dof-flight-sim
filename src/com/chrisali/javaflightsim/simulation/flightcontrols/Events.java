@@ -20,17 +20,21 @@
 package com.chrisali.javaflightsim.simulation.flightcontrols;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.hidcontrollers.AbstractController;
+import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
+import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
- * Contains static methods that handle all flight control events (flaps, gear, aileron, trim, throttle, etc) 
- * that can happen in JavaFlightSimulator. Used in tandem with HID Controller classes that extend {@link AbstractController}
+ * Contains static methods that handle all flight control events (flaps, gear, aileron, trim, throttle, etc) and simulation
+ * (pause, reset, quit) that can happen in JavaFlightSimulator. Used in tandem with HID Controller classes that 
+ * extend {@link AbstractController}
  * 
  * @author Christopher
  *
@@ -63,7 +67,12 @@ public class Events {
 	private static double flaps   	   = 0.0;
 	
 	// Keep track if button is pressed, so events occur only once if button held down 
-	private static boolean gearPressed = false;
+	private static boolean gearPressed = false; 
+	private static boolean pausePressed = false;
+	private static boolean resetPressed = false;
+	
+	// Keep track of reset, so that it can only be run once per pause
+	private static boolean wasReset = false;
 	
 	public static void retractGear(Map<FlightControl, Double> controls) {
 		controls.put(FlightControl.GEAR, FlightControl.GEAR.getMinimum());	
@@ -242,6 +251,43 @@ public class Events {
 			controls.put(FlightControl.THROTTLE_2, controls.get(FlightControl.THROTTLE_2) - getRate(FlightControl.THROTTLE_2));
 			controls.put(FlightControl.THROTTLE_3, controls.get(FlightControl.THROTTLE_3) - getRate(FlightControl.THROTTLE_3));
 			controls.put(FlightControl.THROTTLE_4, controls.get(FlightControl.THROTTLE_4) - getRate(FlightControl.THROTTLE_4));
+		}
+	}
+
+	public static void pauseSimulation(Set<Options> options, boolean isPressed) {
+		if(isPressed && !options.contains(Options.PAUSED) && !pausePressed) {
+			options.add(Options.PAUSED);
+			logger.debug("Simulation Paused!");
+			pausePressed = true;
+		} else if(isPressed && options.contains(Options.PAUSED) && !pausePressed) {
+			options.remove(Options.PAUSED);
+			wasReset = false;
+			pausePressed = true;
+		} else if(!isPressed && pausePressed) {
+			pausePressed = false;
+		}
+	}
+	
+	// When simulation paused, can be reset once per pause with "R" key
+	public static void resetSimulation(Set<Options> options, boolean isPressed) {
+		if(isPressed && options.contains(Options.PAUSED) && !options.contains(Options.RESET) && !resetPressed && !wasReset) {
+			options.add(Options.RESET);
+			logger.debug("Simulation Reset!");
+			wasReset = true;
+			resetPressed = true;
+		} else if (!isPressed && resetPressed) {
+			options.remove(Options.RESET);
+			resetPressed = false;
+		}
+	}
+	
+	public static void stopSimulation(SimulationController simController) {
+		simController.stopSimulation();
+	}
+	
+	public static void plotSimulation(SimulationController simController) {
+		if(simController.getSimulation() != null && !simController.isPlotWindowVisible()) {
+			simController.plotSimulation();
 		}
 	}
 	

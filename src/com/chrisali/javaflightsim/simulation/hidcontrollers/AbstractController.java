@@ -26,8 +26,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aerodynamics;
+import com.chrisali.javaflightsim.simulation.flightcontrols.Events;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 
 import net.java.games.input.Controller;
 
@@ -64,5 +66,99 @@ public abstract class AbstractController {
 		}
 		
 		return controls;
+	}
+	
+	/**
+	 * Given a {@link KeyCommand}, call a flight control event method defined in {@link Events}
+	 * 
+	 * @param command
+	 * @param controls
+	 * @param componentPollData
+	 */
+	public void executeKeyButtonEventForCommand(KeyCommand command, Map<FlightControl, Double> controls, float componentPollData) {
+		switch (command) {
+		case AILERON_LEFT:
+			Events.aileronLeft(controls);
+			break;
+		case AILERON_RIGHT:
+			Events.aileronRight(controls);
+			break;
+		case AILERON_TRIM_LEFT:
+			Events.aileronTrimLeft();
+			break;
+		case AILERON_TRIM_RIGHT:
+			Events.aileronTrimRight();
+			break;
+		case BRAKES:
+			Events.brakeLeft(controls, FlightControl.BRAKE_L.getMaximum());
+			Events.brakeRight(controls, FlightControl.BRAKE_R.getMaximum());
+			break;
+		case CENTER_CONTROLS:
+			Events.centerControls(controls);
+			break;
+		case DECREASE_FLAPS:
+			Events.retractFlaps(controls);
+			break;
+		case DECREASE_MIXTURE:
+			break;
+		case DECREASE_PROPELLER:
+			break;
+		case DECREASE_THROTTLE:
+			Events.decreaseThrottle(controls);
+			break;
+		case ELEVATOR_DOWN:
+			Events.elevatorDown(controls);
+			break;
+		case ELEVATOR_UP:
+			Events.elevatorUp(controls);
+			break;
+		case ELEVATOR_TRIM_DOWN:
+			Events.elevatorTrimDown();
+			break;
+		case ELEVATOR_TRIM_UP:
+			Events.elevatorTrimUp();
+			break;
+		case EXIT_SIMULATION:
+			break;
+		case GEAR_UP_DOWN:
+			Events.cycleGear(controls, componentPollData == 1.0f);
+			break;
+		case GEAR_DOWN:
+			Events.extendGear(controls);
+			break;
+		case GEAR_UP:
+			Events.retractGear(controls);
+			break;
+		case GENERATE_PLOTS:
+			break;
+		case INCREASE_FLAPS:
+			Events.extendFlaps(controls);
+			break;
+		case INCREASE_MIXTURE:
+			break;
+		case INCREASE_PROPELLER:
+			break;
+		case INCREASE_THROTTLE:
+			Events.increaseThrottle(controls);
+			break;
+		case PAUSE_UNPAUSE_SIM:
+			break;
+		case RESET_SIM:
+			break;
+		case RUDDER_LEFT:
+			Events.rudderLeft(controls);
+			break;
+		case RUDDER_RIGHT:
+			Events.rudderRight(controls);
+			break;
+		case RUDDER_TRIM_LEFT:
+			Events.rudderTrimLeft();
+			break;
+		case RUDDER_TRIM_RIGHT:
+			Events.rudderRight(controls);
+			break;
+		default:
+			break;
+		}
 	}
 }
