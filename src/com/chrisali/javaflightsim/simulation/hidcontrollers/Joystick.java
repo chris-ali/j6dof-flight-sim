@@ -25,11 +25,12 @@ import java.util.Map;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
+import com.chrisali.javaflightsim.simulation.setup.JoystickAxis;
+import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
 import net.java.games.input.Component.Identifier.Axis;
-import net.java.games.input.Component.POV;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
@@ -45,6 +46,12 @@ import net.java.games.input.ControllerEnvironment;
  */
 public class Joystick extends AbstractController {
 	
+	private Map<String, Map<String, JoystickAxis>> joystickAxisAssignments;
+	
+	private Map<String, Map<String, KeyCommand>> joystickButtonAssignments;
+	
+	private Map<String, Map<Float, KeyCommand>> joystickHatAssignments;
+	
 	/**
 	 *  Constructor for Joystick class creates list of controllers using searchForControllers()
 	 * @param flightControls
@@ -56,6 +63,10 @@ public class Joystick extends AbstractController {
 		this.simController = simController;
 		
 		controlsConfig = new ControlsConfiguration();
+		joystickAxisAssignments = controlsConfig.getJoystickAxisAssignments();
+		joystickButtonAssignments = controlsConfig.getJoystickButtonAssignments();
+		joystickHatAssignments = controlsConfig.getJoystickHatAssignments();
+		
 		options = simController.getConfiguration().getSimulationOptions();
 		
 		searchForControllers();
@@ -92,80 +103,51 @@ public class Joystick extends AbstractController {
 	public Map<FlightControl, Double> calculateControllerValues() {
 		for (Controller controller : controllerList) {
 			
+			String controllerName = controller.getName();
+			
+			Map<String, JoystickAxis> axisAssignments = joystickAxisAssignments.get(controllerName);
+			Map<String, KeyCommand> buttonAssignments = joystickButtonAssignments.get(controllerName);
+			Map<Float, KeyCommand> hatAssignments = joystickHatAssignments.get(controllerName);
+			
 			// Poll controller for data
 			if(!controller.poll()) 
 				continue;
 			
 			for(Component component : controller.getComponents()) {
 				Identifier componentIdentifier = component.getIdentifier();
+				String componentName = componentIdentifier.getName();
+				float pollValue = component.getPollData();
 
 				// Buttons
-				if(componentIdentifier.getName().matches("^[0-9]*$")) { // If the component identifier contains only numbers, it is a button
-					if(component.getPollData() == 1.0f) {
-						switch(componentIdentifier.toString()) {
-						case "0":
-							Events.brakeLeft(flightControls, FlightControl.BRAKE_L.getMaximum());
-							Events.brakeRight(flightControls, FlightControl.BRAKE_R.getMaximum());
-							break;
-						case "4":
-							Events.extendGear(flightControls);
-							break;
-						case "5":
-							Events.retractGear(flightControls);
-							break;
-						case "6":
-							Events.retractFlaps(flightControls);
-							break;
-						case "7":
-							Events.extendFlaps(flightControls);
-							break;
-						}
-					}
+				if(buttonAssignments != null && componentIdentifier.getName().matches("^[0-9]*$")) { // If the component name contains only numbers, it is a button
+					boolean isPressed = component.getPollData() == 1.0f;
+									
+					KeyCommand command = buttonAssignments.get(componentName);
+					
+					if(command != null)					
+						executeKeyButtonEventForCommand(command, isPressed);					
 					
 					continue;
 				}
 
-				// POV Hat Switch - Control elevator and aileron trim 
-				if(componentIdentifier == Axis.POV) {
-					float povValue = component.getPollData();
+				// Hat Switch - Control elevator and aileron trim 
+				if(axisAssignments != null && componentIdentifier == Axis.POV) {										
+					KeyCommand command = hatAssignments.get(pollValue);
 					
-					if      (Float.compare(povValue, POV.UP)    == 0)
-						Events.elevatorTrimDown(); 
-					else if (Float.compare(povValue, POV.DOWN)  == 0) 
-						Events.elevatorTrimUp();
-					else if (Float.compare(povValue, POV.LEFT)  == 0) 
-						Events.aileronTrimLeft();
-					else if (Float.compare(povValue, POV.RIGHT) == 0)
-						Events.aileronTrimRight();
+					if(command != null)					
+						executeKeyButtonEventForCommand(command, true);					
 					
 					continue;
 				}
 
-				// Joystick Axes - Read raw joystick value, square to reduce its sensitivity, convert to control deflection, and add trim value
-				if(component.isAnalog()){
-					double axisValue = (double)component.getPollData();
-
-					// Y axis (Elevator)
-					if(componentIdentifier == Axis.Y) {
-						Events.elevator(flightControls, axisValue);
-						continue;
-					}
-					// X axis (Aileron)
-					if(componentIdentifier == Axis.X) {
-						Events.aileron(flightControls, axisValue);
-						continue;
-					}
-					// Z axis (Rudder)
-					if(componentIdentifier == Axis.RZ) {
-						Events.rudder(flightControls, axisValue);
-						continue;
-					}
-					// Slider axis (Throttle)
-					if(componentIdentifier == Axis.SLIDER) {
-						Events.throttle1(flightControls, axisValue);
-						Events.throttle2(flightControls, axisValue);
-						continue;
-					}
+				// Joystick Axes
+				if(hatAssignments != null && component.isAnalog()){
+					JoystickAxis axis = axisAssignments.get(componentName);
+					
+					if(axis != null)					
+						executeAxisEventForCommand(axis.getAxisAssignment(), pollValue);				
+					
+					continue;
 				}
 			}
 		}

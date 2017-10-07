@@ -25,10 +25,9 @@ import java.util.Map;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
-import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 
 import net.java.games.input.Component;
-import net.java.games.input.Component.Identifier.Key;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
@@ -45,6 +44,8 @@ import net.java.games.input.ControllerEnvironment;
  */
 public class Keyboard extends AbstractController {
 	
+	private Map<String, KeyCommand> keyboardAssignments;
+	
 	/**
 	 *  Constructor for Keyboard class; creates list of controllers using searchForControllers() and
 	 *  creates a reference to a {@link SimulationController} object 
@@ -58,6 +59,7 @@ public class Keyboard extends AbstractController {
 		this.simController = simController;
 		
 		controlsConfig = new ControlsConfiguration();
+		keyboardAssignments = controlsConfig.getKeyboardAssignments();
 		options = simController.getConfiguration().getSimulationOptions();
 				
 		searchForControllers();
@@ -85,45 +87,6 @@ public class Keyboard extends AbstractController {
 	}
 	
 	/**
-	 * Contains hot keys used by the simulation for various tasks: <br>
-	 * Pausing the simulation<br>
-	 * Resetting it back to the initial conditions defined in {@link SimulationConfiguration}<br>
-	 * Quitting the simulation<br>
-	 * Plotting the simulation<br>
-	 * 
-	 * @param simController
-	 */
-	public void hotKeys() {
-		for (Controller keyboard : controllerList) {
-			// Poll controller for data
-			if(!keyboard.poll()) 
-				continue;
-			
-			// Iterate through all components of the controller.
-			for (Component component : keyboard.getComponents()) {
-				String componentName = component.getIdentifier().getName();
-				boolean isPressed = component.getPollData() == 1.0f; 
-				
-				if (componentName.matches(Key.P.toString())) {
-					Events.pauseSimulation(options, isPressed);
-				}
-				
-				if (componentName.matches(Key.R.toString())) {
-					Events.resetSimulation(options, isPressed);
-				}
-				
-				if (componentName.matches(Key.Q.toString()) && isPressed) {
-					Events.stopSimulation(simController);
-				}
-				
-				if (componentName.matches(Key.L.toString()) && isPressed) {
-					Events.plotSimulation(simController);
-				}
-			}
-		}
-	}
-	
-	/**
 	 *  Get button values from keyboard, and return a Map for updateFlightControls in {@link SimulationController)
 	 *  
 	 *  @return flightControls Map
@@ -135,63 +98,16 @@ public class Keyboard extends AbstractController {
 			if(!controller.poll()) 
 				continue;
 			
-			for (Component component : controller.getComponents()) {
-				String componentName = component.getIdentifier().getName();
+			for (Component component: controller.getComponents()) {
+				String componentName = component.getIdentifier().getName().toUpperCase();
 				boolean isPressed = component.getPollData() == 1.0f;
 								
-				// Elevator (Pitch) Down
-				if (componentName.matches(Key.UP.toString()) && isPressed) {
-					Events.elevatorDown(flightControls);
-					continue;
-				}
+				KeyCommand command = keyboardAssignments.get(componentName);
 				
-				// Elevator (Pitch) Up
-				if (componentName.matches(Key.DOWN.toString()) && isPressed) {
-					Events.elevatorUp(flightControls);
-					continue;
-				}
-				
-				// Left Aileron
-				if (componentName.matches(Key.LEFT.toString()) && isPressed) {
-					Events.aileronLeft(flightControls);
-					continue;
-				}
-				
-				// Right Aileron
-				if (componentName.matches(Key.RIGHT.toString()) && isPressed) {
-					Events.aileronRight(flightControls);
-					continue;
-				}
-				
-				// Increase Throttle
-				if (componentName.matches(Key.PAGEUP.toString()) && isPressed) {
-					Events.increaseThrottle(flightControls);
-					continue;
-				}
-				
-				// Decrease Throttle
-				if (componentName.matches(Key.PAGEDOWN.toString()) && isPressed) {
-					Events.decreaseThrottle(flightControls);
-					continue;
-				}
-				
-				// Flaps Down
-				if (componentName.matches(Key.F7.toString()) && isPressed) {
-					Events.extendFlaps(flightControls);
-					continue;
-				}
-				
-				// Flaps Up
-				if (componentName.matches(Key.F6.toString()) && isPressed) {
-					Events.retractFlaps(flightControls);
-					continue;
-				}
-				
-				// Landing Gear Down/Up
-				if (componentName.matches(Key.G.toString())) {
-					Events.cycleGear(flightControls, isPressed);
-					continue;
-				} 
+				if(command != null)					
+					executeKeyButtonEventForCommand(command, isPressed);
+								
+				continue;
 			}
 		}
 		

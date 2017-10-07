@@ -27,9 +27,6 @@ import com.chrisali.javaflightsim.simulation.interfaces.Saveable;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 
-import net.java.games.input.Component.Identifier.Axis;
-import net.java.games.input.Component.Identifier.Button;
-import net.java.games.input.Component.Identifier.Key;
 import net.java.games.input.Component.POV;
 
 /**
@@ -41,17 +38,17 @@ import net.java.games.input.Component.POV;
  */
 public class ControlsConfiguration implements Saveable {
 
-	private Map<Key, KeyCommand> keyboardAssignments;
+	private Map<String, KeyCommand> keyboardAssignments;
 	
 	/**
 	 * String key is the name of the joystick discovered by jinput
 	 */
-	private Map<String, Map<FlightControl, JoystickAxis>> joystickAxisAssignments;
+	private Map<String, Map<String, JoystickAxis>> joystickAxisAssignments;
 	
 	/**
 	 * String key is the name of the joystick discovered by jinput
 	 */
-	private Map<String, Map<Button, KeyCommand>> joystickButtonAssignments;
+	private Map<String, Map<String, KeyCommand>> joystickButtonAssignments;
 	
 	/**
 	 * String key is the name of the joystick discovered by jinput
@@ -64,39 +61,39 @@ public class ControlsConfiguration implements Saveable {
 	public ControlsConfiguration() { 
 		
 		// Keyboard
-		keyboardAssignments = new HashMap<Key, KeyCommand>(); 
-		keyboardAssignments.put(Key.P, KeyCommand.PAUSE_UNPAUSE_SIM);
-		keyboardAssignments.put(Key.Q, KeyCommand.EXIT_SIMULATION);
-		keyboardAssignments.put(Key.R, KeyCommand.RESET_SIM);
-		keyboardAssignments.put(Key.L, KeyCommand.GENERATE_PLOTS);
-		keyboardAssignments.put(Key.UP, KeyCommand.ELEVATOR_DOWN);
-		keyboardAssignments.put(Key.DOWN, KeyCommand.ELEVATOR_UP);
-		keyboardAssignments.put(Key.LEFT, KeyCommand.AILERON_LEFT);
-		keyboardAssignments.put(Key.RIGHT, KeyCommand.AILERON_RIGHT);
-		keyboardAssignments.put(Key.PAGEUP, KeyCommand.INCREASE_THROTTLE);
-		keyboardAssignments.put(Key.PAGEDOWN, KeyCommand.DECREASE_THROTTLE);
-		keyboardAssignments.put(Key.F7, KeyCommand.INCREASE_FLAPS);
-		keyboardAssignments.put(Key.F6, KeyCommand.DECREASE_FLAPS);
-		keyboardAssignments.put(Key.G, KeyCommand.GEAR_UP_DOWN);
+		keyboardAssignments = new HashMap<String, KeyCommand>(); 
+		keyboardAssignments.put("P", KeyCommand.PAUSE_UNPAUSE_SIM);
+		keyboardAssignments.put("Q", KeyCommand.EXIT_SIMULATION);
+		keyboardAssignments.put("R", KeyCommand.RESET_SIM);
+		keyboardAssignments.put("L", KeyCommand.GENERATE_PLOTS);
+		keyboardAssignments.put("UP", KeyCommand.ELEVATOR_DOWN);
+		keyboardAssignments.put("DOWN", KeyCommand.ELEVATOR_UP);
+		keyboardAssignments.put("LEFT", KeyCommand.AILERON_LEFT);
+		keyboardAssignments.put("RIGHT", KeyCommand.AILERON_RIGHT);
+		keyboardAssignments.put("PAGEUP", KeyCommand.INCREASE_THROTTLE);
+		keyboardAssignments.put("PAGEDOWN", KeyCommand.DECREASE_THROTTLE);
+		keyboardAssignments.put("F7", KeyCommand.INCREASE_FLAPS);
+		keyboardAssignments.put("F6", KeyCommand.DECREASE_FLAPS);
+		keyboardAssignments.put("G", KeyCommand.GEAR_UP_DOWN);
 		
 		// Joystick Axes
-		joystickAxisAssignments = new HashMap<String, Map<FlightControl, JoystickAxis>>();
-		Map<FlightControl, JoystickAxis> chYokeAxes = new HashMap<FlightControl, JoystickAxis>();
-		chYokeAxes.put(FlightControl.ELEVATOR, new JoystickAxis(Axis.Y));
-		chYokeAxes.put(FlightControl.AILERON, new JoystickAxis(Axis.X));
+		joystickAxisAssignments = new HashMap<String, Map<String, JoystickAxis>>();
+		Map<String, JoystickAxis> chYokeAxes = new HashMap<String, JoystickAxis>();
+		chYokeAxes.put("X", new JoystickAxis(FlightControl.ELEVATOR));
+		chYokeAxes.put("Y", new JoystickAxis(FlightControl.AILERON));
 		
-		Map<FlightControl, JoystickAxis> chPedalsAxes = new HashMap<FlightControl, JoystickAxis>();
-		chPedalsAxes.put(FlightControl.BRAKE_L, new JoystickAxis(Axis.Y));
-		chPedalsAxes.put(FlightControl.BRAKE_R, new JoystickAxis(Axis.X));
-		chPedalsAxes.put(FlightControl.RUDDER, new JoystickAxis(Axis.Z));
+		Map<String, JoystickAxis> chPedalsAxes = new HashMap<String, JoystickAxis>();
+		chPedalsAxes.put("Y", new JoystickAxis(FlightControl.BRAKE_L));
+		chPedalsAxes.put("X", new JoystickAxis(FlightControl.BRAKE_R));
+		chPedalsAxes.put("Z", new JoystickAxis(FlightControl.RUDDER));
 		
-		Map<FlightControl, JoystickAxis> chThrottleAxes = new HashMap<FlightControl, JoystickAxis>();
-		chThrottleAxes.put(FlightControl.THROTTLE_1, new JoystickAxis(Axis.X));
-		chThrottleAxes.put(FlightControl.THROTTLE_2, new JoystickAxis(Axis.Y));
-		chThrottleAxes.put(FlightControl.PROPELLER_1, new JoystickAxis(Axis.Z));
-		chThrottleAxes.put(FlightControl.PROPELLER_2, new JoystickAxis(Axis.RZ));
-		chThrottleAxes.put(FlightControl.MIXTURE_1, new JoystickAxis(Axis.RY));
-		chThrottleAxes.put(FlightControl.MIXTURE_2, new JoystickAxis(Axis.RX));
+		Map<String, JoystickAxis> chThrottleAxes = new HashMap<String, JoystickAxis>();
+		chThrottleAxes.put("X", new JoystickAxis(FlightControl.THROTTLE_1));
+		chThrottleAxes.put("Y", new JoystickAxis(FlightControl.THROTTLE_2));
+		chThrottleAxes.put("Z", new JoystickAxis(FlightControl.PROPELLER_1));
+		chThrottleAxes.put("RX", new JoystickAxis(FlightControl.PROPELLER_2));
+		chThrottleAxes.put("RY", new JoystickAxis(FlightControl.MIXTURE_1));
+		chThrottleAxes.put("RZ", new JoystickAxis(FlightControl.MIXTURE_2));
 		
 		joystickAxisAssignments.put("ch flight sim yoke usb", chYokeAxes);
 		joystickAxisAssignments.put("ch pro pedals usb", chPedalsAxes);
@@ -113,20 +110,20 @@ public class ControlsConfiguration implements Saveable {
 		joystickHatAssignments.put("ch flight sim yoke usb", chYokeHat);
 		
 		// Joystick Buttons
-		joystickButtonAssignments = new HashMap<String, Map<Button, KeyCommand>>();
-		Map<Button, KeyCommand> chYokeButtons = new HashMap<Button, KeyCommand>();
-		chYokeButtons.put(Button._2, KeyCommand.AILERON_TRIM_LEFT);
-		chYokeButtons.put(Button._3, KeyCommand.AILERON_TRIM_RIGHT);
-		chYokeButtons.put(Button._4, KeyCommand.GEAR_UP);
-		chYokeButtons.put(Button._5, KeyCommand.GEAR_DOWN);
-		chYokeButtons.put(Button._6, KeyCommand.DECREASE_FLAPS);
-		chYokeButtons.put(Button._7, KeyCommand.INCREASE_FLAPS);
-		chYokeButtons.put(Button._10, KeyCommand.ELEVATOR_TRIM_DOWN);
-		chYokeButtons.put(Button._11, KeyCommand.ELEVATOR_TRIM_UP);
+		joystickButtonAssignments = new HashMap<String, Map<String, KeyCommand>>();
+		Map<String, KeyCommand> chYokeButtons = new HashMap<String, KeyCommand>();
+		chYokeButtons.put("2", KeyCommand.AILERON_TRIM_LEFT);
+		chYokeButtons.put("3", KeyCommand.AILERON_TRIM_RIGHT);
+		chYokeButtons.put("4", KeyCommand.GEAR_UP);
+		chYokeButtons.put("5", KeyCommand.GEAR_DOWN);
+		chYokeButtons.put("6", KeyCommand.DECREASE_FLAPS);
+		chYokeButtons.put("7", KeyCommand.INCREASE_FLAPS);
+		chYokeButtons.put("10", KeyCommand.ELEVATOR_TRIM_DOWN);
+		chYokeButtons.put("11", KeyCommand.ELEVATOR_TRIM_UP);
 		
-		Map<Button, KeyCommand> chThrottleButtons = new HashMap<Button, KeyCommand>();
-		chThrottleButtons.put(Button._0, KeyCommand.ELEVATOR_TRIM_DOWN);
-		chThrottleButtons.put(Button._1, KeyCommand.ELEVATOR_TRIM_UP);
+		Map<String, KeyCommand> chThrottleButtons = new HashMap<String, KeyCommand>();
+		chThrottleButtons.put("0", KeyCommand.ELEVATOR_TRIM_DOWN);
+		chThrottleButtons.put("1", KeyCommand.ELEVATOR_TRIM_UP);
 		
 		joystickButtonAssignments.put("ch flight sim yoke usb", chYokeButtons);
 		joystickButtonAssignments.put("ch throttle quadrant usb", chThrottleButtons);
@@ -137,17 +134,17 @@ public class ControlsConfiguration implements Saveable {
 		FileUtilities.serializeJson(SimDirectories.SIM_CONFIG.toString(), this.getClass().getSimpleName(), this.getClass());		
 	}
 
-	public Map<Key, KeyCommand> getKeyboardAssignments() { return keyboardAssignments; }
+	public Map<String, KeyCommand> getKeyboardAssignments() { return keyboardAssignments; }
 
-	public void setKeyboardAssignments(Map<Key, KeyCommand> keyboardAssignments) { this.keyboardAssignments = keyboardAssignments; }
+	public void setKeyboardAssignments(Map<String, KeyCommand> keyboardAssignments) { this.keyboardAssignments = keyboardAssignments; }
 
-	public Map<String, Map<FlightControl, JoystickAxis>> getJoystickAxisAssignments() { return joystickAxisAssignments; }
+	public Map<String, Map<String, JoystickAxis>> getJoystickAxisAssignments() { return joystickAxisAssignments; }
 
-	public void setJoystickAxisAssignments(Map<String, Map<FlightControl, JoystickAxis>> joystickAxisAssignments) { this.joystickAxisAssignments = joystickAxisAssignments; }
+	public void setJoystickAxisAssignments(Map<String, Map<String, JoystickAxis>> joystickAxisAssignments) { this.joystickAxisAssignments = joystickAxisAssignments; }
 
-	public Map<String, Map<Button, KeyCommand>> getJoystickButtonAssignments() { return joystickButtonAssignments;	}
+	public Map<String, Map<String, KeyCommand>> getJoystickButtonAssignments() { return joystickButtonAssignments;	}
 
-	public void setJoystickButtonAssignments(Map<String, Map<Button, KeyCommand>> joystickButtonAssignments) { this.joystickButtonAssignments = joystickButtonAssignments;	}
+	public void setJoystickButtonAssignments(Map<String, Map<String, KeyCommand>> joystickButtonAssignments) { this.joystickButtonAssignments = joystickButtonAssignments;	}
 
 	public Map<String, Map<Float, KeyCommand>> getJoystickHatAssignments() { return joystickHatAssignments;}
 

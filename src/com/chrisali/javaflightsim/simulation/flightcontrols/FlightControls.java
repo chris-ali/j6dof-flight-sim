@@ -28,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.AbstractController;
-import com.chrisali.javaflightsim.simulation.hidcontrollers.CHControls;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Events;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Joystick;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Keyboard;
@@ -41,11 +40,10 @@ import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
- * Contains the Flight Controls thread used to handle flight controls actuated by human interface devices, such as
- * {@link Joystick}, {@link Keyboard}, {@link Mouse} or {@link CHControls}, or by P/PD controllers such as autopilots
- * and stability augmentation sytems. Also contains method to inject doublets into controls when simulation is run
- * as analysis. Uses {@link FlightDataListener} to feed back {@link FlightData} to use in P/PD controllers
- * 
+ * Handles flight controls actuated by human interface devices, such as {@link Joystick}, {@link Keyboard}, 
+ * {@link Mouse} or by P/PD controllers such as autopilots and stability augmentation sytems. Also contains 
+ * method to inject doublets into controls when simulation is run as analysis. Uses {@link FlightDataListener} 
+ * to feed back {@link FlightData} to use in P/PD controllers
  * 
  * @author Christopher Ali
  *
@@ -77,16 +75,14 @@ public class FlightControls implements Steppable, FlightDataListener {
 		SimulationConfiguration configuration = simController.getConfiguration();
 		controls = configuration.getInitialControls();
 		options = configuration.getSimulationOptions();
-		
-		hidKeyboard = new Keyboard(controls, simController);
-		
+				
 		// initializes static EnumMap that contains trim values of controls for doublets 
 		DoubletGenerator.init();
 		Events.init(configuration);
 
 		// Use controllers for pilot in loop simulation if ANALYSIS_MODE not enabled 
 		if (!options.contains(Options.ANALYSIS_MODE)) {
-			if (options.contains(Options.USE_JOYSTICK)) {
+			if (options.contains(Options.USE_JOYSTICK) || options.contains(Options.USE_CH_CONTROLS)) {
 				logger.debug("Joystick controller selected");
 				hidController = new Joystick(controls, simController);
 			}
@@ -94,10 +90,8 @@ public class FlightControls implements Steppable, FlightDataListener {
 				logger.debug("Mouse controller selected");
 				hidController = new Mouse(controls, simController);
 			}
-			else if (options.contains(Options.USE_CH_CONTROLS)) {
-				logger.debug("CH Controller suite selected");
-				hidController = new CHControls(controls, simController);
-			}
+			
+			hidKeyboard = new Keyboard(controls, simController);
 		}
 	}
 	
@@ -108,14 +102,12 @@ public class FlightControls implements Steppable, FlightDataListener {
 			
 			// if not running in analysis mode, controls and options are updated with pilot input
 			// otherwise, controls updated using generated doublets
-			if (!options.contains(Options.ANALYSIS_MODE)) {
+			if (!options.contains(Options.ANALYSIS_MODE) && simulation.isRunning()) {
 				if (hidController != null) 
 					controls = hidController.calculateControllerValues();
 				
-				controls = hidKeyboard.calculateControllerValues();
-				
-				if (simulation.isRunning())
-					hidKeyboard.hotKeys();
+				if (hidKeyboard != null)
+					controls = hidKeyboard.calculateControllerValues();
 			} else {
 				controls = DoubletGenerator.doubletSeries(controls, simulation.getTime());
 			}
