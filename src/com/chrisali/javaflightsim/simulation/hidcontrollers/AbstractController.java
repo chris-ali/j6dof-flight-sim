@@ -85,7 +85,7 @@ public abstract class AbstractController {
 	 * @param command
 	 * @param isPressed
 	 */
-	public void executeKeyButtonEventForCommand(KeyCommand command, boolean isPressed) {
+	protected void executeKeyButtonEventForCommand(KeyCommand command, boolean isPressed) {
 		switch (command) {
 		case AILERON_LEFT:
 			if (isPressed) Events.aileronLeft(flightControls);
@@ -170,6 +170,62 @@ public abstract class AbstractController {
 			break;
 		case RUDDER_TRIM_RIGHT:
 			if (isPressed) Events.rudderRight(flightControls);
+			break;
+		default:
+			break;
+		}
+	}
+	
+	protected void executeAxisEventForCommand(FlightControl control, float axisValue) {
+		switch (control) {
+		case AILERON:
+			Events.aileron(flightControls, axisValue);
+			break;
+		case BRAKE_L:
+			Events.brakeLeft(flightControls, axisValue);
+			break;
+		case BRAKE_R:
+			Events.brakeRight(flightControls, axisValue);
+			break;
+		case ELEVATOR:
+			Events.elevator(flightControls, axisValue);
+			break;
+		case FLAPS:
+			break;
+		case GEAR:
+			break;
+		case MIXTURE_1:
+			Events.mixture1(flightControls, axisValue);
+			break;
+		case MIXTURE_2:
+			Events.mixture2(flightControls, axisValue);
+			break;
+		case MIXTURE_3:
+			break;
+		case MIXTURE_4:
+			break;
+		case PROPELLER_1:
+			Events.propeller1(flightControls, axisValue);
+			break;
+		case PROPELLER_2:
+			Events.propeller2(flightControls, axisValue);
+			break;
+		case PROPELLER_3:
+			break;
+		case PROPELLER_4:
+			break;
+		case RUDDER:
+			Events.rudder(flightControls, axisValue);
+			break;
+		case THROTTLE_1:
+			Events.throttle1(flightControls, axisValue);
+			break;
+		case THROTTLE_2:
+			Events.throttle2(flightControls, axisValue);
+			break;
+		case THROTTLE_3:
+			break;
+		case THROTTLE_4:
 			break;
 		default:
 			break;

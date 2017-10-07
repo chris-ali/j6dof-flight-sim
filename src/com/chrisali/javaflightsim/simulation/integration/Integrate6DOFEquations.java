@@ -96,7 +96,8 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	private double[] totalMoments     		= new double[3];
 	
 	// Simulation Controls (Joystick, Keyboard, etc.)
-	private Map<FlightControl, Double> controls;
+	private FlightControls flightControls;
+	private Map<FlightControl, Double> controlsMap;
 	
 	// Integrator Fields
 	private ClassicalRungeKuttaIntegrator integrator;
@@ -132,8 +133,9 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	 * @param configuration
 	 */
 	public Integrate6DOFEquations(FlightControls flightControls, SimulationConfiguration configuration) {
+		this.flightControls = flightControls;
 		
-		controls 		   = flightControls.getFlightControls();
+	    controlsMap 	   = flightControls.getFlightControls();
 		aircraft 		   = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
 		engineList   	   = aircraft.getEngines();
 		options		       = configuration.getSimulationOptions();
@@ -173,10 +175,11 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 													 sixDOFDerivatives,
 													 integratorConfigS, 
 													 aircraft, 
-													 controls);
+													 controlsMap);
 		
 		// Initialize accelerations and moments, and calculate initial data members' values
 		AccelAndMoments.init(aircraft);
+		
 		updateDataMembers();
 	}
 	
@@ -258,7 +261,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		
 		// Update all engines in engine list
 		for(Engine engine : engineList)
-			 engine.updateEngineState(controls, environmentParameters, windParameters);
+			 engine.updateEngineState(controlsMap, environmentParameters, windParameters);
 		
 		// Update alphaDot
 		alphaDot = SixDOFUtilities.calculateAlphaDot(linearVelocities, sixDOFDerivatives);
@@ -277,7 +280,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		linearAccelerations = AccelAndMoments.calculateLinearAccelerations(windParameters,
 																		   angularRates,
 																		   environmentParameters,
-																		   controls,
+																		   controlsMap,
 																		   alphaDot,
 																		   engineList,
 																		   aircraft,
@@ -287,7 +290,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		totalMoments = AccelAndMoments.calculateTotalMoments(windParameters,
 														 	 angularRates,
 															 environmentParameters,
-															 controls,
+															 controlsMap,
 															 alphaDot,
 															 engineList,
 															 aircraft,
@@ -391,23 +394,23 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 			}
 			
 			// Controls
-			simOut.put(SimOuts.ELEVATOR,    controls.get(FlightControl.ELEVATOR));
-			simOut.put(SimOuts.AILERON, 	controls.get(FlightControl.AILERON));
-			simOut.put(SimOuts.RUDDER, 	 	controls.get(FlightControl.RUDDER));
-			simOut.put(SimOuts.THROTTLE_1, 	controls.get(FlightControl.THROTTLE_1));
-			simOut.put(SimOuts.THROTTLE_2, 	controls.get(FlightControl.THROTTLE_2));
-			simOut.put(SimOuts.THROTTLE_3, 	controls.get(FlightControl.THROTTLE_3));
-			simOut.put(SimOuts.THROTTLE_4, 	controls.get(FlightControl.THROTTLE_4));
-			simOut.put(SimOuts.PROPELLER_1, controls.get(FlightControl.PROPELLER_1));
-			simOut.put(SimOuts.PROPELLER_2, controls.get(FlightControl.PROPELLER_2));
-			simOut.put(SimOuts.PROPELLER_3, controls.get(FlightControl.PROPELLER_3));
-			simOut.put(SimOuts.PROPELLER_4, controls.get(FlightControl.PROPELLER_4));
-			simOut.put(SimOuts.MIXTURE_1, 	controls.get(FlightControl.MIXTURE_1));
-			simOut.put(SimOuts.MIXTURE_2, 	controls.get(FlightControl.MIXTURE_2));
-			simOut.put(SimOuts.MIXTURE_3, 	controls.get(FlightControl.MIXTURE_3));
-			simOut.put(SimOuts.MIXTURE_4, 	controls.get(FlightControl.MIXTURE_4));
-			simOut.put(SimOuts.FLAPS, 	 	controls.get(FlightControl.FLAPS));
-			simOut.put(SimOuts.GEAR, 	 	controls.get(FlightControl.GEAR));
+			simOut.put(SimOuts.ELEVATOR,    controlsMap.get(FlightControl.ELEVATOR));
+			simOut.put(SimOuts.AILERON, 	controlsMap.get(FlightControl.AILERON));
+			simOut.put(SimOuts.RUDDER, 	 	controlsMap.get(FlightControl.RUDDER));
+			simOut.put(SimOuts.THROTTLE_1, 	controlsMap.get(FlightControl.THROTTLE_1));
+			simOut.put(SimOuts.THROTTLE_2, 	controlsMap.get(FlightControl.THROTTLE_2));
+			simOut.put(SimOuts.THROTTLE_3, 	controlsMap.get(FlightControl.THROTTLE_3));
+			simOut.put(SimOuts.THROTTLE_4, 	controlsMap.get(FlightControl.THROTTLE_4));
+			simOut.put(SimOuts.PROPELLER_1, controlsMap.get(FlightControl.PROPELLER_1));
+			simOut.put(SimOuts.PROPELLER_2, controlsMap.get(FlightControl.PROPELLER_2));
+			simOut.put(SimOuts.PROPELLER_3, controlsMap.get(FlightControl.PROPELLER_3));
+			simOut.put(SimOuts.PROPELLER_4, controlsMap.get(FlightControl.PROPELLER_4));
+			simOut.put(SimOuts.MIXTURE_1, 	controlsMap.get(FlightControl.MIXTURE_1));
+			simOut.put(SimOuts.MIXTURE_2, 	controlsMap.get(FlightControl.MIXTURE_2));
+			simOut.put(SimOuts.MIXTURE_3, 	controlsMap.get(FlightControl.MIXTURE_3));
+			simOut.put(SimOuts.MIXTURE_4, 	controlsMap.get(FlightControl.MIXTURE_4));
+			simOut.put(SimOuts.FLAPS, 	 	controlsMap.get(FlightControl.FLAPS));
+			simOut.put(SimOuts.GEAR, 	 	controlsMap.get(FlightControl.GEAR));
 		}
 		
 		synchronized (logsOut) {
@@ -446,6 +449,10 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 											  timeS, 		  			  	// start time
 											  initialConditions, 		  	// initial conditions
 											  timeS+integratorConfigS[1]);  // end time (t+dt)
+					
+					// Step update FlightControls
+					if (flightControls.canStepNow(timeMS.get()));
+						flightControls.step();
 					
 					// Update data members' values
 					updateDataMembers();

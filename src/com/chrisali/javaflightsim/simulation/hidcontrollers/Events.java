@@ -282,7 +282,7 @@ public class Events {
 	}
 	
 	public static void stopSimulation(SimulationController simController) {
-		simController.stopSimulation();
+		//simController.stopSimulation();
 	}
 	
 	public static void plotSimulation(SimulationController simController) {

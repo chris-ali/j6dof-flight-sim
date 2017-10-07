@@ -46,7 +46,6 @@ public class TestFlightControls implements Runnable {
 		simController = new LWJGLSwingSimulationController(configuation);
 		configuation.getSimulationOptions().add(Options.USE_CH_CONTROLS);
 		flightControls = new FlightControls(simController);
-		flightControlsThread = new Thread(flightControls);
 	}
 	
 	@Override
@@ -56,7 +55,7 @@ public class TestFlightControls implements Runnable {
 		try {
 			Thread.sleep(500);
 			
-			while (flightControls.isRunning()) {
+			while (true) {
 				System.out.println(flightControls.toString());
 				System.out.println();
 				System.out.println(configuation.getSimulationOptions());

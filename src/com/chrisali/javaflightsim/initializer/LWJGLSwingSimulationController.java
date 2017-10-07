@@ -71,7 +71,6 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	
 	// Simulation and Threads
 	private FlightControls flightControls;
-	private Thread flightControlsThread;
 	
 	private Integrate6DOFEquations simulation;
 	private Thread simulationThread;
@@ -151,20 +150,15 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		
 		logger.debug("Trimming aircraft...");
 		Trimming.trimSim(configuration, false);
-		
-		logger.debug("Initializing flight controls (thread)...");
+				
+		logger.debug("Initializing flight controls...");
 		flightControls = new FlightControls(this);
-		flightControlsThread = new Thread(flightControls);
-		
+
 		logger.debug("Initializing simulation (thread)...");
 		simulation = new Integrate6DOFEquations(flightControls, configuration);
 		simulationThread = new Thread(simulation);
 		
-		// Workaround due to circular reference between simulation and flight controls
-		flightControls.setSimulation(simulation);
-
-		logger.debug("Starting flight controls and simulation threads...");
-		flightControlsThread.start();
+		logger.debug("Starting simulation thread...");
 		simulationThread.start();
 		
 		if (configuration.getSimulationOptions().contains(Options.CONSOLE_DISPLAY)) {
@@ -182,7 +176,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	}
 	
 	/**
-	 * Stops simulation, flight controls and data transfer threads (if running), closes the raw data {@link ConsoleTablePanel},
+	 * Stops simulation and data transfer threads (if running), closes the raw data {@link ConsoleTablePanel},
 	 * {@link SimulationWindow}, and opens the main menus window again
 	 */
 	@Override
@@ -190,9 +184,8 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		logger.debug("Stopping simulation...");
 		
 		if (simulation != null && simulation.isRunning() && simulationThread != null && simulationThread.isAlive()) {
-			logger.debug("Stopping simulation and flight controls threads...");
+			logger.debug("Stopping simulation thread...");
 			simulation.setRunning(false);
-			flightControls.setRunning(false);
 		}
 		
 		if (flightDataThread != null && flightDataThread.isAlive()) {
@@ -219,9 +212,6 @@ public class LWJGLSwingSimulationController implements SimulationController {
 			while(simulation.isRunning()) {				
 				Thread.sleep(1500);
 			}
-			
-			logger.debug("Stopping flight controls thread...");
-			flightControls.setRunning(false);
 			
 			logger.debug("Generating plots...");
 			plotSimulation();

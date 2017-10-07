@@ -63,7 +63,6 @@ public class TestInstrumentPanel {
 		Integrate6DOFEquations runSim = new Integrate6DOFEquations(flightControls, configuration);
 		FlightData flightData = new FlightData(runSim);
 
-		new Thread(flightControls).start();
 		new Thread(runSim).start();
 		new Thread(flightData).start();
 		

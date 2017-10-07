@@ -19,7 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.flightcontrols;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
 
@@ -36,6 +35,7 @@ import com.chrisali.javaflightsim.simulation.hidcontrollers.Keyboard;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Mouse;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
+import com.chrisali.javaflightsim.simulation.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -50,38 +50,32 @@ import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
  * @author Christopher Ali
  *
  */
-public class FlightControls implements Runnable, FlightDataListener {
+public class FlightControls implements Steppable, FlightDataListener {
 
 	private static final Logger logger = LogManager.getLogger(FlightControls.class);
 	
-	private boolean running;
-	
 	private Map<FlightControl, Double> controls;
-	private Map<IntegratorConfig, Double> integratorConfig;
 	private EnumSet<Options> options;
 //	private Map<FlightDataType, Double> flightData;
 	
-	private Integrate6DOFEquations simulation;
 	private SimulationController simController;
-	
+		
 	private AbstractController hidController;
 	private Keyboard hidKeyboard;
 	
 	/**
 	 * Constructor for {@link FlightControls}; {@link SimulationConfiguration} argument to initialize {@link IntegratorConfig} 
-	 * EnumMap, the {@link Options} EnumSet, as well as to update simulation options and call simulation methods. Ensure that
-	 * {@link FlightControls#setSimulation(Integrate6DOFEquations)}
+	 * EnumMap, the {@link Options} EnumSet, as well as to update simulation options and call simulation methods
 	 * 
 	 * @param simController
 	 */
 	public FlightControls(SimulationController simController) {
 		logger.debug("Initializing flight controls...");
-		
+				
 		this.simController = simController;
-		
+
 		SimulationConfiguration configuration = simController.getConfiguration();
 		controls = configuration.getInitialControls();
-		integratorConfig = configuration.getIntegratorConfig();
 		options = configuration.getSimulationOptions();
 		
 		hidKeyboard = new Keyboard(controls, simController);
@@ -89,13 +83,7 @@ public class FlightControls implements Runnable, FlightDataListener {
 		// initializes static EnumMap that contains trim values of controls for doublets 
 		DoubletGenerator.init();
 		Events.init(configuration);
-	}
-	
-	@Override
-	public void run() {
-		if (simulation == null)
-			logger.error("Unable to get a valid reference to the simulation! Some keyboard hotkeys will be disabled.");
-		
+
 		// Use controllers for pilot in loop simulation if ANALYSIS_MODE not enabled 
 		if (!options.contains(Options.ANALYSIS_MODE)) {
 			if (options.contains(Options.USE_JOYSTICK)) {
@@ -111,41 +99,34 @@ public class FlightControls implements Runnable, FlightDataListener {
 				hidController = new CHControls(controls, simController);
 			}
 		}
-		
-		running = true;
-		
-		while (running) {
-			try {
-				// if not running in analysis mode, controls and options should be updated using updateFlightControls()/updateOptions()
-				// otherwise, controls updated using generated doublets instead of pilot input
-				if (!options.contains(Options.ANALYSIS_MODE)) {
-					if (hidController != null) 
-						controls = hidController.calculateControllerValues();
-					
-					controls = hidKeyboard.calculateControllerValues();
-					
-					if (simulation != null && simulation.isRunning())
-						hidKeyboard.hotKeys();
-					
-					Thread.sleep((long) (integratorConfig.get(IntegratorConfig.DT)*1000));
-				} else {
-					if (simulation != null) {
-						controls = DoubletGenerator.doubletSeries(controls, simulation.getTime());
-						Thread.sleep(1);
-					}
-				}
-			} catch (InterruptedException e) {
-				logger.warn("Flight controls thread interrupted, ignoring.");
+	}
+	
+	@Override
+	public void step() {
+		try {
+			Integrate6DOFEquations simulation = simController.getSimulation();
+			
+			// if not running in analysis mode, controls and options are updated with pilot input
+			// otherwise, controls updated using generated doublets
+			if (!options.contains(Options.ANALYSIS_MODE)) {
+				if (hidController != null) 
+					controls = hidController.calculateControllerValues();
 				
-				continue;
-			} catch (Exception e) {
-				logger.error("Flight controls encountered an error! Attempting to continue...", e);
+				controls = hidKeyboard.calculateControllerValues();
 				
-				continue;
+				if (simulation.isRunning())
+					hidKeyboard.hotKeys();
+			} else {
+				controls = DoubletGenerator.doubletSeries(controls, simulation.getTime());
 			}
+		} catch (Exception e) {
+			logger.error("Flight controls encountered an error!", e);
 		}
-		
-		running = false;
+	}
+	
+	@Override
+	public boolean canStepNow(int time) {
+		return time % 100 == 0;
 	}
 
 	/**
@@ -158,34 +139,11 @@ public class FlightControls implements Runnable, FlightDataListener {
 	}
 	
 	/**
-	 * Workaround setter to prevent circular reference with {@link Integrate6DOFEquations} and {@link SimulationController}
-	 * 
-	 * @param simulation
-	 */
-	public void setSimulation(Integrate6DOFEquations simulation) {
-		this.simulation = simulation;
-	}
-	
-	/**
-	 * Returns thread-safe map containing flight controls data, with {@link FlightControl} as the keys 
+	 * Returns map containing flight controls data, with {@link FlightControl} as the keys 
 	 * 
 	 * @return controls
 	 */
-	public synchronized Map<FlightControl, Double> getFlightControls() {return Collections.unmodifiableMap(controls);}
-
-	/**
-	 * Lets other objects know if {@link FlightControls} thread is running
-	 * 
-	 * @return if {@link FlightControls} thread is running
-	 */
-	public synchronized boolean isRunning() {return running;}
-
-	/**
-	 * Lets other objects request to stop the {@link FlightControls} thread by setting running to false
-	 * 
-	 * @param running
-	 */
-	public synchronized void setRunning(boolean running) {this.running = running;}
+	public Map<FlightControl, Double> getFlightControls() { return controls; }
 
 	@Override
 	public String toString() {
