@@ -20,13 +20,11 @@
 package com.chrisali.javaflightsim.simulation.hidcontrollers;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.flightcontrols.Events;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
-import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 import net.java.games.input.Component;
@@ -46,22 +44,22 @@ import net.java.games.input.ControllerEnvironment;
  * @see AbstractController
  */
 public class Keyboard extends AbstractController {
-	private SimulationController simController;
-	private EnumSet<Options> options;
 	
 	/**
 	 *  Constructor for Keyboard class; creates list of controllers using searchForControllers() and
 	 *  creates a reference to a {@link SimulationController} object 
-	 * @param controls
+	 * @param flightControls
 	 * @param simController
 	 */
-	public Keyboard(Map<FlightControl, Double> controls, SimulationController simController) {
-		this.simController = simController;
-		controllerList = new ArrayList<>();
-		options = simController.getConfiguration().getSimulationOptions();
-
+	public Keyboard(Map<FlightControl, Double> flightControls, SimulationController simController) {
 		logger.debug("Setting up keyboard...");
+
+		this.flightControls = flightControls;
+		this.simController = simController;
 		
+		controlsConfig = new ControlsConfiguration();
+		options = simController.getConfiguration().getSimulationOptions();
+				
 		searchForControllers();
 	}
 	
@@ -71,7 +69,8 @@ public class Keyboard extends AbstractController {
 	@Override
 	public void searchForControllers() {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
-
+		controllerList = new ArrayList<>();
+		
 		for (Controller controller : controllers) {
 			if (controller.getType() == Controller.Type.KEYBOARD) {
 				controllerList.add(controller);
@@ -79,7 +78,6 @@ public class Keyboard extends AbstractController {
 			}
 		}
 
-		// If no keyboards available, exit function
 		if (controllerList.isEmpty()) {
 			logger.error("No keyboard found!");
 			return;
@@ -96,11 +94,10 @@ public class Keyboard extends AbstractController {
 	 * @param simController
 	 */
 	public void hotKeys() {
-		// Iterate through all controllers connected
 		for (Controller keyboard : controllerList) {
-			// Poll controller for data; if disconnected, break out of component identification loop
+			// Poll controller for data
 			if(!keyboard.poll()) 
-				break;
+				continue;
 			
 			// Iterate through all components of the controller.
 			for (Component component : keyboard.getComponents()) {
@@ -115,11 +112,11 @@ public class Keyboard extends AbstractController {
 					Events.resetSimulation(options, isPressed);
 				}
 				
-				if (componentName.matches(Key.Q.toString())) {
+				if (componentName.matches(Key.Q.toString()) && isPressed) {
 					Events.stopSimulation(simController);
 				}
 				
-				if (componentName.matches(Key.L.toString())) {
+				if (componentName.matches(Key.L.toString()) && isPressed) {
 					Events.plotSimulation(simController);
 				}
 			}
@@ -132,80 +129,72 @@ public class Keyboard extends AbstractController {
 	 *  @return flightControls Map
 	 */
 	@Override
-	public Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls) {
-		// Iterate through all controllers connected
+	public Map<FlightControl, Double> calculateControllerValues() {
 		for (Controller controller : controllerList) {
-			// Poll controller for data; if disconnected, break out of component identification loop
+			// Poll controller for data
 			if(!controller.poll()) 
-				break;
+				continue;
 			
-			/*
-			// Get all pressed components (keys) of controller
-			List<Component> pressedComponents = Arrays.asList(controller.getComponents())
-													.stream()
-													.filter(com -> com.getPollData() == 1.0f)
-													.collect(Collectors.toList());
-			
-			for (Component component : pressedComponents) {*/
 			for (Component component : controller.getComponents()) {
 				String componentName = component.getIdentifier().getName();
+				boolean isPressed = component.getPollData() == 1.0f;
 								
 				// Elevator (Pitch) Down
-				if (componentName.matches(Key.UP.toString())) {
-					Events.elevatorDown(controls);
+				if (componentName.matches(Key.UP.toString()) && isPressed) {
+					Events.elevatorDown(flightControls);
 					continue;
 				}
 				
 				// Elevator (Pitch) Up
-				if (componentName.matches(Key.DOWN.toString())) {
-					Events.elevatorUp(controls);
+				if (componentName.matches(Key.DOWN.toString()) && isPressed) {
+					Events.elevatorUp(flightControls);
 					continue;
 				}
 				
 				// Left Aileron
-				if (componentName.matches(Key.LEFT.toString())) {
-					Events.aileronLeft(controls);
+				if (componentName.matches(Key.LEFT.toString()) && isPressed) {
+					Events.aileronLeft(flightControls);
 					continue;
 				}
 				
 				// Right Aileron
-				if (componentName.matches(Key.RIGHT.toString())) {
-					Events.aileronRight(controls);
+				if (componentName.matches(Key.RIGHT.toString()) && isPressed) {
+					Events.aileronRight(flightControls);
 					continue;
 				}
 				
 				// Increase Throttle
-				if (componentName.matches(Key.PAGEUP.toString())) {
-					Events.increaseThrottle(controls);
+				if (componentName.matches(Key.PAGEUP.toString()) && isPressed) {
+					Events.increaseThrottle(flightControls);
 					continue;
 				}
 				
 				// Decrease Throttle
-				if (componentName.matches(Key.PAGEDOWN.toString())) {
-					Events.decreaseThrottle(controls);
+				if (componentName.matches(Key.PAGEDOWN.toString()) && isPressed) {
+					Events.decreaseThrottle(flightControls);
 					continue;
 				}
 				
 				// Flaps Down
-				if (componentName.matches(Key.F7.toString())) {
-					Events.extendFlaps(controls);
+				if (componentName.matches(Key.F7.toString()) && isPressed) {
+					Events.extendFlaps(flightControls);
 					continue;
 				}
 				
 				// Flaps Up
-				if (componentName.matches(Key.F6.toString())) {
-					Events.retractFlaps(controls);
+				if (componentName.matches(Key.F6.toString()) && isPressed) {
+					Events.retractFlaps(flightControls);
 					continue;
 				}
 				
 				// Landing Gear Down/Up
 				if (componentName.matches(Key.G.toString())) {
-					Events.cycleGear(controls, false);
+					Events.cycleGear(flightControls, isPressed);
 					continue;
 				} 
 			}
 		}
 		
-		return limitControls(controls);
+		return limitControls(flightControls);
 	}
 }

@@ -22,8 +22,9 @@ package com.chrisali.javaflightsim.simulation.hidcontrollers;
 import java.util.ArrayList;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.flightcontrols.Events;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
+import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
+import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
@@ -46,12 +47,16 @@ public class Joystick extends AbstractController {
 	
 	/**
 	 *  Constructor for Joystick class creates list of controllers using searchForControllers()
-	 * @param controls
+	 * @param flightControls
 	 */
-	public Joystick(Map<FlightControl, Double> controls) {
-		this.controllerList = new ArrayList<>();
-
+	public Joystick(Map<FlightControl, Double> flightControls, SimulationController simController) {
 		logger.debug("Setting up joystick...");
+
+		this.flightControls = flightControls;
+		this.simController = simController;
+		
+		controlsConfig = new ControlsConfiguration();
+		options = simController.getConfiguration().getSimulationOptions();
 		
 		searchForControllers();
 	}
@@ -63,6 +68,7 @@ public class Joystick extends AbstractController {
 	@Override
 	public void searchForControllers() {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
+		controllerList = new ArrayList<>();
 		
 		for(Controller controller : controllers){
 			if (controller.getType() == Controller.Type.STICK || controller.getType() == Controller.Type.GAMEPAD) {
@@ -71,7 +77,6 @@ public class Joystick extends AbstractController {
 			}
 		}
 		
-		// If no joysticks available, exit function
 		if (controllerList.isEmpty()) {
 			logger.error("No joysticks found!");
 			return;
@@ -81,18 +86,16 @@ public class Joystick extends AbstractController {
 	/**
 	 *  Get button, POV and axis values from joystick(s), and return a Map for updateFlightControls() 
 	 *  in {@link AbstractController}
-	 *  @return controls Map
+	 *  @return flightControls Map
 	 */
 	@Override
-	public Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls) {
-		// Iterate through all controllers connected
+	public Map<FlightControl, Double> calculateControllerValues() {
 		for (Controller controller : controllerList) {
 			
-			// Poll controller for data; if disconnected, break out of componentIdentification loop
+			// Poll controller for data
 			if(!controller.poll()) 
-				break;
+				continue;
 			
-			// Iterate through all components of the controller.
 			for(Component component : controller.getComponents()) {
 				Identifier componentIdentifier = component.getIdentifier();
 
@@ -101,20 +104,20 @@ public class Joystick extends AbstractController {
 					if(component.getPollData() == 1.0f) {
 						switch(componentIdentifier.toString()) {
 						case "0":
-							Events.brakeLeft(controls, FlightControl.BRAKE_L.getMaximum());
-							Events.brakeRight(controls, FlightControl.BRAKE_R.getMaximum());
+							Events.brakeLeft(flightControls, FlightControl.BRAKE_L.getMaximum());
+							Events.brakeRight(flightControls, FlightControl.BRAKE_R.getMaximum());
 							break;
 						case "4":
-							Events.extendGear(controls);
+							Events.extendGear(flightControls);
 							break;
 						case "5":
-							Events.retractGear(controls);
+							Events.retractGear(flightControls);
 							break;
 						case "6":
-							Events.retractFlaps(controls);
+							Events.retractFlaps(flightControls);
 							break;
 						case "7":
-							Events.extendFlaps(controls);
+							Events.extendFlaps(flightControls);
 							break;
 						}
 					}
@@ -144,29 +147,29 @@ public class Joystick extends AbstractController {
 
 					// Y axis (Elevator)
 					if(componentIdentifier == Axis.Y) {
-						Events.elevator(controls, axisValue);
+						Events.elevator(flightControls, axisValue);
 						continue;
 					}
 					// X axis (Aileron)
 					if(componentIdentifier == Axis.X) {
-						Events.aileron(controls, axisValue);
+						Events.aileron(flightControls, axisValue);
 						continue;
 					}
 					// Z axis (Rudder)
 					if(componentIdentifier == Axis.RZ) {
-						Events.rudder(controls, axisValue);
+						Events.rudder(flightControls, axisValue);
 						continue;
 					}
 					// Slider axis (Throttle)
 					if(componentIdentifier == Axis.SLIDER) {
-						Events.throttle1(controls, axisValue);
-						Events.throttle2(controls, axisValue);
+						Events.throttle1(flightControls, axisValue);
+						Events.throttle2(flightControls, axisValue);
 						continue;
 					}
 				}
 			}
 		}
 		
-		return limitControls(controls);
+		return limitControls(flightControls);
 	}
 }

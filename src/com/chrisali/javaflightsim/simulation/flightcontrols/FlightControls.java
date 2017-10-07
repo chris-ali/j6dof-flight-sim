@@ -30,6 +30,7 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.AbstractController;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.CHControls;
+import com.chrisali.javaflightsim.simulation.hidcontrollers.Events;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Joystick;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Keyboard;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Mouse;
@@ -61,6 +62,7 @@ public class FlightControls implements Runnable, FlightDataListener {
 //	private Map<FlightDataType, Double> flightData;
 	
 	private Integrate6DOFEquations simulation;
+	private SimulationController simController;
 	
 	private AbstractController hidController;
 	private Keyboard hidKeyboard;
@@ -68,15 +70,16 @@ public class FlightControls implements Runnable, FlightDataListener {
 	/**
 	 * Constructor for {@link FlightControls}; {@link SimulationConfiguration} argument to initialize {@link IntegratorConfig} 
 	 * EnumMap, the {@link Options} EnumSet, as well as to update simulation options and call simulation methods. Ensure that
-	 * {@link FlightControls#setIntegrate6DOFEquations(Integrate6DOFEquations)}
+	 * {@link FlightControls#setSimulation(Integrate6DOFEquations)}
 	 * 
 	 * @param simController
 	 */
 	public FlightControls(SimulationController simController) {
 		logger.debug("Initializing flight controls...");
 		
-		SimulationConfiguration configuration = simController.getConfiguration();
+		this.simController = simController;
 		
+		SimulationConfiguration configuration = simController.getConfiguration();
 		controls = configuration.getInitialControls();
 		integratorConfig = configuration.getIntegratorConfig();
 		options = configuration.getSimulationOptions();
@@ -97,15 +100,15 @@ public class FlightControls implements Runnable, FlightDataListener {
 		if (!options.contains(Options.ANALYSIS_MODE)) {
 			if (options.contains(Options.USE_JOYSTICK)) {
 				logger.debug("Joystick controller selected");
-				hidController = new Joystick(controls);
+				hidController = new Joystick(controls, simController);
 			}
 			else if (options.contains(Options.USE_MOUSE)){
 				logger.debug("Mouse controller selected");
-				hidController = new Mouse(controls);
+				hidController = new Mouse(controls, simController);
 			}
 			else if (options.contains(Options.USE_CH_CONTROLS)) {
 				logger.debug("CH Controller suite selected");
-				hidController = new CHControls(controls);
+				hidController = new CHControls(controls, simController);
 			}
 		}
 		
@@ -117,9 +120,9 @@ public class FlightControls implements Runnable, FlightDataListener {
 				// otherwise, controls updated using generated doublets instead of pilot input
 				if (!options.contains(Options.ANALYSIS_MODE)) {
 					if (hidController != null) 
-						controls = hidController.calculateControllerValues(controls);
+						controls = hidController.calculateControllerValues();
 					
-					controls = hidKeyboard.calculateControllerValues(controls);
+					controls = hidKeyboard.calculateControllerValues();
 					
 					if (simulation != null && simulation.isRunning())
 						hidKeyboard.hotKeys();
@@ -154,7 +157,12 @@ public class FlightControls implements Runnable, FlightDataListener {
 //			this.flightData = flightData.getFlightData();
 	}
 	
-	public void setIntegrate6DOFEquations(Integrate6DOFEquations simulation) {
+	/**
+	 * Workaround setter to prevent circular reference with {@link Integrate6DOFEquations} and {@link SimulationController}
+	 * 
+	 * @param simulation
+	 */
+	public void setSimulation(Integrate6DOFEquations simulation) {
 		this.simulation = simulation;
 	}
 	

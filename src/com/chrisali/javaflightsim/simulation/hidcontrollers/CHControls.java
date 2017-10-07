@@ -22,8 +22,9 @@ package com.chrisali.javaflightsim.simulation.hidcontrollers;
 import java.util.ArrayList;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.flightcontrols.Events;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
+import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
+import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
@@ -46,12 +47,16 @@ public class CHControls extends AbstractController {
 	
 	/**
 	 *  Constructor for CHControls class creates list of controllers using searchForControllers()
-	 * @param controls
+	 * @param flightControls
 	 */
-	public CHControls(Map<FlightControl, Double> controls) {
-		controllerList = new ArrayList<>();
-
+	public CHControls(Map<FlightControl, Double> flightControls, SimulationController simController) {
 		logger.debug("Setting up CH Flight Controls...");
+		
+		this.flightControls = flightControls;
+		this.simController = simController;
+		
+		controlsConfig = new ControlsConfiguration();
+		options = simController.getConfiguration().getSimulationOptions();
 		
 		searchForControllers();
 	}
@@ -63,6 +68,7 @@ public class CHControls extends AbstractController {
 	@Override
 	public void searchForControllers() {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
+		controllerList = new ArrayList<>();
 		
 		for(Controller controller : controllers){
 			if (controller.getType() == Controller.Type.STICK) {
@@ -82,10 +88,10 @@ public class CHControls extends AbstractController {
 	 *  Get button, POV and axis values from each joystick controller, and return a map for updateFlightControls()
 	 *  in {@link AbstractController}
 	 *  
-	 *  @return controls Map
+	 *  @return flightControls Map
 	 */
 	@Override
-	public Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls) {
+	public Map<FlightControl, Double> calculateControllerValues() {
 		// Iterate through all controllers connected
 		for (Controller controller : controllerList) {
 			
@@ -112,16 +118,16 @@ public class CHControls extends AbstractController {
 							Events.aileronTrimRight();
 							break;
 						case "4":
-							Events.retractGear(controls);
+							Events.retractGear(flightControls);
 							break;
 						case "5":
-							Events.extendGear(controls);
+							Events.extendGear(flightControls);
 							break;
 						case "6":
-							Events.retractFlaps(controls);
+							Events.retractFlaps(flightControls);
 							break;
 						case "7":
-							Events.extendFlaps(controls);
+							Events.extendFlaps(flightControls);
 							break;
 						case "10":
 							Events.elevatorTrimDown();
@@ -166,30 +172,30 @@ public class CHControls extends AbstractController {
 
 					// Y axis (Elevator)
 					if(componentIdentifier == Axis.Y) {
-						Events.elevator(controls, axisValue);
+						Events.elevator(flightControls, axisValue);
 						continue;
 					}
 					// X axis (Aileron)
 					if(componentIdentifier == Axis.X) {
-						Events.aileron(controls, axisValue);
+						Events.aileron(flightControls, axisValue);
 						continue;
 					}
 				} else if(component.isAnalog() && controllerName.compareTo("ch pro pedals usb") == 0){
 					double axisValue = (double)component.getPollData();
 
-					// Y axis (Elevator)
+					// Y axis (Left Brake)
 					if(componentIdentifier == Axis.Y) {
-						Events.brakeLeft(controls, axisValue);
+						Events.brakeLeft(flightControls, axisValue);
 						continue;
 					}
-					// X axis (Aileron)
+					// X axis (Right Brake)
 					if(componentIdentifier == Axis.X) {
-						Events.brakeRight(controls, axisValue);
+						Events.brakeRight(flightControls, axisValue);
 						continue;
 					}
 					// Z axis (Rudder)
 					if(componentIdentifier == Axis.Z) {
-						Events.rudder(controls, axisValue);
+						Events.rudder(flightControls, axisValue);
 						continue;
 					}
 				} else if(component.isAnalog() && controllerName.compareTo("ch throttle quadrant usb") == 0){
@@ -197,38 +203,38 @@ public class CHControls extends AbstractController {
 
 					// X axis (Throttle 1)
 					if(componentIdentifier == Axis.X) {
-						Events.throttle1(controls, axisValue);
+						Events.throttle1(flightControls, axisValue);
 						continue;
 					}
 					// Y axis (Throttle 2)
 					if(componentIdentifier == Axis.Y) {
-						Events.throttle2(controls, axisValue);
+						Events.throttle2(flightControls, axisValue);
 						continue;
 					}
 					// Z axis (Propeller 1)
 					if(componentIdentifier == Axis.Z) {
-						Events.propeller1(controls, axisValue);
+						Events.propeller1(flightControls, axisValue);
 						continue;
 					}
 					// RZ axis (Propeller 2)
 					if(componentIdentifier == Axis.RZ) {
-						Events.propeller2(controls, axisValue);
+						Events.propeller2(flightControls, axisValue);
 						continue;
 					}
 					// RY axis (Mixture 1)
 					if(componentIdentifier == Axis.RY) {
-						Events.mixture1(controls, axisValue);
+						Events.mixture1(flightControls, axisValue);
 						continue;
 					}
 					// RX axis (Mixture 2)
 					if(componentIdentifier == Axis.RX) {
-						Events.mixture2(controls, axisValue);
+						Events.mixture2(flightControls, axisValue);
 						continue;
 					}
 				}
 			}
 		}
 		
-		return limitControls(controls);
+		return limitControls(flightControls);
 	}
 }

@@ -19,12 +19,10 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.setup;
 
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
-
 import net.java.games.input.Component.Identifier.Axis;
 
 /**
- * Contains user-defined flight control, dead zone and sensitivity settings for an axis assignment.
+ * Contains user-defined jinput axis, dead zone and sensitivity settings for an axis assignment.
  * Used with {@link ControlsConfiguration} to populate a map of a list of axes for each joystick connected
  * 
  * @author Christopher
@@ -33,8 +31,6 @@ import net.java.games.input.Component.Identifier.Axis;
 public class JoystickAxis {
 
 	private Axis axisAssignment;
-
-	private FlightControl flightControl;
 	
 	private double deadZone;
 	
@@ -42,13 +38,21 @@ public class JoystickAxis {
 	
 	public JoystickAxis() { }
 	
+	public JoystickAxis(Axis axisAssignment) { 
+		this.axisAssignment = axisAssignment;
+		deadZone = 0.0;
+		sensitivity = 1.0;
+	}
+	
+	public JoystickAxis(Axis axisAssignment, double deadZone, double sensitivity) {
+		this(axisAssignment);
+		this.deadZone = deadZone;
+		this.sensitivity = sensitivity;
+	}
+	
 	public Axis getAxisAssignment() { return axisAssignment; }
 	
 	public void setAxisAssignment(Axis axisAssignment) { this.axisAssignment = axisAssignment; }
-
-	public FlightControl getFlightControl() { return flightControl;	}
-
-	public void setFlightControl(FlightControl flightControl) { this.flightControl = flightControl;	}
 
 	public double getDeadZone() { return deadZone; }
 

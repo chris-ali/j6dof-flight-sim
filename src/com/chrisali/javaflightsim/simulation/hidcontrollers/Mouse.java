@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
+import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
@@ -53,17 +54,20 @@ public class Mouse extends AbstractController {
 
 	/**
 	 *  Constructor for Joystick class; creates list of controllers using searchForControllers()
-	 * @param controls
+	 * @param flightControls
 	 */
-	public Mouse(Map<FlightControl, Double> controls) {
-		this.controllerList = new ArrayList<>();
-
-		// Get initial trim values from initial values in controls EnumMap (rad)
-		trimElevator = controls.get(FlightControl.ELEVATOR);
-		trimAileron = controls.get(FlightControl.AILERON);
-		
+	public Mouse(Map<FlightControl, Double> flightControls, SimulationController simController) {
 		logger.debug("Setting up mouse...");
+
+		this.flightControls = flightControls;
+		this.simController = simController;
 		
+		options = simController.getConfiguration().getSimulationOptions();
+		
+		// Get initial trim values from initial values in controls EnumMap (rad)
+		trimElevator = flightControls.get(FlightControl.ELEVATOR);
+		trimAileron = flightControls.get(FlightControl.AILERON);
+				
 		searchForControllers();
 	}
 	
@@ -73,13 +77,13 @@ public class Mouse extends AbstractController {
 	@Override
 	public void searchForControllers() {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
-
+		controllerList = new ArrayList<>();
+		
 		for (Controller controller : controllers) {
 			if (controller.getType() == Controller.Type.MOUSE)
 				controllerList.add(controller);
 		}
 
-		// If no mice available, exit function
 		if (controllerList.isEmpty()) {
 			logger.error("No mice found!");
 			return;
@@ -90,18 +94,16 @@ public class Mouse extends AbstractController {
 	 *  Get button, mouse wheel and axis values from mouse, and return a Map for updateFlightControls()
 	 *  in {@link AbstractController}
 	 *  
-	 *  @return controls Map
+	 *  @return flightControls Map
 	 */
 	@Override
-	public Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls) {
-		// Iterate through all controllers connected
+	public Map<FlightControl, Double> calculateControllerValues() {
 		for (Controller controller : controllerList) {
 			
-			// Poll controller for data; if disconnected, break out of componentIdentification loop
+			// Poll controller for data
 			if(!controller.poll()) 
-				break;
+				continue;
 			
-			// Iterate through all components of the controller.
 			for(Component component : controller.getComponents()) {
 				Identifier componentIdentifier = component.getIdentifier();
 
@@ -122,7 +124,7 @@ public class Mouse extends AbstractController {
 					if(componentIdentifier == Axis.Y) {
 						if(axisValue != 0) {
 							tempElev += axisValue;
-							controls.put(FlightControl.ELEVATOR, -(tempElev+trimElevator));
+							flightControls.put(FlightControl.ELEVATOR, -(tempElev+trimElevator));
 						}
 						continue;
 					}
@@ -130,7 +132,7 @@ public class Mouse extends AbstractController {
 					if(componentIdentifier == Axis.X) {
 						if(axisValue != 0) {
 							tempAil += axisValue;
-							controls.put(FlightControl.AILERON, -(tempAil+trimAileron));
+							flightControls.put(FlightControl.AILERON, -(tempAil+trimAileron));
 						}
 						continue;
 					}
@@ -138,8 +140,8 @@ public class Mouse extends AbstractController {
 					if(componentIdentifier == Axis.Z) {
 						if(axisValue != 0) {
 							tempThrot += axisValue;
-							controls.put(FlightControl.THROTTLE_1, tempThrot*250);
-							controls.put(FlightControl.THROTTLE_2, tempThrot*250);
+							flightControls.put(FlightControl.THROTTLE_1, tempThrot*250);
+							flightControls.put(FlightControl.THROTTLE_2, tempThrot*250);
 						}
 						continue;
 					}
@@ -147,7 +149,7 @@ public class Mouse extends AbstractController {
 			}
 		}
 		
-		return controls;
+		return flightControls;
 	}
 
 }

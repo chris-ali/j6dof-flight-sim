@@ -161,7 +161,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		simulationThread = new Thread(simulation);
 		
 		// Workaround due to circular reference between simulation and flight controls
-		flightControls.setIntegrate6DOFEquations(simulation);
+		flightControls.setSimulation(simulation);
 
 		logger.debug("Starting flight controls and simulation threads...");
 		flightControlsThread.start();

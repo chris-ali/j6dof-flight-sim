@@ -21,15 +21,18 @@ package com.chrisali.javaflightsim.simulation.hidcontrollers;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aerodynamics;
-import com.chrisali.javaflightsim.simulation.flightcontrols.Events;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
+import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
+import com.chrisali.javaflightsim.simulation.setup.Options;
 
 import net.java.games.input.Controller;
 
@@ -42,11 +45,19 @@ public abstract class AbstractController {
 	
 	protected static final Logger logger = LogManager.getLogger(AbstractController.class);
 	
+	protected Set<Options> options;
+	
+	protected SimulationController simController;
+	
+	protected ControlsConfiguration controlsConfig;
+	
+	protected Map<FlightControl, Double> flightControls;
+	
 	protected List<Controller> controllerList;
 
 	public abstract void searchForControllers();
 	
-	public abstract Map<FlightControl, Double> calculateControllerValues(Map<FlightControl, Double> controls);
+	public abstract Map<FlightControl, Double> calculateControllerValues();
 		
 	/**
 	 *  Limit control inputs to sensible deflection values based on the minimum and maximum values defined for 
@@ -72,90 +83,93 @@ public abstract class AbstractController {
 	 * Given a {@link KeyCommand}, call a flight control event method defined in {@link Events}
 	 * 
 	 * @param command
-	 * @param controls
-	 * @param componentPollData
+	 * @param isPressed
 	 */
-	public void executeKeyButtonEventForCommand(KeyCommand command, Map<FlightControl, Double> controls, float componentPollData) {
+	public void executeKeyButtonEventForCommand(KeyCommand command, boolean isPressed) {
 		switch (command) {
 		case AILERON_LEFT:
-			Events.aileronLeft(controls);
+			if (isPressed) Events.aileronLeft(flightControls);
 			break;
 		case AILERON_RIGHT:
-			Events.aileronRight(controls);
+			if (isPressed) Events.aileronRight(flightControls);
 			break;
 		case AILERON_TRIM_LEFT:
-			Events.aileronTrimLeft();
+			if (isPressed) Events.aileronTrimLeft();
 			break;
 		case AILERON_TRIM_RIGHT:
-			Events.aileronTrimRight();
+			if (isPressed) Events.aileronTrimRight();
 			break;
 		case BRAKES:
-			Events.brakeLeft(controls, FlightControl.BRAKE_L.getMaximum());
-			Events.brakeRight(controls, FlightControl.BRAKE_R.getMaximum());
+			Events.brakeLeft(flightControls, FlightControl.BRAKE_L.getMaximum());
+			Events.brakeRight(flightControls, FlightControl.BRAKE_R.getMaximum());
 			break;
 		case CENTER_CONTROLS:
-			Events.centerControls(controls);
+			if (isPressed) Events.centerControls(flightControls);
 			break;
 		case DECREASE_FLAPS:
-			Events.retractFlaps(controls);
+			if (isPressed) Events.retractFlaps(flightControls);
 			break;
 		case DECREASE_MIXTURE:
 			break;
 		case DECREASE_PROPELLER:
 			break;
 		case DECREASE_THROTTLE:
-			Events.decreaseThrottle(controls);
+			if (isPressed) Events.decreaseThrottle(flightControls);
 			break;
 		case ELEVATOR_DOWN:
-			Events.elevatorDown(controls);
+			if (isPressed) Events.elevatorDown(flightControls);
 			break;
 		case ELEVATOR_UP:
-			Events.elevatorUp(controls);
+			if (isPressed) Events.elevatorUp(flightControls);
 			break;
 		case ELEVATOR_TRIM_DOWN:
-			Events.elevatorTrimDown();
+			if (isPressed) Events.elevatorTrimDown();
 			break;
 		case ELEVATOR_TRIM_UP:
-			Events.elevatorTrimUp();
+			if (isPressed) Events.elevatorTrimUp();
 			break;
 		case EXIT_SIMULATION:
+			if (isPressed) Events.stopSimulation(simController);
 			break;
 		case GEAR_UP_DOWN:
-			Events.cycleGear(controls, componentPollData == 1.0f);
+			Events.cycleGear(flightControls, isPressed);
 			break;
 		case GEAR_DOWN:
-			Events.extendGear(controls);
+			if (isPressed) Events.extendGear(flightControls);
 			break;
 		case GEAR_UP:
-			Events.retractGear(controls);
+			if (isPressed) Events.retractGear(flightControls);
 			break;
 		case GENERATE_PLOTS:
+			if (isPressed) Events.plotSimulation(simController);
 			break;
 		case INCREASE_FLAPS:
-			Events.extendFlaps(controls);
+			if (isPressed) Events.extendFlaps(flightControls);
 			break;
 		case INCREASE_MIXTURE:
 			break;
 		case INCREASE_PROPELLER:
 			break;
 		case INCREASE_THROTTLE:
-			Events.increaseThrottle(controls);
+			if (isPressed) Events.increaseThrottle(flightControls);
 			break;
 		case PAUSE_UNPAUSE_SIM:
+			Events.pauseSimulation(options, isPressed);
 			break;
 		case RESET_SIM:
+			Events.resetSimulation(options, isPressed);
 			break;
 		case RUDDER_LEFT:
-			Events.rudderLeft(controls);
+			if (isPressed) Events.rudderLeft(flightControls);
 			break;
 		case RUDDER_RIGHT:
-			Events.rudderRight(controls);
+			if (isPressed) Events.rudderRight(flightControls);
 			break;
 		case RUDDER_TRIM_LEFT:
-			Events.rudderTrimLeft();
+			if (isPressed) Events.rudderTrimLeft();
 			break;
 		case RUDDER_TRIM_RIGHT:
-			Events.rudderRight(controls);
+			if (isPressed) Events.rudderRight(flightControls);
 			break;
 		default:
 			break;
