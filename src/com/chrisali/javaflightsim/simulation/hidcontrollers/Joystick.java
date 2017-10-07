@@ -130,8 +130,8 @@ public class Joystick extends AbstractController {
 					continue;
 				}
 
-				// Hat Switch - Control elevator and aileron trim 
-				if(axisAssignments != null && componentIdentifier == Axis.POV) {										
+				// Hat Switch
+				if(hatAssignments != null && componentIdentifier == Axis.POV) {										
 					KeyCommand command = hatAssignments.get(pollValue);
 					
 					if(command != null)					
@@ -141,7 +141,7 @@ public class Joystick extends AbstractController {
 				}
 
 				// Joystick Axes
-				if(hatAssignments != null && component.isAnalog()){
+				if(axisAssignments != null && component.isAnalog()){
 					JoystickAxis axis = axisAssignments.get(componentName);
 					
 					if(axis != null)					
