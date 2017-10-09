@@ -63,7 +63,7 @@ public class FlightControls implements Steppable, FlightDataListener {
 	
 	private AbstractController hidController;
 	private Keyboard hidKeyboard;
-	//private AnalysisControls analysisControls;
+	private AnalysisControls analysisControls;
 	
 	/**
 	 * Constructor for {@link FlightControls}; {@link SimulationConfiguration} argument to initialize {@link IntegratorConfig} 
@@ -80,10 +80,9 @@ public class FlightControls implements Steppable, FlightDataListener {
 		flightControls = new EnumMap<FlightControl, Double>(configuration.getInitialControls());
 		trimflightControls = configuration.getInitialControls();
 		options = configuration.getSimulationOptions();
-		//analysisControls = FileUtilities.readAnalysisControls();
+		analysisControls = new AnalysisControls(); //FileUtilities.readAnalysisControls();
 				
 		// initializes static EnumMap that contains trim values of controls for doublets 
-		DoubletGenerator.init();
 		Events.init(configuration);
 
 		// Use controllers for pilot in loop simulation if ANALYSIS_MODE not enabled 
@@ -115,7 +114,7 @@ public class FlightControls implements Steppable, FlightDataListener {
 				if (hidKeyboard != null)
 					hidKeyboard.calculateControllerValues(flightControls);
 			} else {
-				DoubletGenerator.doubletSeries(flightControls, simulation.getTime());
+				analysisControls.updateFlightControls(simulation.getTime(), flightControls);
 			}
 			
 			limitControls(flightControls);

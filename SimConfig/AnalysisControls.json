@@ -1,0 +1,33 @@
+{
+  "analysisInputs" : [ {
+    "type" : "Doublet",
+    "controlType" : "AILERON",
+    "startTimeMS" : 10000,
+    "durationMS" : 500,
+    "amplitude" : 0.035
+  }, {
+    "type" : "Doublet",
+    "controlType" : "RUDDER",
+    "startTimeMS" : 14000,
+    "durationMS" : 500,
+    "amplitude" : 0.035
+  }, {
+    "type" : "Doublet",
+    "controlType" : "ELEVATOR",
+    "startTimeMS" : 52000,
+    "durationMS" : 500,
+    "amplitude" : 0.035
+  }, {
+    "type" : "Singlet",
+    "controlType" : "ELEVATOR",
+    "startTimeMS" : 62000,
+    "durationMS" : 500,
+    "amplitude" : 0.035
+  }, {
+    "type" : "Singlet",
+    "controlType" : "ELEVATOR",
+    "startTimeMS" : 72000,
+    "durationMS" : 500,
+    "amplitude" : -0.035
+  } ]
+}

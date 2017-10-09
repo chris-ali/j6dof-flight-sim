@@ -19,6 +19,7 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.flightcontrols;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,6 +51,16 @@ public class AnalysisControls implements Saveable {
 	
 	public AnalysisControls() {
 		trimControls = FileUtilities.readSimulationConfiguration().getInitialControls();
+		
+		analysisInputs = new LinkedList<AnalysisControlInput>();
+		analysisInputs.add(new Doublet(FlightControl.AILERON, 10000, 500, 0.035));
+		analysisInputs.add(new Doublet(FlightControl.RUDDER, 14000, 500, 0.035));
+		analysisInputs.add(new Doublet(FlightControl.ELEVATOR, 52000, 500, 0.035));
+		
+		analysisInputs.add(new Singlet(FlightControl.ELEVATOR, 62000, 500, 0.035));
+		analysisInputs.add(new Singlet(FlightControl.ELEVATOR, 72000, 500, -0.035));
+		
+		save();
 	}
 	
 	public AnalysisControls(Map<FlightControl, Double> trimControls) {
@@ -75,7 +86,7 @@ public class AnalysisControls implements Saveable {
 	
 	@Override
 	public void save() {
-		FileUtilities.serializeJson(SimDirectories.SIM_CONFIG.toString(), this.getClass().getSimpleName(), this.getClass());
+		FileUtilities.serializeJson(SimDirectories.SIM_CONFIG.toString(), this.getClass().getSimpleName(), this);
 	}
 
 	public Map<FlightControl, Double> getTrimControls() { return trimControls; }

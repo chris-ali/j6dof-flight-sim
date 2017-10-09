@@ -25,6 +25,7 @@ import java.util.Map;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
+import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration.JoystickAssignments;
 import com.chrisali.javaflightsim.simulation.setup.JoystickAxis;
 import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 
@@ -46,12 +47,8 @@ import net.java.games.input.ControllerEnvironment;
  */
 public class Joystick extends AbstractController {
 	
-	private Map<String, Map<String, JoystickAxis>> joystickAxisAssignments;
-	
-	private Map<String, Map<String, KeyCommand>> joystickButtonAssignments;
-	
-	private Map<String, Map<Float, KeyCommand>> joystickHatAssignments;
-	
+	private Map<String, JoystickAssignments> joystickAssignments;
+		
 	/**
 	 *  Constructor for Joystick class creates list of controllers using searchForControllers()
 	 * @param flightControls
@@ -62,10 +59,8 @@ public class Joystick extends AbstractController {
 		this.flightControls = flightControls;
 		this.simController = simController;
 		
-		controlsConfig = new ControlsConfiguration();
-		joystickAxisAssignments = controlsConfig.getJoystickAxisAssignments();
-		joystickButtonAssignments = controlsConfig.getJoystickButtonAssignments();
-		joystickHatAssignments = controlsConfig.getJoystickHatAssignments();
+		controlsConfig = new ControlsConfiguration();// FileUtilities.readControlsConfiguration();
+		joystickAssignments = controlsConfig.getJoystickAssignments();
 		
 		options = simController.getConfiguration().getSimulationOptions();
 		
@@ -85,6 +80,11 @@ public class Joystick extends AbstractController {
 			if (controller.getType() == Controller.Type.STICK || controller.getType() == Controller.Type.GAMEPAD) {
 				controllerList.add(controller);
 				logger.debug("Found a joystick: " + controller.getName());
+				
+				if (joystickAssignments.get(controller.getName()) == null) {
+					logger.warn("No controller assignments found for " + controller.getName() + 
+							"! If you wish to use this controller, add controller assignments to ControlsConfiguration.json");
+				}
 			}
 		}
 		
@@ -105,9 +105,14 @@ public class Joystick extends AbstractController {
 			
 			String controllerName = controller.getName();
 			
-			Map<String, JoystickAxis> axisAssignments = joystickAxisAssignments.get(controllerName);
-			Map<String, KeyCommand> buttonAssignments = joystickButtonAssignments.get(controllerName);
-			Map<Float, KeyCommand> hatAssignments = joystickHatAssignments.get(controllerName);
+			JoystickAssignments assignments = joystickAssignments.get(controllerName);
+			
+			if (assignments == null)
+				continue;
+			
+			Map<String, JoystickAxis> axisAssignments = assignments.getAxisAssignments();
+			Map<String, KeyCommand> buttonAssignments = assignments.getButtonAssignments();
+			Map<Float, KeyCommand> hatAssignments = assignments.getHatAssignments();
 			
 			// Poll controller for data
 			if(!controller.poll()) 

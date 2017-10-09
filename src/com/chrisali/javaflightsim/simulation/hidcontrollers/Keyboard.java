@@ -24,8 +24,8 @@ import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
-import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 import net.java.games.input.Component;
 import net.java.games.input.Controller;
@@ -58,7 +58,7 @@ public class Keyboard extends AbstractController {
 		this.flightControls = flightControls;
 		this.simController = simController;
 		
-		controlsConfig = new ControlsConfiguration();
+		controlsConfig = FileUtilities.readControlsConfiguration();
 		keyboardAssignments = controlsConfig.getKeyboardAssignments();
 		options = simController.getConfiguration().getSimulationOptions();
 				
