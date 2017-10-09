@@ -33,6 +33,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
+import com.chrisali.javaflightsim.simulation.flightcontrols.AnalysisControls;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -97,6 +98,21 @@ public class FileUtilities {
 										ControlsConfiguration.class);
 		
 		return configuration;
+	}
+	
+	/**
+	 * Creates a {@link AnalysisControls} object by deserializing a JSON file in the SimConfig directory 
+	 * called AnalysisControls.json
+	 * 
+	 * @return deserialized {@link AnalysisControls}
+	 */
+	public static AnalysisControls readAnalysisControls() {
+		AnalysisControls controls = new AnalysisControls();
+		controls = deserializeJson(AnalysisControls.class.getSimpleName(), 
+								   SimDirectories.SIM_CONFIG.toString(), 
+								   AnalysisControls.class);
+		
+		return controls;
 	}
 	
 	/**

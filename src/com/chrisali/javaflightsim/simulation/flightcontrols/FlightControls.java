@@ -19,6 +19,7 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.flightcontrols;
 
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 
@@ -52,14 +53,17 @@ public class FlightControls implements Steppable, FlightDataListener {
 
 	private static final Logger logger = LogManager.getLogger(FlightControls.class);
 	
-	private Map<FlightControl, Double> controls;
+	private Map<FlightControl, Double> flightControls;
+	private Map<FlightControl, Double> trimflightControls;
 	private EnumSet<Options> options;
-//	private Map<FlightDataType, Double> flightData;
+	//private Map<FlightDataType, Double> flightData;
 	
 	private SimulationController simController;
-		
+	private SimulationConfiguration configuration; 
+	
 	private AbstractController hidController;
 	private Keyboard hidKeyboard;
+	//private AnalysisControls analysisControls;
 	
 	/**
 	 * Constructor for {@link FlightControls}; {@link SimulationConfiguration} argument to initialize {@link IntegratorConfig} 
@@ -71,10 +75,12 @@ public class FlightControls implements Steppable, FlightDataListener {
 		logger.debug("Initializing flight controls...");
 				
 		this.simController = simController;
-
-		SimulationConfiguration configuration = simController.getConfiguration();
-		controls = configuration.getInitialControls();
+		
+		configuration = simController.getConfiguration();
+		flightControls = new EnumMap<FlightControl, Double>(configuration.getInitialControls());
+		trimflightControls = configuration.getInitialControls();
 		options = configuration.getSimulationOptions();
+		//analysisControls = FileUtilities.readAnalysisControls();
 				
 		// initializes static EnumMap that contains trim values of controls for doublets 
 		DoubletGenerator.init();
@@ -84,14 +90,14 @@ public class FlightControls implements Steppable, FlightDataListener {
 		if (!options.contains(Options.ANALYSIS_MODE)) {
 			if (options.contains(Options.USE_JOYSTICK) || options.contains(Options.USE_CH_CONTROLS)) {
 				logger.debug("Joystick controller selected");
-				hidController = new Joystick(controls, simController);
+				hidController = new Joystick(flightControls, simController);
 			}
 			else if (options.contains(Options.USE_MOUSE)){
 				logger.debug("Mouse controller selected");
-				hidController = new Mouse(controls, simController);
+				hidController = new Mouse(flightControls, simController);
 			}
 			
-			hidKeyboard = new Keyboard(controls, simController);
+			hidKeyboard = new Keyboard(flightControls, simController);
 		}
 	}
 	
@@ -104,13 +110,15 @@ public class FlightControls implements Steppable, FlightDataListener {
 			// otherwise, controls updated using generated doublets
 			if (!options.contains(Options.ANALYSIS_MODE) && simulation.isRunning()) {
 				if (hidController != null) 
-					controls = hidController.calculateControllerValues();
+					hidController.calculateControllerValues(flightControls);
 				
 				if (hidKeyboard != null)
-					controls = hidKeyboard.calculateControllerValues();
+					hidKeyboard.calculateControllerValues(flightControls);
 			} else {
-				controls = DoubletGenerator.doubletSeries(controls, simulation.getTime());
+				DoubletGenerator.doubletSeries(flightControls, simulation.getTime());
 			}
+			
+			limitControls(flightControls);
 		} catch (Exception e) {
 			logger.error("Flight controls encountered an error!", e);
 		}
@@ -119,6 +127,31 @@ public class FlightControls implements Steppable, FlightDataListener {
 	@Override
 	public boolean canStepNow(int time) {
 		return time % 100 == 0;
+	}
+	
+	/**
+	 * Resets flightControls back to initial trim values
+	 */
+	public void reset() {
+		for (Map.Entry<FlightControl, Double> entry : flightControls.entrySet())
+			flightControls.put(entry.getKey(), trimflightControls.get(entry.getKey()));
+	}
+	
+	/**
+	 *  Limit control inputs to sensible deflection values based on the minimum and maximum values defined for 
+	 *  each member of {@link FlightControl}
+	 *  
+	 * @param controls 
+	 */
+	public void limitControls(Map<FlightControl, Double> controls) {		
+		// Loop through enum values; if value in EnumMap controls is greater/less than max/min specified in FlightControls enum, 
+		// set that EnumMap value to Enum's max/min value
+		for (FlightControl flc : FlightControl.values()) {
+			if (controls.get(flc) > flc.getMaximum())
+				controls.put(flc, flc.getMaximum());
+			else if (controls.get(flc) < flc.getMinimum())
+				controls.put(flc, flc.getMinimum());		
+		}
 	}
 
 	/**
@@ -130,18 +163,13 @@ public class FlightControls implements Steppable, FlightDataListener {
 //			this.flightData = flightData.getFlightData();
 	}
 	
-	/**
-	 * Returns map containing flight controls data, with {@link FlightControl} as the keys 
-	 * 
-	 * @return controls
-	 */
-	public Map<FlightControl, Double> getFlightControls() { return controls; }
+	public Map<FlightControl, Double> getFlightControls() { return flightControls; }
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		
-		for (Map.Entry<FlightControl, Double> entry : controls.entrySet()) {
+		for (Map.Entry<FlightControl, Double> entry : flightControls.entrySet()) {
 			sb.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
 		}
 		sb.append("\n");

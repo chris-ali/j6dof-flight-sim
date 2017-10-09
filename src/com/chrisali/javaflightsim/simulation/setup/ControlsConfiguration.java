@@ -70,8 +70,8 @@ public class ControlsConfiguration implements Saveable {
 		keyboardAssignments.put("DOWN", KeyCommand.ELEVATOR_UP);
 		keyboardAssignments.put("LEFT", KeyCommand.AILERON_LEFT);
 		keyboardAssignments.put("RIGHT", KeyCommand.AILERON_RIGHT);
-		keyboardAssignments.put("PAGEUP", KeyCommand.INCREASE_THROTTLE);
-		keyboardAssignments.put("PAGEDOWN", KeyCommand.DECREASE_THROTTLE);
+		keyboardAssignments.put("PG UP", KeyCommand.INCREASE_THROTTLE);
+		keyboardAssignments.put("PG DOWN", KeyCommand.DECREASE_THROTTLE);
 		keyboardAssignments.put("F7", KeyCommand.INCREASE_FLAPS);
 		keyboardAssignments.put("F6", KeyCommand.DECREASE_FLAPS);
 		keyboardAssignments.put("G", KeyCommand.GEAR_UP_DOWN);
@@ -127,6 +127,8 @@ public class ControlsConfiguration implements Saveable {
 		
 		joystickButtonAssignments.put("ch flight sim yoke usb", chYokeButtons);
 		joystickButtonAssignments.put("ch throttle quadrant usb", chThrottleButtons);
+		
+		save();
 	}
 	
 	@Override

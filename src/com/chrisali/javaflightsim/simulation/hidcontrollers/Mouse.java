@@ -53,7 +53,8 @@ public class Mouse extends AbstractController {
 	private double trimAileron  = 0.0;
 
 	/**
-	 *  Constructor for Joystick class; creates list of controllers using searchForControllers()
+	 * Creates list of controllers using searchForControllers() and generates trim values for elevator and aileron
+	 * 
 	 * @param flightControls
 	 */
 	public Mouse(Map<FlightControl, Double> flightControls, SimulationController simController) {
@@ -72,7 +73,7 @@ public class Mouse extends AbstractController {
 	}
 	
 	/**
-	 * Search for and add controllers of type Controller.Type.KEYBOARD to controllerList
+	 * Search for and add controllers of type Controller.Type.MOUSE to controllerList
 	 */
 	@Override
 	public void searchForControllers() {
@@ -91,13 +92,13 @@ public class Mouse extends AbstractController {
 	}
 	
 	/**
-	 *  Get button, mouse wheel and axis values from mouse, and return a Map for updateFlightControls()
+	 *  Get button, mouse wheel and axis values from mouse, and update flightControls Map with controls from jinput
 	 *  in {@link AbstractController}
 	 *  
-	 *  @return flightControls Map
+	 *  @param flightControls
 	 */
 	@Override
-	public Map<FlightControl, Double> calculateControllerValues() {
+	public void calculateControllerValues(Map<FlightControl, Double> flightControls) {
 		for (Controller controller : controllerList) {
 			
 			// Poll controller for data
@@ -148,8 +149,5 @@ public class Mouse extends AbstractController {
 				}
 			}
 		}
-		
-		return flightControls;
 	}
-
 }

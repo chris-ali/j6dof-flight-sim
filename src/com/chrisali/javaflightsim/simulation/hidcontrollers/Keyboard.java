@@ -87,12 +87,12 @@ public class Keyboard extends AbstractController {
 	}
 	
 	/**
-	 *  Get button values from keyboard, and return a Map for updateFlightControls in {@link SimulationController)
+	 *  Get key values from keyboard, and update flightControls Map with controls from jinput
 	 *  
-	 *  @return flightControls Map
+	 *  @param flightControls
 	 */
 	@Override
-	public Map<FlightControl, Double> calculateControllerValues() {
+	public void calculateControllerValues(Map<FlightControl, Double> flightControls) {
 		for (Controller controller : controllerList) {
 			// Poll controller for data
 			if(!controller.poll()) 
@@ -110,7 +110,5 @@ public class Keyboard extends AbstractController {
 				continue;
 			}
 		}
-		
-		return limitControls(flightControls);
 	}
 }

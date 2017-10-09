@@ -272,11 +272,11 @@ public class Events {
 	public static void resetSimulation(Set<Options> options, boolean isPressed) {
 		if(isPressed && options.contains(Options.PAUSED) && !options.contains(Options.RESET) && !resetPressed && !wasReset) {
 			options.add(Options.RESET);
-			logger.debug("Simulation Reset!");
+			logger.debug("Resetting simulation...");
 			wasReset = true;
 			resetPressed = true;
 		} else if (!isPressed && resetPressed) {
-			options.remove(Options.RESET);
+			logger.debug("...done!");
 			resetPressed = false;
 		}
 	}

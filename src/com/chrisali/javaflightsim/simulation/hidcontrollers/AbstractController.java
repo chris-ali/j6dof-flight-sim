@@ -57,28 +57,8 @@ public abstract class AbstractController {
 
 	public abstract void searchForControllers();
 	
-	public abstract Map<FlightControl, Double> calculateControllerValues();
+	public abstract void calculateControllerValues(Map<FlightControl, Double> flightControls);
 		
-	/**
-	 *  Limit control inputs to sensible deflection values based on the minimum and maximum values defined for 
-	 *  each member of {@link FlightControl}
-	 *  
-	 * @param controls
-	 * @return flightControls EnumMap 
-	 */
-	protected Map<FlightControl, Double> limitControls(Map<FlightControl, Double> controls) {		
-		// Loop through enum values; if value in EnumMap controls is greater/less than max/min specified in FlightControls enum, 
-		// set that EnumMap value to Enum's max/min value
-		for (FlightControl flc : FlightControl.values()) {
-			if (controls.get(flc) > flc.getMaximum())
-				controls.put(flc, flc.getMaximum());
-			else if (controls.get(flc) < flc.getMinimum())
-				controls.put(flc, flc.getMinimum());		
-		}
-		
-		return controls;
-	}
-	
 	/**
 	 * Given a {@link KeyCommand}, call a flight control event method defined in {@link Events}
 	 * 

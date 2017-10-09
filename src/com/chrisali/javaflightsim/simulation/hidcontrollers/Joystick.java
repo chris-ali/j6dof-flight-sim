@@ -95,12 +95,12 @@ public class Joystick extends AbstractController {
 	}
 
 	/**
-	 *  Get button, POV and axis values from joystick(s), and return a Map for updateFlightControls() 
-	 *  in {@link AbstractController}
-	 *  @return flightControls Map
+	 *  Get button, POV and axis values from joystick(s), and update flightControls Map with controls from jinput
+	 *  
+	 *  @param flightControls
 	 */
 	@Override
-	public Map<FlightControl, Double> calculateControllerValues() {
+	public void calculateControllerValues(Map<FlightControl, Double> flightControls) {
 		for (Controller controller : controllerList) {
 			
 			String controllerName = controller.getName();
@@ -151,7 +151,5 @@ public class Joystick extends AbstractController {
 				}
 			}
 		}
-		
-		return limitControls(flightControls);
 	}
 }

@@ -140,9 +140,10 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		engineList   	   = aircraft.getEngines();
 		options		       = configuration.getSimulationOptions();
 		
-		// Use Apache Commons Lang to convert EnumMap values into primitive double[] 
+		// Use Apache Commons Lang to convert EnumMap values into primitive double[]
 		initialConditions = resetInitialConditions = ArrayUtils.toPrimitive(configuration.getInitialConditions().values()
-				   												.toArray(new Double[initialConditions.length]));
+																.toArray(new Double[initialConditions.length]));
+				
 		integratorConfigS  = ArrayUtils.toPrimitive(configuration.getIntegratorConfig().values()
 				   												.toArray(new Double[integratorConfigS.length]));
 				
@@ -437,10 +438,16 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		while (timeS < integratorConfigS[2] && running) {
 			try {	
 				// If paused and reset selected, reset initialConditions to saved values in configuration
-				if (options.contains(Options.PAUSED) & options.contains(Options.RESET)) {
+				if (options.contains(Options.PAUSED) && options.contains(Options.RESET)) {
 					logger.debug("Simulation reset to initial conditions!");
 					initialConditions = resetInitialConditions;
+					flightControls.reset();
+					options.remove(Options.RESET);
 				}
+				
+				// Step update flight controls
+				if (flightControls.canStepNow(timeMS.get()));
+					flightControls.step();
 				
 				// If paused, skip the integration and update process
 				if (!options.contains(Options.PAUSED)) {
@@ -449,11 +456,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 											  timeS, 		  			  	// start time
 											  initialConditions, 		  	// initial conditions
 											  timeS+integratorConfigS[1]);  // end time (t+dt)
-					
-					// Step update FlightControls
-					if (flightControls.canStepNow(timeMS.get()));
-						flightControls.step();
-					
+															
 					// Update data members' values
 					updateDataMembers();
 					

@@ -47,20 +47,19 @@ public class DoubletGenerator {
 	 * and the amplitude the amount of deflection in one direction. controlInput uses {@link FlightControl} to select
 	 * the desired control to use as a doublet 
 	 * 
-	 * @param controls
+	 * @param flightControls
 	 * @param time
 	 * @param doubletstartTime
 	 * @param duration
 	 * @param amplitude
-	 * @param controlType
-	 * @return flightControls EnumMap 
+	 * @param controlType 
 	 */
-	public static Map<FlightControl, Double> makeDoublet(Map<FlightControl, Double> controls,
-															 AtomicInteger actomicTime,
-															 Integer doubletstartTime, 
-															 Integer duration, 
-															 double amplitude, 
-															 FlightControl controlType) {
+	public static void makeDoublet(Map<FlightControl, Double> flightControls,
+								   AtomicInteger actomicTime,
+								   Integer doubletstartTime, 
+								   Integer duration, 
+								   double amplitude, 
+								   FlightControl controlType) {
 		Integer time = actomicTime.get();
 		Integer firstHalfEndTime = doubletstartTime + duration;
 		Integer doubletEndTime   = doubletstartTime + (2 * duration);
@@ -72,13 +71,11 @@ public class DoubletGenerator {
 		boolean endedSecondHalf   = time.compareTo(doubletEndTime)   == 1 || time.compareTo(doubletEndTime)   == 0;
 		
 		if (startedFirstHalf && !endedFirstHalf)
-			controls.put(controlType,trimControls.get(controlType) + amplitude);
+			flightControls.put(controlType,trimControls.get(controlType) + amplitude);
 		else if (startedSecondHalf && !endedSecondHalf)
-			controls.put(controlType,trimControls.get(controlType) - amplitude);
+			flightControls.put(controlType,trimControls.get(controlType) - amplitude);
 		else 
-			controls.put(controlType,trimControls.get(controlType));
-
-		return controls;
+			flightControls.put(controlType,trimControls.get(controlType));
 	}
 	
 	/**
@@ -86,11 +83,10 @@ public class DoubletGenerator {
 	 *  when the simulation is set to {@link Options#ANALYSIS_MODE} to examine the transient dynamic response of 
 	 *  the aircraft in the simulation
 	 *  
-	 * @param controls
-	 * @param atomicTime
-	 * @return flightControls EnumMap 
+	 * @param flightControls
+	 * @param atomicTime 
 	 */
-	public static Map<FlightControl, Double> doubletSeries(Map<FlightControl, Double> controls, AtomicInteger atomicTime) {
+	public static void doubletSeries(Map<FlightControl, Double> flightControls, AtomicInteger atomicTime) {
 		
 		int toMilliseconds = 1000;
 
@@ -101,27 +97,27 @@ public class DoubletGenerator {
 		Integer elevatorStart = (int)(52.0 * toMilliseconds);
 		
 		// Update controls with an aileron doublet
-		controls = makeDoublet(controls, 
-							   atomicTime, 
-							   aileronStart, 
-							   duration, 
-							   0.035, 
-							   FlightControl.AILERON);
-		// Update controls with a rudder doublet
-		controls = makeDoublet(controls, 
-							   atomicTime, 
-							   rudderStart, 
-							   duration, 
-							   0.035, 
-							   FlightControl.RUDDER);
-		// Update controls with an elevator doublet
-		controls = makeDoublet(controls, 
-							   atomicTime, 
-							   elevatorStart, 
-							   duration, 
-							   0.035, 
-							   FlightControl.ELEVATOR);
+		makeDoublet(flightControls, 
+				    atomicTime, 
+				    aileronStart, 
+				    duration, 
+				    0.035, 
+				    FlightControl.AILERON);
 		
-		return controls;
+		// Update controls with a rudder doublet
+		makeDoublet(flightControls, 
+				    atomicTime, 
+				    rudderStart, 
+				    duration, 
+				    0.035, 
+				    FlightControl.RUDDER);
+		
+		// Update controls with an elevator doublet
+		makeDoublet(flightControls, 
+				    atomicTime, 
+				    elevatorStart, 
+				    duration, 
+				    0.035, 
+				    FlightControl.ELEVATOR);
 	}
 }
