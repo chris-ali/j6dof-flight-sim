@@ -22,19 +22,23 @@ package com.chrisali.javaflightsim.simulation.flightcontrols;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 /**
- * Abstract class for an injectable control input that can be used to test
- * an aircraft's flight dynamics in Analysis Mode
+ * Abstract class for an injectable control input that can be used to test an aircraft's flight dynamics in Analysis Mode. 
+ * Each time a new subclass is added to the project, be sure to add its type to the JsonSubTypes annotation for this class 
  * 
  * @author Christopher
  *
  */
-@JsonTypeInfo(use = Id.NAME,
-			  include = JsonTypeInfo.As.PROPERTY,
-			  property = "type")
+@JsonTypeInfo(use = Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({
+	@Type(value = Doublet.class, name = "Doublet"),
+	@Type(value = Singlet.class, name = "Singlet"),
+})
 public abstract class AnalysisControlInput implements Comparable<AnalysisControlInput> {
 
 	/**

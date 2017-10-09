@@ -39,6 +39,7 @@ import com.chrisali.javaflightsim.simulation.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 /**
  * Handles flight controls actuated by human interface devices, such as {@link Joystick}, {@link Keyboard}, 
@@ -80,7 +81,7 @@ public class FlightControls implements Steppable, FlightDataListener {
 		flightControls = new EnumMap<FlightControl, Double>(configuration.getInitialControls());
 		trimflightControls = configuration.getInitialControls();
 		options = configuration.getSimulationOptions();
-		analysisControls = new AnalysisControls(); //FileUtilities.readAnalysisControls();
+		analysisControls = FileUtilities.readAnalysisControls();
 				
 		// initializes static EnumMap that contains trim values of controls for doublets 
 		Events.init(configuration);
@@ -114,7 +115,7 @@ public class FlightControls implements Steppable, FlightDataListener {
 				if (hidKeyboard != null)
 					hidKeyboard.calculateControllerValues(flightControls);
 			} else {
-				analysisControls.updateFlightControls(simulation.getTime(), flightControls);
+				analysisControls.updateFlightControls(simulation.getTime(), flightControls, trimflightControls);
 			}
 			
 			limitControls(flightControls);

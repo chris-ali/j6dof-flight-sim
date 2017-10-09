@@ -24,10 +24,10 @@ import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
-import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration.JoystickAssignments;
 import com.chrisali.javaflightsim.simulation.setup.JoystickAxis;
 import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;
@@ -59,7 +59,7 @@ public class Joystick extends AbstractController {
 		this.flightControls = flightControls;
 		this.simController = simController;
 		
-		controlsConfig = new ControlsConfiguration();// FileUtilities.readControlsConfiguration();
+		controlsConfig = FileUtilities.readControlsConfiguration();
 		joystickAssignments = controlsConfig.getJoystickAssignments();
 		
 		options = simController.getConfiguration().getSimulationOptions();

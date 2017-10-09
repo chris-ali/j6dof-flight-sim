@@ -19,15 +19,11 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.setup;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.interfaces.Saveable;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
-
-import net.java.games.input.Component.POV;
 
 /**
  * Contains user-defined key, button (and eventually axis) bindings for each controller for jinput 
@@ -45,92 +41,7 @@ public class ControlsConfiguration implements Saveable {
 	 */
 	private Map<String, JoystickAssignments> joystickAssignments;
 
-	/**
-	 * Default constructor that sets default controller assignments
-	 */
-	public ControlsConfiguration() { 
-		
-		// Keyboard
-		keyboardAssignments = new HashMap<String, KeyCommand>(); 
-		keyboardAssignments.put("P", KeyCommand.PAUSE_UNPAUSE_SIM);
-		keyboardAssignments.put("Q", KeyCommand.EXIT_SIMULATION);
-		keyboardAssignments.put("R", KeyCommand.RESET_SIM);
-		keyboardAssignments.put("L", KeyCommand.GENERATE_PLOTS);
-		keyboardAssignments.put("UP", KeyCommand.ELEVATOR_DOWN);
-		keyboardAssignments.put("DOWN", KeyCommand.ELEVATOR_UP);
-		keyboardAssignments.put("LEFT", KeyCommand.AILERON_LEFT);
-		keyboardAssignments.put("RIGHT", KeyCommand.AILERON_RIGHT);
-		keyboardAssignments.put("PG UP", KeyCommand.INCREASE_THROTTLE);
-		keyboardAssignments.put("PG DOWN", KeyCommand.DECREASE_THROTTLE);
-		keyboardAssignments.put("F7", KeyCommand.INCREASE_FLAPS);
-		keyboardAssignments.put("F6", KeyCommand.DECREASE_FLAPS);
-		keyboardAssignments.put("G", KeyCommand.GEAR_UP_DOWN);
-		
-		joystickAssignments = new HashMap<>();
-		
-		// CH Yoke
-				
-		Map<String, JoystickAxis> chYokeAxes = new HashMap<String, JoystickAxis>();
-		chYokeAxes.put("X", new JoystickAxis(FlightControl.ELEVATOR));
-		chYokeAxes.put("Y", new JoystickAxis(FlightControl.AILERON));
-		
-		Map<Float, KeyCommand> chYokeHat = new HashMap<Float, KeyCommand>();
-		chYokeHat.put(POV.UP, KeyCommand.ELEVATOR_TRIM_DOWN);
-		chYokeHat.put(POV.DOWN, KeyCommand.ELEVATOR_TRIM_UP);
-		chYokeHat.put(POV.LEFT, KeyCommand.AILERON_TRIM_LEFT);
-		chYokeHat.put(POV.RIGHT, KeyCommand.AILERON_TRIM_RIGHT);
-		
-		Map<String, KeyCommand> chYokeButtons = new HashMap<String, KeyCommand>();
-		chYokeButtons.put("0", KeyCommand.ELEVATOR_TRIM_DOWN);
-		chYokeButtons.put("1", KeyCommand.ELEVATOR_TRIM_UP);
-		
-		JoystickAssignments chYoke = new JoystickAssignments();
-		chYoke.setAxisAssignments(chYokeAxes);
-		chYoke.setButtonAssignments(chYokeButtons);
-		chYoke.setHatAssignments(chYokeHat);
-
-		joystickAssignments.put("ch flight sim yoke usb", chYoke);
-				
-		// CH Pedals
-		
-		Map<String, JoystickAxis> chPedalsAxes = new HashMap<String, JoystickAxis>();
-		chPedalsAxes.put("Y", new JoystickAxis(FlightControl.BRAKE_L));
-		chPedalsAxes.put("X", new JoystickAxis(FlightControl.BRAKE_R));
-		chPedalsAxes.put("Z", new JoystickAxis(FlightControl.RUDDER));
-		
-		JoystickAssignments chPedals = new JoystickAssignments();
-		chPedals.setAxisAssignments(chPedalsAxes);
-				
-		joystickAssignments.put("ch pro pedals usb", chPedals);
-
-		// CH Throttle Quadrant
-				
-		Map<String, JoystickAxis> chThrottleAxes = new HashMap<String, JoystickAxis>();
-		chThrottleAxes.put("X", new JoystickAxis(FlightControl.THROTTLE_1));
-		chThrottleAxes.put("Y", new JoystickAxis(FlightControl.THROTTLE_2));
-		chThrottleAxes.put("Z", new JoystickAxis(FlightControl.PROPELLER_1));
-		chThrottleAxes.put("RX", new JoystickAxis(FlightControl.PROPELLER_2));
-		chThrottleAxes.put("RY", new JoystickAxis(FlightControl.MIXTURE_1));
-		chThrottleAxes.put("RZ", new JoystickAxis(FlightControl.MIXTURE_2));
-		
-		Map<String, KeyCommand> chThrottleButtons = new HashMap<String, KeyCommand>();
-		chThrottleButtons.put("2", KeyCommand.AILERON_TRIM_LEFT);
-		chThrottleButtons.put("3", KeyCommand.AILERON_TRIM_RIGHT);
-		chThrottleButtons.put("4", KeyCommand.GEAR_UP);
-		chThrottleButtons.put("5", KeyCommand.GEAR_DOWN);
-		chThrottleButtons.put("6", KeyCommand.DECREASE_FLAPS);
-		chThrottleButtons.put("7", KeyCommand.INCREASE_FLAPS);
-		chThrottleButtons.put("10", KeyCommand.ELEVATOR_TRIM_DOWN);
-		chThrottleButtons.put("11", KeyCommand.ELEVATOR_TRIM_UP);
-		
-		JoystickAssignments chThrottle = new JoystickAssignments();
-		chThrottle.setAxisAssignments(chThrottleAxes);
-		chThrottle.setButtonAssignments(chThrottleButtons);
-		
-		joystickAssignments.put("ch throttle quadrant usb", chThrottle);
-			
-		save();
-	}
+	public ControlsConfiguration() {}
 	
 	@Override
 	public void save() {
