@@ -243,6 +243,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 				return null;
 			}
 		};
+		
 		tabPaneWorker.execute();
 	}
 	

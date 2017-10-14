@@ -37,6 +37,7 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.AnalysisControls;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.swing.plotting.PlotConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -113,6 +114,21 @@ public class FileUtilities {
 								   AnalysisControls.class);
 		
 		return controls;
+	}
+	
+	/**
+	 * Creates a {@link PlotConfiguration} object by deserializing a JSON file in the SimConfig directory 
+	 * called PlotConfiguration.json
+	 * 
+	 * @return deserialized {@link PlotConfiguration}
+	 */
+	public static PlotConfiguration readPlotConfiguration() {
+		PlotConfiguration configuration = new PlotConfiguration();
+		configuration = deserializeJson(PlotConfiguration.class.getSimpleName(), 
+									    SimDirectories.SIM_CONFIG.toString(), 
+									    PlotConfiguration.class);
+		
+		return configuration;
 	}
 	
 	/**

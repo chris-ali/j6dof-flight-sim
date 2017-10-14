@@ -25,22 +25,28 @@ import org.jfree.chart.plot.XYPlot;
  * Contains enum values used in {@link PlotUtilities} to identify types of plots that can be displayed. Acts as the key to an EnumMap in {@link PlotUtilities} that contains {@link XYPlot} objects.
  */
 public enum PlotType {
-	VELOCITY, 
-	POSITION, 
-	ALTITUDE,
-	VERT_SPEED,
-	HEADING, 
-	ACCELERATION, 
-	MOMENT, 
-	EULER_ANGLES,
-	ANGULAR_RATE, 
-	WIND_PARAM, 
-	TAS,
-	ALPHA_DOT,
-	MACH,
-	ELEVATOR,
-	RUDDER,
-	AILERON,
-	THROTTLE,
-	FLAPS;
+	VELOCITY 		("Velocity"), 
+	POSITION 		("Position"), 
+	ALTITUDE 		("Altitude"),
+	VERT_SPEED 		("Vertical Speed"),
+	HEADING 		("Heading"), 
+	ACCELERATION 	("Accelerations"), 
+	MOMENT 			("Moments"), 
+	EULER_ANGLES 	("Euler Angles"),
+	ANGULAR_RATE 	("Angular Rates"), 
+	WIND_PARAM 		("Wind Parameters"), 
+	TAS 			("True Airspeed"),
+	ALPHA_DOT 		("Alpha Dot"),
+	MACH 			("Mach"),
+	ELEVATOR 		("Elevator"),
+	RUDDER 			("Rudder"),
+	AILERON 		("Aileron"),
+	THROTTLE 		("Throttle"),
+	FLAPS           ("Flaps");
+	
+	private final String plotType;
+	
+	private PlotType(String plotType) {this.plotType = plotType;}
+	
+	public String toString() {return plotType;};
 }
