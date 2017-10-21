@@ -27,7 +27,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JFrame;
@@ -71,7 +70,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	 * @param String simPlotCetegories
 	 * @param LWJGLSwingSimulationController controller
 	 */
-	public PlotWindow(Set<String> simPlotCategories, LWJGLSwingSimulationController controller) {
+	public PlotWindow(LWJGLSwingSimulationController controller) {
 		super(controller.getConfiguration().getSelectedAircraft() + " Plots");
 		setLayout(new BorderLayout());
 		

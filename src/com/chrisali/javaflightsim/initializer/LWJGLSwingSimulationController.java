@@ -22,11 +22,8 @@ package com.chrisali.javaflightsim.initializer;
 import java.awt.Canvas;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -86,7 +83,6 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	
 	// Plotting
 	private PlotWindow plotWindow;
-	private Set<String> plotCategories = new HashSet<>(Arrays.asList("Controls", "Instruments", "Position", "Rates", "Miscellaneous"));
 	
 	// Raw Data Console
 	private ConsoleTablePanel consoleTablePanel;
@@ -269,7 +265,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 			if(plotWindow != null)
 				plotWindow.setVisible(false);
 				
-			plotWindow = new PlotWindow(plotCategories, this);		
+			plotWindow = new PlotWindow(this);		
 		} catch (Exception e) {
 			logger.error("An error occurred while generating plots!", e);
 		}
@@ -364,7 +360,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	public void stopOTWThread() {
 		outTheWindow.requestClose(); // sets running boolean in RunWorld to false to begin the clean up process
 		
-		try {outTheWindowThread.join();
-		} catch (InterruptedException e) {}
+		try {outTheWindowThread.join(); } 
+		catch (InterruptedException e) {}
 	}
 }
