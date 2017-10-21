@@ -1,0 +1,136 @@
+{
+  "subPlotBundles" : {
+    "Rates" : {
+      "title" : "Rates",
+      "subPlots" : [ {
+        "title" : "Angular Rate",
+        "yData" : [ "P", "Q", "R" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Angular Rate [rad/sec]"
+      }, {
+        "title" : "Velocity",
+        "yData" : [ "U", "V", "W" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Body Velocity [ft/sec]"
+      }, {
+        "title" : "Acceleration",
+        "yData" : [ "AN_X", "AN_Y", "AN_Z" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Acceleration [g]"
+      } ],
+      "sizeXPixels" : 1000,
+      "sizeYPixels" : 950
+    },
+    "Miscellaneous" : {
+      "title" : "Miscellaneous",
+      "subPlots" : [ {
+        "title" : "Wind Parameters",
+        "yData" : [ "ALPHA", "BETA" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Angle [rad]"
+      }, {
+        "title" : "Alpha Dot",
+        "yData" : [ "ALPHA_DOT" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Rate [rad/sec]"
+      }, {
+        "title" : "Mach",
+        "yData" : [ "MACH" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Mach Number"
+      } ],
+      "sizeXPixels" : 1000,
+      "sizeYPixels" : 950
+    },
+    "Instruments" : {
+      "title" : "Instruments",
+      "subPlots" : [ {
+        "title" : "Euler Angles",
+        "yData" : [ "PHI", "THETA", "PSI" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Angle [rad]"
+      }, {
+        "title" : "True Airspeed",
+        "yData" : [ "TAS" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "True Airspeed [ft/sec]"
+      }, {
+        "title" : "Heading",
+        "yData" : [ "PSI" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Heading [rad]"
+      }, {
+        "title" : "Altitude",
+        "yData" : [ "ALT" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Altitude [ft]"
+      }, {
+        "title" : "VerticalSpeed",
+        "yData" : [ "ALT_DOT" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Vertical Speed [ft/min]"
+      } ],
+      "sizeXPixels" : 1000,
+      "sizeYPixels" : 950
+    },
+    "Position" : {
+      "title" : "Position",
+      "subPlots" : [ {
+        "title" : "Position",
+        "yData" : [ "NORTH" ],
+        "xData" : "EAST",
+        "xAxisName" : "East [ft]",
+        "yAxisName" : "North [ft]"
+      } ],
+      "sizeXPixels" : 750,
+      "sizeYPixels" : 750
+    },
+    "Controls" : {
+      "title" : "Controls",
+      "subPlots" : [ {
+        "title" : "Elevator",
+        "yData" : [ "ELEVATOR" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Deflection [rad]"
+      }, {
+        "title" : "Aileron",
+        "yData" : [ "TAS" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Deflection [rad]"
+      }, {
+        "title" : "Rudder",
+        "yData" : [ "RUDDER" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Deflection [rad]"
+      }, {
+        "title" : "Throttle",
+        "yData" : [ "THROTTLE_1", "THROTTLE_2", "THROTTLE_3", "THROTTLE_4" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Position [norm]"
+      }, {
+        "title" : "Flaps",
+        "yData" : [ "FLAPS" ],
+        "xData" : "TIME",
+        "xAxisName" : "Time [sec]",
+        "yAxisName" : "Deflection [rad]"
+      } ],
+      "sizeXPixels" : 1000,
+      "sizeYPixels" : 950
+    }
+  }
+}

@@ -2,14 +2,19 @@ package com.chrisali.javaflightsim.simulation.utilities;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.io.File;
+import java.util.Map;
 
 import org.junit.Test;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
+import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.swing.plotting.PlotConfiguration;
+import com.chrisali.javaflightsim.swing.plotting.PlotConfiguration.SubPlotBundle;
+import com.chrisali.javaflightsim.swing.plotting.PlotConfiguration.SubPlotOptions;
 
 public class ReadWriteJsonTest {
 
@@ -54,8 +59,7 @@ public class ReadWriteJsonTest {
 			assertNotNull(assertion, engine);
 		}
 		
-		String filepath = FileUtilities.FILE_ROOT + SimDirectories.AIRCRAFT.toString() + File.separator + aircraftName;
-		FileUtilities.serializeJson(filepath, aircraft.getClass().getSimpleName(), aircraft);
+		aircraft.save();
 				
 		Aircraft readAircraft = FileUtilities.readAircraftConfiguration(aircraftName);
 		assertion = "Deserialized property should not be null";
@@ -70,6 +74,80 @@ public class ReadWriteJsonTest {
 		
 		for(Engine engine : readAircraft.getEngines()) {
 			assertNotNull(assertion, engine);
+		}
+	}
+	
+	@Test
+	public void WriteThenReadPlotConfigurationTest() {
+		PlotConfiguration plots = FileUtilities.readPlotConfiguration();
+		String assertion = "Deserialized property should not be null";
+		
+		assertNotNull(assertion, plots);
+		assertNotNull(assertion, plots.getSubPlotBundles());
+		assertTrue("There should be at least one bundle in configuration", plots.getSubPlotBundles().size() > 0);
+		
+		for(Map.Entry<String, SubPlotBundle> entry : plots.getSubPlotBundles().entrySet()) {
+			SubPlotBundle bundle = entry.getValue();
+			assertNotNull(assertion, bundle);
+			
+			assertNotNull(assertion, bundle.getSizeXPixels());
+			assertNotNull(assertion, bundle.getSizeYPixels());
+			assertNotNull(assertion, bundle.getTitle());
+			assertNotNull(assertion, bundle.getSubPlots());
+			
+			assertTrue("There should be at least one subplot in this bundle", bundle.getSubPlots().size() > 0);
+			
+			for(SubPlotOptions subplot : bundle.getSubPlots()) {
+				assertNotNull(assertion, subplot);
+				assertNotNull(assertion, subplot.getTitle());
+				assertNotNull(assertion, subplot.getxAxisName());
+				assertNotNull(assertion, subplot.getyAxisName());
+				assertNotNull(assertion, subplot.getxData());
+				assertNotNull(assertion, subplot.getyData());
+				
+				assertTrue("There should be at least one y data in this bundle", subplot.getyData().size() > 0);
+				
+				for(SimOuts simout : subplot.getyData()) {
+					assertNotNull(assertion, simout);
+				}
+			}
+		}
+		
+		plots.save();
+		
+		PlotConfiguration readPlots = FileUtilities.readPlotConfiguration();
+		assertion = "Deserialized property should not be null";
+		
+		assertNotNull(assertion, readPlots);
+		assertNotNull(assertion, readPlots.getSubPlotBundles());
+		assertTrue("There should be at least one bundle in configuration", readPlots.getSubPlotBundles().size() > 0);
+		
+		
+		for(Map.Entry<String, SubPlotBundle> entry : readPlots.getSubPlotBundles().entrySet()) {
+			SubPlotBundle bundle = entry.getValue();
+			assertNotNull(assertion, bundle);
+			
+			assertNotNull(assertion, bundle.getSizeXPixels());
+			assertNotNull(assertion, bundle.getSizeYPixels());
+			assertNotNull(assertion, bundle.getTitle());
+			assertNotNull(assertion, bundle.getSubPlots());
+			
+			assertTrue("There should be at least one subplot in this bundle", bundle.getSubPlots().size() > 0);
+			
+			for(SubPlotOptions subplot : bundle.getSubPlots()) {
+				assertNotNull(assertion, subplot);
+				assertNotNull(assertion, subplot.getTitle());
+				assertNotNull(assertion, subplot.getxAxisName());
+				assertNotNull(assertion, subplot.getyAxisName());
+				assertNotNull(assertion, subplot.getxData());
+				assertNotNull(assertion, subplot.getyData());
+				
+				assertTrue("There should be at least one y data in this bundle", subplot.getyData().size() > 0);
+				
+				for(SimOuts simout : subplot.getyData()) {
+					assertNotNull(assertion, simout);
+				}
+			}
 		}
 	}
 }

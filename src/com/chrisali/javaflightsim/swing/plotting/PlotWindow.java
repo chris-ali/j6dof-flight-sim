@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -223,11 +224,14 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 					// Pause a bit to give SimulationPlot object time to initialize 
 					Thread.sleep(6000);
 					
+					// Copy to thread-safe ArrayList
+					CopyOnWriteArrayList<Map<SimOuts, Double>> cowLogsOut = new CopyOnWriteArrayList<>(logsOut);
+					
 					for (String plotTitle : simPlotCategories) {
 					
 						Thread.sleep(125);
 						
-						SimulationPlot plotObject = new SimulationPlot(logsOut, plotTitle);
+						SimulationPlot plotObject = new SimulationPlot(cowLogsOut, plotTitle);
 						
 						Thread.sleep(125);
 						

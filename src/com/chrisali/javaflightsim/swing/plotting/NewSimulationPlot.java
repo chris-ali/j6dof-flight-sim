@@ -26,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JComponent;
 
@@ -61,16 +60,16 @@ public class NewSimulationPlot extends JComponent {
 	
 	private Map<SimOuts, XYSeries> xySeriesData;
 	
-	private Map<PlotType, XYSeriesCollection> xyCollections;
+	private Map<String, XYSeriesCollection> xyCollections;
 
 	private NumberAxis domainAxis;
 	
-	private Map<PlotType, NumberAxis> rangeAxes;
+	private Map<String, NumberAxis> rangeAxes;
 			
-	private CombinedDomainXYPlot subPlot;
+	private CombinedDomainXYPlot combinedDomPlot;
 
 	/**
-	 * Creates plots for data contained in the logsOut ArrayList using configuration defined in
+	 * Creates plots for data contained in the logsOut List using configuration defined in
 	 * bundle 
 	 * 
 	 * @param logsOut
@@ -86,8 +85,7 @@ public class NewSimulationPlot extends JComponent {
 		createPlots(logsOut, bundle);
 				
 		setLayout(new BorderLayout());
-		setPreferredSize(new Dimension(bundle.getSizePixels().getLeft(), 
-									   bundle.getSizePixels().getRight()));
+		setPreferredSize(new Dimension(bundle.getSizeXPixels(), bundle.getSizeYPixels()));
 		
 		add(generateChartPanel(bundle), BorderLayout.CENTER);
 	}
@@ -101,14 +99,14 @@ public class NewSimulationPlot extends JComponent {
 	 */
 	private ChartPanel generateChartPanel(SubPlotBundle bundle) {
 		for (XYPlot plot : plotList)
-			subPlot.add(plot, 1);
+			combinedDomPlot.add(plot, 1);
 			
-		subPlot.setOrientation(PlotOrientation.VERTICAL);
-		subPlot.setGap(20);
+		combinedDomPlot.setOrientation(PlotOrientation.VERTICAL);
+		combinedDomPlot.setGap(20);
 		
 		JFreeChart chart = new JFreeChart(bundle.getTitle(), 
 								 	      JFreeChart.DEFAULT_TITLE_FONT, 
-								 	      subPlot, 
+								 	      combinedDomPlot, 
 								          true);
 		return new ChartPanel(chart);
 	}
@@ -134,16 +132,16 @@ public class NewSimulationPlot extends JComponent {
 			}
 						
 			domainAxis = new NumberAxis(option.getxAxisName());
-			rangeAxes.put(option.getType(), new NumberAxis(option.getyAxisName()));
+			rangeAxes.put(option.getTitle(), new NumberAxis(option.getyAxisName()));
 			
-			xyCollections.put(option.getType(), collection);
+			xyCollections.put(option.getTitle(), collection);
 		}
 		
-		subPlot = new CombinedDomainXYPlot(domainAxis);
+		combinedDomPlot = new CombinedDomainXYPlot(domainAxis);
 		
 		updateXYSeriesData(logsOut, bundle);
 
-		for (Map.Entry<PlotType, XYSeriesCollection> entry : xyCollections.entrySet()) {
+		for (Map.Entry<String, XYSeriesCollection> entry : xyCollections.entrySet()) {
 			logger.debug("Creating a subplot of type: " + entry.getKey() + "...");
 			
 			XYPlot subPlot = new XYPlot(entry.getValue(),
@@ -157,13 +155,11 @@ public class NewSimulationPlot extends JComponent {
 	/**
 	 * Update {@link XYSeries} objects with new data from a thread-safe logsOut list
 	 * 
-	 * @param oldlogsOut
+	 * @param logsOut
 	 * @param bundle
 	 */
-	protected void updateXYSeriesData(List<Map<SimOuts, Double>> oldLogsOut, SubPlotBundle bundle) {
-		// Copy to thread-safe ArrayList for iteration
-		CopyOnWriteArrayList<Map<SimOuts, Double>> logsOut = new CopyOnWriteArrayList<>(oldLogsOut);
-
+	protected void updateXYSeriesData(List<Map<SimOuts, Double>> logsOut, SubPlotBundle bundle) {
+		// Clear old XV series values 
 		for (Map.Entry<SimOuts, XYSeries> entry : xySeriesData.entrySet())
 			entry.getValue().clear();
 		
@@ -186,11 +182,11 @@ public class NewSimulationPlot extends JComponent {
 		}
 				
 		// Update with new time axis
-		subPlot.setDomainAxis(domainAxis);
-		for (int i = 0; i < subPlot.getRangeAxisCount(); i++) {
-			if (subPlot.getRangeAxis(i) != null) {
-				subPlot.getRangeAxis(i).setAutoRange(false);
-				subPlot.getRangeAxis(i).resizeRange(3);
+		combinedDomPlot.setDomainAxis(domainAxis);
+		for (int i = 0; i < combinedDomPlot.getRangeAxisCount(); i++) {
+			if (combinedDomPlot.getRangeAxis(i) != null) {
+				combinedDomPlot.getRangeAxis(i).setAutoRange(false);
+				combinedDomPlot.getRangeAxis(i).resizeRange(3);
 			}
 		}
 	}
