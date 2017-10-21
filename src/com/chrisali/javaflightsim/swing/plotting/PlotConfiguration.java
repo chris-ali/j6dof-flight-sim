@@ -19,8 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.swing.plotting;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +32,7 @@ public class PlotConfiguration implements Saveable {
 	Map<String, SubPlotBundle> subPlotBundles;
 	
 	public PlotConfiguration() { 
-		
+		/*
 		SubPlotOptions linVelPlot = new SubPlotOptions();
 		linVelPlot.setTitle("Velocity");
 		linVelPlot.setxAxisName("Time [sec]");
@@ -160,7 +158,7 @@ public class PlotConfiguration implements Saveable {
 		ailPlot.setyAxisName("Deflection [rad]");
 		ailPlot.setxData(SimOuts.TIME);
 		List<SimOuts> ailYData = new ArrayList<>();
-		ailYData.add(SimOuts.TAS);
+		ailYData.add(SimOuts.AILERON);
 		ailPlot.setyData(ailYData);
 
 		SubPlotOptions rudderPlot = new SubPlotOptions();
@@ -273,6 +271,7 @@ public class PlotConfiguration implements Saveable {
 		this.subPlotBundles = subPlotBundles;
 		
 		save();
+		*/
 	}
 	
 	@Override

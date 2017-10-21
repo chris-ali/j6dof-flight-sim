@@ -156,6 +156,8 @@ public class FileUtilities {
 		catch (NullPointerException e) {logger.error("Bad reference when reading: " + filename + CONFIG_EXT + "!", e);}
 		catch (NumberFormatException e) {logger.error("Error parsing data from " + filename + CONFIG_EXT + "!", e);}
 		
+		logger.debug("...done!");
+		
 		return objToDeserialize;
 	}
 		

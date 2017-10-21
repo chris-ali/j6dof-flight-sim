@@ -25,7 +25,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +44,8 @@ import javax.swing.event.ChangeListener;
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
+import com.chrisali.javaflightsim.swing.plotting.PlotConfiguration.SubPlotBundle;
 
 /**
  * Generates a window of JFreeChart plots in tabs containing relevant data from the simulation
@@ -52,17 +53,15 @@ import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 public class PlotWindow extends JFrame implements ProgressDialogListener {
 
 	private static final long serialVersionUID = -4197697777449504415L;
-	
-	private List<Map<SimOuts, Double>> logsOut;
-	private Set<String> simPlotCategories;
-	
+		
 	private JTabbedPane tabPane;
-	private List<SimulationPlot> plotList;
 	private SwingWorker<Void, Integer> tabPaneWorker;
 	private Thread refreshPlotThread;
 	private ProgressDialog progressDialog;
 
 	private LWJGLSwingSimulationController controller;
+	private PlotConfiguration plotConfiguration;
+	private List<Map<SimOuts, Double>> logsOut;
 	
 	/**
 	 * Plots data from the simulation in a Swing window. It loops through 
@@ -76,10 +75,9 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 		super(controller.getConfiguration().getSelectedAircraft() + " Plots");
 		setLayout(new BorderLayout());
 		
-		this.logsOut = controller.getLogsOut();
-		this.simPlotCategories = simPlotCategories;
+		logsOut = controller.getLogsOut();
 		this.controller = controller;
-		plotList = new ArrayList<>();
+		plotConfiguration = FileUtilities.readPlotConfiguration();
 		
 		//-------------- Progress Dialog ----------------------------
 		
@@ -90,8 +88,8 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 		
 		tabPane = new JTabbedPane();
 		
-		if (this.logsOut != null && this.simPlotCategories != null)
-			initializePlots(logsOut);
+		if (logsOut != null && plotConfiguration != null)
+			initializePlots();
 		
 		tabPane.addChangeListener(new ChangeListener() {
 			@Override
@@ -119,7 +117,6 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 			}
 		});
 		
-		//setSize(tabPane.getSelectedComponent().getPreferredSize());
 		setVisible(true);
 	}
 	
@@ -189,8 +186,8 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	/**
 	 * Initalizes the plot window by generating plot objects and adding them to a tabbed pane 
 	 */
-	private void initializePlots(List<Map<SimOuts, Double>> logsOut) {
-		progressDialog.setMaximum(simPlotCategories.size());
+	private void initializePlots() {
+		progressDialog.setMaximum(plotConfiguration.subPlotBundles.size());
 		progressDialog.setTitle("Generating Plots");
 		progressDialog.setVisible(true);
 		
@@ -219,7 +216,8 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 					int count = 0;
 					
 					tabPane.removeAll();
-					plotList.clear();
+					
+					Map<String, SubPlotBundle> subPlotBundles = plotConfiguration.getSubPlotBundles();
 
 					// Pause a bit to give SimulationPlot object time to initialize 
 					Thread.sleep(6000);
@@ -227,16 +225,15 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 					// Copy to thread-safe ArrayList
 					CopyOnWriteArrayList<Map<SimOuts, Double>> cowLogsOut = new CopyOnWriteArrayList<>(logsOut);
 					
-					for (String plotTitle : simPlotCategories) {
+					for (Map.Entry<String, SubPlotBundle> entry : subPlotBundles.entrySet()) {
 					
 						Thread.sleep(125);
 						
-						SimulationPlot plotObject = new SimulationPlot(cowLogsOut, plotTitle);
+						SimulationPlot plotObject = new SimulationPlot(cowLogsOut, entry.getValue());
 						
 						Thread.sleep(125);
 						
-						tabPane.add(plotTitle, plotObject);
-						plotList.add(plotObject);
+						tabPane.add(entry.getKey(), plotObject);
 						
 						count++;
 						publish(count);

@@ -106,7 +106,7 @@
         "yAxisName" : "Deflection [rad]"
       }, {
         "title" : "Aileron",
-        "yData" : [ "TAS" ],
+        "yData" : [ "AILERON" ],
         "xData" : "TIME",
         "xAxisName" : "Time [sec]",
         "yAxisName" : "Deflection [rad]"
