@@ -157,6 +157,8 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 				TextMaster.render(texts);
 				
 				DisplayManager.updateDisplay();
+				
+				Thread.sleep(15);
 			} catch (Exception e) {
 				logger.error("Error encountered while running LWJGL display! Attempting to continue...", e);
 				
