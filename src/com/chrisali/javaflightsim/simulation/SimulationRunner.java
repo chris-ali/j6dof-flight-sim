@@ -34,10 +34,18 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.interfaces.OTWWorld;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
+import com.chrisali.javaflightsim.simulation.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
+/**
+ * Main runner thread for JavaFlightSimulator that combines all {@link Steppable} components into a single thread so that they can run
+ * synchronously and not cause concurrency issues with eachother
+ * 
+ * @author Christopher
+ *
+ */
 public class SimulationRunner implements Runnable {
 	
 	private static final Logger logger = LogManager.getLogger(SimulationRunner.class);
@@ -56,7 +64,13 @@ public class SimulationRunner implements Runnable {
 	private int endTimeMS;
 	
 	private boolean running = false;
-			
+	
+	/**
+	 * Constructor for Analysis Mode that does not initialize flight or environment data
+	 * listener components
+	 * 
+	 * @param simController
+	 */
 	public SimulationRunner(SimulationController simController) {
 		
 		SimulationConfiguration configuration = simController.getConfiguration();
@@ -80,6 +94,14 @@ public class SimulationRunner implements Runnable {
 			endTimeMS = integratorConfig.get(IntegratorConfig.ENDTIME).intValue() * TO_MILLISEC;
 	}
 	
+	/**
+	 * Constructor in Normal Mode that initializes flight and environment data 
+	 * listener components; external listeners (such as OTW or instrument panel)
+	 * should be added after instantiation using addFlightDataListener() or addEnvironmentDataListener
+	 * 
+	 * @param simController
+	 * @param outTheWindow
+	 */
 	public SimulationRunner(SimulationController simController, OTWWorld outTheWindow) {
 		this(simController);
 		
@@ -93,13 +115,16 @@ public class SimulationRunner implements Runnable {
 		}
 	}
 	
+	/**
+	 * Main runner loop where {@link Steppable} components are step updated each iteration of the loop depending on the current value of time
+	 */
 	@Override
 	public void run() {
 		running = true;
 		
 		while (running && timeMS.get() < endTimeMS) {
 			try {
-				// Step update each component
+				// Step update each component if allowed to basend on the current time 
 				if (flightControls.canStepNow(timeMS.get()))
 					flightControls.step();
 					
