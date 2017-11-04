@@ -25,7 +25,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
-import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
+import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -58,16 +58,10 @@ public class TestInstrumentPanel {
 		configuration.getSimulationOptions().add(Options.UNLIMITED_FLIGHT);
 		configuration.getSimulationOptions().add(Options.USE_CH_CONTROLS);
 		
-		FlightControls flightControls = new FlightControls(controller);
-		
-		Integrate6DOFEquations runSim = new Integrate6DOFEquations(flightControls, configuration);
-		FlightData flightData = new FlightData(runSim);
-
-		new Thread(runSim).start();
-		new Thread(flightData).start();
+		SimulationRunner runner = new SimulationRunner(controller);
 		
 		InstrumentPanel panel = new InstrumentPanel();
-		flightData.addFlightDataListener(panel);
+		runner.addFlightDataListener(panel);
 		
 		JFrame panelWindow = new JFrame("Instrument Panel Test");
 		panelWindow.setLayout(new BorderLayout());

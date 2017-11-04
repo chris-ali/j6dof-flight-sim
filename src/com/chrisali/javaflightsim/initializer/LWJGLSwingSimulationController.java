@@ -30,9 +30,9 @@ import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
+import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
@@ -67,16 +67,8 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	private SimulationConfiguration configuration;
 	
 	// Simulation and Threads
-	private FlightControls flightControls;
-	
-	private Integrate6DOFEquations simulation;
-	private Thread simulationThread;
-	
-	private FlightData flightData;
-	private Thread flightDataThread;
-
-	private EnvironmentData environmentData;
-	private Thread environmentDataThread;
+	private SimulationRunner runner;
+	private Thread runnerThread;
 	
 	// Menus and Integrated Simulation Window
 	private GuiFrame guiFrame;
@@ -104,38 +96,17 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 * @return instance of configuraion
 	 */
 	@Override
-	public SimulationConfiguration getConfiguration() {return configuration;}
+	public SimulationConfiguration getConfiguration() { return configuration; }
 	
 	//=============================== Simulation ===========================================================
 
-	/**
-	 * @return instance of simulation
-	 */
-	@Override
-	public Integrate6DOFEquations getSimulation() {return simulation;}
-
-	/**
-	 * @return ArrayList of simulation output data 
-	 * @see SimOuts
-	 */
-	public List<Map<SimOuts, Double>> getLogsOut() {
-		return (simulation != null) ? simulation.getLogsOut() : null;
-	}
-	
-	/**
-	 * @return if simulation was able to clear data kept in logsOut
-	 */
-	public boolean clearLogsOut() {
-		return (simulation != null) ? simulation.clearLogsOut() : false;
-	}
-	
 	/**
 	 * Initializes, trims and starts the flight controls, simulation (and flight and environment data, if selected) threads.
 	 * Depending on options specified, a console panel and/or plot window will also be initialized and opened 
 	 */
 	@Override
 	public void startSimulation() {
-		if (simulation != null && simulation.isRunning()) {
+		if (runner != null && runner.isRunning()) {
 			logger.warn("Simulation is already running! Please wait until it has finished");
 			return;
 		}
@@ -147,21 +118,6 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		logger.debug("Trimming aircraft...");
 		Trimming.trimSim(configuration, false);
 				
-		logger.debug("Initializing flight controls...");
-		flightControls = new FlightControls(this);
-
-		logger.debug("Initializing simulation (thread)...");
-		simulation = new Integrate6DOFEquations(flightControls, configuration);
-		simulationThread = new Thread(simulation);
-		
-		logger.debug("Starting simulation thread...");
-		simulationThread.start();
-		
-		if (configuration.getSimulationOptions().contains(Options.CONSOLE_DISPLAY)) {
-			logger.debug("Starting flight data console...");
-			initializeConsole();
-		}
-		
 		if (configuration.getSimulationOptions().contains(Options.ANALYSIS_MODE)) {
 			logger.debug("Running simulation in Analysis Mode...");
 			initializeAnalysisMode();
@@ -178,21 +134,8 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	@Override
 	public void stopSimulation() {
 		logger.debug("Stopping simulation...");
-		
-		if (simulation != null && simulation.isRunning() && simulationThread != null && simulationThread.isAlive()) {
-			logger.debug("Stopping simulation thread...");
-			simulation.setRunning(false);
-		}
-		
-		if (flightDataThread != null && flightDataThread.isAlive()) {
-			logger.debug("Stopping flight data transfer thread...");
-			flightData.setRunning(false);
-		}
-		
-		if (outTheWindowThread != null && outTheWindowThread.isAlive()) {
-			logger.debug("Stopping environment data transfer thread...");
-			environmentData.setRunning(false);
-		}	
+
+		runner.setRunning(false);	
 		
 		logger.debug("Returning to menus...");
 		getGuiFrame().getSimulationWindow().dispose();
@@ -204,15 +147,20 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	private void initializeAnalysisMode() {
 		try {						
-			// Wait a bit to allow the simulation to finish running
-			while(simulation.isRunning()) {				
-				Thread.sleep(1500);
+			logger.debug("Initializing simulation runner...");
+			runner = new SimulationRunner(this);
+			
+			logger.debug("Initializaing and starting simulation runner thread...");
+			runnerThread = new Thread(runner);
+			runnerThread.start();
+			
+			if (configuration.getSimulationOptions().contains(Options.CONSOLE_DISPLAY)) {
+				logger.debug("Starting flight data console...");
+				initializeConsole();
 			}
 			
 			logger.debug("Generating plots...");
 			plotSimulation();
-		} catch (InterruptedException ex) {
-			logger.warn("Thread was interrupted!");
 		} catch (Exception ey) {
 			logger.error("An error occurred while running in analysis mose!", ey);
 		}
@@ -229,29 +177,40 @@ public class LWJGLSwingSimulationController implements SimulationController {
 			//(Re)initalize simulation window to prevent scaling issues with instrument panel
 			getGuiFrame().initSimulationWindow();
 			
-			logger.debug("Initializing environment data transfer (thread)...");
-			environmentData = new EnvironmentData(outTheWindow);
-			environmentData.addEnvironmentDataListener(simulation);
+			logger.debug("Initializing simulation runner...");
+			runner = new SimulationRunner(this, outTheWindow);
+			runner.addFlightDataListener(outTheWindow);
+			runner.addFlightDataListener(getGuiFrame().getInstrumentPanel());
 			
-			environmentDataThread = new Thread(environmentData);
+			if (configuration.getSimulationOptions().contains(Options.CONSOLE_DISPLAY)) {
+				logger.debug("Starting flight data console...");
+				initializeConsole();
+			}
 			
-			logger.debug("Starting environment data transfer thread...");
-			environmentDataThread.start();
-			
-			logger.debug("Initializing flight data transfer (thread)...");
-			flightData = new FlightData(simulation);
-			flightData.addFlightDataListener(guiFrame.getInstrumentPanel());
-			flightData.addFlightDataListener(outTheWindow);
-			
-			flightDataThread = new Thread(flightData);
-			
-			logger.debug("Starting flight data transfer thread...");
-			flightDataThread.start();				
+			logger.debug("Initializaing and starting simulation runner thread...");
+			runnerThread = new Thread(runner);
+			runnerThread.start();
+							
 		} catch (Exception e) {
 			logger.error("An error occurred while starting normal mode!", e);
 		}
 	}
 	
+	/**
+	 * @return ArrayList of simulation output data 
+	 * @see SimOuts
+	 */
+	public List<Map<SimOuts, Double>> getLogsOut() {
+		return (runner != null && runner.isRunning()) ? runner.getSimulation().getLogsOut() : null;
+	}
+	
+	/**
+	 * @return if simulation was able to clear data kept in logsOut
+	 */
+	public boolean clearLogsOut() {
+		return (runner != null && runner.isRunning()) ? runner.getSimulation().clearLogsOut() : false;
+	}
+		
 	//=============================== Plotting =============================================================
 	
 	/**
@@ -291,7 +250,10 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	public void initializeConsole() {
 		try {
-			consoleTablePanel = new ConsoleTablePanel(this);
+			if(consoleTablePanel != null)
+				consoleTablePanel.setVisible(false);
+			
+			consoleTablePanel = new ConsoleTablePanel(this, runner);
 			consoleTablePanel.startTableRefresh();			
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
@@ -315,7 +277,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		logger.debug("Saving console output to: " + file.getAbsolutePath());
 		
 		try {			
-			FileUtilities.saveToCSVFile(file, simulation.getLogsOut());
+			FileUtilities.saveToCSVFile(file, runner.getSimulation().getLogsOut());
 		} catch (Exception e) {
 			logger.error("An error occurred while saving console output!", e);
 		}
@@ -334,7 +296,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	}
 	
 	/**
-	 * @return reference to {@link GuiFrame} object in {@link LWJGLSwingSimulationController}
+	 * @return reference to {@link GuiFrame} object in {@link NewLWJGLSwingSimulationController}
 	 */
 	public GuiFrame getGuiFrame() {
 		return guiFrame;

@@ -1,7 +1,6 @@
 package com.chrisali.javaflightsim.simulation.interfaces;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
-import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
@@ -16,8 +15,6 @@ import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 public interface SimulationController {
 	
 	public SimulationConfiguration getConfiguration();
-	
-	public Integrate6DOFEquations getSimulation();
 	
 	public void plotSimulation();
 	

@@ -31,16 +31,16 @@ import org.apache.logging.log4j.Logger;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.interfaces.OTWWorld;
+import com.chrisali.javaflightsim.simulation.interfaces.Steppable;
 
 /**
  *	Interacts with {@link LWJGLWorld} and any registered listeners to pass data from the out the window display back to
  *	the simulation {@link Integrate6DOFEquations}. Uses threading to obtain data at a reasonable rate
  */
-public class EnvironmentData implements Runnable {
+public class EnvironmentData implements Steppable {
 	
 	private static final Logger logger = LogManager.getLogger(EnvironmentData.class);
 	
-	private boolean running;
 	private Map<EnvironmentDataType, Double> environmentData = Collections.synchronizedMap(new EnumMap<EnvironmentDataType, Double>(EnvironmentDataType.class));
 	
 	private OTWWorld outTheWindow;
@@ -57,7 +57,7 @@ public class EnvironmentData implements Runnable {
 		this.dataListenerList = new ArrayList<>();
 	}
 	
-	public Map<EnvironmentDataType, Double> getEnvironmentData() {return environmentData;}
+	public Map<EnvironmentDataType, Double> getEnvironmentData() { return environmentData; }
 	
 	/**
 	 * Polls simOut for data, and assigns and converts the values needed to the flightData EnumMap  
@@ -68,48 +68,28 @@ public class EnvironmentData implements Runnable {
 		synchronized (environmentData) {
 			environmentData.put(EnvironmentDataType.TERRAIN_HEIGHT, (double) terrainHeight);
 		}
+		
 		fireDataArrived();
 	}
-	
+		
 	@Override
-	public void run() {
-		running = true;
+	public boolean canStepNow(int simTimeMS) {
+		return simTimeMS % 1 == 0;
+	}
 
-		while (!outTheWindow.isRunning()) {
-			try {
-				Thread.sleep(250);
-			} catch (Exception e) {
-				continue;
-			}
+	@Override
+	public void step() {
+		try {
+			if(outTheWindow != null)
+				updateData(outTheWindow.getTerrainHeight());
+		} catch (Exception e) {
+			logger.error("Exception encountered while running environment data listener!", e);
 		}
-		
-		while (running) {
-			try {
-				Thread.sleep(10);
-				
-				if(outTheWindow != null)
-					updateData(outTheWindow.getTerrainHeight());
-			} catch (InterruptedException ex) {
-				logger.warn("Environment data thread was interrupted! Ignoring...");
-				
-				continue;
-			} catch (NullPointerException ey) {
-				logger.error("Encountered a null value in the environment data. Attempting to continue...", ey);
-				
-				continue;
-			} catch (Exception ez) {
-				logger.error("Exception encountered while running environment data thread. Attempting to continue...", ez);
-				
-				continue;
-			}
-		}
-		
-		running = false;
 	}
 	
 	/**
 	 * Adds a listener that implements {@link EnvironmentDataListener} to a list of listeners that can listen
-	 * to {@link EnvironmentData} 
+	 * to {@link NewEnvironmentData} 
 	 * 
 	 * @param dataListener
 	 */
@@ -128,21 +108,6 @@ public class EnvironmentData implements Runnable {
 				listener.onEnvironmentDataReceived(this);
 		}
 	}
-	
-	/**
-	 * Lets other objects know if the {@link EnvironmentData} thread is running
-	 * 
-	 * @return Running status of flight data
-	 */
-	public synchronized boolean isRunning() {return running;}
-	
-	
-	/**
-	 * Lets other objects request to stop the the flow of environment data by setting running to false
-	 * 
-	 * @param running
-	 */
-	public synchronized void setRunning(boolean running) {this.running = running;}
 
 	@Override
 	public String toString() {

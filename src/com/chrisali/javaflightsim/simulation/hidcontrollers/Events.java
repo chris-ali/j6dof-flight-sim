@@ -286,7 +286,7 @@ public class Events {
 	}
 	
 	public static void plotSimulation(SimulationController simController) {
-		if(simController.getSimulation() != null && !simController.isPlotWindowVisible()) {
+		if(!simController.isPlotWindowVisible()) {
 			simController.plotSimulation();
 		}
 	}

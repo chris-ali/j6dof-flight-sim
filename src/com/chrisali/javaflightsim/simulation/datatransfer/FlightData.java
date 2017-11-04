@@ -30,17 +30,17 @@ import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
+import com.chrisali.javaflightsim.simulation.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
  *	Interacts with {@link Integrate6DOFEquations} and any registered listeners to pass flight data from the simulation
  *	listeners. Uses threading to obtain data from the simulation at a reasonable rate
  */
-public class FlightData implements Runnable {
+public class FlightData implements Steppable {
 	
 	private static final Logger logger = LogManager.getLogger(FlightData.class);
 	
-	private boolean running;
 	private Map<FlightDataType, Double> flightData = Collections.synchronizedMap(new EnumMap<FlightDataType, Double>(FlightDataType.class));
 	
 	private Integrate6DOFEquations simulation;
@@ -104,46 +104,25 @@ public class FlightData implements Runnable {
 		
 		fireDataArrived();
 	}
-	
+		
 	@Override
-	public void run() {
-		running = true;
-		
-		while (!simulation.isRunning()) {
-			try {
-				Thread.sleep(250);
-			} catch (Exception e) {
-				continue;
-			}
-		}
+	public boolean canStepNow(int simTimeMS) {
+		return simTimeMS % 1 == 0;
+	}
 
-		while (simulation.isRunning() && running) {
-			try {
-				Thread.sleep(12);
-				
-				if(simulation.getSimOut() != null)
-					updateData(simulation.getSimOut());
-			} catch (InterruptedException ex) {
-				logger.warn("Flight data thread was interrupted! Ignoring...");
-				
-				continue;
-			} catch (NullPointerException ey) {
-				logger.error("Encountered a null value in the flight data. Attempting to continue...", ey);
-				
-				continue;
-			} catch (Exception ez) {
-				logger.error("Exception encountered while running flight data thread. Attempting to continue...", ez);
-				
-				continue;
-			} 
+	@Override
+	public void step() {
+		try {
+			if(simulation.getSimOut() != null)
+				updateData(simulation.getSimOut());
+		} catch (Exception ez) {
+			logger.error("Exception encountered in Flight Data Listener!", ez);
 		}
-		
-		running = false;
 	}
 	
 	/**
 	 * Adds a listener that implements {@link FlightDataListener} to a list of listeners that can listen
-	 * to {@link FlightData} 
+	 * to {@link NewFlightData} 
 	 * 
 	 * @param dataListener
 	 */
@@ -162,21 +141,6 @@ public class FlightData implements Runnable {
 				listener.onFlightDataReceived(this);
 		}
 	}
-	
-	/**
-	 * Lets other objects know if the {@link FlightData} thread is running
-	 * 
-	 * @return Running status of flight data
-	 */
-	public synchronized boolean isRunning() {return running;}
-	
-	
-	/**
-	 * Lets other objects request to stop the flow of flight data by setting running to false
-	 * 
-	 * @param running
-	 */
-	public synchronized void setRunning(boolean running) {this.running = running;}
 
 	@Override
 	public String toString() {

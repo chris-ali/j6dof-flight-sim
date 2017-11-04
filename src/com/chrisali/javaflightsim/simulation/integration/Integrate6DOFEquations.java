@@ -26,7 +26,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
@@ -43,8 +42,8 @@ import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
+import com.chrisali.javaflightsim.simulation.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
-import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -53,8 +52,8 @@ import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
  * This class integrates all 12 6DOF (plus 2 latitude/longitude) equations numerically to obtain the aircraft's states.
- * The {@link ClassicalRungeKuttaIntegrator} is used to integrate over a period of time defined in {@link Integrate6DOFEquations#integratorConfigS}.
- * It uses threading to delay the integration to emulate running at a real-time rate. The class outputs at each step using {@link Integrate6DOFEquations#logData(double)} to 
+ * The {@link ClassicalRungeKuttaIntegrator} is used to integrate over a period of time defined in {@link Integrate6DOFEquations#integratorConfig}.
+ * The class outputs at each step using {@link Integrate6DOFEquations#logData(double)} to 
  * generate a {@link Integrate6DOFEquations#logsOut} ArrayList of {@link Integrate6DOFEquations#simOut} EnumMaps containing simulation outputs.
  * These can be obtained using the proper getters for {@link Integrate6DOFEquations#logsOut} and {@link Integrate6DOFEquations#simOut}. Options are passed into the class to
  * allow the user to choose between various run-time options 
@@ -70,7 +69,7 @@ import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
  * @see AircraftBuilder
  * @see Options
  */
-public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener {
+public class Integrate6DOFEquations implements Steppable, EnvironmentDataListener {
 	//Logging
 	private static final Logger logger = LogManager.getLogger(Integrate6DOFEquations.class);
 	
@@ -106,13 +105,10 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	private double[] initialConditions      = new double[14];
 	private double[] resetInitialConditions = new double[14]; 
 	
-	// Time Properties (sec for calculations in this thread, millisec elsewhere)
-	private double[] integratorConfigS 		= new double[3];
-	private double timeS;
-	private static final int TO_MILLISEC 	= 1000;
-	private int[] integratorConfigMS		= new int[3];
-	private AtomicInteger timeMS;
-	
+	// Time Properties (sec for calculations in this object, millisec elsewhere)
+	private double[] integratorConfig 		= new double[3];
+	private double t;
+		
 	// Aircraft Properties
 	private Aircraft aircraft;
 	private Set<Engine> engineList;
@@ -123,7 +119,6 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	
 	// Options
 	private EnumSet<Options> options;
-	private boolean running;
 	
 	/**
 	 * Creates the {@link Integrate6DOFEquations} object with references to {@link FlightControls} and {@link SimulationConfiguration}
@@ -144,26 +139,19 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		initialConditions = resetInitialConditions = ArrayUtils.toPrimitive(configuration.getInitialConditions().values()
 																.toArray(new Double[initialConditions.length]));
 				
-		integratorConfigS  = ArrayUtils.toPrimitive(configuration.getIntegratorConfig().values()
-				   												.toArray(new Double[integratorConfigS.length]));
-				
-		// Set up running parameters for integration
-		for (int i = 0; i < integratorConfigS.length; i++)
-			integratorConfigMS[i] = (int)(integratorConfigS[i] * TO_MILLISEC);
+		integratorConfig  = ArrayUtils.toPrimitive(configuration.getIntegratorConfig().values()
+				   												.toArray(new Double[integratorConfig.length]));
 		
-		if (!options.contains(Options.ANALYSIS_MODE) && options.contains(Options.UNLIMITED_FLIGHT)) {
-			// Run forever as a pilot in the loop simulation
-			integratorConfigS[2]   = Double.POSITIVE_INFINITY; 
-			integratorConfigMS[2] = Integer.MAX_VALUE;
-		}
+		// Run forever as a pilot in the loop simulation
+		if (!options.contains(Options.ANALYSIS_MODE) && options.contains(Options.UNLIMITED_FLIGHT))
+			integratorConfig[2] = Double.POSITIVE_INFINITY; 
 		
 		// Initial time
-		timeS = integratorConfigS[0];
-		timeMS = new AtomicInteger(integratorConfigMS[0]);
-		
+		t = integratorConfig[0];
+				
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
 		logger.debug("Setting up Runge Kutta Integrator for 6DOF calculations...");
-		integrator = new ClassicalRungeKuttaIntegrator(integratorConfigS[1]);
+		integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[1]);
 		
 		// Set up ground reaction integration
 		logger.debug("Initializing ground reaction model...");
@@ -174,7 +162,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 													 angularRates,
 													 windParameters,
 													 sixDOFDerivatives,
-													 integratorConfigS, 
+													 integratorConfig, 
 													 aircraft, 
 													 controlsMap);
 		
@@ -200,6 +188,52 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		}
 
 		public int getDimension() {return 14;}
+	}
+	
+	@Override
+	public boolean canStepNow(int simTimeMS) {
+		return simTimeMS % 1 == 0;
+	}
+
+	/**
+	 * Runs {@link Integrate6DOFEquations} integration process by calling 
+	 * {@link ClassicalRungeKuttaIntegrator#singleStep(FirstOrderDifferentialEquations, double, double[], double)}
+	 * method on each invocation as long as {@link Options#PAUSED} isn't enabled 
+	 */
+	@Override
+	public void step() {
+		try {	
+			// If paused and reset selected, reset initialConditions to saved values in configuration
+			if (options.contains(Options.PAUSED) && options.contains(Options.RESET)) {
+				logger.debug("Simulation reset to initial conditions!");
+				initialConditions = resetInitialConditions;
+				flightControls.reset();
+				options.remove(Options.RESET);
+			}
+							
+			// If paused, skip the integration and update process
+			if (!options.contains(Options.PAUSED)) {
+				// Run a single step of integration each step of the loop
+				y = integrator.singleStep(new SixDOFEquations(),  // derivatives
+										  t, 		  			  // start time
+										  initialConditions, 	  // initial conditions
+										  t+integratorConfig[1]); // end time (t+dt)
+														
+				// Update data members' values
+				updateDataMembers();
+				
+				// Update initial conditions for next step of integration
+				initialConditions = y;
+				
+				// Update output log
+				logData();
+
+				// Increment time
+				t += integratorConfig[1];
+			}
+		} catch (Exception e) {
+			logger.error("Integration encountered an error!", e);
+		}
 	}
 	
 	/**
@@ -314,7 +348,7 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		
 		synchronized (simOut) {
 			// Assign EnumMap with data members from integration
-			simOut.put(SimOuts.TIME, 		timeS);
+			simOut.put(SimOuts.TIME, 		t);
 			
 			//6DOF States
 			simOut.put(SimOuts.U, 		 	linearVelocities[0]);
@@ -416,79 +450,12 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 		
 		synchronized (logsOut) {
 			// Removes the first entry in logsOut to keep a maximum of 100 sec of flight data in UNLIMITED_FLIGHT
-			if (options.contains(Options.UNLIMITED_FLIGHT) & timeS >= 100 & logsOut.size() > 0)
+			if (options.contains(Options.UNLIMITED_FLIGHT) & t >= 100 & logsOut.size() > 0)
 				logsOut.remove(0);
 				
 			// Add output step to logging arrayList
 			logsOut.add(simOut);	
 		}
-	}
-	
-	/**
-	 * Runs {@link Integrate6DOFEquations} integration loop by calling the {@link ClassicalRungeKuttaIntegrator#singleStep(FirstOrderDifferentialEquations, double, double[], double)}
-	 * method on each iteration of the loop as long as {@link Options#PAUSED} isn't enabled 
-	 * 
-	 * @see java.lang.Runnable#run()
-	 */
-	@Override
-	public void run() {
-		// Integration loop
-		running = true;
-
-		while (timeS < integratorConfigS[2] && running) {
-			try {	
-				// If paused and reset selected, reset initialConditions to saved values in configuration
-				if (options.contains(Options.PAUSED) && options.contains(Options.RESET)) {
-					logger.debug("Simulation reset to initial conditions!");
-					initialConditions = resetInitialConditions;
-					flightControls.reset();
-					options.remove(Options.RESET);
-				}
-				
-				// Step update flight controls
-				if (flightControls.canStepNow(timeMS.get()));
-					flightControls.step();
-				
-				// If paused, skip the integration and update process
-				if (!options.contains(Options.PAUSED)) {
-					// Run a single step of integration each step of the loop
-					y = integrator.singleStep(new SixDOFEquations(), 	  	// derivatives
-											  timeS, 		  			  	// start time
-											  initialConditions, 		  	// initial conditions
-											  timeS+integratorConfigS[1]);  // end time (t+dt)
-															
-					// Update data members' values
-					updateDataMembers();
-					
-					// Update initial conditions for next step of integration
-					initialConditions = y;
-					
-					// Update output log
-					logData();
-
-					// Increments time
-					incrementTime();
-				}
-				
-				// Pause for dt*1000 milliseconds to emulate real time operation
-				// if ANALYSIS_MODE is false
-				if (!options.contains(Options.ANALYSIS_MODE))
-					Thread.sleep((long)(integratorConfigMS[1]));
-				else
-					Thread.sleep(1);
-				
-			} catch (InterruptedException e) {
-				logger.warn("Simulation thread interrupted, ignoring...");
-				
-				continue;
-			} catch (Exception e) {
-				logger.error("Simulation thread encountered an error! Attempting to continue...", e);
-				
-				continue;
-			}
-		}
-		
-		running = false;
 	}
 	
 	//================================= Simulation Logging =====================================================
@@ -499,52 +466,28 @@ public class Integrate6DOFEquations implements Runnable, EnvironmentDataListener
 	 * 
 	 * @return logsOut
 	 */
-	public synchronized List<Map<SimOuts, Double>> getLogsOut() {return Collections.unmodifiableList(logsOut);}
+	public synchronized List<Map<SimOuts, Double>> getLogsOut() { return Collections.unmodifiableList(logsOut); }
 	
 	/**
 	 * Clears logsOut list of past data in preparation for recording a new maneuver 
 	 * 
 	 * @return If logsOut list was successfully deleted
 	 */
-	public synchronized boolean clearLogsOut() {return logsOut.removeAll(logsOut);}
+	public synchronized boolean clearLogsOut() { return logsOut.removeAll(logsOut); }
 	
 	/**
 	 * Returns an EnumMap of data for a single step of integration accomplished in {@link Integrate6DOFEquations#accelAndMoments#logData(double)}	
 	 * 
 	 * @return simOut
 	 */
-	public synchronized Map<SimOuts, Double> getSimOut() {return Collections.unmodifiableMap(simOut);}
+	public synchronized Map<SimOuts, Double> getSimOut() { return Collections.unmodifiableMap(simOut); }
 	
 	//========================================= Time ============================================================
 	
 	/**
-	 * @return current time of simulation (millisec)
+	 * @return current time of simulation (sec)
 	 */
-	public AtomicInteger getTime() {return timeMS;}
-	
-	/**
-	 * Increments the time by {@link IntegratorConfig#DT} (* 1000) (milli)seconds 
-	 */
-	private void incrementTime() {
-		timeMS.addAndGet((integratorConfigMS[1]));
-		timeS += integratorConfigS[1];
-	}
-	
-	//==================================== Running Status =======================================================
-	
-	/**
-	 * Lets other objects know if {@link Integrate6DOFEquations#run()} is currently running
-	 * 
-	 * @return Running status of integration
-	 */
-	public synchronized boolean isRunning() {return running;}
-	
-	/**
-	 * Lets other objects request to stop the simulation by setting running to false
-	 * 
-	 * @param running
-	 */
-	public synchronized void setRunning(boolean running) {this.running = running;}
+	public double getTime() { return t; }
 	
 	//==================================== Environment ==========================================================
 	

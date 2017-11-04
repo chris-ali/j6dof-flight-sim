@@ -43,8 +43,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
-import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 public class ConsoleTablePanel extends JFrame {
 
@@ -53,22 +53,21 @@ public class ConsoleTablePanel extends JFrame {
 	private static final Logger logger = LogManager.getLogger(EnvironmentData.class);
 	
 	private JTable table;
-	private ConsoleTableModel consoleTableModel;
 	private LWJGLSwingSimulationController controller;
-	private Integrate6DOFEquations simulation;
+	private ConsoleTableModel consoleTableModel;
 	private SwingWorker<Void,Integer> tableRefreshWorker;
 	
-	public ConsoleTablePanel(LWJGLSwingSimulationController controller) {
+	public ConsoleTablePanel(LWJGLSwingSimulationController controller, SimulationRunner runner) {
 		super("Raw Data Output");
 		
-		this.controller = controller;
-		simulation = controller.getSimulation();
 		setLayout(new BorderLayout());
+		
+		this.controller = controller;
 		
 		//-------------- Table Panel ------------------------
 		
 		consoleTableModel = new ConsoleTableModel();
-		consoleTableModel.setData(controller.getLogsOut());
+		consoleTableModel.setData(runner.getSimulation().getLogsOut());
 		table = new JTable(consoleTableModel);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setColumnSelectionAllowed(true);
@@ -76,13 +75,13 @@ public class ConsoleTablePanel extends JFrame {
 		tableRefreshWorker = new SwingWorker<Void, Integer>() {
 			@Override
 			protected void done() {
-				//if (!simController.getSimulation().isRunning())
+				//if (!runner.isRunning())
 				//	ConsoleTablePanel.this.setVisible(false);
 			}
 
 			@Override
 			protected Void doInBackground() throws Exception {
-				while (simulation.isRunning()) {
+				while (runner.isRunning()) {
 					consoleTableModel.fireTableDataChanged();
 					Thread.sleep(50);
 				}

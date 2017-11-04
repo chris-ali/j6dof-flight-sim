@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.AbstractController;
@@ -33,7 +34,6 @@ import com.chrisali.javaflightsim.simulation.hidcontrollers.Events;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Joystick;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Keyboard;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Mouse;
-import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
@@ -59,8 +59,8 @@ public class FlightControls implements Steppable, FlightDataListener {
 	private EnumSet<Options> options;
 	//private Map<FlightDataType, Double> flightData;
 	
-	private SimulationController simController;
 	private SimulationConfiguration configuration; 
+	SimulationRunner runner;
 	
 	private AbstractController hidController;
 	private Keyboard hidKeyboard;
@@ -72,15 +72,16 @@ public class FlightControls implements Steppable, FlightDataListener {
 	 * 
 	 * @param simController
 	 */
-	public FlightControls(SimulationController simController) {
+	public FlightControls(SimulationController simController, SimulationRunner runner) {
 		logger.debug("Initializing flight controls...");
 				
-		this.simController = simController;
+		this.runner = runner;
 		
 		configuration = simController.getConfiguration();
+		options = configuration.getSimulationOptions();
+
 		flightControls = new EnumMap<FlightControl, Double>(configuration.getInitialControls());
 		trimflightControls = configuration.getInitialControls();
-		options = configuration.getSimulationOptions();
 		analysisControls = FileUtilities.readAnalysisControls();
 				
 		// initializes static EnumMap that contains trim values of controls for doublets 
@@ -104,18 +105,16 @@ public class FlightControls implements Steppable, FlightDataListener {
 	@Override
 	public void step() {
 		try {
-			Integrate6DOFEquations simulation = simController.getSimulation();
-			
 			// if not running in analysis mode, controls and options are updated with pilot input
 			// otherwise, controls updated using generated doublets
-			if (!options.contains(Options.ANALYSIS_MODE) && simulation.isRunning()) {
+			if (!options.contains(Options.ANALYSIS_MODE)) {
 				if (hidController != null) 
 					hidController.calculateControllerValues(flightControls);
 				
 				if (hidKeyboard != null)
 					hidKeyboard.calculateControllerValues(flightControls);
 			} else {
-				analysisControls.updateFlightControls(simulation.getTime(), flightControls, trimflightControls);
+				analysisControls.updateFlightControls(runner.getTimeMS(), flightControls, trimflightControls);
 			}
 			
 			limitControls(flightControls);
@@ -125,8 +124,8 @@ public class FlightControls implements Steppable, FlightDataListener {
 	}
 	
 	@Override
-	public boolean canStepNow(int time) {
-		return time % 100 == 0;
+	public boolean canStepNow(int timeMS) {
+		return timeMS % 1 == 0;
 	}
 	
 	/**
