@@ -24,8 +24,8 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class ParticleShader extends ShaderProgram {
 	
-	private static final String VERTEX_FILE = SHADER_ROOT_PATH + "particleVertexShader.txt";
-	private static final String FRAGMENT_FILE = SHADER_ROOT_PATH + "particleFragmentShader.txt";
+	private static final String VERTEX_FILE = SHADER_ROOT_PATH + "particleVertexShader" + SHADER_EXTENSION;
+	private static final String FRAGMENT_FILE = SHADER_ROOT_PATH + "particleFragmentShader" + SHADER_EXTENSION;
 
 	private int location_numberOfAtlasRows;
 	private int location_projectionMatrix;

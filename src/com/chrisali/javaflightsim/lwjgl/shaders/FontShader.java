@@ -24,8 +24,8 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class FontShader extends ShaderProgram {
 
-	private static final String VERTEX_FILE = SHADER_ROOT_PATH + "fontVertexShader.txt";
-	private static final String FRAGMENT_FILE = SHADER_ROOT_PATH + "fontFragmentShader.txt";
+	private static final String VERTEX_FILE = SHADER_ROOT_PATH + "fontVertexShader" + SHADER_EXTENSION;
+	private static final String FRAGMENT_FILE = SHADER_ROOT_PATH + "fontFragmentShader" + SHADER_EXTENSION;
 	
 	private int location_color;
 	private int location_translation;

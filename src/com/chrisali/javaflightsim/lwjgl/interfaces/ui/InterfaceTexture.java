@@ -26,10 +26,12 @@ public class InterfaceTexture {
 	private int texture;
 	private Vector2f position;
 	private Vector2f scale;
+	private float rotation;
 	
-	public InterfaceTexture(int texture, Vector2f position, Vector2f scale) {
+	public InterfaceTexture(int texture, Vector2f position, float rotation, Vector2f scale) {
 		this.texture = texture;
 		this.position = position;
+		this.rotation = rotation;
 		this.scale = scale;
 	}
 
@@ -39,6 +41,22 @@ public class InterfaceTexture {
 
 	public Vector2f getPosition() {
 		return position;
+	}
+	
+	public void setPosition(Vector2f position) {
+		this.position = position;
+	}
+
+	public float getRotation() {
+		return rotation;
+	}
+
+	public void setRotation(float rotation) {
+		this.rotation = rotation;
+	}
+
+	public void setScale(Vector2f scale) {
+		this.scale = scale;
 	}
 
 	public Vector2f getScale() {

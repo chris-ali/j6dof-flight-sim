@@ -56,8 +56,9 @@ public class InterfaceRenderer {
 			GL13.glActiveTexture(GL13.GL_TEXTURE0);
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, interfaceTexture.getTexture());
 			
-			Matrix4f matrix = RenderingUtilities.createTransformationMatrix(interfaceTexture.getPosition(), 
-					interfaceTexture.getScale());
+			Matrix4f matrix = RenderingUtilities.createTransformationMatrix(interfaceTexture.getPosition(),
+																			interfaceTexture.getRotation(),
+																			interfaceTexture.getScale());
 			shader.loadTransformation(matrix);
 			
 			GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, quad.getVertexCount());

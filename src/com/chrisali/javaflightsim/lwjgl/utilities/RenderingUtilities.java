@@ -43,8 +43,30 @@ public class RenderingUtilities {
 	public static Matrix4f createTransformationMatrix(Vector2f translation, Vector2f scale) {
 		Matrix4f matrix = new Matrix4f();
 		matrix.setIdentity();
+		
 		Matrix4f.translate(translation, matrix, matrix);
 		Matrix4f.scale(new Vector3f(scale.x, scale.y, 1f), matrix, matrix);
+		
+		return matrix;
+	}
+	
+	/**
+	 * Creates a transformation matrix for 2D interface items using a 2D Vector for translation and scale
+	 * and a float for rotation (degrees)
+	 * 
+	 * @param translation
+	 * @param rotation
+	 * @param scale
+	 * @return 4D transformation matrix
+	 */
+	public static Matrix4f createTransformationMatrix(Vector2f translation, float rotation, Vector2f scale) {
+		Matrix4f matrix = new Matrix4f();
+		matrix.setIdentity();
+		
+		Matrix4f.translate(translation, matrix, matrix);
+		Matrix4f.rotate((float) Math.toRadians(rotation), new Vector3f(0,0,1), matrix, matrix);
+		Matrix4f.scale(new Vector3f(scale.x, scale.y, 1f), matrix, matrix);
+		
 		return matrix;
 	}
 	

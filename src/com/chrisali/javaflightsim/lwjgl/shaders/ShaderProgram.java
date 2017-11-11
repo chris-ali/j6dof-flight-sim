@@ -39,7 +39,8 @@ public abstract class ShaderProgram {
 	
 	private static final Logger logger = LogManager.getLogger(ShaderProgram.class);
 	
-	protected static final String SHADER_ROOT_PATH = "/com/chrisali/javaflightsim/lwjgl/shaders/"; 
+	protected static final String SHADER_ROOT_PATH = "/com/chrisali/javaflightsim/lwjgl/shaders/";
+	protected static final String SHADER_EXTENSION = ".txt";
 	
 	private int programID;
 	private int vertexShaderID;

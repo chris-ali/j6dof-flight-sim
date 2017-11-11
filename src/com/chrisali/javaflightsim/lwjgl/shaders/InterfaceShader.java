@@ -23,8 +23,8 @@ import org.lwjgl.util.vector.Matrix4f;
 
 public class InterfaceShader extends ShaderProgram {
 	
-	private static final String VERTEX_FILE = SHADER_ROOT_PATH + "interfaceVertexShader.txt";
-	private static final String FRAGMENT_FILE = SHADER_ROOT_PATH + "interfaceFragmentShader.txt";
+	private static final String VERTEX_FILE = SHADER_ROOT_PATH + "interfaceVertexShader" + SHADER_EXTENSION;
+	private static final String FRAGMENT_FILE = SHADER_ROOT_PATH + "interfaceFragmentShader" + SHADER_EXTENSION;
      
     private int location_transformationMatrix;
  

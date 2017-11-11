@@ -32,8 +32,8 @@ import com.chrisali.javaflightsim.lwjgl.utilities.RenderingUtilities;
 
 public class StaticShader extends ShaderProgram {
 
-	private static final String VERTEX_FILE = SHADER_ROOT_PATH + "staticVertexShader.txt";
-	private static final String FRAGMENT_FILE = SHADER_ROOT_PATH + "staticFragmentShader.txt";
+	private static final String VERTEX_FILE = SHADER_ROOT_PATH + "staticVertexShader" + SHADER_EXTENSION;
+	private static final String FRAGMENT_FILE = SHADER_ROOT_PATH + "staticFragmentShader" + SHADER_EXTENSION;
 	
 	private int location_transformationMatrix;
 	private int location_projectionMatrix;
