@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.simulation.interfaces;
+package com.chrisali.javaflightsim.interfaces;
 
 /**
  * Interface to support various implementations of an OTW (out-the-window) display

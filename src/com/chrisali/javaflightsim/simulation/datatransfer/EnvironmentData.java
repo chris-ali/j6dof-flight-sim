@@ -28,10 +28,10 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.chrisali.javaflightsim.interfaces.OTWWorld;
+import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.simulation.interfaces.OTWWorld;
-import com.chrisali.javaflightsim.simulation.interfaces.Steppable;
 
 /**
  *	Interacts with {@link LWJGLWorld} and any registered listeners to pass data from the out the window display back to

@@ -26,15 +26,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.chrisali.javaflightsim.interfaces.OTWWorld;
+import com.chrisali.javaflightsim.interfaces.SimulationController;
+import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.simulation.interfaces.OTWWorld;
-import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
-import com.chrisali.javaflightsim.simulation.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -51,6 +51,8 @@ public class SimulationRunner implements Runnable {
 	private static final Logger logger = LogManager.getLogger(SimulationRunner.class);
 	private static final int TO_MILLISEC = 1000;
 
+	private SimulationController simController;
+	
 	private FlightControls flightControls;
 	private Integrate6DOFEquations simulation;
 	private FlightData flightData;
@@ -59,7 +61,7 @@ public class SimulationRunner implements Runnable {
 	private Map<IntegratorConfig, Double> integratorConfig;
 	private Set<Options> options;	
 		
-	private AtomicInteger timeMS;
+	private AtomicInteger timeMS = new AtomicInteger(0);
 	private int frameStepMS;
 	private int endTimeMS;
 	
@@ -72,26 +74,19 @@ public class SimulationRunner implements Runnable {
 	 * @param simController
 	 */
 	public SimulationRunner(SimulationController simController) {
+		this.simController = simController;
 		
 		SimulationConfiguration configuration = simController.getConfiguration();
 		integratorConfig = configuration.getIntegratorConfig();
 		options = configuration.getSimulationOptions();
 		
+		configureSimulationTime();
+		
 		logger.debug("Initializing flight controls...");
-		flightControls = new FlightControls(simController, this);
+		flightControls = new FlightControls(simController, timeMS);
 		
 		logger.debug("Initializing simulation...");
 		simulation = new Integrate6DOFEquations(flightControls, configuration);
-						
-		// Set up running parameters for simulation
-		timeMS = new AtomicInteger(integratorConfig.get(IntegratorConfig.STARTTIME).intValue() * TO_MILLISEC);
-		frameStepMS = (int) (integratorConfig.get(IntegratorConfig.DT) * TO_MILLISEC);
-				
-		// Run forever as a pilot in the loop simulation 
-		if (!options.contains(Options.ANALYSIS_MODE) && options.contains(Options.UNLIMITED_FLIGHT))
-			endTimeMS = Integer.MAX_VALUE;
-		else
-			endTimeMS = integratorConfig.get(IntegratorConfig.ENDTIME).intValue() * TO_MILLISEC;
 	}
 	
 	/**
@@ -116,11 +111,30 @@ public class SimulationRunner implements Runnable {
 	}
 	
 	/**
+	 * Sets running parameters (start/end time and frame step time) for the timulation. Time is kept as an AtomicInteger to ensure
+	 * atomic incrementation
+	 */
+	public void configureSimulationTime() {
+		// Set up running parameters for simulation
+		timeMS = new AtomicInteger(integratorConfig.get(IntegratorConfig.STARTTIME).intValue() * TO_MILLISEC);
+		frameStepMS = (int) (integratorConfig.get(IntegratorConfig.DT) * TO_MILLISEC);
+		
+		// Run forever as a pilot in the loop simulation 
+		if (!options.contains(Options.ANALYSIS_MODE) && options.contains(Options.UNLIMITED_FLIGHT))
+			endTimeMS = Integer.MAX_VALUE;
+		else
+			endTimeMS = integratorConfig.get(IntegratorConfig.ENDTIME).intValue() * TO_MILLISEC;		
+	}
+	
+	/**
 	 * Main runner loop where {@link Steppable} components are step updated each iteration of the loop depending on the current value of time
 	 */
 	@Override
 	public void run() {
 		running = true;
+		
+		if (options.contains(Options.CONSOLE_DISPLAY))
+			simController.initializeConsole();
 		
 		while (running && timeMS.get() < endTimeMS) {
 			try {
@@ -155,6 +169,9 @@ public class SimulationRunner implements Runnable {
 				continue;
 			} 
 		}
+		
+		if (options.contains(Options.ANALYSIS_MODE))
+			simController.plotSimulation();
 		
 		running = false;
 	}

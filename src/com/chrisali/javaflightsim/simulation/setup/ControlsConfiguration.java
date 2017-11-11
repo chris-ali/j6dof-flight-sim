@@ -21,7 +21,7 @@ package com.chrisali.javaflightsim.simulation.setup;
 
 import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.interfaces.Saveable;
+import com.chrisali.javaflightsim.interfaces.Saveable;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 

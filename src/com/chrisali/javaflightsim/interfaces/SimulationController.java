@@ -1,4 +1,4 @@
-package com.chrisali.javaflightsim.simulation.interfaces;
+package com.chrisali.javaflightsim.interfaces;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -17,6 +17,8 @@ public interface SimulationController {
 	public SimulationConfiguration getConfiguration();
 	
 	public void plotSimulation();
+	
+	public void initializeConsole();
 	
 	public boolean isPlotWindowVisible();
 	

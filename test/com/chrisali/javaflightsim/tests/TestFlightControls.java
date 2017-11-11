@@ -19,10 +19,12 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.tests;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Events;
-import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -45,7 +47,7 @@ public class TestFlightControls implements Runnable {
 		Events.init(configuation);
 		simController = new LWJGLSwingSimulationController(configuation);
 		configuation.getSimulationOptions().add(Options.USE_CH_CONTROLS);
-		flightControls = new FlightControls(simController);
+		flightControls = new FlightControls(simController, new AtomicInteger(0));
 	}
 	
 	@Override

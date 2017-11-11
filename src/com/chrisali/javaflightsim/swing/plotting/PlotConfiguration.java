@@ -22,8 +22,8 @@ package com.chrisali.javaflightsim.swing.plotting;
 import java.util.List;
 import java.util.Map;
 
+import com.chrisali.javaflightsim.interfaces.Saveable;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
-import com.chrisali.javaflightsim.simulation.interfaces.Saveable;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 

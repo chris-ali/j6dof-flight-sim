@@ -22,11 +22,13 @@ package com.chrisali.javaflightsim.simulation.flightcontrols;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.simulation.SimulationRunner;
+import com.chrisali.javaflightsim.interfaces.SimulationController;
+import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.AbstractController;
@@ -34,8 +36,6 @@ import com.chrisali.javaflightsim.simulation.hidcontrollers.Events;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Joystick;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Keyboard;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Mouse;
-import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
-import com.chrisali.javaflightsim.simulation.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -60,7 +60,7 @@ public class FlightControls implements Steppable, FlightDataListener {
 	//private Map<FlightDataType, Double> flightData;
 	
 	private SimulationConfiguration configuration; 
-	SimulationRunner runner;
+	private AtomicInteger simTimeMS;
 	
 	private AbstractController hidController;
 	private Keyboard hidKeyboard;
@@ -68,14 +68,15 @@ public class FlightControls implements Steppable, FlightDataListener {
 	
 	/**
 	 * Constructor for {@link FlightControls}; {@link SimulationConfiguration} argument to initialize {@link IntegratorConfig} 
-	 * EnumMap, the {@link Options} EnumSet, as well as to update simulation options and call simulation methods
+	 * EnumMap, the {@link Options} EnumSet, as well as to update simulation options and call simulation methods; simTimeMS
+	 * argument provides simulation time needed to generate analysis control inputs
 	 * 
 	 * @param simController
 	 */
-	public FlightControls(SimulationController simController, SimulationRunner runner) {
+	public FlightControls(SimulationController simController, AtomicInteger simTimeMS) {
 		logger.debug("Initializing flight controls...");
 				
-		this.runner = runner;
+		this.simTimeMS = simTimeMS;
 		
 		configuration = simController.getConfiguration();
 		options = configuration.getSimulationOptions();
@@ -114,7 +115,7 @@ public class FlightControls implements Steppable, FlightDataListener {
 				if (hidKeyboard != null)
 					hidKeyboard.calculateControllerValues(flightControls);
 			} else {
-				analysisControls.updateFlightControls(runner.getTimeMS(), flightControls, trimflightControls);
+				analysisControls.updateFlightControls(simTimeMS, flightControls, trimflightControls);
 			}
 			
 			limitControls(flightControls);

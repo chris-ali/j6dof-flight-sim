@@ -217,9 +217,6 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 					tabPane.removeAll();
 					
 					Map<String, SubPlotBundle> subPlotBundles = plotConfiguration.getSubPlotBundles();
-
-					// Pause a bit to give SimulationPlot object time to initialize 
-					Thread.sleep(5000);
 					
 					// Copy to thread-safe ArrayList
 					CopyOnWriteArrayList<Map<SimOuts, Double>> cowLogsOut = new CopyOnWriteArrayList<>(logsOut);

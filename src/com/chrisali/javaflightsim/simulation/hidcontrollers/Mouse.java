@@ -22,8 +22,8 @@ package com.chrisali.javaflightsim.simulation.hidcontrollers;
 import java.util.ArrayList;
 import java.util.Map;
 
+import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
-import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 
 import net.java.games.input.Component;
 import net.java.games.input.Component.Identifier;

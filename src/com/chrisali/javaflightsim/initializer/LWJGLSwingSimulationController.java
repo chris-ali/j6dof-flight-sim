@@ -28,6 +28,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.simulation.SimulationRunner;
@@ -35,7 +36,6 @@ import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
-import com.chrisali.javaflightsim.simulation.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
@@ -125,6 +125,14 @@ public class LWJGLSwingSimulationController implements SimulationController {
 			logger.debug("Running simulation in Normal Mode...");
 			initializeNormalMode();
 		}
+				
+		if (runner != null) {
+			logger.debug("Initializaing and starting simulation runner thread...");
+			runnerThread = new Thread(runner);
+			runnerThread.start();			
+		} else {
+			logger.error("Simulation Runner has not been initialized yet! Please do so before starting the runner thread");
+		}
 	}
 	
 	/**
@@ -149,18 +157,6 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		try {						
 			logger.debug("Initializing simulation runner...");
 			runner = new SimulationRunner(this);
-			
-			logger.debug("Initializaing and starting simulation runner thread...");
-			runnerThread = new Thread(runner);
-			runnerThread.start();
-			
-			if (configuration.getSimulationOptions().contains(Options.CONSOLE_DISPLAY)) {
-				logger.debug("Starting flight data console...");
-				initializeConsole();
-			}
-			
-			logger.debug("Generating plots...");
-			plotSimulation();
 		} catch (Exception ey) {
 			logger.error("An error occurred while running in analysis mose!", ey);
 		}
@@ -181,16 +177,6 @@ public class LWJGLSwingSimulationController implements SimulationController {
 			runner = new SimulationRunner(this, outTheWindow);
 			runner.addFlightDataListener(outTheWindow);
 			runner.addFlightDataListener(getGuiFrame().getInstrumentPanel());
-			
-			if (configuration.getSimulationOptions().contains(Options.CONSOLE_DISPLAY)) {
-				logger.debug("Starting flight data console...");
-				initializeConsole();
-			}
-			
-			logger.debug("Initializaing and starting simulation runner thread...");
-			runnerThread = new Thread(runner);
-			runnerThread.start();
-							
 		} catch (Exception e) {
 			logger.error("An error occurred while starting normal mode!", e);
 		}
@@ -248,8 +234,11 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	/**
 	 * Initializes the raw data console window and starts the auto-refresh of its contents
 	 */
+	@Override
 	public void initializeConsole() {
 		try {
+			logger.debug("Starting flight data console...");
+			
 			if(consoleTablePanel != null)
 				consoleTablePanel.setVisible(false);
 			
