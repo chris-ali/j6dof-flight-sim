@@ -58,10 +58,12 @@ public class TestInstrumentPanel {
 		configuration.getSimulationOptions().add(Options.UNLIMITED_FLIGHT);
 		configuration.getSimulationOptions().add(Options.USE_CH_CONTROLS);
 		
-		SimulationRunner runner = new SimulationRunner(controller);
+		SimulationRunner runner = new SimulationRunner(controller, null);
 		
 		InstrumentPanel panel = new InstrumentPanel();
 		runner.addFlightDataListener(panel);
+		
+		new Thread(runner).start();
 		
 		JFrame panelWindow = new JFrame("Instrument Panel Test");
 		panelWindow.setLayout(new BorderLayout());
@@ -69,7 +71,7 @@ public class TestInstrumentPanel {
 		
 		panelWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		panelWindow.setVisible(true);
-		panelWindow.setSize(810, 500);
+		panelWindow.setSize(950, 630);
 		panelWindow.setResizable(false);
 	}
 }

@@ -100,13 +100,15 @@ public class SimulationRunner implements Runnable {
 	public SimulationRunner(SimulationController simController, OTWWorld outTheWindow) {
 		this(simController);
 		
-		if (!options.contains(Options.ANALYSIS_MODE) && outTheWindow != null) {
+		if (!options.contains(Options.ANALYSIS_MODE)) {
 			logger.debug("Initializing flight data transfer...");
 			flightData = new FlightData(simulation);
 			
-			logger.debug("Initializing environment data transfer...");
-			environmentData = new EnvironmentData(outTheWindow);
-			environmentData.addEnvironmentDataListener(simulation);
+			if (outTheWindow != null) {
+				logger.debug("Initializing environment data transfer...");
+				environmentData = new EnvironmentData(outTheWindow);
+				environmentData.addEnvironmentDataListener(simulation);				
+			}
 		}
 	}
 	
