@@ -29,17 +29,15 @@ import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 
 /**
- * Port of the Swing Altimeter object created in com.chrisali.javaflightsim.swing.instrumentpanel into the LWJGL engine
+ * Port of the Swing AirspeedIndicator object created in com.chrisali.javaflightsim.swing.instrumentpanel into the LWJGL engine
  * 
  * @author Christopher
  *
  */
-public class Altimeter extends AbstractGauge {
+public class AirspeedIndicator extends AbstractGauge {
 	
-	public static final String BACK          = "Altimeter_Back";
-	public static final String POINTER_100   = "Altimeter_Pointer_100";
-	public static final String POINTER_1000  = "Altimeter_Pointer_1000";
-	public static final String POINTER_10000 = "Altimeter_Pointer_10000";
+	public static final String BACK    = "Airspeed_Back";
+	public static final String POINTER = "Airspeed_Pointer";
 
 	/**
 	 * Constructor that keeps a heiarchy of all texture names part of this object but does not load them into memory; 
@@ -48,44 +46,33 @@ public class Altimeter extends AbstractGauge {
 	 * @param position - center of the gauge; (-1.0, 1.0) is the top left of the screen, (1.0, -1.0) is the bottom right
 	 * @param scale
 	 */
-	public Altimeter(Vector2f position, float scale) {
+	public AirspeedIndicator(Vector2f position, float scale) {
 		super(position, scale);
-
+		
 		gaugeTextures = new LinkedHashMap<>();
 		gaugeTextures.put(BACK, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
-		gaugeTextures.put(POINTER_10000, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
-		gaugeTextures.put(POINTER_1000, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
-		gaugeTextures.put(POINTER_100, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
+		gaugeTextures.put(POINTER, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 	}
 	
 	@Override
 	public void setGaugeValue(Map<FlightDataType, Double> flightData) {
 		if (flightData != null) {
-			double altitude = flightData.get(FlightDataType.ALTITUDE);
+			double airspeed = flightData.get(FlightDataType.IAS);
+			double rotationAngle = 0.0;
 			
-			double
-				angleStep100ft   = (2 * Math.PI)   / 10.0,
-				angleStep1000ft  = angleStep100ft  / 10.0,
-				angleStep10000ft = angleStep1000ft / 10.0;
-			
-			double
-			    angleRad100ft   = -((altitude % 1000)  / 100)  * angleStep100ft,
-	    		angleRad1000ft  = -((altitude % 10000) / 100)  * angleStep1000ft,
-				angleRad10000ft = -((altitude % 100000) / 100) * angleStep10000ft;
-			
-			InterfaceTexture 
-				pointer100ft   = gaugeTextures.get(POINTER_100),
-				pointer1000ft  = gaugeTextures.get(POINTER_1000),
-				pointer10000ft = gaugeTextures.get(POINTER_10000);
+			if (airspeed <= 200 && airspeed > 0) {
+	    		if (airspeed < 30)
+	    			rotationAngle = - (2.0 * Math.PI / 200) * (airspeed/3); // Change scale so that gauge points up at 0 kts
+	    		else
+	    			rotationAngle = - (2.0 * Math.PI / 200) * (airspeed-20);
+			} else {
+				rotationAngle = - (2.0 * Math.PI / 200) * 180;
+			}
 
-			if (pointer100ft != null)
-				pointer100ft.setRotation((float)   Math.toDegrees(angleRad100ft));
+	    	InterfaceTexture pointer = gaugeTextures.get(POINTER);
 
-			if (pointer1000ft != null)
-				pointer1000ft.setRotation((float)  Math.toDegrees(angleRad1000ft));
-
-			if (pointer10000ft != null)
-				pointer10000ft.setRotation((float) Math.toDegrees(angleRad10000ft));
+			if (pointer != null)
+				pointer.setRotation((float) Math.toDegrees(rotationAngle));		
 		}
 	}
 }

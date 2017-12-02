@@ -55,16 +55,15 @@ public abstract class AbstractGauge {
 		
 	/**
 	 * Constructor that keeps a heiarchy of all texture names part of this object but does not load them into memory; 
-	 * call {@link AbstractGauge#loadTextures(Loader)} afterwards
+	 * call {@link AbstractGauge#loadTextures(Loader)} afterwards; texture files should be of PNG type 
 	 * 
 	 * @param position - center of the gauge; (-1.0, 1.0) is the top left of the screen, (1.0, -1.0) is the bottom right
 	 * @param scale
-	 * @param textureNames - files should be PNG in Resources/Gauges 
+	 * @param 
 	 */
-	public AbstractGauge(Vector2f position, float scale, Map<String, InterfaceTexture> gaugeTextures) {
+	public AbstractGauge(Vector2f position, float scale) {
 		this.position = position;
 		this.scale = scale;
-		this.gaugeTextures = gaugeTextures; 
 	}
 
 	/**
@@ -80,18 +79,17 @@ public abstract class AbstractGauge {
 	 * @param loader
 	 */
 	public void loadTextures(Loader loader) {
-		if (gaugeTextures.size() == 0) {
+		if (gaugeTextures == null || gaugeTextures.size() == 0) {
 			logger.error("No texture information stored in class!");
 			return;
 		}
 		
 		logger.debug("Loading gauge's associated textures...");
-		
+
 		for (Map.Entry<String, InterfaceTexture> entry : gaugeTextures.entrySet()) {
 			Texture texture = loader.loadAndGetTexture(entry.getKey(), OTWDirectories.GAUGES.toString()); 
 
-			InterfaceTexture interFaceTexture = entry.getValue();	
-			interFaceTexture.setTexture(texture.getTextureID());
+			entry.getValue().setTexture(texture.getTextureID());
 		}
 	}
 	

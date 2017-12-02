@@ -49,7 +49,13 @@ import com.chrisali.javaflightsim.lwjgl.interfaces.font.FontType;
 import com.chrisali.javaflightsim.lwjgl.interfaces.font.GUIText;
 import com.chrisali.javaflightsim.lwjgl.interfaces.font.TextMaster;
 import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.AbstractGauge;
+import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.AirspeedIndicator;
 import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.Altimeter;
+import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.ArtificialHorizon;
+import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.DirectionalGyro;
+import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.Tachometer;
+import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.TurnCoordinator;
+import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.VerticalSpeed;
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.lwjgl.models.TexturedModel;
 import com.chrisali.javaflightsim.lwjgl.particles.Cloud;
@@ -318,13 +324,34 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		texts.put("Paused", new GUIText("PAUSED", 1.15f, font, new Vector2f(0.5f, 0.5f), 1f, false, new Vector3f(1,0,0)));
 		
 		// Instrument Panel Gauges
-		Altimeter altimeter = new Altimeter(new Vector2f(0.0f, 0.0f), 0.125f);
-		altimeter.loadTextures(loader);
-		
+		interfaceTextures = new LinkedList<>();
 		gauges = new ArrayList<>();
-		gauges.add(altimeter);
+
+		AbstractGauge abstractGauge = new AirspeedIndicator(new Vector2f(-0.8f, -0.25f), 0.125f);
+		gauges.add(abstractGauge);
 		
-		interfaceTextures = new LinkedList<>(altimeter.getTextures());
+		abstractGauge = new ArtificialHorizon(new Vector2f(-0.6f, -0.25f), 0.125f);
+		gauges.add(abstractGauge);
+		
+		abstractGauge = new Altimeter(new Vector2f(-0.4f, -0.25f), 0.125f);
+		gauges.add(abstractGauge);
+		
+		abstractGauge = new TurnCoordinator(new Vector2f(-0.8f, -0.5f), 0.125f);
+		gauges.add(abstractGauge);
+				
+		abstractGauge = new DirectionalGyro(new Vector2f(-0.6f, -0.5f), 0.125f);
+		gauges.add(abstractGauge);
+		
+		abstractGauge = new VerticalSpeed(new Vector2f(-0.4f, -0.5f), 0.125f);
+		gauges.add(abstractGauge);
+		
+		abstractGauge = new Tachometer(new Vector2f(-0.2f, -0.25f), 0.125f);
+		gauges.add(abstractGauge);
+				
+		for (AbstractGauge gauge : gauges) {
+			gauge.loadTextures(loader);
+			interfaceTextures.addAll(gauge.getTextures());
+		}
 		
 		//==================================== Audio =========================================================
 		

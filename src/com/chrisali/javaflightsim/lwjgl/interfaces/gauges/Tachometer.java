@@ -29,17 +29,16 @@ import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 
 /**
- * Port of the Swing Altimeter object created in com.chrisali.javaflightsim.swing.instrumentpanel into the LWJGL engine
+ * Port of the Swing Tachometer object created in com.chrisali.javaflightsim.swing.instrumentpanel into the LWJGL engine
  * 
  * @author Christopher
  *
  */
-public class Altimeter extends AbstractGauge {
+public class Tachometer extends AbstractGauge {
 	
-	public static final String BACK          = "Altimeter_Back";
-	public static final String POINTER_100   = "Altimeter_Pointer_100";
-	public static final String POINTER_1000  = "Altimeter_Pointer_1000";
-	public static final String POINTER_10000 = "Altimeter_Pointer_10000";
+	public static final String BACK      = "Tach_Back";
+	public static final String POINTER_L = "Tach_Pointer_L";
+	public static final String POINTER_R = "Tach_Pointer_R";
 
 	/**
 	 * Constructor that keeps a heiarchy of all texture names part of this object but does not load them into memory; 
@@ -48,44 +47,42 @@ public class Altimeter extends AbstractGauge {
 	 * @param position - center of the gauge; (-1.0, 1.0) is the top left of the screen, (1.0, -1.0) is the bottom right
 	 * @param scale
 	 */
-	public Altimeter(Vector2f position, float scale) {
+	public Tachometer(Vector2f position, float scale) {
 		super(position, scale);
 
 		gaugeTextures = new LinkedHashMap<>();
 		gaugeTextures.put(BACK, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
-		gaugeTextures.put(POINTER_10000, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
-		gaugeTextures.put(POINTER_1000, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
-		gaugeTextures.put(POINTER_100, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
+		gaugeTextures.put(POINTER_R, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
+		gaugeTextures.put(POINTER_L, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 	}
 	
 	@Override
 	public void setGaugeValue(Map<FlightDataType, Double> flightData) {
 		if (flightData != null) {
-			double altitude = flightData.get(FlightDataType.ALTITUDE);
-			
-			double
-				angleStep100ft   = (2 * Math.PI)   / 10.0,
-				angleStep1000ft  = angleStep100ft  / 10.0,
-				angleStep10000ft = angleStep1000ft / 10.0;
-			
-			double
-			    angleRad100ft   = -((altitude % 1000)  / 100)  * angleStep100ft,
-	    		angleRad1000ft  = -((altitude % 10000) / 100)  * angleStep1000ft,
-				angleRad10000ft = -((altitude % 100000) / 100) * angleStep10000ft;
-			
-			InterfaceTexture 
-				pointer100ft   = gaugeTextures.get(POINTER_100),
-				pointer1000ft  = gaugeTextures.get(POINTER_1000),
-				pointer10000ft = gaugeTextures.get(POINTER_10000);
+			double rpmLeft  = flightData.get(FlightDataType.RPM_1),
+			       rpmRight = flightData.get(FlightDataType.RPM_2);
+							
+			double leftRotationAngle  = -Math.PI/1.45,
+				   rightRotationAngle = -Math.PI/1.45;
+						
+			if (rpmLeft <= 3500)
+				leftRotationAngle  = - ((1.8 * Math.PI / 4300) * rpmLeft) - Math.PI/1.45;
+			else if (rpmLeft > 3500)
+				leftRotationAngle  = - ((1.8 * Math.PI / 4300) * 3500) - Math.PI/1.45;
 
-			if (pointer100ft != null)
-				pointer100ft.setRotation((float)   Math.toDegrees(angleRad100ft));
+			if (rpmRight <= 3500)
+	    		rightRotationAngle = - ((1.8 * Math.PI / 4300) * rpmRight) - Math.PI/1.45;
+			else if (rpmRight > 3500)
+				rightRotationAngle = - ((1.8 * Math.PI / 4300) * 3500) - Math.PI/1.45;
+			
+			InterfaceTexture pointerLeft  = gaugeTextures.get(POINTER_L),
+							 pointerRight = gaugeTextures.get(POINTER_R);
 
-			if (pointer1000ft != null)
-				pointer1000ft.setRotation((float)  Math.toDegrees(angleRad1000ft));
+			if (pointerLeft != null)
+				pointerLeft.setRotation((float)  Math.toDegrees(leftRotationAngle));
 
-			if (pointer10000ft != null)
-				pointer10000ft.setRotation((float) Math.toDegrees(angleRad10000ft));
+			if (pointerRight != null)
+				pointerRight.setRotation((float) Math.toDegrees(rightRotationAngle));
 		}
 	}
 }
