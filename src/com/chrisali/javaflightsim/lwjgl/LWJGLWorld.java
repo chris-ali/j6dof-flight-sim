@@ -23,6 +23,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -47,11 +48,15 @@ import com.chrisali.javaflightsim.lwjgl.entities.Ownship;
 import com.chrisali.javaflightsim.lwjgl.interfaces.font.FontType;
 import com.chrisali.javaflightsim.lwjgl.interfaces.font.GUIText;
 import com.chrisali.javaflightsim.lwjgl.interfaces.font.TextMaster;
+import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.AbstractGauge;
+import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.Altimeter;
+import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.lwjgl.models.TexturedModel;
 import com.chrisali.javaflightsim.lwjgl.particles.Cloud;
 import com.chrisali.javaflightsim.lwjgl.particles.ParticleMaster;
 import com.chrisali.javaflightsim.lwjgl.particles.ParticleTexture;
 import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
+import com.chrisali.javaflightsim.lwjgl.renderengine.InterfaceRenderer;
 import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.lwjgl.renderengine.MasterRenderer;
 import com.chrisali.javaflightsim.lwjgl.renderengine.OBJLoader;
@@ -83,11 +88,12 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	private static final Logger logger = LogManager.getLogger(LWJGLWorld.class);
 	
 	private Loader loader;
-	private MasterRenderer masterRenderer;
-	private List<Light> lights;
 	
 	private LWJGLSwingSimulationController controller;
 	private SimulationConfiguration configuration;
+	
+	private MasterRenderer masterRenderer;
+	private List<Light> lights;
 	
 	// Sound Fields
 	private Map<SoundCategory, Double> soundValues = new EnumMap<>(SoundCategory.class);
@@ -103,8 +109,13 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	private Vector3f ownshipRotation;
 	private Camera camera;
 	
-	private Map<String, GUIText> texts = new HashMap<>();
+	private Map<String, GUIText> texts = new HashMap<>();;
+	private List<InterfaceTexture> interfaceTextures;
+	private InterfaceRenderer interfaceRenderer;
 	
+	// Gauges
+	private List<AbstractGauge> gauges;
+		
 	private boolean running = false;
 	
 	/**
@@ -155,6 +166,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 												lights, camera, new Vector4f(0, 1, 0, 0));
 				ParticleMaster.renderParticles(camera);
 				TextMaster.render(texts);
+				interfaceRenderer.render(interfaceTextures);
 				
 				DisplayManager.updateDisplay();
 				
@@ -214,9 +226,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		ParticleMaster.init(loader, masterRenderer.getProjectionMatrix());
 		TextMaster.init(loader);
 		
-		// Load all entities (lights, entities, particles, etc)
-		
-		logger.debug("Loading entities...");
+		interfaceRenderer = new InterfaceRenderer(loader);
 	}
 	
 	/**
@@ -230,6 +240,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		ParticleMaster.cleanUp();
 		TextMaster.cleanUp();
 		masterRenderer.cleanUp();
+		interfaceRenderer.cleanUp();
 		loader.cleanUp();
 		
 		DisplayManager.closeDisplay();
@@ -305,6 +316,15 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		FontType font = new FontType(loader, "ubuntu");
 		texts.put("FlightData", new GUIText("", 0.85f, font, new Vector2f(0, 0), 1f, true));
 		texts.put("Paused", new GUIText("PAUSED", 1.15f, font, new Vector2f(0.5f, 0.5f), 1f, false, new Vector3f(1,0,0)));
+		
+		// Instrument Panel Gauges
+		Altimeter altimeter = new Altimeter(new Vector2f(0.0f, 0.0f), 0.125f);
+		altimeter.loadTextures(loader);
+		
+		gauges = new ArrayList<>();
+		gauges.add(altimeter);
+		
+		interfaceTextures = new LinkedList<>(altimeter.getTextures());
 		
 		//==================================== Audio =========================================================
 		
@@ -409,6 +429,11 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 				soundValues.put(SoundCategory.PREV_STEP_FLAPS, receivedFlightData.get(FlightDataType.FLAPS));
 				soundValues.put(SoundCategory.PREV_STEP_GEAR, receivedFlightData.get(FlightDataType.GEAR));
 			} recordPrev ^= true; 
+			
+			if (gauges != null) {
+				for (AbstractGauge gauge : gauges)
+					gauge.setGaugeValue(receivedFlightData);
+			}
 		}
 	}
 }

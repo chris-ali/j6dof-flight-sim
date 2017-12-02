@@ -150,14 +150,31 @@ public class Loader {
 	 * 
 	 * @param fileName
 	 * @param directory
-	 * @return
+	 * @return texture ID
 	 */
 	public int loadTexture(String fileName, String directory) {
-		Texture texture = null;
+		int textureID = loadAndGetTexture(fileName, directory).getTextureID();
+		textureList.add(textureID);
 
+		return textureID;
+	}
+	
+	/**
+	 * Loads a texture into memory using SlikUtils png loader using a specific directory stemming from the ./Resources
+	 * directory. Sets anisotropic filtering for textures as well in this method. Returns the Texture obect directly so that
+	 * the file's properties can be used elsewhere
+	 * 
+	 * @param fileName
+	 * @param directory
+	 * @return Texture object
+	 */
+	public Texture loadAndGetTexture(String fileName, String directory) {
+		Texture texture = null;
+		
 		try {
 			texture = TextureLoader.getTexture("PNG",
 					new FileInputStream(OTWDirectories.RESOURCES.toString() + File.separator + directory + File.separator + fileName + OTWFiles.TEXTURE_EXT.toString()));
+		
 			GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
 			
@@ -172,16 +189,15 @@ public class Loader {
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+				
+			return texture;
 		} catch (IOException e) {
 			logger.error("Could not load texture: " + fileName + OTWFiles.TEXTURE_EXT.toString(), e);
 		}
-
-		int textureID = texture.getTextureID();
-		textureList.add(textureID);
-
-		return textureID;
+		
+		return texture;
 	}
-	
+		
 	public static void setUseAnisotropicFiltering(boolean useAnisotropicFiltering) {
 		Loader.useAnisotropicFiltering = useAnisotropicFiltering;
 	}

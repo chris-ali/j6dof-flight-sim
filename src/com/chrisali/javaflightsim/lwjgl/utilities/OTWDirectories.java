@@ -4,8 +4,9 @@
 package com.chrisali.javaflightsim.lwjgl.utilities;
 
 /**
- * @author root
- *
+ * Enumerated directory names for folders
+ * 
+ * @author Christopher Ali
  */
 public enum OTWDirectories {
 	
@@ -16,7 +17,8 @@ public enum OTWDirectories {
 	FONTS       ("Fonts"),
 	PARTICLES  	("Particles"),
     TERRAIN	  	("Terrain"),
-	WATER       ("Water");
+	WATER       ("Water"),
+	GAUGES		("Gauges");
 
 	private String directory;
 	

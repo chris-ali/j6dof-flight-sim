@@ -24,6 +24,7 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.lwjgl.entities.Camera;
+import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
 
 /**
  * Contains static methods to create view/transformation matrices and calculate barycentric coordicates  
@@ -64,8 +65,8 @@ public class RenderingUtilities {
 		matrix.setIdentity();
 		
 		Matrix4f.translate(translation, matrix, matrix);
+		Matrix4f.scale(new Vector3f(scale.x, scale.y * DisplayManager.getAspectRatio(), 1f), matrix, matrix);
 		Matrix4f.rotate((float) Math.toRadians(rotation), new Vector3f(0,0,1), matrix, matrix);
-		Matrix4f.scale(new Vector3f(scale.x, scale.y, 1f), matrix, matrix);
 		
 		return matrix;
 	}

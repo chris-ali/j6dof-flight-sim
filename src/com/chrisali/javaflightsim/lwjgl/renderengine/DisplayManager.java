@@ -159,4 +159,8 @@ public class DisplayManager {
 	public static void setFrameRateLimit(int frameRateLimit) {
 		DisplayManager.frameRateLimit = frameRateLimit;
 	}
+	
+	public static float getAspectRatio() {
+		return ((float)width)/((float)height);
+	}
 }

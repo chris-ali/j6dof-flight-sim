@@ -21,6 +21,12 @@ package com.chrisali.javaflightsim.lwjgl.interfaces.ui;
 
 import org.lwjgl.util.vector.Vector2f;
 
+/**
+ * Texture that is rendered directly on a quad flush with the display to show GUI information
+ * 
+ * @author Christopher
+ *
+ */
 public class InterfaceTexture {
 	
 	private int texture;
@@ -35,31 +41,19 @@ public class InterfaceTexture {
 		this.scale = scale;
 	}
 
-	public int getTexture() {
-		return texture;
-	}
+	public int getTexture() { return texture; }
 
-	public Vector2f getPosition() {
-		return position;
-	}
+	public void setTexture(int texture) { this.texture = texture; }
 	
-	public void setPosition(Vector2f position) {
-		this.position = position;
-	}
+	public Vector2f getPosition() { return position; }
+	
+	public void setPosition(Vector2f position) { this.position = position; }
+	
+	public float getRotation() { return rotation; }
 
-	public float getRotation() {
-		return rotation;
-	}
+	public void setRotation(float rotation) { this.rotation = rotation;	}
 
-	public void setRotation(float rotation) {
-		this.rotation = rotation;
-	}
+	public void setScale(Vector2f scale) { this.scale = scale; }
 
-	public void setScale(Vector2f scale) {
-		this.scale = scale;
-	}
-
-	public Vector2f getScale() {
-		return scale;
-	}
+	public Vector2f getScale() { return scale; }
 }
