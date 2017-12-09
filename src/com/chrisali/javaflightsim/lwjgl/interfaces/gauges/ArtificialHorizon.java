@@ -19,7 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.lwjgl.interfaces.gauges;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.lwjgl.util.vector.Vector2f;
@@ -27,6 +26,8 @@ import org.lwjgl.util.vector.Vector2f;
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Port of the Swing ArtificialHorizon object created in com.chrisali.javaflightsim.swing.instrumentpanel into the LWJGL engine
@@ -36,6 +37,7 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
  */
 public class ArtificialHorizon extends AbstractGauge {
 	
+	public static final String BASE          = "Gauge_Base";
 	public static final String RING          = "Gauge_Ring";
 	public static final String HORIZON_INNER = "AH_Horizon_Inner";
 	public static final String HORIZON_OUTER = "AH_Horizon_Outer";
@@ -48,10 +50,11 @@ public class ArtificialHorizon extends AbstractGauge {
 	 * @param position - center of the gauge; (-1.0, 1.0) is the top left of the screen, (1.0, -1.0) is the bottom right
 	 * @param scale
 	 */
-	public ArtificialHorizon(Vector2f position, float scale) {
+	@JsonCreator
+	public ArtificialHorizon(@JsonProperty("position") Vector2f position, @JsonProperty("scale") float scale) {
 		super(position, scale);
 		
-		gaugeTextures = new LinkedHashMap<>();
+		gaugeTextures.put(BASE, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(HORIZON_INNER, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(HORIZON_OUTER, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(POINTER, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
@@ -61,23 +64,31 @@ public class ArtificialHorizon extends AbstractGauge {
 	@Override
 	public void setGaugeValue(Map<FlightDataType, Double> flightData) {
 		if (flightData != null) {
-			double pitch = flightData.get(FlightDataType.PITCH);
-			double roll = flightData.get(FlightDataType.ROLL);
-						
-			if (pitch > 90)
-	            pitch = 90 - (pitch - 90);
-	        else if (pitch < -90)
-	            pitch = -90 + (-90 - pitch);
-	        			
+			double pitch = flightData.get(FlightDataType.PITCH)*-1 % 180;
+			double roll = flightData.get(FlightDataType.ROLL) % 360;
+			
+			// Handle upside down cases
+			if (pitch > 90) {				
+				pitch = 180 - pitch;
+				roll = (roll - 180) % 360;
+			} else if (pitch < -90) {
+				pitch = -180 - pitch;
+				roll = (roll + 180) % 360;
+			}
+				        			
 			InterfaceTexture horizonInner = gaugeTextures.get(HORIZON_INNER),
 							 horizonOuter = gaugeTextures.get(HORIZON_OUTER);
+			
+			// Account for horizon roll offset
+			float horizonPosX = (float)((pitch * 0.0025) * Math.sin(Math.toRadians(roll)));
+			float horizonPosY = (float)((pitch * 0.0025) * Math.cos(Math.toRadians(roll)));
 
-			if (horizonInner != null)
+			if (horizonInner != null) { 
+				horizonInner.setPosition(new Vector2f(position.x - horizonPosX, position.y + horizonPosY));
 				horizonInner.setRotation((float) roll);
-
+			}
 			if (horizonOuter != null)
 				horizonOuter.setRotation((float) roll);
-
 		}
 	}
 }

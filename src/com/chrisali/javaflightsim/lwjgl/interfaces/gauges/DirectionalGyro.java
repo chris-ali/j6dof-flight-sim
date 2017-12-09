@@ -19,7 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.lwjgl.interfaces.gauges;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.lwjgl.util.vector.Vector2f;
@@ -27,6 +26,8 @@ import org.lwjgl.util.vector.Vector2f;
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Port of the Swing DirectionalGyro object created in com.chrisali.javaflightsim.swing.instrumentpanel into the LWJGL engine
@@ -36,6 +37,7 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
  */
 public class DirectionalGyro extends AbstractGauge {
 	
+	public static final String BASE    = "Gauge_Base";
 	public static final String RING    = "Gauge_Ring";
 	public static final String CARD    = "DG_Card";
 	public static final String POINTER = "DG_Pointer";
@@ -47,10 +49,11 @@ public class DirectionalGyro extends AbstractGauge {
 	 * @param position - center of the gauge; (-1.0, 1.0) is the top left of the screen, (1.0, -1.0) is the bottom right
 	 * @param scale
 	 */
-	public DirectionalGyro(Vector2f position, float scale) {
+	@JsonCreator
+	public DirectionalGyro(@JsonProperty("position") Vector2f position, @JsonProperty("scale") float scale) {
 		super(position, scale);
 				
-		gaugeTextures = new LinkedHashMap<>();
+		gaugeTextures.put(BASE, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(RING, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(CARD, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(POINTER, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));

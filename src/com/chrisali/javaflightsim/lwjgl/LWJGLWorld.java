@@ -23,7 +23,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -49,13 +48,7 @@ import com.chrisali.javaflightsim.lwjgl.interfaces.font.FontType;
 import com.chrisali.javaflightsim.lwjgl.interfaces.font.GUIText;
 import com.chrisali.javaflightsim.lwjgl.interfaces.font.TextMaster;
 import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.AbstractGauge;
-import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.AirspeedIndicator;
-import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.Altimeter;
-import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.ArtificialHorizon;
-import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.DirectionalGyro;
-import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.Tachometer;
-import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.TurnCoordinator;
-import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.VerticalSpeed;
+import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.InstrumentPanel;
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.lwjgl.models.TexturedModel;
 import com.chrisali.javaflightsim.lwjgl.particles.Cloud;
@@ -76,6 +69,7 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.swing.GuiFrame;
 import com.chrisali.javaflightsim.swing.SimulationWindow;
 import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
@@ -90,7 +84,6 @@ import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
  */
 public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	
-	//Logging
 	private static final Logger logger = LogManager.getLogger(LWJGLWorld.class);
 	
 	private Loader loader;
@@ -118,9 +111,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	private Map<String, GUIText> texts = new HashMap<>();;
 	private List<InterfaceTexture> interfaceTextures;
 	private InterfaceRenderer interfaceRenderer;
-	
-	// Gauges
-	private List<AbstractGauge> gauges;
+	private InstrumentPanel panel;
 		
 	private boolean running = false;
 	
@@ -316,7 +307,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		
 		//=============================== Interface ==========================================================
 		
-		logger.debug("Generating on-screen text...");
+		logger.debug("Generating on-screen text and panel...");
 		
 		// Generates font and on screen text
 		FontType font = new FontType(loader, "ubuntu");
@@ -324,35 +315,11 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		texts.put("Paused", new GUIText("PAUSED", 1.15f, font, new Vector2f(0.5f, 0.5f), 1f, false, new Vector3f(1,0,0)));
 		
 		// Instrument Panel Gauges
-		interfaceTextures = new LinkedList<>();
-		gauges = new ArrayList<>();
-
-		AbstractGauge abstractGauge = new AirspeedIndicator(new Vector2f(-0.8f, -0.25f), 0.125f);
-		gauges.add(abstractGauge);
+		panel = FileUtilities.readInstrumentPanelConfiguration(configuration.getSelectedAircraft());
 		
-		abstractGauge = new ArtificialHorizon(new Vector2f(-0.6f, -0.25f), 0.125f);
-		gauges.add(abstractGauge);
-		
-		abstractGauge = new Altimeter(new Vector2f(-0.4f, -0.25f), 0.125f);
-		gauges.add(abstractGauge);
-		
-		abstractGauge = new TurnCoordinator(new Vector2f(-0.8f, -0.5f), 0.125f);
-		gauges.add(abstractGauge);
+		if (panel != null)
+			interfaceTextures = panel.loadAndGetTextures(loader, configuration.getSelectedAircraft());
 				
-		abstractGauge = new DirectionalGyro(new Vector2f(-0.6f, -0.5f), 0.125f);
-		gauges.add(abstractGauge);
-		
-		abstractGauge = new VerticalSpeed(new Vector2f(-0.4f, -0.5f), 0.125f);
-		gauges.add(abstractGauge);
-		
-		abstractGauge = new Tachometer(new Vector2f(-0.2f, -0.25f), 0.125f);
-		gauges.add(abstractGauge);
-				
-		for (AbstractGauge gauge : gauges) {
-			gauge.loadTextures(loader);
-			interfaceTextures.addAll(gauge.getTextures());
-		}
-		
 		//==================================== Audio =========================================================
 		
 		SoundCollection.initializeSounds(configuration);
@@ -457,8 +424,8 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 				soundValues.put(SoundCategory.PREV_STEP_GEAR, receivedFlightData.get(FlightDataType.GEAR));
 			} recordPrev ^= true; 
 			
-			if (gauges != null) {
-				for (AbstractGauge gauge : gauges)
+			if (panel != null) {
+				for (AbstractGauge gauge : panel.getGauges())
 					gauge.setGaugeValue(receivedFlightData);
 			}
 		}

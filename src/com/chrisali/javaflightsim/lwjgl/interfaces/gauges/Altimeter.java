@@ -19,7 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.lwjgl.interfaces.gauges;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.lwjgl.util.vector.Vector2f;
@@ -27,6 +26,8 @@ import org.lwjgl.util.vector.Vector2f;
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Port of the Swing Altimeter object created in com.chrisali.javaflightsim.swing.instrumentpanel into the LWJGL engine
@@ -35,7 +36,8 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
  *
  */
 public class Altimeter extends AbstractGauge {
-	
+
+	public static final String BASE          = "Gauge_Base";
 	public static final String BACK          = "Altimeter_Back";
 	public static final String POINTER_100   = "Altimeter_Pointer_100";
 	public static final String POINTER_1000  = "Altimeter_Pointer_1000";
@@ -48,10 +50,11 @@ public class Altimeter extends AbstractGauge {
 	 * @param position - center of the gauge; (-1.0, 1.0) is the top left of the screen, (1.0, -1.0) is the bottom right
 	 * @param scale
 	 */
-	public Altimeter(Vector2f position, float scale) {
+	@JsonCreator
+	public Altimeter(@JsonProperty("position") Vector2f position, @JsonProperty("scale") float scale) {
 		super(position, scale);
 
-		gaugeTextures = new LinkedHashMap<>();
+		gaugeTextures.put(BASE, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(BACK, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(POINTER_10000, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(POINTER_1000, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));

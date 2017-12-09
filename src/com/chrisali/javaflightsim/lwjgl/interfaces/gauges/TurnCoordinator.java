@@ -19,7 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.lwjgl.interfaces.gauges;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.lwjgl.util.vector.Vector2f;
@@ -27,6 +26,8 @@ import org.lwjgl.util.vector.Vector2f;
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Port of the Swing TurnCoordinator object created in com.chrisali.javaflightsim.swing.instrumentpanel into the LWJGL engine
@@ -36,6 +37,7 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
  */
 public class TurnCoordinator extends AbstractGauge {
 	
+	public static final String BASE     = "Gauge_Base";
 	public static final String BACK     = "TC_Back";
 	public static final String BALL     = "TC_Ball";
 	public static final String AIRCRAFT = "TC_Aircraft";
@@ -47,10 +49,11 @@ public class TurnCoordinator extends AbstractGauge {
 	 * @param position - center of the gauge; (-1.0, 1.0) is the top left of the screen, (1.0, -1.0) is the bottom right
 	 * @param scale
 	 */
-	public TurnCoordinator(Vector2f position, float scale) {
+	@JsonCreator
+	public TurnCoordinator(@JsonProperty("position") Vector2f position, @JsonProperty("scale") float scale) {
 		super(position, scale);
 		
-		gaugeTextures = new LinkedHashMap<>();
+		gaugeTextures.put(BASE, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(BACK, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(AIRCRAFT, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(BALL, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
@@ -62,8 +65,10 @@ public class TurnCoordinator extends AbstractGauge {
 			double slipAngle = flightData.get(FlightDataType.TURN_COORD);
 			double turnRate = flightData.get(FlightDataType.TURN_RATE);
 			
-			Vector2f ballPosition = new Vector2f(-(float)slipAngle, position.y);
-			double turnRateAngle = - ((turnRate % 1000)  / 100);
+			Vector2f ballPosition = new Vector2f((float)slipAngle*0.0625f + position.x, position.y);
+			
+			double turnRateAngle = (turnRate > 12) ? -60 : 
+								   (turnRate < -12) ? 60 : - turnRate * 5;
 			
 			InterfaceTexture pointerBall = gaugeTextures.get(BALL),
 							 pointerAircraft = gaugeTextures.get(AIRCRAFT);
@@ -72,7 +77,7 @@ public class TurnCoordinator extends AbstractGauge {
 				pointerBall.setPosition(ballPosition);
 
 			if (pointerAircraft != null)
-				pointerAircraft.setRotation((float)Math.toDegrees(turnRateAngle));
+				pointerAircraft.setRotation((float)turnRateAngle);
 		}
 	}
 }

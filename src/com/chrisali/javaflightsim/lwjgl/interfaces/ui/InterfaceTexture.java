@@ -34,6 +34,8 @@ public class InterfaceTexture {
 	private Vector2f scale;
 	private float rotation;
 	
+	public InterfaceTexture() {}
+	
 	public InterfaceTexture(int texture, Vector2f position, float rotation, Vector2f scale) {
 		this.texture = texture;
 		this.position = position;

@@ -1,0 +1,402 @@
+{
+  "gauges" : [ {
+    "type" : "AirspeedIndicator",
+    "position" : {
+      "x" : -0.9,
+      "y" : -0.25
+    },
+    "scale" : 0.125,
+    "gaugeTextures" : {
+      "Gauge_Base" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.9,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "Airspeed_Back" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.9,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "Airspeed_Pointer" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.9,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      }
+    }
+  }, {
+    "type" : "ArtificialHorizon",
+    "position" : {
+      "x" : -0.6,
+      "y" : -0.25
+    },
+    "scale" : 0.125,
+    "gaugeTextures" : {
+      "Gauge_Base" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.6,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "AH_Horizon_Inner" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.6,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "AH_Horizon_Outer" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.6,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "AH_Pointer" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.6,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "Gauge_Ring" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.6,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      }
+    }
+  }, {
+    "type" : "Altimeter",
+    "position" : {
+      "x" : -0.3,
+      "y" : -0.25
+    },
+    "scale" : 0.125,
+    "gaugeTextures" : {
+      "Gauge_Base" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.3,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "Altimeter_Back" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.3,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "Altimeter_Pointer_10000" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.3,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "Altimeter_Pointer_1000" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.3,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "Altimeter_Pointer_100" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.3,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      }
+    }
+  }, {
+    "type" : "TurnCoordinator",
+    "position" : {
+      "x" : -0.9,
+      "y" : -0.75
+    },
+    "scale" : 0.125,
+    "gaugeTextures" : {
+      "Gauge_Base" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.9,
+          "y" : -0.75
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "TC_Back" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.9,
+          "y" : -0.75
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "TC_Aircraft" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.9,
+          "y" : -0.75
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "TC_Ball" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.9,
+          "y" : -0.75
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      }
+    }
+  }, {
+    "type" : "DirectionalGyro",
+    "position" : {
+      "x" : -0.6,
+      "y" : -0.75
+    },
+    "scale" : 0.125,
+    "gaugeTextures" : {
+      "Gauge_Base" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.6,
+          "y" : -0.75
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "Gauge_Ring" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.6,
+          "y" : -0.75
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "DG_Card" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.6,
+          "y" : -0.75
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "DG_Pointer" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.6,
+          "y" : -0.75
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      }
+    }
+  }, {
+    "type" : "VerticalSpeed",
+    "position" : {
+      "x" : -0.3,
+      "y" : -0.75
+    },
+    "scale" : 0.125,
+    "gaugeTextures" : {
+      "Gauge_Base" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.3,
+          "y" : -0.75
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "VSI_Back" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.3,
+          "y" : -0.75
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "VSI_Pointer" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.3,
+          "y" : -0.75
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      }
+    }
+  }, {
+    "type" : "Tachometer",
+    "position" : {
+      "x" : -0.0,
+      "y" : -0.25
+    },
+    "scale" : 0.125,
+    "gaugeTextures" : {
+      "Gauge_Base" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.0,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "Tach_Back" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.0,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "Tach_Pointer_R" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.0,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      },
+      "Tach_Pointer_L" : {
+        "texture" : 0,
+        "position" : {
+          "x" : -0.0,
+          "y" : -0.25
+        },
+        "scale" : {
+          "x" : 0.125,
+          "y" : 0.125
+        },
+        "rotation" : 0.0
+      }
+    }
+  } ]
+}

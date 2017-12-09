@@ -32,6 +32,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.InstrumentPanel;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.flightcontrols.AnalysisControls;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
@@ -64,11 +65,26 @@ public class FileUtilities {
 	 * @return desrialized {@link Aircraft}
 	 */
 	public static Aircraft readAircraftConfiguration(String aircraftName) {
-		Aircraft ab = deserializeJson(Aircraft.class.getSimpleName(), 
-									  SimDirectories.AIRCRAFT.toString() + File.separator + aircraftName, 
-									  Aircraft.class);
+		Aircraft aircraft = deserializeJson(Aircraft.class.getSimpleName(), 
+											SimDirectories.AIRCRAFT.toString() + File.separator + aircraftName, 
+											Aircraft.class);
 		
-		return ab;
+		return aircraft;
+	}
+	
+	/**
+	 * Creates an {@link InstrumentPanel} object by deserializing a JSON file in the Aircraft/{aircraftName} directory 
+	 * called InstrumentPanel.json 
+	 * 
+	 * @param aircraftName
+	 * @return desrialized {@link InstrumentPanel}
+	 */
+	public static InstrumentPanel readInstrumentPanelConfiguration(String aircraftName) {
+		InstrumentPanel panel = deserializeJson(InstrumentPanel.class.getSimpleName(), 
+												SimDirectories.AIRCRAFT.toString() + File.separator + aircraftName, 
+												InstrumentPanel.class);
+		
+		return panel;
 	}
 	
 	/**

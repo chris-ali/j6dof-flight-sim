@@ -19,7 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.lwjgl.interfaces.gauges;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.lwjgl.util.vector.Vector2f;
@@ -27,6 +26,8 @@ import org.lwjgl.util.vector.Vector2f;
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Port of the Swing AirspeedIndicator object created in com.chrisali.javaflightsim.swing.instrumentpanel into the LWJGL engine
@@ -36,6 +37,7 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
  */
 public class AirspeedIndicator extends AbstractGauge {
 	
+	public static final String BASE    = "Gauge_Base";
 	public static final String BACK    = "Airspeed_Back";
 	public static final String POINTER = "Airspeed_Pointer";
 
@@ -46,10 +48,11 @@ public class AirspeedIndicator extends AbstractGauge {
 	 * @param position - center of the gauge; (-1.0, 1.0) is the top left of the screen, (1.0, -1.0) is the bottom right
 	 * @param scale
 	 */
-	public AirspeedIndicator(Vector2f position, float scale) {
+	@JsonCreator
+	public AirspeedIndicator(@JsonProperty("position") Vector2f position, @JsonProperty("scale") float scale) {
 		super(position, scale);
 		
-		gaugeTextures = new LinkedHashMap<>();
+		gaugeTextures.put(BASE, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(BACK, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(POINTER, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 	}

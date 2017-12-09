@@ -20,6 +20,7 @@
 package com.chrisali.javaflightsim.lwjgl.interfaces.gauges;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -32,6 +33,10 @@ import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 /**
  * Abstract representation of an instrument panel gauge modeled as a heiarchy of {@link InterfaceTexture} objects 
@@ -40,6 +45,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author Christopher
  *
  */
+@JsonTypeInfo(use = Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({
+	@Type(value = Altimeter.class, name = "Altimeter"),
+	@Type(value = VerticalSpeed.class, name = "VerticalSpeed"),
+	@Type(value = AirspeedIndicator.class, name = "AirspeedIndicator"),
+	@Type(value = ArtificialHorizon.class, name = "ArtificialHorizon"),
+	@Type(value = DirectionalGyro.class, name = "DirectionalGyro"),
+	@Type(value = TurnCoordinator.class, name = "TurnCoordinator"),
+	@Type(value = Tachometer.class, name = "Tachometer"),
+})
 public abstract class AbstractGauge {
 
 	@JsonIgnore
@@ -64,6 +79,7 @@ public abstract class AbstractGauge {
 	public AbstractGauge(Vector2f position, float scale) {
 		this.position = position;
 		this.scale = scale;
+		gaugeTextures = new LinkedHashMap<String, InterfaceTexture>();
 	}
 
 	/**
@@ -84,7 +100,7 @@ public abstract class AbstractGauge {
 			return;
 		}
 		
-		logger.debug("Loading gauge's associated textures...");
+		logger.debug("Loading "+ getClass().getSimpleName() +"'s associated textures...");
 
 		for (Map.Entry<String, InterfaceTexture> entry : gaugeTextures.entrySet()) {
 			Texture texture = loader.loadAndGetTexture(entry.getKey(), OTWDirectories.GAUGES.toString()); 
@@ -99,6 +115,7 @@ public abstract class AbstractGauge {
 	 * 
 	 * @return collection of gauge textures
 	 */
+	@JsonIgnore
 	public Collection<InterfaceTexture> getTextures() { return gaugeTextures.values(); }
 
 	public float getScale() { return scale; }
@@ -108,4 +125,8 @@ public abstract class AbstractGauge {
 	public Vector2f getPosition() { return position; }
 
 	public void setPosition(Vector2f position) { this.position = position; }
+
+	public Map<String, InterfaceTexture> getGaugeTextures() { return gaugeTextures;	}
+
+	public void setGaugeTextures(Map<String, InterfaceTexture> gaugeTextures) { this.gaugeTextures = gaugeTextures;	}
 }

@@ -153,7 +153,20 @@ public class Loader {
 	 * @return texture ID
 	 */
 	public int loadTexture(String fileName, String directory) {
-		int textureID = loadAndGetTexture(fileName, directory).getTextureID();
+		return loadTexture(OTWDirectories.RESOURCES.toString(), fileName, directory);
+	}
+	
+	/**
+	 * Loads a texture into memory using SlikUtils png loader using a specific directory stemming from the ./Resources
+	 * directory. Sets anisotropic filtering for textures as well in this method
+	 * 
+	 * @param rootDirectory
+	 * @param fileName
+	 * @param directory
+	 * @return texture ID
+	 */
+	public int loadTexture(String rootDirectory,String fileName, String directory) {
+		int textureID = loadAndGetTexture(rootDirectory, fileName, directory).getTextureID();
 		textureList.add(textureID);
 
 		return textureID;
@@ -169,11 +182,25 @@ public class Loader {
 	 * @return Texture object
 	 */
 	public Texture loadAndGetTexture(String fileName, String directory) {
+		return loadAndGetTexture(OTWDirectories.RESOURCES.toString(), fileName, directory);
+	}
+	
+	/**
+	 * Loads a texture into memory using SlikUtils png loader using a specific directory stemming from the rootDirectory
+	 * argument. Sets anisotropic filtering for textures as well in this method. Returns the Texture obect directly so that
+	 * the file's properties can be used elsewhere
+	 * 
+	 * @param rootDirectory
+	 * @param fileName
+	 * @param directory
+	 * @return Texture object
+	 */
+	public Texture loadAndGetTexture(String rootDirectory, String fileName, String directory) {
 		Texture texture = null;
 		
 		try {
 			texture = TextureLoader.getTexture("PNG",
-					new FileInputStream(OTWDirectories.RESOURCES.toString() + File.separator + directory + File.separator + fileName + OTWFiles.TEXTURE_EXT.toString()));
+					new FileInputStream(rootDirectory + File.separator + directory + File.separator + fileName + OTWFiles.TEXTURE_EXT.toString()));
 		
 			GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
 			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);

@@ -19,7 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.lwjgl.interfaces.gauges;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.lwjgl.util.vector.Vector2f;
@@ -27,6 +26,8 @@ import org.lwjgl.util.vector.Vector2f;
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Port of the Swing Tachometer object created in com.chrisali.javaflightsim.swing.instrumentpanel into the LWJGL engine
@@ -35,7 +36,8 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
  *
  */
 public class Tachometer extends AbstractGauge {
-	
+
+	public static final String BASE      = "Gauge_Base";
 	public static final String BACK      = "Tach_Back";
 	public static final String POINTER_L = "Tach_Pointer_L";
 	public static final String POINTER_R = "Tach_Pointer_R";
@@ -47,10 +49,11 @@ public class Tachometer extends AbstractGauge {
 	 * @param position - center of the gauge; (-1.0, 1.0) is the top left of the screen, (1.0, -1.0) is the bottom right
 	 * @param scale
 	 */
-	public Tachometer(Vector2f position, float scale) {
+	@JsonCreator
+	public Tachometer(@JsonProperty("position") Vector2f position, @JsonProperty("scale") float scale) {
 		super(position, scale);
 
-		gaugeTextures = new LinkedHashMap<>();
+		gaugeTextures.put(BASE, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(BACK, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(POINTER_R, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
 		gaugeTextures.put(POINTER_L, new InterfaceTexture(0, position, 0.0f, new Vector2f(scale, scale)));
@@ -62,18 +65,18 @@ public class Tachometer extends AbstractGauge {
 			double rpmLeft  = flightData.get(FlightDataType.RPM_1),
 			       rpmRight = flightData.get(FlightDataType.RPM_2);
 							
-			double leftRotationAngle  = -Math.PI/1.45,
-				   rightRotationAngle = -Math.PI/1.45;
+			double leftRotationAngle  = Math.PI/1.45,
+				   rightRotationAngle = Math.PI/1.45;
 						
 			if (rpmLeft <= 3500)
-				leftRotationAngle  = - ((1.8 * Math.PI / 4300) * rpmLeft) - Math.PI/1.45;
+				leftRotationAngle  = - ((1.8 * Math.PI / 4300) * rpmLeft) + Math.PI/1.45;
 			else if (rpmLeft > 3500)
-				leftRotationAngle  = - ((1.8 * Math.PI / 4300) * 3500) - Math.PI/1.45;
+				leftRotationAngle  = - ((1.8 * Math.PI / 4300) * 3500) + Math.PI/1.45;
 
 			if (rpmRight <= 3500)
-	    		rightRotationAngle = - ((1.8 * Math.PI / 4300) * rpmRight) - Math.PI/1.45;
+	    		rightRotationAngle = - ((1.8 * Math.PI / 4300) * rpmRight) + Math.PI/1.45;
 			else if (rpmRight > 3500)
-				rightRotationAngle = - ((1.8 * Math.PI / 4300) * 3500) - Math.PI/1.45;
+				rightRotationAngle = - ((1.8 * Math.PI / 4300) * 3500) + Math.PI/1.45;
 			
 			InterfaceTexture pointerLeft  = gaugeTextures.get(POINTER_L),
 							 pointerRight = gaugeTextures.get(POINTER_R);
