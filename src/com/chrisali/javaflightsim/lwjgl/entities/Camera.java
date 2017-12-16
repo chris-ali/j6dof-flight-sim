@@ -46,6 +46,10 @@ public class Camera {
 	private float cameraToEntityTheta = 0.0f;
 	private float cameraToEntityPsi = 0.0f;
 	
+	/**
+	 * If an instrument panel is displayed on screen, this pitches the camera view down to compensate
+	 */
+	private float pitchOffset = 0.0f;
 	
 	private boolean isChaseView = false;
 	private Vector3f pilotPosition;
@@ -60,6 +64,7 @@ public class Camera {
 	 */
 	public Camera(Entity entityToFollow) {
 		this.entityToFollow = entityToFollow;
+		pilotPosition = new Vector3f(0, 0, 0);
 		cameraToEntityTheta = isChaseView ? 20f : 0f;
 		cameraDistanceToEntity = isChaseView ? 25.0f : 0.0f;
 	}
@@ -156,61 +161,35 @@ public class Camera {
 		this.position.z = position.z;
 		
 		this.phi = phi; 
-		this.theta = theta;
+		this.theta = theta + pitchOffset;
 		this.psi = psi;
 	}
 	
-	public Vector3f getPosition() {
-		return position;
-	}
+	public Vector3f getPosition() { return position; }
 	
-	public float getPitch() {
-		return theta;
-	}
+	public float getPitch() { return theta;	}
 	
-	public float getRoll() {
-		return phi;
-	}
+	public float getRoll() { return phi; }
 	
-	public float getYaw() {
-		return psi;
-	}
+	public float getYaw() { return psi; }
 	
-	public float getCameraSpeed() {
-		return cameraPanSpeed;
-	}
+	public float getCameraSpeed() { return cameraPanSpeed; }
 
-	public void setCameraSpeed(float cameraSpeed) {
-		this.cameraPanSpeed = cameraSpeed;
-	}
+	public void setCameraSpeed(float cameraSpeed) { this.cameraPanSpeed = cameraSpeed; }
 	
-	public float getMouseSensitivity() {
-		return mouseSensitivity;
-	}
+	public float getMouseSensitivity() { return mouseSensitivity; }
 
-	public void setPosition(Vector3f position) {
-		this.position = position;
-	}
+	public void setPosition(Vector3f position) { this.position = position; }
 
-	public void setPitch(float pitch) {
-		this.theta = pitch;
-	}
+	public void setPitch(float pitch) { this.theta = pitch;	}
 
-	public void setRoll(float roll) {
-		this.phi = roll;
-	}
+	public void setRoll(float roll) { this.phi = roll; }
 
-	public void setYaw(float yaw) {
-		this.psi = yaw;
-	}
+	public void setYaw(float yaw) { this.psi = yaw;	}
 
-	public void setMouseSensitivity(float mouseSensitivity) {
-		this.mouseSensitivity = mouseSensitivity;
-	}
+	public void setMouseSensitivity(float mouseSensitivity) { this.mouseSensitivity = mouseSensitivity; }
 
-	public boolean isChaseView() {
-		return isChaseView;
-	}
+	public boolean isChaseView() { return isChaseView; }
 	
 	/**
 	 * Sets the camera to use the mouse to pan around if true, 
@@ -224,11 +203,11 @@ public class Camera {
 		this.isChaseView = isChaseView;
 	}
 
-	public Vector3f getPilotPosition() {
-		return pilotPosition;
-	}
+	public Vector3f getPilotPosition() { return pilotPosition; }
 
-	public void setPilotPosition(Vector3f pilotPosition) {
-		this.pilotPosition = pilotPosition;
-	}
+	public void setPilotPosition(Vector3f pilotPosition) { this.pilotPosition = pilotPosition; }
+
+	public float getPitchOffset() { return pitchOffset;	}
+
+	public void setPitchOffset(float pitchOffset) { this.pitchOffset = pitchOffset;	}
 }

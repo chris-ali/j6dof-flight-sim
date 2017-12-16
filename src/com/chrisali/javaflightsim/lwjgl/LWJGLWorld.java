@@ -154,9 +154,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 				SoundCollection.update(soundValues);
 				
 				//----------- UI --------------------
-				texts.get("Paused").setTextString(configuration.getSimulationOptions()
-																.contains(Options.PAUSED) ?
-																		  "PAUSED" : "");
+				texts.get("Paused").setTextString(configuration.getSimulationOptions().contains(Options.PAUSED) ? "PAUSED" : "");
 				
 				//------ Render Everything -----------
 				masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainTree(), 
@@ -285,8 +283,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		// Camera tied to ownship as first person view
 		camera = new Camera(ownship);
 		camera.setChaseView(false);
-		camera.setPilotPosition(new Vector3f(0, 0, 0));
-
+		
 		//================================= Terrain ==========================================================
 		
 		logger.debug("Generating terrain...");
@@ -314,11 +311,17 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		texts.put("FlightData", new GUIText("", 0.85f, font, new Vector2f(0, 0), 1f, true));
 		texts.put("Paused", new GUIText("PAUSED", 1.15f, font, new Vector2f(0.5f, 0.5f), 1f, false, new Vector3f(1,0,0)));
 		
-		// Instrument Panel Gauges
-		panel = FileUtilities.readInstrumentPanelConfiguration(configuration.getSelectedAircraft());
-		
-		if (panel != null)
-			interfaceTextures = panel.loadAndGetTextures(loader, configuration.getSelectedAircraft());
+		// Instrument Panel and Gauges
+		if (configuration.getSimulationOptions().contains(Options.INSTRUMENT_PANEL)) {
+			panel = FileUtilities.readInstrumentPanelConfiguration(configuration.getSelectedAircraft());
+			
+			if (panel != null) {				
+				interfaceTextures = panel.loadAndGetTextures(loader, configuration.getSelectedAircraft());
+				
+				camera.setPilotPosition(new Vector3f(0, 5, 0));
+				camera.setPitchOffset(25);			
+			}
+		}
 				
 		//==================================== Audio =========================================================
 		

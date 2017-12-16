@@ -1,4 +1,12 @@
 {
+	"panelPosition" : {
+	  "x" : -0.0,
+	  "y" : -0.15
+	},
+	"panelScale" : {
+	  "x" : 1.0,
+	  "y" : 0.75
+	},
   "gauges" : [ {
     "type" : "AirspeedIndicator",
     "position" : {

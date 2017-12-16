@@ -27,7 +27,6 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
-import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -46,38 +45,15 @@ public class InstrumentPanel {
 
 	private List<AbstractGauge> gauges;
 	
+	private Vector2f panelPosition;
+	
+	private Vector2f panelScale;
+	
 	/**
 	 * Generic constructor; call {@link InstrumentPanel#loadAndGetTextures(Loader)} after initializing to load
 	 * all {@link InterfaceTexture} objects into memory
 	 */
-	public InstrumentPanel() {
-		/*
-		gauges = new ArrayList<>();
-
-		AbstractGauge abstractGauge = new AirspeedIndicator(new Vector2f(-0.9f, -0.25f), 0.125f);
-		gauges.add(abstractGauge);
-		
-		abstractGauge = new ArtificialHorizon(new Vector2f(-0.6f, -0.25f), 0.125f);
-		gauges.add(abstractGauge);
-		
-		abstractGauge = new Altimeter(new Vector2f(-0.3f, -0.25f), 0.125f);
-		gauges.add(abstractGauge);
-		
-		abstractGauge = new TurnCoordinator(new Vector2f(-0.9f, -0.75f), 0.125f);
-		gauges.add(abstractGauge);
-				
-		abstractGauge = new DirectionalGyro(new Vector2f(-0.6f, -0.75f), 0.125f);
-		gauges.add(abstractGauge);
-		
-		abstractGauge = new VerticalSpeed(new Vector2f(-0.3f, -0.75f), 0.125f);
-		gauges.add(abstractGauge);
-		
-		abstractGauge = new Tachometer(new Vector2f(-0.0f, -0.25f), 0.125f);
-		gauges.add(abstractGauge);
-		
-		FileUtilities.serializeJson(SimDirectories.AIRCRAFT + File.separator + "Navion", getClass().getSimpleName(), this);
-		FileUtilities.serializeJson(SimDirectories.AIRCRAFT + File.separator + "TwinNavion", getClass().getSimpleName(), this);*/
-	}
+	public InstrumentPanel() { }
 	
 	/**
 	 * Loads all {@link InterfaceTexture} objects associated with each {@link AbstractGauge} in this class to be
@@ -90,14 +66,14 @@ public class InstrumentPanel {
 		List<InterfaceTexture> interfaceTextures = new ArrayList<>();
 		
 		logger.debug("Initializing instrument panel...");
-		/*
+		
 		InterfaceTexture panelBase = new InterfaceTexture(loader.loadTexture(SimDirectories.AIRCRAFT.toString(), getClass().getSimpleName(), aircraftName), 
-														  new Vector2f(-1.0f, -1.0f), 
-														  0.f, 
-														  new Vector2f(DisplayManager.getAspectRatio() * 1.0f, 1.0f));
+														  panelPosition, 
+														  0.0f, 
+														  panelScale);
 		
 		interfaceTextures.add(panelBase);
-		*/
+		
 		for (AbstractGauge gauge : gauges) {
 			gauge.loadTextures(loader);
 			interfaceTextures.addAll(gauge.getTextures());
@@ -110,5 +86,13 @@ public class InstrumentPanel {
 
 	public List<AbstractGauge> getGauges() { return gauges;	}
 
-	public void setGauges(List<AbstractGauge> gauges) { this.gauges = gauges; }	
+	public void setGauges(List<AbstractGauge> gauges) { this.gauges = gauges; }
+
+	public Vector2f getPanelPosition() { return panelPosition; }
+
+	public void setPanelPosition(Vector2f panelPosition) { this.panelPosition = panelPosition; }
+
+	public Vector2f getPanelScale() { return panelScale; }
+
+	public void setPanelScale(Vector2f panelScale) { this.panelScale = panelScale; }	
 }
