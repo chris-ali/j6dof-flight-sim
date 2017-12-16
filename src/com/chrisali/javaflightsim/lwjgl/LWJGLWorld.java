@@ -37,6 +37,7 @@ import org.lwjgl.util.vector.Vector4f;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.interfaces.OTWWorld;
+import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.lwjgl.audio.AudioMaster;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection.SoundCategory;
@@ -71,7 +72,6 @@ import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.swing.GuiFrame;
-import com.chrisali.javaflightsim.swing.SimulationWindow;
 import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
 
@@ -88,7 +88,6 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	
 	private Loader loader;
 	
-	private LWJGLSwingSimulationController controller;
 	private SimulationConfiguration configuration;
 	
 	private MasterRenderer masterRenderer;
@@ -112,6 +111,8 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	private List<InterfaceTexture> interfaceTextures;
 	private InterfaceRenderer interfaceRenderer;
 	private InstrumentPanel panel;
+	
+	private SimulationController controller;
 		
 	private boolean running = false;
 	
@@ -191,10 +192,7 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		
 		logger.debug("Starting up LWJGL display...");
 
-		if (controller.getGuiFrame() != null)
-			DisplayManager.createDisplay(controller.getGuiFrame().getSimulationWindow());
-		else
-			DisplayManager.createDisplay();
+		DisplayManager.createDisplay();
 		
 		loader = new Loader();
 		
@@ -239,6 +237,8 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		loader.cleanUp();
 		
 		DisplayManager.closeDisplay();
+		
+		controller.stopSimulation();
 	}
 	
 	/**
@@ -312,6 +312,8 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		texts.put("Paused", new GUIText("PAUSED", 1.15f, font, new Vector2f(0.5f, 0.5f), 1f, false, new Vector3f(1,0,0)));
 		
 		// Instrument Panel and Gauges
+		interfaceTextures = new ArrayList<>();
+		
 		if (configuration.getSimulationOptions().contains(Options.INSTRUMENT_PANEL)) {
 			panel = FileUtilities.readInstrumentPanelConfiguration(configuration.getSelectedAircraft());
 			
@@ -349,11 +351,6 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	 */
 	@Override
 	public synchronized boolean isRunning() {return running;}
-	
-	/**
-	 * Sets running boolean in {@link LWJGLWorld} to false to begin the display clean up process
-	 */
-	public synchronized void requestClose() {running = false;}
 	
 	//===================================== Text ============================================================
 	

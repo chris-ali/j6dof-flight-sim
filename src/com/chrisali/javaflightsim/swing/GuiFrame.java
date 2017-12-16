@@ -35,10 +35,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
-import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
-import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
-import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -49,16 +46,13 @@ import com.chrisali.javaflightsim.swing.aircraftpanel.AircraftPanel;
 import com.chrisali.javaflightsim.swing.aircraftpanel.WeightConfiguredListener;
 import com.chrisali.javaflightsim.swing.initialconditionspanel.InitialConditionsConfigurationListener;
 import com.chrisali.javaflightsim.swing.initialconditionspanel.InitialConditionsPanel;
-import com.chrisali.javaflightsim.swing.instrumentpanel.ClosePanelListener;
-import com.chrisali.javaflightsim.swing.instrumentpanel.InstrumentPanel;
 import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
 import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.swing.optionspanel.OptionsConfigurationListener;
 import com.chrisali.javaflightsim.swing.optionspanel.OptionsPanel;
 
 /**
- * Main Swing class that contains the main menus to configure the simulation and simulation window,
- * which renders the Out The Window display and instrument panel. 
+ * Main Swing class that contains the main menus to configure the and start simulation. 
  * 
  * @author Christopher Ali
  *
@@ -77,7 +71,6 @@ public class GuiFrame extends JFrame {
 	private AircraftPanel aircraftPanel;
 	private OptionsPanel optionsPanel;
 	private InitialConditionsPanel initialConditionsPanel;
-	private SimulationWindow simulationWindow;
 	private JPanel cardPanel; 
 	private CardLayout cardLayout;
 	
@@ -91,8 +84,7 @@ public class GuiFrame extends JFrame {
 		super("Java Flight Sim");
 		
 		simulationController = controller;
-		configuration = controller.getConfiguration();
-		//ab = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft()); 
+		configuration = controller.getConfiguration(); 
 		
 		setLayout(new BorderLayout());
 		Dimension dims = new Dimension(200, 400);
@@ -104,10 +96,6 @@ public class GuiFrame extends JFrame {
 		cardPanel.setLayout(cardLayout);
 		cardPanel.setVisible(false);
 		add(cardPanel, BorderLayout.EAST);
-		
-		//------------------------- Simulation Window ----------------------------------------------
-		
-		initSimulationWindow();
 		
 		//-------------------------- Aircraft Panel ------------------------------------------------
 		
@@ -236,7 +224,6 @@ public class GuiFrame extends JFrame {
 				
 				simulationController.startSimulation();
 				GuiFrame.this.setVisible(configuration.getSimulationOptions().contains(Options.ANALYSIS_MODE) ? true : false);
-				simulationWindow.setVisible(configuration.getSimulationOptions().contains(Options.ANALYSIS_MODE) ? false : true);
 			}
 		});
 		add(buttonPanel, BorderLayout.CENTER);
@@ -289,39 +276,5 @@ public class GuiFrame extends JFrame {
 		optionsPanel.setAllOptions(configuration.getSimulationOptions(), stepSize, 
 								   configuration.getDisplayOptions(),
 								   configuration.getAudioOptions());
-	}
-	
-	//=============================== Simulation Window ==============================================
-	
-	/**
-	 * (Re)initializes simulationWindow object so that instrument panel and OTW view are scaled correctly depending
-	 * on if the instrument panel is shown or not
-	 */
-	public void initSimulationWindow() {
-		simulationWindow = new SimulationWindow(simulationController);
-		simulationWindow.setClosePanelListener(new ClosePanelListener() {
-			@Override
-			public void panelWindowClosed() {
-				simulationController.stopSimulation();
-				simulationWindow.setVisible(false);
-				GuiFrame.this.setVisible(true);
-			}
-		});
-	}
-	
-	/**
-	 * @return {@link SimulationWindow} object for {@link LWJGLWorld} to set its display parent
-	 * within {@link DisplayManager}
-	 */
-	public SimulationWindow getSimulationWindow() {
-		return simulationWindow;
-	}
-	
-	/**
-	 * @return {@link InstrumentPanel} object for {@link LWJGLSwingSimulationController} to set a
-	 * {@link FlightDataListener} to when {@link LWJGLSwingSimulationController#startSimulation()} is called
-	 */
-	public InstrumentPanel getInstrumentPanel() {
-		return simulationWindow.getInstrumentPanel();
 	}
 }

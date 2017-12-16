@@ -19,8 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.lwjgl.renderengine;
 
-import java.awt.Canvas;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.LWJGLException;
@@ -30,9 +28,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.PixelFormat;
-
-import com.chrisali.javaflightsim.swing.GuiFrame;
-import com.chrisali.javaflightsim.swing.SimulationWindow;
 
 /**
  * Handles the creation, updating and closing of the LWJGL OTW display window 
@@ -55,36 +50,6 @@ public class DisplayManager {
 	
 	private static long lastFrameTime;
 	private static float delta;
-	
-	/**
-	 * Creates of the OpenGL display; {@link SimulationWindow} object
-	 * reference passed from {@link GuiFrame} is used to set the {@link Canvas} parent object,
-	 * allowing the display to be embedded within the simulation window
-	 * 
-	 * @param canvas
-	 */
-	public static void createDisplay(SimulationWindow simulationWindow) {
-		try {
-			ContextAttribs attribs = new ContextAttribs(3,3)
-										.withForwardCompatible(true)
-										.withProfileCore(true);
-			Thread.sleep(500); // Slight pause to allow time for simulation window to initialize itself
-			
-			// AWT Canvas object that Display uses to set its parent to
-			Canvas canvas = simulationWindow.getOutTheWindowCanvas();
-			height = canvas.getHeight();
-			width = canvas.getWidth();
-					
-			Display.setParent(canvas);
-			Display.setDisplayMode(new DisplayMode(width, height));
-			Display.create(new PixelFormat().withSamples(aaSamples).withDepthBits(colorDepth),attribs);
-		} catch (LWJGLException | InterruptedException e) {
-			logger.error("An error was encountered while creating the LWJGL display within a JPanel!", e);
-		}
-		
-		GL11.glViewport(0, 0, width, height);
-		lastFrameTime = getCurrentTime();
-	}
 	
 	/**
 	 * Creates the OpenGL display in its own window

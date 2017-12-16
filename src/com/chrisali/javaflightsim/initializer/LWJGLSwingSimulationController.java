@@ -41,7 +41,6 @@ import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.swing.GuiFrame;
-import com.chrisali.javaflightsim.swing.SimulationWindow;
 import com.chrisali.javaflightsim.swing.consoletable.ConsoleTablePanel;
 import com.chrisali.javaflightsim.swing.plotting.PlotWindow;
 
@@ -146,7 +145,6 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		runner.setRunning(false);	
 		
 		logger.debug("Returning to menus...");
-		getGuiFrame().getSimulationWindow().dispose();
 		getGuiFrame().setVisible(true);
 	}
 	
@@ -170,13 +168,13 @@ public class LWJGLSwingSimulationController implements SimulationController {
 			logger.debug("Initializing LWJGL world...");
 			outTheWindow = new LWJGLWorld(this);
 			
-			//(Re)initalize simulation window to prevent scaling issues with instrument panel
-			getGuiFrame().initSimulationWindow();
+			logger.debug("Initializing OTW thread...");
+			outTheWindowThread = new Thread(outTheWindow);
+			outTheWindowThread.start(); 
 			
 			logger.debug("Initializing simulation runner...");
 			runner = new SimulationRunner(this, outTheWindow);
 			runner.addFlightDataListener(outTheWindow);
-			runner.addFlightDataListener(getGuiFrame().getInstrumentPanel());
 		} catch (Exception e) {
 			logger.error("An error occurred while starting normal mode!", e);
 		}
@@ -289,29 +287,5 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	public GuiFrame getGuiFrame() {
 		return guiFrame;
-	}
-
-	//=========================== OTW Threading ==========================================================
-	
-	/**
-	 * Initalizes and starts out the window thread; called from {@link SimulationWindow}'s addNotify() method
-	 * to allow OTW thread to start gracefully; uses the Stack Overflow solution shown 
-	 * <a href="http://stackoverflow.com/questions/26199534/how-to-attach-opengl-display-to-a-jframe-and-dispose-of-it-properly">here</a>.
-	 */
-	public void startOTWThread() {
-		outTheWindowThread = new Thread(outTheWindow);
-		outTheWindowThread.start(); 
-	}
-	
-	/**
-	 * Stops out the window thread; called from {@link SimulationWindow}'s removeNotify() method
-	 * to allow OTW thread to stop gracefully; uses the Stack Overflow solution shown here:
-	 * <a href="http://stackoverflow.com/questions/26199534/how-to-attach-opengl-display-to-a-jframe-and-dispose-of-it-properly">here</a>.
-	 */
-	public void stopOTWThread() {
-		outTheWindow.requestClose(); // sets running boolean in RunWorld to false to begin the clean up process
-		
-		try {outTheWindowThread.join(); } 
-		catch (InterruptedException e) {}
 	}
 }
