@@ -32,11 +32,8 @@ import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.simulation.SimulationRunner;
-import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
-import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
-import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -51,8 +48,6 @@ import com.chrisali.javaflightsim.swing.plotting.PlotWindow;
  * <p>Initializing the Swing GUI menus</p>
  * <p>Plotting of the simulation states and data ({@link PlotWindow})</p>
  * <p>Raw data display of simulation states ({@link ConsoleTablePanel})</p>
- * <p>Transmission of flight data to the instrument panel and out the window display ({@link FlightData})</p>
- * <p>Transmission of environment data to the simulation ({@link EnvironmentData})</p>
  * 
  * @author Christopher Ali
  *
@@ -77,11 +72,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	
 	// Raw Data Console
 	private ConsoleTablePanel consoleTablePanel;
-	
-	// Out the Window
-	private LWJGLWorld outTheWindow;
-	private Thread outTheWindowThread;
-	
+		
 	/**
 	 * Initializes initial settings, configurations and conditions to be edited through menu options
 	 */
@@ -116,22 +107,13 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		
 		logger.debug("Trimming aircraft...");
 		Trimming.trimSim(configuration, false);
-				
-		if (configuration.getSimulationOptions().contains(Options.ANALYSIS_MODE)) {
-			logger.debug("Running simulation in Analysis Mode...");
-			initializeAnalysisMode();
-		} else {
-			logger.debug("Running simulation in Normal Mode...");
-			initializeNormalMode();
-		}
-				
-		if (runner != null) {
-			logger.debug("Initializaing and starting simulation runner thread...");
-			runnerThread = new Thread(runner);
-			runnerThread.start();			
-		} else {
-			logger.error("Simulation Runner has not been initialized yet! Please do so before starting the runner thread");
-		}
+		
+		logger.debug("Initializing simulation runner...");
+		runner = new SimulationRunner(this);
+
+		logger.debug("Initializaing and starting simulation runner thread...");
+		runnerThread = new Thread(runner);
+		runnerThread.start();
 	}
 	
 	/**
@@ -146,38 +128,6 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		
 		logger.debug("Returning to menus...");
 		getGuiFrame().setVisible(true);
-	}
-	
-	/**
-	 * Initalize all processes needed for starting the simulation in analysis mode
-	 */
-	private void initializeAnalysisMode() {
-		try {						
-			logger.debug("Initializing simulation runner...");
-			runner = new SimulationRunner(this);
-		} catch (Exception ey) {
-			logger.error("An error occurred while running in analysis mose!", ey);
-		}
-	}
-	
-	/**
-	 * Initalize all processes needed for starting the simulation in normal (pilot in the loop) mode
-	 */
-	private void initializeNormalMode() {
-		try {
-			logger.debug("Initializing LWJGL world...");
-			outTheWindow = new LWJGLWorld(this);
-			
-			logger.debug("Initializing OTW thread...");
-			outTheWindowThread = new Thread(outTheWindow);
-			outTheWindowThread.start(); 
-			
-			logger.debug("Initializing simulation runner...");
-			runner = new SimulationRunner(this, outTheWindow);
-			runner.addFlightDataListener(outTheWindow);
-		} catch (Exception e) {
-			logger.error("An error occurred while starting normal mode!", e);
-		}
 	}
 	
 	/**

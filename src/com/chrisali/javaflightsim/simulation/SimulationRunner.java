@@ -26,9 +26,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.interfaces.OTWWorld;
 import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
+import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
@@ -41,7 +41,7 @@ import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
  * Main runner thread for JavaFlightSimulator that combines all {@link Steppable} components into a single thread so that they can run
- * synchronously and not cause concurrency issues with eachother
+ * synchronously and not cause concurrency issues with each other
  * 
  * @author Christopher
  *
@@ -55,6 +55,8 @@ public class SimulationRunner implements Runnable {
 	
 	private FlightControls flightControls;
 	private Integrate6DOFEquations simulation;
+	private LWJGLWorld outTheWindow;
+	
 	private FlightData flightData;
 	private EnvironmentData environmentData;
 	
@@ -68,8 +70,8 @@ public class SimulationRunner implements Runnable {
 	private boolean running = false;
 	
 	/**
-	 * Constructor for Analysis Mode that does not initialize flight or environment data
-	 * listener components
+	 * Constructor that initialize main simulation ({@link Integrate6DOFEquations} and {@link FlightControls}) components and 
+	 * configrures simulation time
 	 * 
 	 * @param simController
 	 */
@@ -90,29 +92,6 @@ public class SimulationRunner implements Runnable {
 	}
 	
 	/**
-	 * Constructor in Normal Mode that initializes flight and environment data 
-	 * listener components; external listeners (such as OTW or instrument panel)
-	 * should be added after instantiation using addFlightDataListener() or addEnvironmentDataListener
-	 * 
-	 * @param simController
-	 * @param outTheWindow
-	 */
-	public SimulationRunner(SimulationController simController, OTWWorld outTheWindow) {
-		this(simController);
-		
-		if (!options.contains(Options.ANALYSIS_MODE)) {
-			logger.debug("Initializing flight data transfer...");
-			flightData = new FlightData(simulation);
-			
-			if (outTheWindow != null) {
-				logger.debug("Initializing environment data transfer...");
-				environmentData = new EnvironmentData(outTheWindow);
-				environmentData.addEnvironmentDataListener(simulation);				
-			}
-		}
-	}
-	
-	/**
 	 * Sets running parameters (start/end time and frame step time) for the timulation. Time is kept as an AtomicInteger to ensure
 	 * atomic incrementation
 	 */
@@ -129,15 +108,40 @@ public class SimulationRunner implements Runnable {
 	}
 	
 	/**
+	 * Depending on the presence of ANALYSIS_MODE in options EnumMap, configures the runner to initialize the OTW display and all necessary listeners
+	 */
+	private void configureAnalysisNormalMode() {
+		if (options.contains(Options.ANALYSIS_MODE)) {
+			logger.debug("Running simulation in Analysis Mode...");
+		} else {
+			logger.debug("Running simulation in Normal Mode...");
+						
+			logger.debug("Initializing LWJGL world...");
+			outTheWindow = new LWJGLWorld(simController);
+			outTheWindow.init();
+
+			logger.debug("Initializing flight data transfer...");
+			flightData = new FlightData(simulation);
+			flightData.addFlightDataListener(outTheWindow);
+
+			logger.debug("Initializing environment data transfer...");
+			environmentData = new EnvironmentData(outTheWindow);
+			environmentData.addEnvironmentDataListener(simulation);		
+		}
+	}
+	
+	/**
 	 * Main runner loop where {@link Steppable} components are step updated each iteration of the loop depending on the current value of time
 	 */
 	@Override
 	public void run() {
 		running = true;
+				
+		configureAnalysisNormalMode();
 		
 		if (options.contains(Options.CONSOLE_DISPLAY))
 			simController.initializeConsole();
-		
+
 		while (running && timeMS.get() < endTimeMS) {
 			try {
 				// Step update each component if allowed to basend on the current time 
@@ -152,6 +156,16 @@ public class SimulationRunner implements Runnable {
 				
 				if (environmentData != null && environmentData.canStepNow(timeMS.get()))
 					environmentData.step();
+				
+				if (outTheWindow != null && outTheWindow.canStepNow(timeMS.get())) {
+					outTheWindow.step();
+					
+					// Do this elsewhere
+					if(!outTheWindow.isRunning()) {
+						outTheWindow.cleanUp();
+						simController.stopSimulation();
+					}
+				}
 				
 				// Pause for frameStepMS milliseconds to emulate real time operation in analysis mode
 				if (!options.contains(Options.ANALYSIS_MODE))
@@ -210,7 +224,7 @@ public class SimulationRunner implements Runnable {
 	public synchronized boolean isRunning() { return running; }
 	
 	/**
-	 * Lets other objects request to stop the flow of flight data by setting running to false
+	 * Lets other objects request to stop the simulation by setting running to false
 	 * 
 	 * @param running
 	 */

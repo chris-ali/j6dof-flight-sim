@@ -29,8 +29,10 @@ public class TestWorld {
 	public static void main(String[] args) {
 		SimulationConfiguration configuration = FileUtilities.readSimulationConfiguration();
 		
-		Thread worldThread = new Thread(new LWJGLWorld(new LWJGLSwingSimulationController(configuration)));
-		worldThread.start();
+		LWJGLWorld world = new LWJGLWorld(new LWJGLSwingSimulationController(configuration));
+		
+		while (world.isRunning()) {
+			world.step();
+		}
 	}
-	
 }

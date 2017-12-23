@@ -35,7 +35,6 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
-import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.interfaces.OTWWorld;
 import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.lwjgl.audio.AudioMaster;
@@ -64,6 +63,7 @@ import com.chrisali.javaflightsim.lwjgl.terrain.Terrain;
 import com.chrisali.javaflightsim.lwjgl.terrain.TerrainCollection;
 import com.chrisali.javaflightsim.lwjgl.textures.ModelTexture;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
+import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
@@ -71,24 +71,19 @@ import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
-import com.chrisali.javaflightsim.swing.GuiFrame;
-import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
-import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
 
 /**
- * Runner class for out the window display for Java Flight Sim. It utilizes LWJGL to create a 3D world in OpenGL. 
- * The display runs in a separate thread that receives data from {@link FlightData} via {@link FlightDataListener} 
+ * Out the window display for Java Flight Sim. It utilizes LWJGL to create a 3D world in OpenGL. 
+ * This runs in a simulation runner thread that receives data from {@link FlightData} via {@link FlightDataListener} 
  * 
  * @author Christopher Ali
  *
  */
-public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
+public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	
 	private static final Logger logger = LogManager.getLogger(LWJGLWorld.class);
 	
 	private Loader loader;
-	
-	private SimulationConfiguration configuration;
 	
 	private MasterRenderer masterRenderer;
 	private List<Light> lights;
@@ -112,92 +107,106 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	private InterfaceRenderer interfaceRenderer;
 	private InstrumentPanel panel;
 	
-	private SimulationController controller;
-		
-	private boolean running = false;
-	
+	private SimulationConfiguration configuration;
+			
 	/**
-	 * Sets up OTW display with {@link DisplayOptions} and {@link AudioOptions}. If {@link LWJGLSwingSimulationController}
-	 * object specified, display will embed itself within {@link SimulationWindow} in {@link GuiFrame} 
+	 * Sets up OTW display with {@link SimulationConfiguration} provided by {@link SimulationController} 
 	 * 
 	 * @param controller
 	 */
-	public LWJGLWorld(LWJGLSwingSimulationController controller) {
-		this.controller = controller;
+	public LWJGLWorld(SimulationController controller) {
 		configuration = controller.getConfiguration();
 	}	
 	
 	@Override
-	public void run() {
-		
-		//=================================== Set Up =========================================================
-		
-		try { setUp(); } 
-		catch (Exception e) {logger.fatal("Error encountered when setting up LWJGL display!", e);}
-		
-		try {loadAssets(); }
-		catch (Exception e) {logger.fatal("Error encountered when loading assets for LWJGL display!", e);}
-		
-		running = true;
+	public boolean canStepNow(int simTimeMS) {
+		return simTimeMS % 1 == 0;
+	}
+	
+	@Override
+	public boolean isRunning() {
+		return !Display.isCloseRequested();
+	}
 
-		//=============================== Main Loop ==========================================================
-
-		while (!Display.isCloseRequested() && running) {
-			try {
-				//--------- Movement ----------------
-				camera.move(ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z);
-				ownship.move(ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z);
-				
-				//--------- Particles ---------------
-				ParticleMaster.update(camera);
-				
-				//--------- Audio--------------------
-				SoundCollection.update(soundValues);
-				
-				//----------- UI --------------------
-				texts.get("Paused").setTextString(configuration.getSimulationOptions().contains(Options.PAUSED) ? "PAUSED" : "");
-				
-				//------ Render Everything -----------
-				masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainTree(), 
-												lights, camera, new Vector4f(0, 1, 0, 0));
-				ParticleMaster.renderParticles(camera);
-				TextMaster.render(texts);
-				interfaceRenderer.render(interfaceTextures);
-				
-				DisplayManager.updateDisplay();
-				
-				Thread.sleep(15);
-			} catch (Exception e) {
-				logger.error("Error encountered while running LWJGL display! Attempting to continue...", e);
-				
-				continue;
-			}
+	/**
+	 * Main game loop of the LWJGL process, whose stepping is controlled by the {@link SimulationRunner} object's thread
+	 */
+	@Override
+	public void step() {
+		if(Display.isCloseRequested()) return;
+		
+		try {
+			//--------- Movement ----------------
+			camera.move(ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z);
+			ownship.move(ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z);
+			
+			//--------- Particles ---------------
+			ParticleMaster.update(camera);
+			
+			//--------- Audio--------------------
+			SoundCollection.update(soundValues);
+			
+			//----------- UI --------------------
+			texts.get("Paused").setTextString(configuration.getSimulationOptions().contains(Options.PAUSED) ? "PAUSED" : "");
+			
+			//------ Render Everything -----------
+			masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainTree(), 
+											lights, camera, new Vector4f(0, 1, 0, 0));
+			ParticleMaster.renderParticles(camera);
+			TextMaster.render(texts);
+			interfaceRenderer.render(interfaceTextures);
+			
+			DisplayManager.updateDisplay();
+		} catch (Exception e) {
+			logger.error("Error encountered while running LWJGL display!", e);
 		}
-		
-		running = false;
-		
-		//================================ Clean Up =========================================================
-		
-		try { cleanUp(); }
-		catch (Exception e) {logger.fatal("Error encountered when cleaning up LWJGL display!", e);}
+	}
+	
+	/**
+	 * Called just before main simulation loop runs, initializes all assets and processes
+	 */
+	@Override
+	public void init() {
+		try { 
+			startUp(); 
+			loadAssets(); 
+		} catch (Exception e) {
+			logger.fatal("Error encountered when setting up LWJGL display!", e);
+			cleanUp();
+		}
+	}
+	
+	/**
+	 * Closes all display and rendering processes, and closes display window 
+	 */
+	@Override
+	public void cleanUp() {
+		try {  
+			logger.debug("Cleaning up and closing LWJGL display...");
+			
+			AudioMaster.cleanUp();
+			ParticleMaster.cleanUp();
+			TextMaster.cleanUp();
+			masterRenderer.cleanUp();
+			interfaceRenderer.cleanUp();
+			loader.cleanUp();			
+		}
+		catch (Exception e) {
+			logger.fatal("Error encountered when cleaning up LWJGL display!", e);
+		} finally {			
+			DisplayManager.closeDisplay();
+		}
 	}
 	
 	/**
 	 * Sets up all display and rendering processes and prepares them to run
 	 */
-	private void setUp() {
-		
-		// Initialize display window depending on presence of SimulationController's MainFrame object,
-		// set in RunJavaFlightSimulator
-		
+	private void startUp() {
 		logger.debug("Starting up LWJGL display...");
-
 		DisplayManager.createDisplay();
 		
 		loader = new Loader();
 		
-		// Set up renderer with fog and sky config
-
 		logger.debug("Generating fog and sky...");
 		
 		masterRenderer = new MasterRenderer();
@@ -205,14 +214,10 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		MasterRenderer.setFogDensity(0.0005f);
 		MasterRenderer.setFogGradient(3.5f);
 		
-		// Initialize sounds and position of listener
-
 		logger.debug("Initializing audio...");
 		
 		AudioMaster.init();
 		AudioMaster.setListenerData(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0));
-		
-		// Load particles and on-screen text
 		
 		logger.debug("Loading on-screen text and particles...");
 		
@@ -220,25 +225,6 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 		TextMaster.init(loader);
 		
 		interfaceRenderer = new InterfaceRenderer(loader);
-	}
-	
-	/**
-	 * Closes all display and rendering processes, and closes display window 
-	 */
-	private void cleanUp() {
-
-		logger.debug("Cleaning up and closing LWJGL display...");
-		
-		AudioMaster.cleanUp();
-		ParticleMaster.cleanUp();
-		TextMaster.cleanUp();
-		masterRenderer.cleanUp();
-		interfaceRenderer.cleanUp();
-		loader.cleanUp();
-		
-		DisplayManager.closeDisplay();
-		
-		controller.stopSimulation();
 	}
 	
 	/**
@@ -332,25 +318,18 @@ public class LWJGLWorld implements Runnable, FlightDataListener, OTWWorld {
 	
 	@Override
 	public synchronized float getTerrainHeight() {
-		if (running) {
-			TreeMap<String, Terrain> terrainTree = terrainCollection.getTerrainTree();
-			Vector3f position = ownship.getPosition();
-			// Terrain object ownship is currently on
-			Terrain currentTerrain = Terrain.getCurrentTerrain(terrainTree, position.x, position.z);
-			// If outside world bounds, return 0 as terrain height
-			return (currentTerrain == null) ? 0.0f : currentTerrain.getTerrainHeight(position.x, position.z);
-		} else { 
-			return 0.0f; 
-		}
+		if (terrainCollection == null)
+			return 0.0f;
+		
+		TreeMap<String, Terrain> terrainTree = terrainCollection.getTerrainTree();
+		Vector3f position = ownship.getPosition();
+		
+		// Terrain object ownship is currently on
+		Terrain currentTerrain = Terrain.getCurrentTerrain(terrainTree, position.x, position.z);
+		
+		// If outside world bounds, return 0 as terrain height
+		return (currentTerrain == null) ? 0.0f : currentTerrain.getTerrainHeight(position.x, position.z);
 	}
-	
-	//=============================== Synchronization ======================================================
-	
-	/**
-	 * @return If out the window display is running
-	 */
-	@Override
-	public synchronized boolean isRunning() {return running;}
 	
 	//===================================== Text ============================================================
 	
