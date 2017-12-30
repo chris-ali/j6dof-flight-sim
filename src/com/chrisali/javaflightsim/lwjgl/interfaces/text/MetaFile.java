@@ -17,7 +17,7 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.lwjgl.interfaces.font;
+package com.chrisali.javaflightsim.lwjgl.interfaces.text;
 
 import java.io.BufferedReader;
 import java.io.File;

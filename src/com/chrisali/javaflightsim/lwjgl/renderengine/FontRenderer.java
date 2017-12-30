@@ -27,8 +27,8 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 
-import com.chrisali.javaflightsim.lwjgl.interfaces.font.FontType;
-import com.chrisali.javaflightsim.lwjgl.interfaces.font.GUIText;
+import com.chrisali.javaflightsim.lwjgl.interfaces.text.FontType;
+import com.chrisali.javaflightsim.lwjgl.interfaces.text.GUIText;
 import com.chrisali.javaflightsim.lwjgl.shaders.FontShader;
 
 public class FontRenderer {
