@@ -19,9 +19,13 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.lwjgl.entities;
 
+import java.util.Map;
+
 import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.lwjgl.models.TexturedModel;
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
+import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 
 /**
  * An {@link Entity} with no physics attached to it that relies on an outside source to set its position/angles
@@ -30,6 +34,29 @@ import com.chrisali.javaflightsim.lwjgl.models.TexturedModel;
  *
  */
 public class Ownship extends Entity {
+	
+	/**
+	 * Constructor that takes a Map of inital conditions to set initial position and rotation  
+	 * 
+	 * @param model
+	 * @param initialConditions
+	 * @param scale
+	 */
+	public Ownship(TexturedModel model, Map<InitialConditions, Double> initialConditions, float scale) {
+		super(model, new Vector3f(0,0,0), 0, 0, 0, scale);
+		
+		//(800, 150, 800)
+		super.setPosition(new Vector3f(
+			(float)initialConditions.get(InitialConditions.INITN).doubleValue() / 15,
+		    (float)initialConditions.get(InitialConditions.INITD).doubleValue() / 15, 
+		    (float)initialConditions.get(InitialConditions.INITE).doubleValue() / 15)
+		); 
+		
+		// (0, 0, 135)
+		super.setRotX((float)Math.toDegrees(initialConditions.get(InitialConditions.INITPHI)));
+		super.setRotY((float)Math.toDegrees(initialConditions.get(InitialConditions.INITTHETA))); 
+		super.setRotZ((float)Math.toDegrees(initialConditions.get(InitialConditions.INITPSI)) - 270); 
+	}
 
 	public Ownship(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
 		super(model, position, rotX, rotY, rotZ, scale);
@@ -43,4 +70,22 @@ public class Ownship extends Entity {
 		super.setRotY(psi);
 	}
 	
+	/**
+	 * Translates and rotates ownship using FlightData provided by simulation  
+	 * 
+	 * @param flightData
+	 */
+	public void move(Map<FlightDataType, Double> flightData) {
+		// Scale distances from simulation to OTW
+		setPosition(new Vector3f(
+			(float) (flightData.get(FlightDataType.NORTH)    / 15),
+			(float) (flightData.get(FlightDataType.ALTITUDE) / 15),
+			(float) (flightData.get(FlightDataType.EAST)     / 15)
+		));
+		
+		// Convert right-handed coordinates from simulation to left-handed coordinates of OTW
+		setRotX((float) -(flightData.get(FlightDataType.ROLL)));
+		setRotY((float) -(flightData.get(FlightDataType.PITCH)));
+		setRotZ((float)  (flightData.get(FlightDataType.HEADING)-270));
+	}
 }

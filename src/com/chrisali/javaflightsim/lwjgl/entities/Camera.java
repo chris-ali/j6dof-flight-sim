@@ -147,7 +147,8 @@ public class Camera {
 	}
 	
 	/**
-	 * Translates and rotates the directly camera based on the position and angles supplied as arguments;
+	 * Translates and rotates the directly camera based on the position and angles supplied as arguments 
+	 * along with offsets for pilot position/pitch;
 	 * these values are then sent to the shader classes where OpenGL can draw the scene.
 	 * 
 	 * @param position
@@ -156,10 +157,10 @@ public class Camera {
 	 * @param psi
 	 */
 	public void move(Vector3f position, float phi, float theta, float psi) {
-		this.position.x = position.x;
-		this.position.y = position.y;
-		this.position.z = position.z;
-		
+		this.position.x = position.x + pilotPosition.x;
+		this.position.y = position.y + pilotPosition.y;
+		this.position.z = position.z + pilotPosition.z;
+				
 		this.phi = phi; 
 		this.theta = theta + pitchOffset;
 		this.psi = psi;

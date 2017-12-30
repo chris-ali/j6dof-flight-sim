@@ -31,7 +31,7 @@ public class TestWorld {
 		
 		LWJGLWorld world = new LWJGLWorld(new LWJGLSwingSimulationController(configuration));
 		
-		while (world.isRunning()) {
+		while (true) {
 			world.step();
 		}
 	}

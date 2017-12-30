@@ -29,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
+import com.chrisali.javaflightsim.lwjgl.events.WindowClosedListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
@@ -46,7 +47,7 @@ import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
  * @author Christopher
  *
  */
-public class SimulationRunner implements Runnable {
+public class SimulationRunner implements Runnable, WindowClosedListener {
 	
 	private static final Logger logger = LogManager.getLogger(SimulationRunner.class);
 	private static final int TO_MILLISEC = 1000;
@@ -98,7 +99,12 @@ public class SimulationRunner implements Runnable {
 	public void configureSimulationTime() {
 		// Set up running parameters for simulation
 		timeMS = new AtomicInteger(integratorConfig.get(IntegratorConfig.STARTTIME).intValue() * TO_MILLISEC);
-		frameStepMS = (int) (integratorConfig.get(IntegratorConfig.DT) * TO_MILLISEC);
+		
+		// Pause for frameStepMS milliseconds to emulate real time operation in normal mode
+		if (!options.contains(Options.ANALYSIS_MODE))
+			frameStepMS = (int) (integratorConfig.get(IntegratorConfig.DT) * TO_MILLISEC);
+		else 
+			frameStepMS = 1;
 		
 		// Run forever as a pilot in the loop simulation 
 		if (!options.contains(Options.ANALYSIS_MODE) && options.contains(Options.UNLIMITED_FLIGHT))
@@ -118,6 +124,7 @@ public class SimulationRunner implements Runnable {
 						
 			logger.debug("Initializing LWJGL world...");
 			outTheWindow = new LWJGLWorld(simController);
+			outTheWindow.addWindowClosedListener(this);
 			outTheWindow.init();
 
 			logger.debug("Initializing flight data transfer...");
@@ -144,7 +151,7 @@ public class SimulationRunner implements Runnable {
 
 		while (running && timeMS.get() < endTimeMS) {
 			try {
-				// Step update each component if allowed to basend on the current time 
+				// Step update each component if allowed to based on the current time 
 				if (flightControls.canStepNow(timeMS.get()))
 					flightControls.step();
 					
@@ -157,28 +164,12 @@ public class SimulationRunner implements Runnable {
 				if (environmentData != null && environmentData.canStepNow(timeMS.get()))
 					environmentData.step();
 				
-				if (outTheWindow != null && outTheWindow.canStepNow(timeMS.get())) {
+				if (outTheWindow != null && outTheWindow.canStepNow(timeMS.get()))
 					outTheWindow.step();
-					
-					// Do this elsewhere
-					if(!outTheWindow.isRunning()) {
-						outTheWindow.cleanUp();
-						simController.stopSimulation();
-					}
-				}
 				
-				// Pause for frameStepMS milliseconds to emulate real time operation in analysis mode
-				if (!options.contains(Options.ANALYSIS_MODE))
-					Thread.sleep((long)(frameStepMS));
-				else
-					Thread.sleep(1);
+				Thread.sleep((long)(frameStepMS));
 
-				// Increment time
 				timeMS.addAndGet(frameStepMS);
-			} catch (InterruptedException ex) {
-				logger.warn("Simulation Runner thread was interrupted! Ignoring...");
-				
-				continue;
 			} catch (Exception ez) {
 				logger.error("Exception encountered while running Simulation Runner thread. Attempting to continue...", ez);
 				
@@ -191,7 +182,15 @@ public class SimulationRunner implements Runnable {
 		
 		running = false;
 	}
-	
+			
+	/**
+	 * When LWJGL OTW window is closed, this event is fired
+	 */
+	@Override
+	public void onWindowClosed() {
+		simController.stopSimulation();	
+	}
+
 	/**
 	 * Adds {@link FlightDataListener} objects external to {@link SimulationRunner} to flightData's listener list
 	 * 

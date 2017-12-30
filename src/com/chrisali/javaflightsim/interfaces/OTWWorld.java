@@ -15,14 +15,4 @@ public interface OTWWorld extends Steppable {
 	 * Initializes all assets and rendering processes for the OTW engine
 	 */
 	public void init();
-	
-	/**
-	 * Cleans up all assets and ends rendering processes for the OTW engine
-	 */
-	public void cleanUp();
-
-	/**
-	 * @return If out the window display is running
-	 */
-	boolean isRunning();
 }

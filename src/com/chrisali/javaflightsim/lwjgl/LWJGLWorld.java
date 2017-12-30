@@ -19,10 +19,8 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.lwjgl;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -31,7 +29,6 @@ import java.util.TreeMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -44,11 +41,12 @@ import com.chrisali.javaflightsim.lwjgl.entities.Camera;
 import com.chrisali.javaflightsim.lwjgl.entities.EntityCollections;
 import com.chrisali.javaflightsim.lwjgl.entities.Light;
 import com.chrisali.javaflightsim.lwjgl.entities.Ownship;
-import com.chrisali.javaflightsim.lwjgl.interfaces.font.FontType;
-import com.chrisali.javaflightsim.lwjgl.interfaces.font.GUIText;
-import com.chrisali.javaflightsim.lwjgl.interfaces.font.TextMaster;
+import com.chrisali.javaflightsim.lwjgl.events.WindowClosedListener;
 import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.AbstractGauge;
 import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.InstrumentPanel;
+import com.chrisali.javaflightsim.lwjgl.interfaces.text.FontType;
+import com.chrisali.javaflightsim.lwjgl.interfaces.text.SimulationTexts;
+import com.chrisali.javaflightsim.lwjgl.interfaces.text.TextMaster;
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.lwjgl.models.TexturedModel;
 import com.chrisali.javaflightsim.lwjgl.particles.Cloud;
@@ -67,7 +65,6 @@ import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
-import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -84,8 +81,9 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	private static final Logger logger = LogManager.getLogger(LWJGLWorld.class);
 	
 	private Loader loader;
-	
 	private MasterRenderer masterRenderer;
+	
+	// Lighting
 	private List<Light> lights;
 	
 	// Sound Fields
@@ -98,16 +96,18 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	
 	// Ownship is the "player" that moves around the world based on data received from FlightData
 	private Ownship ownship;
-	private Vector3f ownshipPosition;
-	private Vector3f ownshipRotation;
 	private Camera camera;
 	
-	private Map<String, GUIText> texts = new HashMap<>();;
+	// Interface
+	private SimulationTexts simTexts;
 	private List<InterfaceTexture> interfaceTextures;
 	private InterfaceRenderer interfaceRenderer;
 	private InstrumentPanel panel;
 	
 	private SimulationConfiguration configuration;
+	
+	//Event Listeners
+	private List<WindowClosedListener> windowClosedListeners = new ArrayList<>();
 			
 	/**
 	 * Sets up OTW display with {@link SimulationConfiguration} provided by {@link SimulationController} 
@@ -122,43 +122,34 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	public boolean canStepNow(int simTimeMS) {
 		return simTimeMS % 1 == 0;
 	}
-	
-	@Override
-	public boolean isRunning() {
-		return !Display.isCloseRequested();
-	}
 
 	/**
 	 * Main game loop of the LWJGL process, whose stepping is controlled by the {@link SimulationRunner} object's thread
 	 */
 	@Override
 	public void step() {
-		if(Display.isCloseRequested()) return;
-		
 		try {
-			//--------- Movement ----------------
-			camera.move(ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z);
-			ownship.move(ownshipPosition, ownshipRotation.x, ownshipRotation.y, ownshipRotation.z);
-			
-			//--------- Particles ---------------
 			ParticleMaster.update(camera);
 			
-			//--------- Audio--------------------
 			SoundCollection.update(soundValues);
 			
-			//----------- UI --------------------
-			texts.get("Paused").setTextString(configuration.getSimulationOptions().contains(Options.PAUSED) ? "PAUSED" : "");
-			
-			//------ Render Everything -----------
 			masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainTree(), 
 											lights, camera, new Vector4f(0, 1, 0, 0));
-			ParticleMaster.renderParticles(camera);
-			TextMaster.render(texts);
-			interfaceRenderer.render(interfaceTextures);
 			
+			ParticleMaster.renderParticles(camera);
+			
+			interfaceRenderer.render(interfaceTextures);
+
+			TextMaster.render(simTexts.getTexts());
+						
 			DisplayManager.updateDisplay();
 		} catch (Exception e) {
 			logger.error("Error encountered while running LWJGL display!", e);
+		}
+		
+		if(Display.isCloseRequested()) {
+			fireWindowClosed();
+			cleanUp();
 		}
 	}
 	
@@ -179,8 +170,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	/**
 	 * Closes all display and rendering processes, and closes display window 
 	 */
-	@Override
-	public void cleanUp() {
+	private void cleanUp() {
 		try {  
 			logger.debug("Cleaning up and closing LWJGL display...");
 			
@@ -252,15 +242,8 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		// Model used for aircraft; scale set to 0 to be invisible for now
 		TexturedModel bunny =  new TexturedModel(OBJLoader.loadObjModel("bunny", OTWDirectories.ENTITIES.toString(), loader), 
 			    								new ModelTexture(loader.loadTexture("bunny", OTWDirectories.ENTITIES.toString())));
-		// Initial position of ownship
-		Map<InitialConditions, Double> initialConditions = configuration.getInitialConditions();
-		ownshipPosition = new Vector3f((float)initialConditions.get(InitialConditions.INITN).doubleValue() / 15,
-									   (float)initialConditions.get(InitialConditions.INITD).doubleValue() / 15, 
-									   (float)initialConditions.get(InitialConditions.INITE).doubleValue() / 15); //(800, 150, 800)
-		ownshipRotation = new Vector3f((float)Math.toDegrees(initialConditions.get(InitialConditions.INITPHI)),
-									   (float)Math.toDegrees(initialConditions.get(InitialConditions.INITTHETA)), 
-									   (float)Math.toDegrees(initialConditions.get(InitialConditions.INITPSI)) - 270); // (0, 0, 135)
-		ownship = new Ownship(bunny, ownshipPosition, ownshipRotation.z, ownshipRotation.z, ownshipRotation.x, 0.000f);
+
+		ownship = new Ownship(bunny, configuration.getInitialConditions(), 0.000f);
 		
 		entities.addToStaticEntities(ownship);
 		
@@ -292,10 +275,8 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		
 		logger.debug("Generating on-screen text and panel...");
 		
-		// Generates font and on screen text
-		FontType font = new FontType(loader, "ubuntu");
-		texts.put("FlightData", new GUIText("", 0.85f, font, new Vector2f(0, 0), 1f, true));
-		texts.put("Paused", new GUIText("PAUSED", 1.15f, font, new Vector2f(0.5f, 0.5f), 1f, false, new Vector3f(1,0,0)));
+		// On-screen text
+		simTexts = new SimulationTexts(new FontType(loader, "ubuntu"));
 		
 		// Instrument Panel and Gauges
 		interfaceTextures = new ArrayList<>();
@@ -330,58 +311,17 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		// If outside world bounds, return 0 as terrain height
 		return (currentTerrain == null) ? 0.0f : currentTerrain.getTerrainHeight(position.x, position.z);
 	}
-	
-	//===================================== Text ============================================================
-	
-	/**
-	 * Prepares a string of flight data that is output on the OTW using the {@link GUIText} object
-	 * 
-	 * @param receivedFlightData
-	 * @return string displaying flight data output 
-	 */
-	private String setTextInfo(Map<FlightDataType, Double> receivedFlightData) {
-		DecimalFormat df4 = new DecimalFormat("0.0000");
-		DecimalFormat df2 = new DecimalFormat("0.00");
-		DecimalFormat df0 = new DecimalFormat("0");
-		
-		StringBuffer sb = new StringBuffer();
-
-		try {
-			sb.append("AIRSPEED: ").append(df0.format(receivedFlightData.get(FlightDataType.IAS))).append(" KIAS | ")
-			  .append("HEADING: ").append(df0.format(receivedFlightData.get(FlightDataType.HEADING))).append(" DEG | ")
-			  .append("ALTITUDE: ").append(df0.format(receivedFlightData.get(FlightDataType.ALTITUDE))).append(" FT | ")
-			  .append("LATITUDE: ").append(df4.format(receivedFlightData.get(FlightDataType.LATITUDE))).append(" DEG | ")
-			  .append("LONGITUDE: ").append(df4.format(receivedFlightData.get(FlightDataType.LONGITUDE))).append(" DEG | ")
-			  .append("G-FORCE: ").append(df2.format(receivedFlightData.get(FlightDataType.GFORCE))).append(" G ");
-		} catch (Exception e) {
-			sb.append("AIRSPEED: ").append("---").append(" KIAS | ")
-			  .append("HEADING: ").append("---").append(" DEG | ")
-			  .append("ALTITUDE: ").append("---").append(" FT | ")
-			  .append("LATITUDE: ").append("--.----").append(" DEG | ")
-			  .append("LONGITUDE: ").append("--.----").append(" DEG | ")
-			  .append("G-FORCE: ").append("-.--").append(" G ");
-		}
-		
-		return sb.toString();
-	}
 
 	@Override
 	public void onFlightDataReceived(FlightData flightData) {
 		
 		Map<FlightDataType, Double> receivedFlightData = flightData.getFlightData();
 		
-		if (!receivedFlightData.containsValue(null) && (ownshipPosition != null || ownshipRotation != null)
-				&& receivedFlightData != null) {
-			// Scale distances from simulation to OTW
-			ownshipPosition.x = (float) (receivedFlightData.get(FlightDataType.NORTH)    / 15);
-			ownshipPosition.y = (float) (receivedFlightData.get(FlightDataType.ALTITUDE) / 15);
-			ownshipPosition.z = (float) (receivedFlightData.get(FlightDataType.EAST)     / 15);
-			
-			// Convert right-handed coordinates from simulation to left-handed coordinates of OTW
-			ownshipRotation.x = (float) -(receivedFlightData.get(FlightDataType.ROLL));
-			ownshipRotation.y = (float) -(receivedFlightData.get(FlightDataType.PITCH));
-			ownshipRotation.z = (float)  (receivedFlightData.get(FlightDataType.HEADING)-270); 
-			
+		if (!receivedFlightData.containsValue(null) && receivedFlightData != null) {
+			// Ownship movement; let camera track ownhip 1-1 for now
+			ownship.move(receivedFlightData);
+			camera.move(ownship.getPosition(), ownship.getRotX(), ownship.getRotY(), ownship.getRotZ());
+
 			// Set values for each sound in the simulation that depends on flight data
 			soundValues.put(SoundCategory.RPM_1, receivedFlightData.get(FlightDataType.RPM_1));
 			soundValues.put(SoundCategory.RPM_2, receivedFlightData.get(FlightDataType.RPM_2));
@@ -391,22 +331,36 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			soundValues.put(SoundCategory.FLAPS, receivedFlightData.get(FlightDataType.FLAPS));
 			soundValues.put(SoundCategory.GEAR, receivedFlightData.get(FlightDataType.GEAR));
 			soundValues.put(SoundCategory.STALL_HORN, receivedFlightData.get(FlightDataType.AOA));
-			
-			// Record flight data into text string to display on OTW screen 
-			if (!configuration.getSimulationOptions().contains(Options.INSTRUMENT_PANEL) && texts.get("FlightData") != null)
-				texts.get("FlightData").setTextString(setTextInfo(receivedFlightData));
-			
+						
 			// Record value every other step to ensure a difference between previous and current values; used to 
 			// trigger flaps and gear sounds
 			if (recordPrev) { 
 				soundValues.put(SoundCategory.PREV_STEP_FLAPS, receivedFlightData.get(FlightDataType.FLAPS));
 				soundValues.put(SoundCategory.PREV_STEP_GEAR, receivedFlightData.get(FlightDataType.GEAR));
 			} recordPrev ^= true; 
+
+			// Record flight data into text string to display on OTW screen 
+			simTexts.update(receivedFlightData, configuration.getSimulationOptions());
 			
+			// Instrument Panel
 			if (panel != null) {
 				for (AbstractGauge gauge : panel.getGauges())
 					gauge.setGaugeValue(receivedFlightData);
 			}
 		}
+	}
+	
+	// =============================== Events =====================================
+	
+	public void addWindowClosedListener(WindowClosedListener listener) {
+		if (windowClosedListeners != null) {
+			logger.debug("Adding window closed listener: " + listener.getClass());
+			windowClosedListeners.add(listener);
+		}
+	}
+	
+	private void fireWindowClosed() {
+		for (WindowClosedListener listener : windowClosedListeners)
+			listener.onWindowClosed();
 	}
 }
