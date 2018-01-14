@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2017 Christopher Ali
+ * Copyright (C) 2016-2018 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.initializer;
 
-import java.awt.Canvas;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -30,7 +29,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
-import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
@@ -78,6 +76,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	public LWJGLSwingSimulationController(SimulationConfiguration configuration) {
 		this.configuration = configuration;
+		guiFrame = new GuiFrame(this);
 	}
 	
 	//============================== Configuration =========================================================
@@ -127,7 +126,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		runner.setRunning(false);	
 		
 		logger.debug("Returning to menus...");
-		getGuiFrame().setVisible(true);
+		guiFrame.setVisible(true);
 	}
 	
 	/**
@@ -218,24 +217,5 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		} catch (Exception e) {
 			logger.error("An error occurred while saving console output!", e);
 		}
-	}
-	
-	//========================== Main Frame Menus =========================================================
-	
-	/**
-	 * Sets {@link GuiFrame} reference for {@link LWJGLWorld}, which needs it to 
-	 * set the parent {@link Canvas} in {@link DisplayManager}
-	 * 
-	 * @param guiFrame
-	 */
-	public void setGuiFrame(GuiFrame guiFrame) {
-		this.guiFrame = guiFrame;
-	}
-	
-	/**
-	 * @return reference to {@link GuiFrame} object in {@link NewLWJGLSwingSimulationController}
-	 */
-	public GuiFrame getGuiFrame() {
-		return guiFrame;
 	}
 }

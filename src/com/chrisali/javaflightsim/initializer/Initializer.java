@@ -83,11 +83,7 @@ public class Initializer {
 			@Override
 			public void run() {
 				try {
-					LWJGLSwingSimulationController controller = new LWJGLSwingSimulationController(configuration); 
-					GuiFrame guiFrame = new GuiFrame(controller);
-					
-					// Pass in mainFrame reference so that OTW display can get Canvas reference
-					controller.setGuiFrame(guiFrame);								
+					new LWJGLSwingSimulationController(configuration); 							
 				} catch (Exception e) {
 					logger.fatal("Error setting up Swing GUI and controller: ", e);
 					
