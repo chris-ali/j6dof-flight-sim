@@ -52,7 +52,7 @@ public class SimulationTexts {
 	 * @param options
 	 */
 	public void update(Map<FlightDataType, Double> flightData, Set<Options> options) {
-		if (!options.contains(Options.INSTRUMENT_PANEL) && texts.get("FlightData") != null)
+		if (!options.contains(Options.INSTRUMENT_PANEL))
 			texts.get("FlightData").setTextString(setTelemetryText(flightData));
 		
 		texts.get("Paused").setTextString(options.contains(Options.PAUSED) ? "PAUSED" : "");

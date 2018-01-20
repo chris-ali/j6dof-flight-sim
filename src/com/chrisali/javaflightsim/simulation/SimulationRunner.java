@@ -67,6 +67,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 	private AtomicInteger timeMS = new AtomicInteger(0);
 	private int frameStepMS;
 	private int endTimeMS;
+	private int threadPauseMS;
 	
 	private boolean running = false;
 	
@@ -100,11 +101,9 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 		// Set up running parameters for simulation
 		timeMS = new AtomicInteger(integratorConfig.get(IntegratorConfig.STARTTIME).intValue() * TO_MILLISEC);
 		
-		// Pause for frameStepMS milliseconds to emulate real time operation in normal mode
-		if (!options.contains(Options.ANALYSIS_MODE))
-			frameStepMS = (int) (integratorConfig.get(IntegratorConfig.DT) * TO_MILLISEC);
-		else 
-			frameStepMS = 1;
+		// Pause thread for frameStepMS milliseconds to emulate real time operation in normal mode
+		frameStepMS = (int) (integratorConfig.get(IntegratorConfig.DT) * TO_MILLISEC);
+		threadPauseMS = (!options.contains(Options.ANALYSIS_MODE)) ? frameStepMS : 1;
 		
 		// Run forever as a pilot in the loop simulation 
 		if (!options.contains(Options.ANALYSIS_MODE) && options.contains(Options.UNLIMITED_FLIGHT))
@@ -167,7 +166,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 				if (outTheWindow != null && outTheWindow.canStepNow(timeMS.get()))
 					outTheWindow.step();
 				
-				Thread.sleep((long)(frameStepMS));
+				Thread.sleep((long)(threadPauseMS));
 
 				timeMS.addAndGet(frameStepMS);
 			} catch (Exception ez) {

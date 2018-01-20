@@ -32,13 +32,14 @@ import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
 
 /**
- * Static class that contains a repository of sounds to be played by triggering certain events, such
+ * Class that contains a repository of sounds to be played by triggering certain events, such
  * as control surface deflections, engine properties or change in airspeed
  * 
  * @author Christopher Ali
@@ -48,9 +49,7 @@ public class SoundCollection {
 	
 	//Logging
 	private static final Logger logger = LogManager.getLogger(SoundCollection.class);
-	
-	private static Aircraft aircraft;
-	
+		
 	/**
 	 * Inner enums used to identify {@link SoundSource} objects in the soundSources
 	 * EnumMap 
@@ -58,7 +57,7 @@ public class SoundCollection {
 	 * @author Christopher Ali
 	 *
 	 */
-	public static enum SoundEvent {
+	public enum SoundEvent {
 		ENGINE_1_LOW,
 		ENGINE_1_MED,
 		ENGINE_1_HIGH,
@@ -89,7 +88,7 @@ public class SoundCollection {
 	 * @author Christopher Ali
 	 *
 	 */
-	public static enum SoundCategory {
+	public enum SoundCategory {
 		RPM_1,
 		RPM_2,
 		RPM_3,
@@ -103,11 +102,21 @@ public class SoundCollection {
 		GYRO;
 	}
 	
-	private static float engineVolume;
-	private static float systemsVolume;
-	private static float environmentVolume;
+	private Aircraft aircraft;
 	
-	private static Map<SoundEvent, SoundSource> soundSources = new EnumMap<>(SoundEvent.class);
+	
+	private float engineVolume;
+	private float systemsVolume;
+	private float environmentVolume;
+	
+	private Map<SoundEvent, SoundSource> soundSources; 
+		
+	private Map<SoundCategory, Double> soundValues;
+	
+	/**
+	 * Used to record soundValues data to PREV_STEP_* enums to stop sounds looping if a control stops moving
+	 */
+	private boolean recordToPreviousStep = true; 
 	
 	/**
 	 *	Fills soundSources EnumMap with {@link SoundSource} objects, which are references to audio
@@ -118,7 +127,7 @@ public class SoundCollection {
 	 *  
 	 *  @param configuration
 	 */
-	public static void initializeSounds(SimulationConfiguration configuration) {
+	public SoundCollection(SimulationConfiguration configuration) {
 		
 		logger.debug("Initializing Sound Collections...");
 		
@@ -128,6 +137,9 @@ public class SoundCollection {
 		engineVolume = audioOptions.get(AudioOptions.ENGINE_VOLUME);
 		systemsVolume = audioOptions.get(AudioOptions.SYSTEMS_VOLUME);
 		environmentVolume = audioOptions.get(AudioOptions.ENVIRONMENT_VOLUME);
+		
+		soundSources = new EnumMap<>(SoundEvent.class);
+		soundValues = new EnumMap<>(SoundCategory.class);
 		
 		//================================ Engine =========================================
 		
@@ -191,7 +203,7 @@ public class SoundCollection {
 		//================================ Environment ======================================
 		
 		soundSources.put(SoundEvent.WIND, new SoundSource(OTWDirectories.AUDIO.toString(), "wind"));
-		soundSources.get(SoundEvent.WIND).setVolume(0.25f);
+		soundSources.get(SoundEvent.WIND).setVolume(0.5f*environmentVolume);
 		soundSources.get(SoundEvent.WIND).setLooping(true);
 		soundSources.get(SoundEvent.WIND).play();
 	}
@@ -203,14 +215,30 @@ public class SoundCollection {
 	 * 
 	 * @param soundValues
 	 */
-	public static void update(Map<SoundCategory, Double> soundValues) {
-		if (!soundValues.isEmpty()) {
-			setRPM(soundValues);
-			setControl(SoundEvent.FLAPS, soundValues);
-			setControl(SoundEvent.GEAR, soundValues);
-			setWind(soundValues.get(SoundCategory.WIND));
-			setStallHorn(soundValues.get(SoundCategory.STALL_HORN), Math.PI/17);
-		}
+	public void update(Map<FlightDataType, Double> flightData) {
+		// Set values for each sound in the simulation that depends on flight data
+		soundValues.put(SoundCategory.RPM_1, flightData.get(FlightDataType.RPM_1));
+		soundValues.put(SoundCategory.RPM_2, flightData.get(FlightDataType.RPM_2));
+		soundValues.put(SoundCategory.RPM_3, flightData.get(FlightDataType.RPM_3));
+		soundValues.put(SoundCategory.RPM_4, flightData.get(FlightDataType.RPM_4));
+		soundValues.put(SoundCategory.WIND, flightData.get(FlightDataType.TAS));
+		soundValues.put(SoundCategory.FLAPS, flightData.get(FlightDataType.FLAPS));
+		soundValues.put(SoundCategory.GEAR, flightData.get(FlightDataType.GEAR));
+		soundValues.put(SoundCategory.STALL_HORN, flightData.get(FlightDataType.AOA));
+					
+		// Record value every other step to ensure a difference between previous and current values; used to 
+		// trigger flaps and gear sounds
+		if (recordToPreviousStep) { 
+			soundValues.put(SoundCategory.PREV_STEP_FLAPS, flightData.get(FlightDataType.FLAPS));
+			soundValues.put(SoundCategory.PREV_STEP_GEAR, flightData.get(FlightDataType.GEAR));
+		} recordToPreviousStep ^= true; 
+
+		// Update gain/pitch of each sound
+		setRPM();
+		setControl(SoundEvent.FLAPS);
+		setControl(SoundEvent.GEAR);
+		setWind();
+		setStallHorn(Math.PI/17);
 	}
 	
 	/**
@@ -219,7 +247,9 @@ public class SoundCollection {
 	 * @param alpha
 	 * @param threshold
 	 */
-	public static void setStallHorn(double alpha, double threshold) {
+	public void setStallHorn(double threshold) {
+		double alpha = soundValues.get(SoundCategory.STALL_HORN);
+		
 		if ((alpha > threshold) && !(soundSources.get(SoundEvent.STALL).isPlaying()))
 			soundSources.get(SoundEvent.STALL).play();
 		else if ((alpha < threshold) && (soundSources.get(SoundEvent.STALL).isPlaying()))
@@ -227,23 +257,22 @@ public class SoundCollection {
 	}
 	
 	/**
-	 * Plays sound for a specified control deflection if the difference between the received value (control)
-	 * and the previously received value is greater than 0, indicating a change in deflection over the integration step
+	 * Plays sound for a specified control deflection if the difference between the received value
+	 * and the PREV_STEP_* value is greater than 0, indicating a change in deflection over the integration step
 	 * 
 	 * @param event
-	 * @param controls
 	 */
-	public static void setControl(SoundEvent event, Map<SoundCategory, Double> controls) {
+	public void setControl(SoundEvent event) {
 		double currentControlValue = 0.0, previousControlValue = 0.0;
 		
 		switch(event) {
 		case FLAPS:
-			currentControlValue = controls.get(SoundCategory.FLAPS);
-			previousControlValue = controls.get(SoundCategory.PREV_STEP_FLAPS);
+			currentControlValue = soundValues.get(SoundCategory.FLAPS);
+			previousControlValue = soundValues.get(SoundCategory.PREV_STEP_FLAPS);
 			break;
 		case GEAR:
-			currentControlValue = controls.get(SoundCategory.GEAR);
-			previousControlValue = controls.get(SoundCategory.PREV_STEP_GEAR);
+			currentControlValue = soundValues.get(SoundCategory.GEAR);
+			previousControlValue = soundValues.get(SoundCategory.PREV_STEP_GEAR);
 			break;
 		default:
 			break;
@@ -257,22 +286,19 @@ public class SoundCollection {
 	
 	/**
 	 * Sets volume of wind as a function of true airspeed (kts)
-	 * 
-	 * @param trueAirspeed
 	 */
-	public static void setWind(double trueAirspeed) {
-		float gainWind = (float) ((trueAirspeed >  50 && trueAirspeed < 300) ? ((2.0-0.25)*(trueAirspeed-50))/(300-50) + 0.25 : 0);
+	public void setWind() {
+		double trueAirspeed = soundValues.get(SoundCategory.WIND);
+		
+		float gainWind = (float) ((trueAirspeed >  50 && trueAirspeed < 300) ? ((2.0-0.5)*(trueAirspeed-50))/(300-50) + 0.5 : 0);
 		soundSources.get(SoundEvent.WIND).setVolume(gainWind*=environmentVolume);
 	}
 	
 	/**
 	 * Uses sound blending with cosine and linear functions with volume and pitch properties, respectively 
 	 * to mesh together engine sounds as a function of RPM
-	 * 
-	 * @param aircraft
-	 * @param RPM
 	 */
-	public static void setRPM(Map<SoundCategory, Double> soundValues) {
+	public void setRPM() {
 		float gainLow, pitchLow, gainMed, pitchMed, gainHi, pitchHi, gainMax, pitchMax;
 		double RPM;
 		int engineNumber;
@@ -312,31 +338,31 @@ public class SoundCollection {
 		}
 	}
 
-	public static void play(SoundEvent event) {
+	public void play(SoundEvent event) {
 		soundSources.get(event).play();
 	}
 	
-	public static void stop(SoundEvent event) {
+	public void stop(SoundEvent event) {
 		soundSources.get(event).stop();
 	}
 	
-	public static void setPitch(SoundEvent event, float pitch) {
+	public void setPitch(SoundEvent event, float pitch) {
 		soundSources.get(event).setPitch(pitch);
 	}
 	
-	public static void setVolume(SoundEvent event, float volume) {
+	public void setVolume(SoundEvent event, float volume) {
 		soundSources.get(event).setVolume(volume);
 	}
 	
-	public static void setPosition(SoundEvent event, Vector3f position) {
+	public void setPosition(SoundEvent event, Vector3f position) {
 		soundSources.get(event).setPosition(position);
 	}
 	
-	public static void setVelocity(SoundEvent event, Vector3f velocity) {
+	public void setVelocity(SoundEvent event, Vector3f velocity) {
 		soundSources.get(event).setVelocity(velocity);
 	}
 	
-	public static void cleanUp() {
+	public void cleanUp() {
 		for (Map.Entry<SoundEvent, SoundSource> entry : soundSources.entrySet())
 			entry.getValue().delete();
 	}

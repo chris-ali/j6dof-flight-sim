@@ -58,6 +58,7 @@ public class TestAudio {
 	private Vector3f sourceVelocity = new Vector3f(-0.02f, 0, 0);
 	
 	private SimulationConfiguration configuration;
+	private SoundCollection soundCollection;
 	
 	private Map<String, SoundSource> soundSources = new HashMap<>();
 	private Map<SoundCategory, Double> soundValues = new EnumMap<>(SoundCategory.class);
@@ -156,7 +157,7 @@ public class TestAudio {
 	private void AudioTestRPM() {
 		System.out.println("Starting RPM Test");
 		
-		SoundCollection.initializeSounds(configuration);
+		soundCollection = new SoundCollection(configuration);
 		
 		soundValues.put(SoundCategory.RPM_1, 500.0);
 		
@@ -164,7 +165,7 @@ public class TestAudio {
 		while (rpm < 2700) {
 			soundValues.put(SoundCategory.RPM_1, (double) rpm);
 			
-			SoundCollection.setRPM(soundValues);
+			soundCollection.setRPM(soundValues);
 			
 			try {Thread.sleep((int)dT * 5);} 
 			catch (InterruptedException e) {}
@@ -175,7 +176,7 @@ public class TestAudio {
 		try {Thread.sleep(5000);} 
 		catch (InterruptedException e) {}
 		
-		SoundCollection.cleanUp();
+		soundCollection.cleanUp();
 		
 		System.out.println("Done!");
 	}
@@ -183,12 +184,12 @@ public class TestAudio {
 	private void AudioTestGear() {
 		System.out.println("Starting Gear Test");
 		
-		SoundCollection.initializeSounds(configuration);
+		soundCollection = new SoundCollection(configuration);
 		
 		soundValues.put(SoundCategory.PREV_STEP_GEAR, 0.0);
 		soundValues.put(SoundCategory.GEAR, 1.0);
 		
-		SoundCollection.setControl(SoundEvent.GEAR, soundValues);
+		soundCollection.setControl(SoundEvent.GEAR, soundValues);
 		
 		soundValues.put(SoundCategory.PREV_STEP_GEAR, 1.0);
 		
@@ -198,11 +199,11 @@ public class TestAudio {
 		soundValues.put(SoundCategory.PREV_STEP_GEAR, 1.0);
 		soundValues.put(SoundCategory.GEAR, 0.0);
 		
-		SoundCollection.setControl(SoundEvent.GEAR, soundValues);
+		soundCollection.setControl(SoundEvent.GEAR, soundValues);
 		
 		soundValues.put(SoundCategory.PREV_STEP_GEAR, 0.0);
 		
-		SoundCollection.cleanUp();
+		soundCollection.cleanUp();
 		
 		System.out.println("Done!");
 	}
@@ -210,13 +211,13 @@ public class TestAudio {
 	private void AudioTestFlaps() {
 		System.out.println("Starting Flaps Test");
 		
-		SoundCollection.initializeSounds(configuration);
+		soundCollection = new SoundCollection(configuration);
 		
 		for (double flaps = 0; flaps < 30; flaps += 1.0) {
 			
 			soundValues.put(SoundCategory.FLAPS, flaps);
 			
-			SoundCollection.setControl(SoundEvent.FLAPS, soundValues);
+			soundCollection.setControl(SoundEvent.FLAPS, soundValues);
 			
 			soundValues.put(SoundCategory.PREV_STEP_FLAPS, flaps-1.0);
 			
@@ -233,7 +234,7 @@ public class TestAudio {
 
 			soundValues.put(SoundCategory.FLAPS, flaps);
 			
-			SoundCollection.setControl(SoundEvent.FLAPS, soundValues);
+			soundCollection.setControl(SoundEvent.FLAPS, soundValues);
 			
 			soundValues.put(SoundCategory.PREV_STEP_FLAPS, flaps+1.0);
 			
@@ -243,7 +244,7 @@ public class TestAudio {
 		
 		soundValues.put(SoundCategory.PREV_STEP_FLAPS, 0.0);
 		
-		SoundCollection.cleanUp();
+		soundCollection.cleanUp();
 		
 		System.out.println("Done!");
 	}
@@ -251,10 +252,10 @@ public class TestAudio {
 	private void AudioTestStall() {
 		System.out.println("Starting Stall Test");
 		
-		SoundCollection.initializeSounds(configuration);
+		soundCollection = new SoundCollection(configuration);
 		
 		for (float alpha = 0; alpha < 0.5f; alpha += 0.02) {
-			SoundCollection.setStallHorn(alpha, 0.25f);
+			soundCollection.setStallHorn(alpha, 0.25f);
 			
 			try {Thread.sleep(20);} 
 			catch (InterruptedException e) {}
@@ -264,13 +265,13 @@ public class TestAudio {
 		catch (InterruptedException e) {}
 		
 		for (float alpha = 0.5f; alpha > 0.0f; alpha -= 0.02) {
-			SoundCollection.setStallHorn(alpha, 0.25f);
+			soundCollection.setStallHorn(alpha, 0.25f);
 			
 			try {Thread.sleep(200);} 
 			catch (InterruptedException e) {}
 		}
 		
-		SoundCollection.cleanUp();
+		soundCollection.cleanUp();
 		
 		System.out.println("Done!");
 	}
@@ -278,10 +279,10 @@ public class TestAudio {
 	private void AudioTestWind() {
 		System.out.println("Starting Wind Test");
 		
-		SoundCollection.initializeSounds(configuration);
+		soundCollection = new SoundCollection(configuration);
 		
 		for (float trueAirspeed = 30; trueAirspeed < 300; trueAirspeed += 1.0) {
-			SoundCollection.setWind(trueAirspeed);
+			soundCollection.setWind(trueAirspeed);
 			
 			try {Thread.sleep(50);} 
 			catch (InterruptedException e) {}
@@ -290,14 +291,13 @@ public class TestAudio {
 		try {Thread.sleep(1000);} 
 		catch (InterruptedException e) {}
 		
-		SoundCollection.cleanUp();
+		soundCollection.cleanUp();
 		
 		System.out.println("Done!");
 	} 
 	
 	private void finish() {
-		for (Map.Entry<String, SoundSource> entry : soundSources.entrySet())
-			entry.getValue().delete();
+		soundCollection.cleanUp();
 		
 		AudioMaster.cleanUp();
 	}

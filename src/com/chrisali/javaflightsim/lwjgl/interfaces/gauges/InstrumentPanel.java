@@ -21,6 +21,7 @@ package com.chrisali.javaflightsim.lwjgl.interfaces.gauges;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +29,8 @@ import org.lwjgl.util.vector.Vector2f;
 
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -82,6 +85,16 @@ public class InstrumentPanel {
 		logger.debug("...done!");
 		
 		return interfaceTextures;
+	}
+	
+	/**
+	 * Updates each gauge in this instrument panel with {@link FlightData} received from the simulation 
+	 * 
+	 * @param flightData
+	 */
+	public void update(Map<FlightDataType, Double> flightData) {
+		for (AbstractGauge gauge : gauges)
+			gauge.setGaugeValue(flightData);
 	}
 
 	public List<AbstractGauge> getGauges() { return gauges;	}

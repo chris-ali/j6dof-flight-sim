@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
-import com.chrisali.javaflightsim.swing.GuiFrame;
 
 /**
  * Contains methods used to properly initialize all components of Java Flight Simulator based on 
@@ -38,8 +37,7 @@ public class Initializer {
 			
 			configuration = FileUtilities.readSimulationConfiguration();
 		} catch (Exception e) {
-			logger.fatal("Error initializing configuration!");
-			logger.fatal(e.getMessage());
+			logger.fatal("Error initializing configuration!", e);
 			
 			return;
 		}
@@ -71,9 +69,7 @@ public class Initializer {
 	}
 	
 	/**
-	 * Initializes {@link LWJGLSwingSimulationController} and Swing {@link GuiFrame}; due to cross-referencing
-	 * needed with both objects, {@link LWJGLSwingSimulationController#setGuiFrame(GuiFrame)} needs to be
-	 * called
+	 * Initializes {@link LWJGLSwingSimulationController}
 	 * 
 	 * @param configuration
 	 */

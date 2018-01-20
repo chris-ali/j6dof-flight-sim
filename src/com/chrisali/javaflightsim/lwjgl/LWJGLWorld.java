@@ -20,7 +20,6 @@
 package com.chrisali.javaflightsim.lwjgl;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -36,13 +35,11 @@ import com.chrisali.javaflightsim.interfaces.OTWWorld;
 import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.lwjgl.audio.AudioMaster;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection;
-import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection.SoundCategory;
 import com.chrisali.javaflightsim.lwjgl.entities.Camera;
 import com.chrisali.javaflightsim.lwjgl.entities.EntityCollections;
 import com.chrisali.javaflightsim.lwjgl.entities.Light;
 import com.chrisali.javaflightsim.lwjgl.entities.Ownship;
 import com.chrisali.javaflightsim.lwjgl.events.WindowClosedListener;
-import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.AbstractGauge;
 import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.InstrumentPanel;
 import com.chrisali.javaflightsim.lwjgl.interfaces.text.FontType;
 import com.chrisali.javaflightsim.lwjgl.interfaces.text.SimulationTexts;
@@ -86,13 +83,10 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	// Lighting
 	private List<Light> lights;
 	
-	// Sound Fields
-	private Map<SoundCategory, Double> soundValues = new EnumMap<>(SoundCategory.class);
-	private boolean recordPrev = true; // Used in FlightDataListener to record soundValues data to PREV_STEP_* enums
-	
 	// Collections for in-game objects
 	private TerrainCollection terrainCollection;
 	private EntityCollections entities;
+	private SoundCollection soundCollection;
 	
 	// Ownship is the "player" that moves around the world based on data received from FlightData
 	private Ownship ownship;
@@ -106,7 +100,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	
 	private SimulationConfiguration configuration;
 	
-	//Event Listeners
+	// Event Listeners
 	private List<WindowClosedListener> windowClosedListeners = new ArrayList<>();
 			
 	/**
@@ -130,8 +124,6 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	public void step() {
 		try {
 			ParticleMaster.update(camera);
-			
-			SoundCollection.update(soundValues);
 			
 			masterRenderer.renderWholeScene(entities, terrainCollection.getTerrainTree(), 
 											lights, camera, new Vector4f(0, 1, 0, 0));
@@ -280,21 +272,20 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		
 		// Instrument Panel and Gauges
 		interfaceTextures = new ArrayList<>();
+		panel = FileUtilities.readInstrumentPanelConfiguration(configuration.getSelectedAircraft());
 		
-		if (configuration.getSimulationOptions().contains(Options.INSTRUMENT_PANEL)) {
-			panel = FileUtilities.readInstrumentPanelConfiguration(configuration.getSelectedAircraft());
+		if (configuration.getSimulationOptions().contains(Options.INSTRUMENT_PANEL)) {				
+			interfaceTextures = panel.loadAndGetTextures(loader, configuration.getSelectedAircraft());
 			
-			if (panel != null) {				
-				interfaceTextures = panel.loadAndGetTextures(loader, configuration.getSelectedAircraft());
-				
-				camera.setPilotPosition(new Vector3f(0, 5, 0));
-				camera.setPitchOffset(25);			
-			}
+			camera.setPilotPosition(new Vector3f(0, 5, 0));
+			camera.setPitchOffset(25);
 		}
 				
 		//==================================== Audio =========================================================
 		
-		SoundCollection.initializeSounds(configuration);
+		logger.debug("Generating sound collection...");
+		
+		soundCollection = new SoundCollection(configuration);
 	}
 	
 	@Override
@@ -314,39 +305,21 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 
 	@Override
 	public void onFlightDataReceived(FlightData flightData) {
-		
 		Map<FlightDataType, Double> receivedFlightData = flightData.getFlightData();
 		
 		if (!receivedFlightData.containsValue(null) && receivedFlightData != null) {
+			// Update sound gains/volumes with flight data
+			soundCollection.update(receivedFlightData);
+			
 			// Ownship movement; let camera track ownhip 1-1 for now
 			ownship.move(receivedFlightData);
 			camera.move(ownship.getPosition(), ownship.getRotX(), ownship.getRotY(), ownship.getRotZ());
-
-			// Set values for each sound in the simulation that depends on flight data
-			soundValues.put(SoundCategory.RPM_1, receivedFlightData.get(FlightDataType.RPM_1));
-			soundValues.put(SoundCategory.RPM_2, receivedFlightData.get(FlightDataType.RPM_2));
-			soundValues.put(SoundCategory.RPM_3, receivedFlightData.get(FlightDataType.RPM_3));
-			soundValues.put(SoundCategory.RPM_4, receivedFlightData.get(FlightDataType.RPM_4));
-			soundValues.put(SoundCategory.WIND, receivedFlightData.get(FlightDataType.TAS));
-			soundValues.put(SoundCategory.FLAPS, receivedFlightData.get(FlightDataType.FLAPS));
-			soundValues.put(SoundCategory.GEAR, receivedFlightData.get(FlightDataType.GEAR));
-			soundValues.put(SoundCategory.STALL_HORN, receivedFlightData.get(FlightDataType.AOA));
-						
-			// Record value every other step to ensure a difference between previous and current values; used to 
-			// trigger flaps and gear sounds
-			if (recordPrev) { 
-				soundValues.put(SoundCategory.PREV_STEP_FLAPS, receivedFlightData.get(FlightDataType.FLAPS));
-				soundValues.put(SoundCategory.PREV_STEP_GEAR, receivedFlightData.get(FlightDataType.GEAR));
-			} recordPrev ^= true; 
 
 			// Record flight data into text string to display on OTW screen 
 			simTexts.update(receivedFlightData, configuration.getSimulationOptions());
 			
 			// Instrument Panel
-			if (panel != null) {
-				for (AbstractGauge gauge : panel.getGauges())
-					gauge.setGaugeValue(receivedFlightData);
-			}
+			panel.update(receivedFlightData);
 		}
 	}
 	
