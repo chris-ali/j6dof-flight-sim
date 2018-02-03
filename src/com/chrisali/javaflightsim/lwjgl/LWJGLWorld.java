@@ -231,11 +231,10 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		
 		logger.debug("Creating ownship...");
 		
-		// Model used for aircraft; scale set to 0 to be invisible for now
-		TexturedModel bunny =  new TexturedModel(OBJLoader.loadObjModel("bunny", OTWDirectories.ENTITIES.toString(), loader), 
-			    								new ModelTexture(loader.loadTexture("bunny", OTWDirectories.ENTITIES.toString())));
+		TexturedModel airplane =  new TexturedModel(OBJLoader.loadObjModel("airplane", OTWDirectories.ENTITIES.toString(), loader), 
+			    								new ModelTexture(loader.loadTexture("airplane", OTWDirectories.ENTITIES.toString())));
 
-		ownship = new Ownship(bunny, configuration.getInitialConditions(), 0.000f);
+		ownship = new Ownship(airplane, configuration.getInitialConditions(), 1.25f);
 		
 		entities.addToStaticEntities(ownship);
 		
@@ -313,10 +312,10 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			
 			// Ownship movement; let camera track ownhip 1-1 for now
 			ownship.move(receivedFlightData);
-			camera.move(ownship.getPosition(), ownship.getRotX(), ownship.getRotY(), ownship.getRotZ());
+			camera.move();
 
 			// Record flight data into text string to display on OTW screen 
-			simTexts.update(receivedFlightData, configuration.getSimulationOptions());
+			simTexts.update(receivedFlightData, configuration.getSimulationOptions(), camera);
 			
 			// Instrument Panel
 			panel.update(receivedFlightData);

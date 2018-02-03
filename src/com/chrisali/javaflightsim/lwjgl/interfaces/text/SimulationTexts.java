@@ -27,6 +27,7 @@ import java.util.Set;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
+import com.chrisali.javaflightsim.lwjgl.entities.Camera;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
@@ -40,8 +41,13 @@ public class SimulationTexts {
 
 	private Map<String, GUIText> texts = new HashMap<>();
 	
+	private DecimalFormat df4 = new DecimalFormat("0.0000");
+	private DecimalFormat df2 = new DecimalFormat("0.00");
+	private DecimalFormat df0 = new DecimalFormat("0");
+	
 	public SimulationTexts(FontType font) {
-		texts.put("FlightData", new GUIText("", 0.85f, font, new Vector2f(0, 0), 1f, true));
+		texts.put("FlightData", new GUIText("", 0.5f, font, new Vector2f(0.01f, 0.01f), 1f, false));
+		texts.put("Camera", new GUIText("", 0.5f, font, new Vector2f(0.01f, 0.05f), 1f, false));
 		texts.put("Paused", new GUIText("PAUSED", 1.15f, font, new Vector2f(0.5f, 0.5f), 1f, false, new Vector3f(1,0,0)));
 	}
 	
@@ -51,10 +57,14 @@ public class SimulationTexts {
 	 * @param flightData
 	 * @param options
 	 */
-	public void update(Map<FlightDataType, Double> flightData, Set<Options> options) {
-		if (!options.contains(Options.INSTRUMENT_PANEL))
+	public void update(Map<FlightDataType, Double> flightData, Set<Options> options, Camera camera) {
+		if (!options.contains(Options.INSTRUMENT_PANEL)) {
 			texts.get("FlightData").setTextString(setTelemetryText(flightData));
-		
+			
+			if (camera.isChaseView())
+				texts.get("Camera").setTextString(setCameraPosText(camera));
+		}
+				
 		texts.get("Paused").setTextString(options.contains(Options.PAUSED) ? "PAUSED" : "");
 	}
 	
@@ -64,11 +74,7 @@ public class SimulationTexts {
 	 * @param flightData
 	 * @return string displaying flight data output 
 	 */
-	private String setTelemetryText(Map<FlightDataType, Double> flightData) {
-		DecimalFormat df4 = new DecimalFormat("0.0000");
-		DecimalFormat df2 = new DecimalFormat("0.00");
-		DecimalFormat df0 = new DecimalFormat("0");
-		
+	private String setTelemetryText(Map<FlightDataType, Double> flightData) {	
 		StringBuffer sb = new StringBuffer();
 
 		try {
@@ -77,16 +83,40 @@ public class SimulationTexts {
 			  .append("ALTITUDE: ").append(df0.format(flightData.get(FlightDataType.ALTITUDE))).append(" FT | ")
 			  .append("LATITUDE: ").append(df4.format(flightData.get(FlightDataType.LATITUDE))).append(" DEG | ")
 			  .append("LONGITUDE: ").append(df4.format(flightData.get(FlightDataType.LONGITUDE))).append(" DEG | ")
-			  .append("G-FORCE: ").append(df2.format(flightData.get(FlightDataType.GFORCE))).append(" G ");
+			  .append("G-FORCE: ").append(df2.format(flightData.get(FlightDataType.GFORCE))).append(" G | ")
+			  .append("PITCH: ").append(df4.format(flightData.get(FlightDataType.PITCH))).append(" DEG | ")
+			  .append("ROLL: ").append(df4.format(flightData.get(FlightDataType.ROLL))).append(" DEG ");
 		} catch (Exception e) {
 			sb.append("AIRSPEED: ").append("---").append(" KIAS | ")
 			  .append("HEADING: ").append("---").append(" DEG | ")
 			  .append("ALTITUDE: ").append("---").append(" FT | ")
 			  .append("LATITUDE: ").append("--.----").append(" DEG | ")
 			  .append("LONGITUDE: ").append("--.----").append(" DEG | ")
-			  .append("G-FORCE: ").append("-.--").append(" G ");
+			  .append("G-FORCE: ").append("-.--").append(" G | ")
+			  .append("PITCH: ").append("--.----").append(" DEG | ")
+			  .append("ROLL: ").append("--.----").append(" DEG ");
 		}
 		
+		return sb.toString();
+	}
+	
+	/**
+	 * Prepares a string of camera position data using the {@link GUIText} object
+	 * 
+	 * @param flightData
+	 * @return string displaying flight data output 
+	 */
+	private String setCameraPosText(Camera camera) {	
+		StringBuffer sb = new StringBuffer();
+
+		sb.append("CAMERA:\n")
+		  .append("PITCH: ").append(df0.format(camera.getPitch())).append(" DEG | ")
+		  .append("ROLL: ").append(df0.format(camera.getRoll())).append(" DEG | ")
+		  .append("YAW: ").append(df0.format(camera.getYaw())).append(" DEG | ").append("\n")
+		  .append("X POS: ").append(df4.format(camera.getPosition().x*15)).append(" FT | ")
+		  .append("Y POS: ").append(df4.format(camera.getPosition().y*15)).append(" FT | ")
+		  .append("Z POS: ").append(df2.format(camera.getPosition().z*15)).append(" FT ");
+				
 		return sb.toString();
 	}
 

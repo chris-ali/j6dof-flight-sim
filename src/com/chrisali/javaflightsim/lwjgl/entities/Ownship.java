@@ -53,9 +53,9 @@ public class Ownship extends Entity {
 		); 
 		
 		// (0, 0, 135)
-		super.setRotX((float)Math.toDegrees(initialConditions.get(InitialConditions.INITPHI)));
-		super.setRotY((float)Math.toDegrees(initialConditions.get(InitialConditions.INITTHETA))); 
-		super.setRotZ((float)Math.toDegrees(initialConditions.get(InitialConditions.INITPSI)) - 270); 
+		super.setRotX(-(float)Math.toDegrees(initialConditions.get(InitialConditions.INITPHI)));
+		super.setRotY(-(float)Math.toDegrees(initialConditions.get(InitialConditions.INITTHETA))); 
+		super.setRotZ((float)Math.toDegrees(initialConditions.get(InitialConditions.INITPSI)) + 90); 
 	}
 
 	public Ownship(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
@@ -86,6 +86,6 @@ public class Ownship extends Entity {
 		// Convert right-handed coordinates from simulation to left-handed coordinates of OTW
 		setRotX((float) -(flightData.get(FlightDataType.ROLL)));
 		setRotY((float) -(flightData.get(FlightDataType.PITCH)));
-		setRotZ((float)  (flightData.get(FlightDataType.HEADING)-270));
+		setRotZ((float)  (flightData.get(FlightDataType.HEADING) + 90));
 	}
 }
