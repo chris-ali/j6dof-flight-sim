@@ -21,8 +21,8 @@ package com.chrisali.javaflightsim.lwjgl.terrain;
 
 import java.util.TreeMap;
 
-import com.chrisali.javaflightsim.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.entities.Ownship;
+import com.chrisali.javaflightsim.lwjgl.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.textures.TerrainTexture;
 import com.chrisali.javaflightsim.lwjgl.textures.TerrainTexturePack;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;

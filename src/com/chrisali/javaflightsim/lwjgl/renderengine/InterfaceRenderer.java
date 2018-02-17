@@ -27,8 +27,8 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 
-import com.chrisali.javaflightsim.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
+import com.chrisali.javaflightsim.lwjgl.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.models.RawModel;
 import com.chrisali.javaflightsim.lwjgl.shaders.InterfaceShader;
 import com.chrisali.javaflightsim.lwjgl.utilities.RenderingUtilities;

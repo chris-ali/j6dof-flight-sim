@@ -33,8 +33,6 @@ import org.lwjgl.util.vector.Vector4f;
 
 import com.chrisali.javaflightsim.interfaces.OTWWorld;
 import com.chrisali.javaflightsim.interfaces.SimulationController;
-import com.chrisali.javaflightsim.loader.Loader;
-import com.chrisali.javaflightsim.loader.OBJLoader;
 import com.chrisali.javaflightsim.lwjgl.audio.AudioMaster;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection;
 import com.chrisali.javaflightsim.lwjgl.entities.Camera;
@@ -47,6 +45,8 @@ import com.chrisali.javaflightsim.lwjgl.interfaces.text.FontType;
 import com.chrisali.javaflightsim.lwjgl.interfaces.text.SimulationTexts;
 import com.chrisali.javaflightsim.lwjgl.interfaces.text.TextMaster;
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
+import com.chrisali.javaflightsim.lwjgl.loader.Loader;
+import com.chrisali.javaflightsim.lwjgl.loader.OBJLoader;
 import com.chrisali.javaflightsim.lwjgl.models.TexturedModel;
 import com.chrisali.javaflightsim.lwjgl.particles.Cloud;
 import com.chrisali.javaflightsim.lwjgl.particles.ParticleMaster;

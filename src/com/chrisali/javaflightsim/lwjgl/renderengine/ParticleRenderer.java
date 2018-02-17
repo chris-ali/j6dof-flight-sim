@@ -32,8 +32,8 @@ import org.lwjgl.opengl.GL31;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
-import com.chrisali.javaflightsim.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.entities.Camera;
+import com.chrisali.javaflightsim.lwjgl.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.models.RawModel;
 import com.chrisali.javaflightsim.lwjgl.particles.Particle;
 import com.chrisali.javaflightsim.lwjgl.particles.ParticleTexture;

@@ -33,10 +33,10 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
-import com.chrisali.javaflightsim.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.entities.Entity;
 import com.chrisali.javaflightsim.lwjgl.entities.EntityCollections;
 import com.chrisali.javaflightsim.lwjgl.entities.Ownship;
+import com.chrisali.javaflightsim.lwjgl.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.models.RawModel;
 import com.chrisali.javaflightsim.lwjgl.textures.TerrainTexture;
 import com.chrisali.javaflightsim.lwjgl.textures.TerrainTexturePack;
