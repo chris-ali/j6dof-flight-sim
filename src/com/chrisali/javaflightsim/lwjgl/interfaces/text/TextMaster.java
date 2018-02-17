@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.chrisali.javaflightsim.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.renderengine.FontRenderer;
-import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 
 public class TextMaster {
 	private static Loader loader;

@@ -34,9 +34,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.vector.Vector3f;
 
+import com.chrisali.javaflightsim.loader.Loader;
+import com.chrisali.javaflightsim.loader.OBJLoader;
 import com.chrisali.javaflightsim.lwjgl.models.TexturedModel;
-import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
-import com.chrisali.javaflightsim.lwjgl.renderengine.OBJLoader;
 import com.chrisali.javaflightsim.lwjgl.terrain.Terrain;
 import com.chrisali.javaflightsim.lwjgl.textures.ModelTexture;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;

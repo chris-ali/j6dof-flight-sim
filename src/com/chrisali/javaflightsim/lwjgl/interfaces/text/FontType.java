@@ -21,7 +21,7 @@ package com.chrisali.javaflightsim.lwjgl.interfaces.text;
 
 import java.io.File;
 
-import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
+import com.chrisali.javaflightsim.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWFiles;
 

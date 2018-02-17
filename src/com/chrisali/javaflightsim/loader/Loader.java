@@ -17,7 +17,7 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.lwjgl.renderengine;
+package com.chrisali.javaflightsim.loader;
 
 import java.io.File;
 import java.io.FileInputStream;

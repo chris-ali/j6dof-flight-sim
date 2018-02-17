@@ -28,8 +28,8 @@ import java.util.Map.Entry;
 
 import org.lwjgl.util.vector.Matrix4f;
 
+import com.chrisali.javaflightsim.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.entities.Camera;
-import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.lwjgl.renderengine.ParticleRenderer;
 
 public class ParticleMaster {

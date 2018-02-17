@@ -33,6 +33,8 @@ import org.lwjgl.util.vector.Vector4f;
 
 import com.chrisali.javaflightsim.interfaces.OTWWorld;
 import com.chrisali.javaflightsim.interfaces.SimulationController;
+import com.chrisali.javaflightsim.loader.Loader;
+import com.chrisali.javaflightsim.loader.OBJLoader;
 import com.chrisali.javaflightsim.lwjgl.audio.AudioMaster;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection;
 import com.chrisali.javaflightsim.lwjgl.entities.Camera;
@@ -51,9 +53,7 @@ import com.chrisali.javaflightsim.lwjgl.particles.ParticleMaster;
 import com.chrisali.javaflightsim.lwjgl.particles.ParticleTexture;
 import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.lwjgl.renderengine.InterfaceRenderer;
-import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.lwjgl.renderengine.MasterRenderer;
-import com.chrisali.javaflightsim.lwjgl.renderengine.OBJLoader;
 import com.chrisali.javaflightsim.lwjgl.terrain.Terrain;
 import com.chrisali.javaflightsim.lwjgl.terrain.TerrainCollection;
 import com.chrisali.javaflightsim.lwjgl.textures.ModelTexture;

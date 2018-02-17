@@ -23,8 +23,8 @@ import java.util.Map;
 
 import org.lwjgl.util.vector.Vector2f;
 
+import com.chrisali.javaflightsim.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
-import com.chrisali.javaflightsim.lwjgl.renderengine.Loader;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
