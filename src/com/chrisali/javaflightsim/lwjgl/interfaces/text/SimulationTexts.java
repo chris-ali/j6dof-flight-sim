@@ -28,6 +28,7 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.chrisali.javaflightsim.lwjgl.entities.Camera;
+import com.chrisali.javaflightsim.lwjgl.entities.Entity;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 
@@ -48,6 +49,7 @@ public class SimulationTexts {
 	public SimulationTexts(FontType font) {
 		texts.put("FlightData", new GUIText("", 0.5f, font, new Vector2f(0.01f, 0.01f), 1f, false));
 		texts.put("Camera", new GUIText("", 0.5f, font, new Vector2f(0.01f, 0.05f), 1f, false));
+		texts.put("Entity", new GUIText("", 0.5f, font, new Vector2f(0.01f, 0.09f), 1f, false));
 		texts.put("Paused", new GUIText("PAUSED", 1.15f, font, new Vector2f(0.5f, 0.5f), 1f, false, new Vector3f(1,0,0)));
 	}
 	
@@ -57,12 +59,14 @@ public class SimulationTexts {
 	 * @param flightData
 	 * @param options
 	 */
-	public void update(Map<FlightDataType, Double> flightData, Set<Options> options, Camera camera) {
+	public void update(Map<FlightDataType, Double> flightData, Set<Options> options, Camera camera, Entity entity) {
 		if (!options.contains(Options.INSTRUMENT_PANEL)) {
 			texts.get("FlightData").setTextString(setTelemetryText(flightData));
 			
-			if (camera.isChaseView())
+			if (camera.isChaseView()) {
 				texts.get("Camera").setTextString(setCameraPosText(camera));
+				texts.get("Entity").setTextString(setOwnshipPosText(entity));
+			}
 		}
 				
 		texts.get("Paused").setTextString(options.contains(Options.PAUSED) ? "PAUSED" : "");
@@ -79,43 +83,63 @@ public class SimulationTexts {
 
 		try {
 			sb.append("AIRSPEED: ").append(df0.format(flightData.get(FlightDataType.IAS))).append(" KIAS | ")
+			  .append("ROLL: ").append(df4.format(flightData.get(FlightDataType.ROLL))).append(" DEG | ")
+			  .append("PITCH: ").append(df4.format(flightData.get(FlightDataType.PITCH))).append(" DEG | ")
 			  .append("HEADING: ").append(df0.format(flightData.get(FlightDataType.HEADING))).append(" DEG | ")
 			  .append("ALTITUDE: ").append(df0.format(flightData.get(FlightDataType.ALTITUDE))).append(" FT | ")
 			  .append("LATITUDE: ").append(df4.format(flightData.get(FlightDataType.LATITUDE))).append(" DEG | ")
 			  .append("LONGITUDE: ").append(df4.format(flightData.get(FlightDataType.LONGITUDE))).append(" DEG | ")
-			  .append("G-FORCE: ").append(df2.format(flightData.get(FlightDataType.GFORCE))).append(" G | ")
-			  .append("PITCH: ").append(df4.format(flightData.get(FlightDataType.PITCH))).append(" DEG | ")
-			  .append("ROLL: ").append(df4.format(flightData.get(FlightDataType.ROLL))).append(" DEG ");
+			  .append("G-FORCE: ").append(df2.format(flightData.get(FlightDataType.GFORCE))).append(" G | ");
 		} catch (Exception e) {
 			sb.append("AIRSPEED: ").append("---").append(" KIAS | ")
+			  .append("ROLL: ").append("--.----").append(" DEG | ")  
+			  .append("PITCH: ").append("--.----").append(" DEG | ")
 			  .append("HEADING: ").append("---").append(" DEG | ")
 			  .append("ALTITUDE: ").append("---").append(" FT | ")
 			  .append("LATITUDE: ").append("--.----").append(" DEG | ")
 			  .append("LONGITUDE: ").append("--.----").append(" DEG | ")
-			  .append("G-FORCE: ").append("-.--").append(" G | ")
-			  .append("PITCH: ").append("--.----").append(" DEG | ")
-			  .append("ROLL: ").append("--.----").append(" DEG ");
+			  .append("G-FORCE: ").append("-.--").append(" G | ");
 		}
 		
 		return sb.toString();
 	}
 	
 	/**
-	 * Prepares a string of camera position data using the {@link GUIText} object
+	 * Prepares a string of {@link Camera} position data using the {@link GUIText} object
 	 * 
 	 * @param flightData
-	 * @return string displaying flight data output 
+	 * @return string displaying camera data output 
 	 */
 	private String setCameraPosText(Camera camera) {	
 		StringBuffer sb = new StringBuffer();
 
 		sb.append("CAMERA:\n")
-		  .append("PITCH: ").append(df0.format(camera.getPitch())).append(" DEG | ")
 		  .append("ROLL: ").append(df0.format(camera.getRoll())).append(" DEG | ")
+		  .append("PITCH: ").append(df0.format(camera.getPitch())).append(" DEG | ")
 		  .append("YAW: ").append(df0.format(camera.getYaw())).append(" DEG | ").append("\n")
 		  .append("X POS: ").append(df4.format(camera.getPosition().x*15)).append(" FT | ")
 		  .append("Y POS: ").append(df4.format(camera.getPosition().y*15)).append(" FT | ")
 		  .append("Z POS: ").append(df2.format(camera.getPosition().z*15)).append(" FT ");
+				
+		return sb.toString();
+	}
+	
+	/**
+	 * Prepares a string of {@link Entity} position data using the {@link GUIText} object
+	 * 
+	 * @param flightData
+	 * @return string displaying entity data output 
+	 */
+	private String setOwnshipPosText(Entity entity) {	
+		StringBuffer sb = new StringBuffer();
+
+		sb.append(entity.getClass().getSimpleName().toUpperCase()).append(":\n")
+		  .append("ROLL: ").append(df0.format(entity.getRotX())).append(" DEG | ")
+		  .append("PITCH: ").append(df0.format(entity.getRotZ())).append(" DEG | ")
+		  .append("YAW: ").append(df0.format(entity.getRotY())).append(" DEG | ").append("\n")
+		  .append("X POS: ").append(df4.format(entity.getPosition().x*15)).append(" FT | ")
+		  .append("Y POS: ").append(df4.format(entity.getPosition().y*15)).append(" FT | ")
+		  .append("Z POS: ").append(df2.format(entity.getPosition().z*15)).append(" FT ");
 				
 		return sb.toString();
 	}

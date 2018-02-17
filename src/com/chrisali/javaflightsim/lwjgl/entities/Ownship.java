@@ -44,30 +44,28 @@ public class Ownship extends Entity {
 	 */
 	public Ownship(TexturedModel model, Map<InitialConditions, Double> initialConditions, float scale) {
 		super(model, new Vector3f(0,0,0), 0, 0, 0, scale);
-		
-		//(800, 150, 800)
+
 		super.setPosition(new Vector3f(
 			(float)initialConditions.get(InitialConditions.INITN).doubleValue() / 15,
 		    (float)initialConditions.get(InitialConditions.INITD).doubleValue() / 15, 
 		    (float)initialConditions.get(InitialConditions.INITE).doubleValue() / 15)
 		); 
 		
-		// (0, 0, 135)
-		super.setRotX(-(float)Math.toDegrees(initialConditions.get(InitialConditions.INITPHI)));
-		super.setRotY(-(float)Math.toDegrees(initialConditions.get(InitialConditions.INITTHETA))); 
-		super.setRotZ((float)Math.toDegrees(initialConditions.get(InitialConditions.INITPSI)) + 90); 
+		super.setRotX(  (float)Math.toDegrees(initialConditions.get(InitialConditions.INITPHI))   + 0);
+		super.setRotZ( -(float)Math.toDegrees(initialConditions.get(InitialConditions.INITTHETA)) + 0); 
+		super.setRotY( -(float)Math.toDegrees(initialConditions.get(InitialConditions.INITPSI))   + 180);
 	}
 
 	public Ownship(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
 		super(model, position, rotX, rotY, rotZ, scale);
 	}
 	
-	public void move(Vector3f position, float phi, float theta, float psi) {
+	public void move(Vector3f position, float rotX, float rotY, float rotZ) {
 		super.setPosition(position);
 		
-		super.setRotX(phi);
-		super.setRotZ(theta);
-		super.setRotY(psi);
+		super.setRotX(rotX);
+		super.setRotY(rotY);
+		super.setRotZ(rotZ);
 	}
 	
 	/**
@@ -84,8 +82,8 @@ public class Ownship extends Entity {
 		));
 		
 		// Convert right-handed coordinates from simulation to left-handed coordinates of OTW
-		setRotX((float) -(flightData.get(FlightDataType.ROLL)));
-		setRotY((float) -(flightData.get(FlightDataType.PITCH)));
-		setRotZ((float)  (flightData.get(FlightDataType.HEADING) + 90));
+		setRotX((float)  (flightData.get(FlightDataType.ROLL)    + 0));
+		setRotZ((float) -(flightData.get(FlightDataType.PITCH)   + 0));
+		setRotY((float) -(flightData.get(FlightDataType.HEADING) + 180));
 	}
 }

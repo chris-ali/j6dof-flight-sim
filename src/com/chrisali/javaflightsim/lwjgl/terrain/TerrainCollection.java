@@ -51,8 +51,10 @@ public class TerrainCollection {
 		TerrainTexturePack texturePack = createTexturePack("fields", "town", "forest", "water", loader);
 		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap", OTWDirectories.TERRAIN.toString()));
 	
-		for (int i = 0; i < numTerrains; i++) {
-			for (int j = 0; j < numTerrains; j++) {
+		int median = Math.abs(numTerrains/2);
+		
+		for (int i = -median; i < median; i++) {
+			for (int j = -median; j < median; j++) {
 				terrainTree.put(i + "-" + j, new Terrain(i, j, "heightMap", OTWDirectories.TERRAIN.toString(), loader, texturePack, blendMap, ownship));
 			}
 		}

@@ -236,14 +236,16 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 
 		ownship = new Ownship(airplane, configuration.getInitialConditions(), 1.25f);
 		
-		entities.addToStaticEntities(ownship);
-		
 		logger.debug("Setting up camera...");
 		
 		// Camera tied to ownship as first person view
 		camera = new Camera(ownship);
 		camera.setChaseView(false);
 		
+		ownship.setScale(camera.isChaseView() ? 1.25f : 0f);
+
+		entities.addToStaticEntities(ownship);
+				
 		//================================= Terrain ==========================================================
 		
 		logger.debug("Generating terrain...");
@@ -259,7 +261,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		
 		// Generates clouds at random positions along terrain map
 		Random random = new Random();
-		for (int i = 0; i < 2000; i++)
+		for (int i = -1000; i < 1000; i++)
 			new Cloud(clouds, new Vector3f(random.nextInt(800*10), 300, i*10), new Vector3f(0, 0, 0), 0, 200);
 		
 		//=============================== Interface ==========================================================
@@ -315,7 +317,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			camera.move();
 
 			// Record flight data into text string to display on OTW screen 
-			simTexts.update(receivedFlightData, configuration.getSimulationOptions(), camera);
+			simTexts.update(receivedFlightData, configuration.getSimulationOptions(), camera, ownship);
 			
 			// Instrument Panel
 			panel.update(receivedFlightData);

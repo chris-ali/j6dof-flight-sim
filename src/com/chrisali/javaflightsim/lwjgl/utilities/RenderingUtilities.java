@@ -86,7 +86,9 @@ public class RenderingUtilities {
 		matrix.setIdentity();
 		
 		Matrix4f.translate(translation, matrix, matrix);
-		Matrix4f.rotate((float) Math.toRadians(rx), new Vector3f(1,0,0), matrix, matrix);
+		Matrix4f.rotate((float) Math.toRadians(rx),  new Vector3f((float) -Math.cos(Math.toRadians(ry)), 0, (float) Math.sin(Math.toRadians(ry))), matrix,
+					 matrix); // Rotation of unit vector with yaw to ensure entity "rolls" regardless of yaw angle
+		//Matrix4f.rotate((float) Math.toRadians(rx), new Vector3f(1,0,0), matrix, matrix);
 		Matrix4f.rotate((float) Math.toRadians(ry), new Vector3f(0,1,0), matrix, matrix);
 		Matrix4f.rotate((float) Math.toRadians(rz), new Vector3f(0,0,1), matrix, matrix);
 		
@@ -110,7 +112,7 @@ public class RenderingUtilities {
 		  Matrix4f.rotate((float) Math.toRadians(camera.getYaw()),   new Vector3f(0, 1, 0), viewMatrix,
 	  											 viewMatrix);
 		  Matrix4f.rotate((float) Math.toRadians(camera.getRoll()),  new Vector3f((float) Math.sin(Math.toRadians(camera.getYaw())), 0, (float) -Math.cos(Math.toRadians(camera.getYaw()))), viewMatrix,
-				  								 viewMatrix); // Rotation of unit vector to rotate around needed to ensure camera "rolls" regardless of yaw angle 
+		  		  								 viewMatrix); // Rotation of unit vector with yaw to ensure camera "rolls" regardless of yaw angle 
 		  
 		  Vector3f cameraPos = camera.getPosition();
 		  Vector3f negativeCameraPos = new Vector3f(-cameraPos.x,-cameraPos.y,-cameraPos.z);
@@ -136,4 +138,6 @@ public class RenderingUtilities {
 		
 		return l1 * p1.y + l2 * p2.y + l3 * p3.y;
 	}
+	
+	//public Vector3f leftHandToRightHandCoords( )
 }

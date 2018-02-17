@@ -33,9 +33,9 @@ public class Camera {
 	private Vector3f position = new Vector3f(0,1,0);
 	
 	// Camera's own angles
-	private float phi;
-	private float theta;
-	private float psi;
+	private float roll;
+	private float pitch;
+	private float yaw;
 	
 	private float cameraPanSpeed = 0.1f;
 	private float mouseSensitivity = 0.1f;
@@ -44,7 +44,7 @@ public class Camera {
 	private float cameraDistanceToEntity;
 	private float cameraToEntityPhi = 0.0f;
 	private float cameraToEntityTheta = 0.0f;
-	private float cameraToEntityPsi = 0.0f;
+	private float cameraToEntityPsi = 90.0f;
 	
 	/**
 	 * If an instrument panel is displayed on screen, this pitches the camera view down to compensate
@@ -66,12 +66,9 @@ public class Camera {
 		this.entityToFollow = entityToFollow;
 		pilotPosition = new Vector3f(0, 0, 0);
 		
-		phi   = entityToFollow.getRotX();
-		theta = entityToFollow.getRotY();
-		psi   = entityToFollow.getRotZ();
-		
-		cameraToEntityTheta = 20f;
-		cameraDistanceToEntity = 25.0f;
+		roll  = -entityToFollow.getRotX();
+		pitch =  entityToFollow.getRotZ();
+		yaw   = -entityToFollow.getRotY();
 	}
 	
 	/**
@@ -79,11 +76,11 @@ public class Camera {
 	 * the entity
 	 */
 	private void calculateCameraPosition() {
-		float horizontalDistance = cameraDistanceToEntity * (float) Math.cos(Math.toRadians(cameraToEntityTheta)), 
-		      verticalDistance   = cameraDistanceToEntity * (float) Math.sin(Math.toRadians(cameraToEntityTheta));
+		float horizontalDistance = cameraDistanceToEntity * (float) Math.cos(Math.toRadians(cameraToEntityTheta + entityToFollow.getRotZ())), 
+		      verticalDistance   = cameraDistanceToEntity * (float) Math.sin(Math.toRadians(cameraToEntityTheta + entityToFollow.getRotZ()));
 				
-		float offsetX = horizontalDistance * (float) Math.sin(Math.toRadians(cameraToEntityPsi)),
-			  offsetZ = horizontalDistance * (float) Math.cos(Math.toRadians(cameraToEntityPsi));
+		float offsetX = horizontalDistance * (float) Math.sin(Math.toRadians(cameraToEntityPsi + entityToFollow.getRotY())),
+			  offsetZ = horizontalDistance * (float) Math.cos(Math.toRadians(cameraToEntityPsi + entityToFollow.getRotY()));
 
 		position.x = entityToFollow.getPosition().x + offsetX;
 		position.y = entityToFollow.getPosition().y + verticalDistance;
@@ -108,17 +105,17 @@ public class Camera {
 			
 			calculateCameraPosition();
 			
-			phi   =  cameraToEntityPhi   % 180;
-			theta =  cameraToEntityTheta % 180;
-			psi   = -cameraToEntityPsi   % 360;			
+			roll   =  cameraToEntityPhi   % 180;
+			pitch  =  (cameraToEntityTheta + entityToFollow.getRotZ()) % 180;
+			yaw    = -(cameraToEntityPsi   + entityToFollow.getRotY()) % 360;			
 		} else {
 			position.x = entityToFollow.getPosition().x + pilotPosition.x;
 			position.y = entityToFollow.getPosition().y + pilotPosition.y;
 			position.z = entityToFollow.getPosition().z + pilotPosition.z;
 					
-			phi   = entityToFollow.getRotX(); 
-			theta = entityToFollow.getRotY() + pitchOffset;
-			psi   = entityToFollow.getRotZ();
+			roll   = -entityToFollow.getRotX(); 
+			pitch  =  entityToFollow.getRotZ() + pitchOffset;
+			yaw    = -entityToFollow.getRotY() - 90;
 		}
 	}
 	
@@ -126,27 +123,27 @@ public class Camera {
 	 * Translates and rotates the directly camera based on the position and angles supplied as arguments.
 	 * 
 	 * @param position
-	 * @param phi
-	 * @param theta
-	 * @param psi
+	 * @param roll
+	 * @param pitch
+	 * @param yaw
 	 */
-	public void move(Vector3f position, float phi, float theta, float psi) {
+	public void move(Vector3f position, float roll, float pitch, float yaw) {
 		this.position.x = position.x;
 		this.position.y = position.y;
 		this.position.z = position.z;
 				
-		this.phi   = phi; 
-		this.theta = theta;
-		this.psi   = psi;
+		this.roll  = roll; 
+		this.pitch = pitch;
+		this.yaw   = yaw;
 	}
 	
 	public Vector3f getPosition() { return position; }
 	
-	public float getPitch() { return theta;	}
+	public float getPitch() { return pitch;	}
 	
-	public float getRoll() { return phi; }
+	public float getRoll() { return roll; }
 	
-	public float getYaw() { return psi; }
+	public float getYaw() { return yaw; }
 	
 	public float getCameraSpeed() { return cameraPanSpeed; }
 
@@ -156,11 +153,11 @@ public class Camera {
 
 	public void setPosition(Vector3f position) { this.position = position; }
 
-	public void setPitch(float pitch) { this.theta = pitch;	}
+	public void setPitch(float pitch) { this.pitch = pitch;	}
 
-	public void setRoll(float roll) { this.phi = roll; }
+	public void setRoll(float roll) { this.roll = roll; }
 
-	public void setYaw(float yaw) { this.psi = yaw;	}
+	public void setYaw(float yaw) { this.yaw = yaw;	}
 
 	public void setMouseSensitivity(float mouseSensitivity) { this.mouseSensitivity = mouseSensitivity; }
 
@@ -174,8 +171,8 @@ public class Camera {
 	 */
 	public void setChaseView(boolean isChaseView) {
 		this.isChaseView = isChaseView;
-		cameraToEntityTheta = isChaseView ? 20f : 0f;
-		cameraDistanceToEntity = isChaseView ? 25.0f : 0.0f;
+		cameraToEntityTheta = isChaseView ? 15f : 0f;
+		cameraDistanceToEntity = isChaseView ? 30.0f : 0.0f;
 	}
 
 	public Vector3f getPilotPosition() { return pilotPosition; }
