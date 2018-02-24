@@ -76,7 +76,7 @@ public class OBJLoader {
 		try {
 			while(true) {
 				line = reader.readLine();
-				String[] currentLine = line.split(" ");
+				String[] currentLine = line.split("\\s+");
 				if(line.startsWith("v ")) {
 					Vector3f vertex = new Vector3f(Float.parseFloat(currentLine[1]),
 												   Float.parseFloat(currentLine[2]),
@@ -103,7 +103,7 @@ public class OBJLoader {
 					line = reader.readLine();
 					continue;
 				}
-				String[] currentLine = line.split(" ");
+				String[] currentLine = line.split("\\s+");
 				String[] vertex1 = currentLine[1].split("/");
 				String[] vertex2 = currentLine[2].split("/");
 				String[] vertex3 = currentLine[3].split("/");

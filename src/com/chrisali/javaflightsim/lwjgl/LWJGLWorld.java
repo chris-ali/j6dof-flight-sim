@@ -240,7 +240,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		
 		// Camera tied to ownship as first person view
 		camera = new Camera(ownship);
-		camera.setChaseView(false);
+		camera.setChaseView(true);
 		
 		ownship.setScale(camera.isChaseView() ? 1.25f : 0f);
 

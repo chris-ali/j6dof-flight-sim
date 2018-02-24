@@ -86,11 +86,12 @@ public class RenderingUtilities {
 		matrix.setIdentity();
 		
 		Matrix4f.translate(translation, matrix, matrix);
-		Matrix4f.rotate((float) Math.toRadians(rx),  new Vector3f((float) -Math.cos(Math.toRadians(ry)), 0, (float) Math.sin(Math.toRadians(ry))), matrix,
-					 matrix); // Rotation of unit vector with yaw to ensure entity "rolls" regardless of yaw angle
-		//Matrix4f.rotate((float) Math.toRadians(rx), new Vector3f(1,0,0), matrix, matrix);
-		Matrix4f.rotate((float) Math.toRadians(ry), new Vector3f(0,1,0), matrix, matrix);
-		Matrix4f.rotate((float) Math.toRadians(rz), new Vector3f(0,0,1), matrix, matrix);
+		Matrix4f.rotate((float) Math.toRadians(rx),  
+						new Vector3f((float) -Math.cos(Math.toRadians(ry)), 0, (float) Math.sin(Math.toRadians(ry))), matrix, matrix); // Rotation of unit vector with yaw to ensure entity "rolls" regardless of yaw angle
+		Matrix4f.rotate((float) Math.toRadians(ry), 
+						new Vector3f(0, 1, 0), matrix, matrix);
+		Matrix4f.rotate((float) Math.toRadians(rz), 
+						new Vector3f(0, 0, 1), matrix, matrix);
 		
 		Matrix4f.scale(new Vector3f(scale, scale, scale), matrix, matrix);
 		
