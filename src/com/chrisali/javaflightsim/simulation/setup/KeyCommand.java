@@ -19,46 +19,63 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.setup;
 
+import com.chrisali.javaflightsim.simulation.flightcontrols.ControlParameter;
+
 /**
  * Enums to be used in {@link ControlsConfiguration} to configure key or button presses
  * 
  * @author Christopher
  *
  */
-public enum KeyCommand {
-	ELEVATOR_DOWN 		("Elevator Down"),
-	ELEVATOR_UP 		("Elevator Up"),
-	AILERON_LEFT		("Aileron Left"),
-	AILERON_RIGHT		("Aileron Right"),
-	RUDDER_LEFT			("Rudder Left"),
-	RUDDER_RIGHT		("Rudder Right"),
-	ELEVATOR_TRIM_DOWN 	("Elevator Trim Down"),
-	ELEVATOR_TRIM_UP 	("Elevator Trim Up"),
-	AILERON_TRIM_LEFT	("Aileron Trim Left"),
-	AILERON_TRIM_RIGHT	("Aileron Trim Right"),
-	RUDDER_TRIM_LEFT	("Rudder Trim Left"),
-	RUDDER_TRIM_RIGHT	("Rudder Trim Right"),
-	CENTER_CONTROLS		("Center Flight Controls"),
-	GEAR_UP				("Extend Landing Gear"),
-	GEAR_DOWN			("Retract Landing Gear"),
-	GEAR_UP_DOWN		("Landing Gear Extend/Retract"),
-	INCREASE_FLAPS		("Increase Flaps"),
-	DECREASE_FLAPS		("Decrease Flaps"),
-	INCREASE_THROTTLE	("Increase Throttle"),
-	DECREASE_THROTTLE	("Decrease Throttle"),
-	INCREASE_PROPELLER	("Increase Propeller"),
-	DECREASE_PROPELLER	("Decrease Propeller"),
-	INCREASE_MIXTURE	("Increase Mixture"),
-	DECREASE_MIXTURE	("Decrease Mixture"),
-	BRAKES				("Apply Brakes"),
-	EXIT_SIMULATION		("Exit Simulation"),
-	GENERATE_PLOTS		("Generate Plots"),
-	PAUSE_UNPAUSE_SIM	("Pause/Unpause Simulation"),
-	RESET_SIM			("Reset Simulation");
+public enum KeyCommand implements ControlParameter {
+	ELEVATOR_DOWN 		("Elevator Down", 1),
+	ELEVATOR_UP 		("Elevator Up", 0),
+	AILERON_LEFT		("Aileron Left", 0),
+	AILERON_RIGHT		("Aileron Right", 1),
+	RUDDER_LEFT			("Rudder Left", 0),
+	RUDDER_RIGHT		("Rudder Right", 1),
+	ELEVATOR_TRIM_DOWN 	("Elevator Trim Down", 1),
+	ELEVATOR_TRIM_UP 	("Elevator Trim Up", 0),
+	AILERON_TRIM_LEFT	("Aileron Trim Left", 0),
+	AILERON_TRIM_RIGHT	("Aileron Trim Right", 1),
+	RUDDER_TRIM_LEFT	("Rudder Trim Left", 0),
+	RUDDER_TRIM_RIGHT	("Rudder Trim Right", 1),
+	CENTER_CONTROLS		("Center Flight Controls", 0.5),
+	GEAR_UP				("Extend Landing Gear", 1),
+	GEAR_DOWN			("Retract Landing Gear", 0),
+	GEAR_UP_DOWN		("Landing Gear Extend/Retract", 0.5),
+	INCREASE_FLAPS		("Increase Flaps", 1),
+	DECREASE_FLAPS		("Decrease Flaps", 0),
+	INCREASE_THROTTLE	("Increase Throttle", 1),
+	DECREASE_THROTTLE	("Decrease Throttle", 0),
+	INCREASE_PROPELLER	("Increase Propeller", 1),
+	DECREASE_PROPELLER	("Decrease Propeller", 0),
+	INCREASE_MIXTURE	("Increase Mixture", 1),
+	DECREASE_MIXTURE	("Decrease Mixture", 0),
+	BRAKES				("Apply Brakes", 1),
+	EXIT_SIMULATION		("Exit Simulation", 0),
+	GENERATE_PLOTS		("Generate Plots", 0),
+	PAUSE_UNPAUSE_SIM	("Pause/Unpause Simulation", 0),
+	RESET_SIM			("Reset Simulation", 0);
 	
 	private String name;
+	private final double minimum;
+	private final double maximum;
 	
-	KeyCommand(String name) { this.name = name; }
+	KeyCommand(String name, double value) { 
+		this.name = name; 
+		this.minimum = value; 
+		this.maximum = value; 
+	}
 	
+	@Override
+	public double getMinimum() { return minimum; }
+
+	@Override
+	public double getMaximum() { return maximum; }
+			
+	@Override
+	public boolean isRelative() { return true;	}
+
 	public String toString() { return name; }
 }

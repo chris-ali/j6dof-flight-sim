@@ -34,7 +34,8 @@ import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -54,7 +55,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 
 	private SimulationController simController;
 	
-	private FlightControls flightControls;
+	private FlightControlsStateManager flightControlsManager;
 	private Integrate6DOFEquations simulation;
 	private LWJGLWorld outTheWindow;
 	
@@ -72,7 +73,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 	private boolean running = false;
 	
 	/**
-	 * Constructor that initialize main simulation ({@link Integrate6DOFEquations} and {@link FlightControls}) components and 
+	 * Constructor that initialize main simulation ({@link Integrate6DOFEquations} and {@link FlightControlsState}) components and 
 	 * configrures simulation time
 	 * 
 	 * @param simController
@@ -86,11 +87,11 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 		
 		configureSimulationTime();
 		
-		logger.debug("Initializing flight controls...");
-		flightControls = new FlightControls(simController, timeMS);
+		logger.debug("Initializing flight controls manager...");
+		flightControlsManager = new FlightControlsStateManager(simController, timeMS);
 		
 		logger.debug("Initializing simulation...");
-		simulation = new Integrate6DOFEquations(flightControls, configuration);
+		simulation = new Integrate6DOFEquations(flightControlsManager.getControlsState(), configuration);
 	}
 	
 	/**
@@ -151,8 +152,8 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 		while (running && timeMS.get() < endTimeMS) {
 			try {
 				// Step update each component if allowed to based on the current time 
-				if (flightControls.canStepNow(timeMS.get()))
-					flightControls.step();
+				if (flightControlsManager.canStepNow(timeMS.get()))
+					flightControlsManager.step();
 					
 				if (simulation.canStepNow(timeMS.get()))
 					simulation.step();
@@ -212,7 +213,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 		
 	public Integrate6DOFEquations getSimulation() { return simulation; }
 	
-	public FlightControls getFlightControls() { return flightControls; }
+	public FlightControlsState getFlightControls() { return flightControlsManager.getControlsState(); }
 
 	public AtomicInteger getTimeMS() { return timeMS; }
 	

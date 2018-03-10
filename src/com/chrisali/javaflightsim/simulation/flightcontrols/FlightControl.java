@@ -19,15 +19,15 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.flightcontrols;
 
-import com.chrisali.javaflightsim.simulation.hidcontrollers.AbstractController;
+import com.chrisali.javaflightsim.simulation.hidcontrollers.AbstractDevice;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 /**
  * Enum that provides the keys for the controls EnumMap in {@link Integrate6DOFEquations}. 
  * Minima and maxima are also defined in this class as constants to be used in HID controller 
- * classes that implement {@link AbstractController}
+ * classes that implement {@link AbstractDevice}
  */
-public enum FlightControl {
+public enum FlightControl implements ControlParameter {
 	ELEVATOR    ("Elevator", 		Math.toRadians(-25), Math.toRadians(15)), // "Minimum" is up elevator
 	AILERON		("Aileron",  		Math.toRadians(-15), Math.toRadians(15)), // "Minimum" is left aileron up
 	RUDDER		("Rudder",   		Math.toRadians(-15), Math.toRadians(15)), // "Minimum" is right rudder
@@ -58,9 +58,15 @@ public enum FlightControl {
 		this.maximum = maximum;
 	}
 	
-	public String toString() {return control;}
+	@Override
+	public double getMinimum() { return minimum; }
 	
-	public double getMinimum() {return minimum;}
+	@Override
+	public double getMaximum() { return maximum; }
 	
-	public double getMaximum() {return maximum;}
+	@Override
+	public boolean isRelative() { return minimum == maximum; }
+
+	@Override
+	public String toString() { return control; }
 }

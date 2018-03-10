@@ -19,9 +19,7 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.flightcontrols;
 
-import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.LogManager;
@@ -31,12 +29,14 @@ import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
-import com.chrisali.javaflightsim.simulation.hidcontrollers.AbstractController;
-import com.chrisali.javaflightsim.simulation.hidcontrollers.Events;
+import com.chrisali.javaflightsim.simulation.hidcontrollers.AbstractDevice;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Joystick;
+import com.chrisali.javaflightsim.simulation.hidcontrollers.JoystickVisitor;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Keyboard;
+import com.chrisali.javaflightsim.simulation.hidcontrollers.KeyboardVisitor;
 import com.chrisali.javaflightsim.simulation.hidcontrollers.Mouse;
-import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
+import com.chrisali.javaflightsim.simulation.hidcontrollers.MouseVisitor;
+import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -50,56 +50,54 @@ import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
  * @author Christopher Ali
  *
  */
-public class FlightControls implements Steppable, FlightDataListener {
+public class FlightControlsStateManager implements Steppable {
 
-	private static final Logger logger = LogManager.getLogger(FlightControls.class);
+	private static final Logger logger = LogManager.getLogger(FlightControlsStateManager.class);
+
+	private FlightControlsState controlsState;
 	
-	private Map<FlightControl, Double> flightControls;
-	private Map<FlightControl, Double> trimflightControls;
 	private EnumSet<Options> options;
-	//private Map<FlightDataType, Double> flightData;
 	
-	private SimulationConfiguration configuration; 
 	private AtomicInteger simTimeMS;
 	
-	private AbstractController hidController;
+	private AbstractDevice hidController;
 	private Keyboard hidKeyboard;
 	private AnalysisControls analysisControls;
-	
-	/**
-	 * Constructor for {@link FlightControls}; {@link SimulationConfiguration} argument to initialize {@link IntegratorConfig} 
-	 * EnumMap, the {@link Options} EnumSet, as well as to update simulation options and call simulation methods; simTimeMS
-	 * argument provides simulation time needed to generate analysis control inputs
-	 * 
-	 * @param simController
-	 */
-	public FlightControls(SimulationController simController, AtomicInteger simTimeMS) {
-		logger.debug("Initializing flight controls...");
-				
-		this.simTimeMS = simTimeMS;
-		
-		configuration = simController.getConfiguration();
-		options = configuration.getSimulationOptions();
 
-		flightControls = new EnumMap<FlightControl, Double>(configuration.getInitialControls());
-		trimflightControls = configuration.getInitialControls();
+	// Visitors are used to poll devices for data and handle the results in an actuator object within the visitor
+	private JoystickVisitor joystickVisitor;
+    private KeyboardVisitor keyboardVisitor;
+    private MouseVisitor mouseVisitor;
+	
+	public FlightControlsStateManager(SimulationController simController, AtomicInteger simTimeMS) {
+		logger.debug("Initializing flight controls...");
+		
+		SimulationConfiguration simConfig = simController.getConfiguration();
+		options = simConfig.getSimulationOptions();
+		this.simTimeMS = simTimeMS;
+
+		ControlsConfiguration controlsConfig = FileUtilities.readControlsConfiguration();
 		analysisControls = FileUtilities.readAnalysisControls();
-				
-		// initializes static EnumMap that contains trim values of controls for doublets 
-		Events.init(configuration);
+		
+		controlsState = new FlightControlsState(simConfig);
+
+		ControlParameterActuator actuator = new FlightControlActuator(simConfig, controlsState);
 
 		// Use controllers for pilot in loop simulation if ANALYSIS_MODE not enabled 
 		if (!options.contains(Options.ANALYSIS_MODE)) {
 			if (options.contains(Options.USE_JOYSTICK) || options.contains(Options.USE_CH_CONTROLS)) {
 				logger.debug("Joystick controller selected");
-				hidController = new Joystick(flightControls, simController);
+				hidController = new Joystick();
+				joystickVisitor = new JoystickVisitor(controlsConfig.getJoystickAssignments(), actuator);
 			}
 			else if (options.contains(Options.USE_MOUSE)){
 				logger.debug("Mouse controller selected");
-				hidController = new Mouse(flightControls, simController);
+				hidController = new Mouse();
+				mouseVisitor = new MouseVisitor(controlsState, actuator);
 			}
 			
-			hidKeyboard = new Keyboard(flightControls, simController);
+			hidKeyboard = new Keyboard();
+			keyboardVisitor = new KeyboardVisitor(controlsConfig.getKeyboardAssignments(), actuator);
 		}
 	}
 	
@@ -110,15 +108,15 @@ public class FlightControls implements Steppable, FlightDataListener {
 			// otherwise, controls updated using generated doublets
 			if (!options.contains(Options.ANALYSIS_MODE)) {
 				if (hidController != null) 
-					hidController.calculateControllerValues(flightControls);
-				
+					hidController.collectControlDeviceValues(joystickVisitor != null ? joystickVisitor : mouseVisitor);
+		
 				if (hidKeyboard != null)
-					hidKeyboard.calculateControllerValues(flightControls);
+					hidKeyboard.collectControlDeviceValues(keyboardVisitor);
 			} else {
-				analysisControls.updateFlightControls(simTimeMS, flightControls, trimflightControls);
+				analysisControls.updateFlightControls(simTimeMS, controlsState.getFlightControls(), controlsState.getTrimFlightControls());
 			}
 			
-			limitControls(flightControls);
+			limitControls(controlsState);
 		} catch (Exception e) {
 			logger.error("Flight controls encountered an error!", e);
 		}
@@ -128,52 +126,25 @@ public class FlightControls implements Steppable, FlightDataListener {
 	public boolean canStepNow(int timeMS) {
 		return timeMS % 1 == 0;
 	}
+		
+	public void setSimTimeMS(AtomicInteger simTimeMS) { this.simTimeMS = simTimeMS;	}
+
+	public AtomicInteger getSimTimeMS() { return simTimeMS;	}
 	
-	/**
-	 * Resets flightControls back to initial trim values
-	 */
-	public void reset() {
-		for (Map.Entry<FlightControl, Double> entry : flightControls.entrySet())
-			flightControls.put(entry.getKey(), trimflightControls.get(entry.getKey()));
-	}
-	
+	public FlightControlsState getControlsState() { return controlsState; }
+
 	/**
 	 *  Limit control inputs to sensible deflection values based on the minimum and maximum values defined for 
 	 *  each member of {@link FlightControl}
 	 *  
-	 * @param controls 
+	 * @param controlsState 
 	 */
-	public void limitControls(Map<FlightControl, Double> controls) {		
-		// Loop through enum values; if value in EnumMap controls is greater/less than max/min specified in FlightControls enum, 
-		// set that EnumMap value to Enum's max/min value
+	private void limitControls(FlightControlsState controlsState) {		
 		for (FlightControl flc : FlightControl.values()) {
-			if (controls.get(flc) > flc.getMaximum())
-				controls.put(flc, flc.getMaximum());
-			else if (controls.get(flc) < flc.getMinimum())
-				controls.put(flc, flc.getMinimum());		
-		}
-	}
-
-	/**
-	 * Receive fed back flight data to be used with P/PD controllers
-	 */
-	@Override
-	public void onFlightDataReceived(FlightData flightData) {
-//		if (flightData!= null)
-//			this.flightData = flightData.getFlightData();
-	}
-	
-	public Map<FlightControl, Double> getFlightControls() { return flightControls; }
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		
-		for (Map.Entry<FlightControl, Double> entry : flightControls.entrySet()) {
-			sb.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
-		}
-		sb.append("\n");
-		
-		return sb.toString();
+            if (controlsState.get(flc) > flc.getMaximum())
+                controlsState.set(flc, flc.getMaximum());
+            else if (controlsState.get(flc) < flc.getMinimum())
+                controlsState.set(flc, flc.getMinimum());
+        }
 	}
 }

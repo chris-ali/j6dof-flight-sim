@@ -20,95 +20,42 @@
 package com.chrisali.javaflightsim.simulation.hidcontrollers;
 
 import java.util.ArrayList;
-import java.util.Map;
 
-import com.chrisali.javaflightsim.interfaces.SimulationController;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
-import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
-import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
+import com.chrisali.javaflightsim.simulation.flightcontrols.ControlParameterActuator;
 
-import net.java.games.input.Component;
 import net.java.games.input.Controller;
 import net.java.games.input.ControllerEnvironment;
 
 /**
- * The Keyboard object uses JInput to integrate keyboard functionality into the simulation.
- * It works by generating an ArrayList of keyboards connected to the computer, 
- * polling each one's active buttons, using the polled data to calculate control deflections, 
- * and assigning these to each respective key in the controls EnumMap and options EnumSet. 
- * Up/Down and Left/Right control the elevator and ailerons, respectively, and all throttles are 
- * controlled by Page Up/Down. The simulation can be toggled paused by pressing P, and while paused
- * the simulation can be reset to initial conditions by pressing R.
- * The simulation is quit by pressing Q and L plots the simulation.
- * @see AbstractController
+ * Keyboard HID that is polled for raw data before being converted into contol commands 
+ * that a {@link ControlParameterActuator} must handle 
  */
-public class Keyboard extends AbstractController {
-	
-	private Map<String, KeyCommand> keyboardAssignments;
-	
-	/**
-	 *  Constructor for Keyboard class; creates list of controllers using searchForControllers() and
-	 *  creates a reference to a {@link SimulationController} object 
-	 * @param flightControls
-	 * @param simController
-	 */
-	public Keyboard(Map<FlightControl, Double> flightControls, SimulationController simController) {
-		logger.debug("Setting up keyboard...");
+public class Keyboard extends AbstractDevice {
 
-		this.flightControls = flightControls;
-		this.simController = simController;
+	public Keyboard() {
+		logger.debug("Setting up keyboard...");
 		
-		controlsConfig = FileUtilities.readControlsConfiguration();
-		keyboardAssignments = controlsConfig.getKeyboardAssignments();
-		options = simController.getConfiguration().getSimulationOptions();
-				
-		searchForControllers();
+		searchForControlDevices();
 	}
 	
 	/**
-	 * Search for and add controllers of type Controller.Type.KEYBOARD to controllerList
+	 * Search for and add controllers of type Controller.Type.KEYBOARD to controlDeviceList
 	 */
 	@Override
-	public void searchForControllers() {
+	public void searchForControlDevices() {
 		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
-		controllerList = new ArrayList<>();
+		controlDeviceList = new ArrayList<>();
 		
 		for (Controller controller : controllers) {
 			if (controller.getType() == Controller.Type.KEYBOARD) {
-				controllerList.add(controller);
+				controlDeviceList.add(controller);
 				logger.debug("Found a keyboard: " + controller.getName());
 			}
 		}
 
-		if (controllerList.isEmpty()) {
+		if (controlDeviceList.isEmpty()) {
 			logger.error("No keyboard found!");
 			return;
 		}	
-	}
-	
-	/**
-	 *  Get key values from keyboard, and update flightControls Map with controls from jinput
-	 *  
-	 *  @param flightControls
-	 */
-	@Override
-	public void calculateControllerValues(Map<FlightControl, Double> flightControls) {
-		for (Controller controller : controllerList) {
-			// Poll controller for data
-			if(!controller.poll()) 
-				continue;
-			
-			for (Component component: controller.getComponents()) {
-				String componentName = component.getIdentifier().getName().toUpperCase();
-				boolean isPressed = component.getPollData() == 1.0f;
-								
-				KeyCommand command = keyboardAssignments.get(componentName);
-				
-				if(command != null)					
-					executeKeyButtonEventForCommand(command, isPressed);
-								
-				continue;
-			}
-		}
 	}
 }

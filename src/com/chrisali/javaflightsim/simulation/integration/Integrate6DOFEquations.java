@@ -42,7 +42,7 @@ import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentDataType;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -95,7 +95,7 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 	private double[] totalMoments     		= new double[3];
 	
 	// Simulation Controls (Joystick, Keyboard, etc.)
-	private FlightControls flightControls;
+	private FlightControlsState flightControls;
 	private Map<FlightControl, Double> controlsMap;
 	
 	// Integrator Fields
@@ -121,13 +121,13 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 	private EnumSet<Options> options;
 	
 	/**
-	 * Creates the {@link Integrate6DOFEquations} object with references to {@link FlightControls} and {@link SimulationConfiguration}
+	 * Creates the {@link Integrate6DOFEquations} object with references to {@link FlightControlsState} and {@link SimulationConfiguration}
 	 * objects
 	 * 
 	 * @param flightControls
 	 * @param configuration
 	 */
-	public Integrate6DOFEquations(FlightControls flightControls, SimulationConfiguration configuration) {
+	public Integrate6DOFEquations(FlightControlsState flightControls, SimulationConfiguration configuration) {
 		this.flightControls = flightControls;
 		
 	    controlsMap 	   = flightControls.getFlightControls();

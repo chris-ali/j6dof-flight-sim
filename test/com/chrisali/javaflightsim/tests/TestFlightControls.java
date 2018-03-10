@@ -19,35 +19,27 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.tests;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
-import com.chrisali.javaflightsim.interfaces.SimulationController;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
-import com.chrisali.javaflightsim.simulation.hidcontrollers.Events;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 /**
- * Test class for {@link FlightControls}. Creates flight controls object and thread to
+ * Test class for {@link FlightControlsState}. Creates flight controls object and thread to
  * run, and outputs values for each flight control deflection/setting
  * 
  * @author Christopher Ali
  *
  */
 public class TestFlightControls implements Runnable {
-	private FlightControls flightControls;
+	private FlightControlsState flightControls;
 	private Thread flightControlsThread;
 	private SimulationConfiguration configuation;
-	private SimulationController simController;
 	
 	public TestFlightControls() {
 		configuation = FileUtilities.readSimulationConfiguration();
-		Events.init(configuation);
-		simController = new LWJGLSwingSimulationController(configuation);
 		configuation.getSimulationOptions().add(Options.USE_CH_CONTROLS);
-		flightControls = new FlightControls(simController, new AtomicInteger(0));
+		flightControls = new FlightControlsState(configuation);
 	}
 	
 	@Override

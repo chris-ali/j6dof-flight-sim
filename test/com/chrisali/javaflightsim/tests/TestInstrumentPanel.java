@@ -26,7 +26,7 @@ import javax.swing.SwingUtilities;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.simulation.SimulationRunner;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControls;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -36,7 +36,7 @@ import com.chrisali.javaflightsim.swing.instrumentpanel.InstrumentPanel;
 /**
  * Creates a real-time pilot in the loop simulation using {@link Integrate6DOFEquations}, and
  * creates an {@link InstrumentPanel} object in JFrame object to test all gauges with the 
- * simulation; uses CH controls running on separate thread in {@link FlightControls} for flight controls
+ * simulation; uses CH controls running on separate thread in {@link FlightControlsState} for flight controls
  * 
  * @author Christopher Ali
  *
