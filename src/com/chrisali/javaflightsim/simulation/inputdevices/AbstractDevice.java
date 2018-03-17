@@ -17,45 +17,42 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.simulation.hidcontrollers;
+package com.chrisali.javaflightsim.simulation.inputdevices;
 
-import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.ControlParameterActuator;
 
 import net.java.games.input.Controller;
-import net.java.games.input.ControllerEnvironment;
 
 /**
- * Keyboard HID that is polled for raw data before being converted into contol commands 
- * that a {@link ControlParameterActuator} must handle 
+ * Abstract representation of Human Interface Devices that are polled for raw data before being converted into
+ * contol commands that a {@link ControlParameterActuator} must handle 
  */
-public class Keyboard extends AbstractDevice {
-
-	public Keyboard() {
-		logger.debug("Setting up keyboard...");
-		
-		searchForControlDevices();
-	}
+public abstract class AbstractDevice {
+	
+	protected static final Logger logger = LogManager.getLogger(AbstractDevice.class);
+	
+	protected List<Controller> controlDeviceList;
+	
+	public abstract void searchForControlDevices();
 	
 	/**
-	 * Search for and add controllers of type Controller.Type.KEYBOARD to controlDeviceList
+	 * Polls a capable {@link InputDeviceHandler} and then commands that device to
+	 * handle the poll data results 
+	 * 
+	 * @param visitor
 	 */
-	@Override
-	public void searchForControlDevices() {
-		Controller[] controllers = ControllerEnvironment.getDefaultEnvironment().getControllers();
-		controlDeviceList = new ArrayList<>();
-		
-		for (Controller controller : controllers) {
-			if (controller.getType() == Controller.Type.KEYBOARD) {
-				controlDeviceList.add(controller);
-				logger.debug("Found a keyboard: " + controller.getName());
+	public void collectControlDeviceValues(InputDeviceHandler visitor) {
+		for (Controller device : controlDeviceList) {
+			if (visitor.canHandleDevice(device)) {
+				if (!device.poll()) continue;
+				
+				visitor.handleDeviceInput(device);
 			}
 		}
-
-		if (controlDeviceList.isEmpty()) {
-			logger.error("No keyboard found!");
-			return;
-		}	
 	}
 }

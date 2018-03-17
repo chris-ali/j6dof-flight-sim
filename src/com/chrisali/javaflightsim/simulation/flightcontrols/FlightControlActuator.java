@@ -1,49 +1,7 @@
 package com.chrisali.javaflightsim.simulation.flightcontrols;
 
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.AILERON;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.BRAKE_L;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.BRAKE_R;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.ELEVATOR;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.FLAPS;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.GEAR;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.MIXTURE_1;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.MIXTURE_2;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.MIXTURE_3;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.MIXTURE_4;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.PROPELLER_1;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.PROPELLER_2;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.PROPELLER_3;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.PROPELLER_4;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.RUDDER;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.THROTTLE_1;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.THROTTLE_2;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.THROTTLE_3;
-import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.THROTTLE_4;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.AILERON_LEFT;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.AILERON_RIGHT;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.AILERON_TRIM_LEFT;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.AILERON_TRIM_RIGHT;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.BRAKES;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.CENTER_CONTROLS;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.DECREASE_FLAPS;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.DECREASE_MIXTURE;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.DECREASE_PROPELLER;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.DECREASE_THROTTLE;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.ELEVATOR_DOWN;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.ELEVATOR_TRIM_DOWN;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.ELEVATOR_TRIM_UP;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.ELEVATOR_UP;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.GEAR_DOWN;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.GEAR_UP;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.GEAR_UP_DOWN;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.INCREASE_FLAPS;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.INCREASE_MIXTURE;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.INCREASE_PROPELLER;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.INCREASE_THROTTLE;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.RUDDER_LEFT;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.RUDDER_RIGHT;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.RUDDER_TRIM_LEFT;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.RUDDER_TRIM_RIGHT;
+import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.*;
+import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.*;
 
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -129,8 +87,16 @@ public class FlightControlActuator implements ControlParameterActuator {
 			} else if (parameter.equals(RUDDER_TRIM_LEFT)) {
 				if (isPressed(value)) rudderTrimLeft();
 			} else if (parameter.equals(RUDDER_TRIM_RIGHT)) {
-				if (isPressed(value)) rudderRight();
-			}
+				if (isPressed(value)) rudderTrimRight();
+			} else if (parameter.equals(PAUSE_UNPAUSE_SIM)) {
+				SimEvents.pauseUnpauseSimulation(isPressed(value));
+			} else if (parameter.equals(RESET_SIM)) {
+				SimEvents.resetSimulation(isPressed(value));
+			} else if (parameter.equals(EXIT_SIMULATION)) {
+				if (isPressed(value)) SimEvents.stopSimulation();
+			} else if (parameter.equals(GENERATE_PLOTS)) {
+				if (isPressed(value)) SimEvents.plotSimulation();
+			} 
 		}
 		else {
 			if (parameter.equals(AILERON)) {
@@ -148,13 +114,17 @@ public class FlightControlActuator implements ControlParameterActuator {
 			} else if (parameter.equals(MIXTURE_2)) {
 				mixture2(value);
 			} else if (parameter.equals(MIXTURE_3)) {
+				mixture3(value);
 			} else if (parameter.equals(MIXTURE_4)) {
+				mixture4(value);
 			} else if (parameter.equals(PROPELLER_1)) {
 				propeller1(value);
 			} else if (parameter.equals(PROPELLER_2)) {
 				propeller2(value);
 			} else if (parameter.equals(PROPELLER_3)) {
+				propeller3(value);
 			} else if (parameter.equals(PROPELLER_4)) {
+				propeller4(value);
 			} else if (parameter.equals(RUDDER)) {
 				rudder(value);
 			} else if (parameter.equals(THROTTLE_1)) {
@@ -162,14 +132,14 @@ public class FlightControlActuator implements ControlParameterActuator {
 			} else if (parameter.equals(THROTTLE_2)) {
 				throttle2(value);
 			} else if (parameter.equals(THROTTLE_3)) {
+				throttle3(value);
 			} else if (parameter.equals(THROTTLE_4)) {
+				throttle4(value);
 			}
 		}
 	}
-	
-	private boolean isPressed(float value){
-		return value == 1.0;
-	}
+
+	private boolean isPressed(float value) { return value == 1.0; }
 	
 	/** 
 	 * Cycles Landing Gear Down/Up. Use gearPressed to prevent numerous cycles of gear up/down if key held down;
@@ -178,7 +148,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 	 * @param controls
 	 * @param buttonPressed
 	 */
-	public void cycleGear(boolean buttonPressed) {
+	private void cycleGear(boolean buttonPressed) {
 		if (!gearPressed && controlsState.get(FlightControl.GEAR) < 0.5) {
 			if(buttonPressed) {
 				controlsState.set(FlightControl.GEAR, 1.0);
@@ -194,138 +164,162 @@ public class FlightControlActuator implements ControlParameterActuator {
 		} 
 	}
 	
-	public void retractGear() {
+	private void retractGear() {
 		controlsState.set(FlightControl.GEAR, FlightControl.GEAR.getMinimum());	
 	}
 
-	public void extendGear() {
+	private void extendGear() {
 		controlsState.set(FlightControl.GEAR, FlightControl.GEAR.getMaximum());
 	}
 
-	public void retractFlaps() {
+	private void retractFlaps() {
 		if (flaps >= FlightControl.FLAPS.getMinimum())
 			controlsState.set(FlightControl.FLAPS, (flaps -= getRate(FlightControl.FLAPS)));
 	}
 	
-	public void extendFlaps() {
+	private void extendFlaps() {
 		if (flaps <= FlightControl.FLAPS.getMaximum()) 
 			controlsState.set(FlightControl.FLAPS, (flaps += getRate(FlightControl.FLAPS)));
 	}
 	
-	public void aileronTrimLeft() {
+	private void aileronTrimLeft() {
 		if(trimAileron >= FlightControl.AILERON.getMinimum()) 
 			trimAileron += getRate(FlightControl.AILERON)/10;
 	}
 	
-	public void aileronTrimRight() {
+	private void aileronTrimRight() {
 		if(trimAileron <= FlightControl.AILERON.getMaximum()) 
 			trimAileron -= getRate(FlightControl.AILERON)/10;
 	}
 	
-	public void rudderTrimRight() {
+	private void rudderTrimRight() {
 		if(trimRudder >= FlightControl.RUDDER.getMinimum()) 
 			trimRudder -= getRate(FlightControl.RUDDER)/10;
 	}
 	
-	public void rudderTrimLeft() {
+	private void rudderTrimLeft() {
 		if(trimRudder <= FlightControl.RUDDER.getMaximum()) 
 			trimRudder += getRate(FlightControl.RUDDER)/10;
 	}
 	
-	public void elevatorTrimDown() {
+	private void elevatorTrimDown() {
 		if (trimElevator <= FlightControl.ELEVATOR.getMaximum()) 
 			trimElevator += getRate(FlightControl.ELEVATOR)/10;
 	}
 	
-	public void elevatorTrimUp() {
+	private void elevatorTrimUp() {
 		if (trimElevator >= FlightControl.ELEVATOR.getMinimum()) 
 			trimElevator -= getRate(FlightControl.ELEVATOR)/10;
 	}
 	
-	public void elevator(double value) {
+	private void elevator(double value) {
 		double deflection = calculateDeflection(FlightControl.ELEVATOR, negativeSquare(value));	
 		controlsState.set(FlightControl.ELEVATOR, (deflection + trimElevator));
 	}
 	
-	public void aileron(double value) {
+	private void aileron(double value) {
 		double deflection = calculateDeflection(FlightControl.AILERON, negativeSquare(value));
 		controlsState.set(FlightControl.AILERON, (deflection + trimAileron));
 	}
 	
-	public void rudder(double value) {
+	private void rudder(double value) {
 		double deflection = calculateDeflection(FlightControl.RUDDER, negativeSquare(value));
 		controlsState.set(FlightControl.RUDDER, (deflection + trimRudder));
 	}
 	
-	public void elevatorDown() {
+	private void elevatorDown() {
 		if (controlsState.get(FlightControl.ELEVATOR) <= FlightControl.ELEVATOR.getMaximum())
 			controlsState.set(FlightControl.ELEVATOR, controlsState.get(FlightControl.ELEVATOR) + getRate(FlightControl.ELEVATOR));
 	}
 	
-	public void elevatorUp() {
+	private void elevatorUp() {
 		if (controlsState.get(FlightControl.ELEVATOR) >= FlightControl.ELEVATOR.getMinimum())
 			controlsState.set(FlightControl.ELEVATOR, controlsState.get(FlightControl.ELEVATOR) - getRate(FlightControl.ELEVATOR));
 	}
 	
-	public void aileronLeft() {
+	private void aileronLeft() {
 		if (controlsState.get(FlightControl.AILERON) >= FlightControl.AILERON.getMinimum())
 			controlsState.set(FlightControl.AILERON, controlsState.get(FlightControl.AILERON) + getRate(FlightControl.AILERON));
 	}
 	
-	public void aileronRight() {
+	private void aileronRight() {
 		if (controlsState.get(FlightControl.AILERON) <= FlightControl.AILERON.getMaximum())
 			controlsState.set(FlightControl.AILERON, controlsState.get(FlightControl.AILERON) - getRate(FlightControl.AILERON));
 	}
 	
-	public void rudderLeft() {
+	private void rudderLeft() {
 		if (controlsState.get(FlightControl.RUDDER) >= FlightControl.RUDDER.getMinimum())
 			controlsState.set(FlightControl.RUDDER, controlsState.get(FlightControl.RUDDER) - getRate(FlightControl.RUDDER));
 	}
 	
-	public void rudderRight() {
+	private void rudderRight() {
 		if (controlsState.get(FlightControl.RUDDER) <= FlightControl.RUDDER.getMaximum())
 			controlsState.set(FlightControl.RUDDER, controlsState.get(FlightControl.RUDDER) + getRate(FlightControl.RUDDER));
 	}
 	
-	public void centerControls() {
+	private void centerControls() {
 		controlsState.set(FlightControl.ELEVATOR, trimElevator);
 		controlsState.set(FlightControl.AILERON, trimAileron);
 		controlsState.set(FlightControl.RUDDER, trimRudder);
 	}
 	
-	public void brakeRight(double value) {
+	private void brakeRight(double value) {
 		controlsState.set(FlightControl.BRAKE_R, negativeSquare(value));
 	}
 	
-	public void brakeLeft(double value) {
+	private void brakeLeft(double value) {
 		controlsState.set(FlightControl.BRAKE_L, negativeSquare(value));
 	}
 	
-	public void throttle1(double value) {
+	private void throttle1(double value) {
 		controlsState.set(FlightControl.THROTTLE_1, -(value-1)/2);
 	}
 	
-	public void throttle2(double value) {
+	private void throttle2(double value) {
 		controlsState.set(FlightControl.THROTTLE_2, -(value-1)/2);
 	}
 	
-	public void propeller1(double value) {
+	private void throttle3(double value) {
+		controlsState.set(FlightControl.THROTTLE_3, -(value-1)/2);
+	}
+	
+	private void throttle4(double value) {
+		controlsState.set(FlightControl.THROTTLE_4, -(value-1)/2);
+	}
+	
+	private void propeller1(double value) {
 		controlsState.set(FlightControl.PROPELLER_1, -(value-1)/2);
 	}
 	
-	public void propeller2(double value) {
+	private void propeller2(double value) {
 		controlsState.set(FlightControl.PROPELLER_2, -(value-1)/2);
 	}
 	
-	public void mixture1(double value) {
+	private void propeller3(double value) {
+		controlsState.set(FlightControl.PROPELLER_3, -(value-1)/2);
+	}
+	
+	private void propeller4(double value) {
+		controlsState.set(FlightControl.PROPELLER_4, -(value-1)/2);
+	}
+	
+	private void mixture1(double value) {
 		controlsState.set(FlightControl.MIXTURE_1, -(value-1)/2);
 	}
 	
-	public void mixture2(double value) {
+	private void mixture2(double value) {
 		controlsState.set(FlightControl.MIXTURE_2, -(value-1)/2);
 	}
 	
-	public void increaseThrottle() {
+	private void mixture3(double value) {
+		controlsState.set(FlightControl.MIXTURE_2, -(value-1)/2);
+	}
+	
+	private void mixture4(double value) {
+		controlsState.set(FlightControl.MIXTURE_2, -(value-1)/2);
+	}
+	
+	private void increaseThrottle() {
 		if (controlsState.get(FlightControl.THROTTLE_1) <= FlightControl.THROTTLE_1.getMaximum() &&
 			controlsState.get(FlightControl.THROTTLE_2) <= FlightControl.THROTTLE_2.getMaximum() &&
 			controlsState.get(FlightControl.THROTTLE_3) <= FlightControl.THROTTLE_3.getMaximum() &&
@@ -338,7 +332,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 		}
 	}
 	
-	public void decreaseThrottle() {
+	private void decreaseThrottle() {
 		if (controlsState.get(FlightControl.THROTTLE_1) >= FlightControl.THROTTLE_1.getMinimum() &&
 			controlsState.get(FlightControl.THROTTLE_2) >= FlightControl.THROTTLE_2.getMinimum() &&
 			controlsState.get(FlightControl.THROTTLE_3) >= FlightControl.THROTTLE_3.getMinimum() &&

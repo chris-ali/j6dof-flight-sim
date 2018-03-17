@@ -17,7 +17,7 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.simulation.hidcontrollers;
+package com.chrisali.javaflightsim.simulation.inputdevices;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.ControlParameterActuator;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
@@ -36,28 +36,26 @@ import net.java.games.input.Component.Identifier.Axis;
  * @author Christopher
  *
  */
-public class MouseVisitor implements InputDeviceVisitor {
+public class MouseHandler implements InputDeviceHandler {
 	
-	private FlightControlsState controlsState;
 	private ControlParameterActuator actuator;
 
 	// Mouse axes are measured relative to the stopped position; temp fields store the control deflection, 
 	// and the mouse axis value is added to these
-	private double tempElev  = 0.0;
-	private double tempAil   = 0.0;
-	private double tempThrot = 0.0;
+	private float tempElev  = 0.0f;
+	private float tempAil   = 0.0f;
+	private float tempThrot = 0.0f;
 	
 	// Add these trim values to getControlDeflection method call to emulate trim deflections
-	private double trimElevator = 0.0;
-	private double trimAileron  = 0.0;
+	private float trimElevator = 0.0f;
+	private float trimAileron  = 0.0f;
 	
-	public MouseVisitor(FlightControlsState controlsState, ControlParameterActuator actuator) {
-		this.controlsState = controlsState;
+	public MouseHandler(FlightControlsState controlsState, ControlParameterActuator actuator) {
 		this.actuator = actuator;
 		
 		// Get initial trim values from initial values in controls EnumMap (rad)
-		trimElevator = controlsState.get(FlightControl.ELEVATOR);
-		trimAileron = controlsState.get(FlightControl.AILERON);
+		trimElevator = (float)controlsState.get(FlightControl.ELEVATOR);
+		trimAileron = (float)controlsState.get(FlightControl.AILERON);
 	}
 
 	@Override
@@ -81,13 +79,13 @@ public class MouseVisitor implements InputDeviceVisitor {
 			// Mouse Axes - Read raw mouse relative value, add relative value to temp* variable, and add trim value
 			// to control deflection
 			if(component.isRelative()) {
-				double axisValue = (double)component.getPollData()/10000;
+				float axisValue = component.getPollData()/10000;
 				
 				// Y axis (Elevator)
 				if(componentIdentifier == Axis.Y) {
 					if(axisValue != 0) {
 						tempElev += axisValue;
-						controlsState.set(FlightControl.ELEVATOR, -(tempElev+trimElevator));
+						actuator.handleParameterChange(FlightControl.ELEVATOR, -(tempElev+trimElevator));
 					}
 					continue;
 				}
@@ -95,7 +93,7 @@ public class MouseVisitor implements InputDeviceVisitor {
 				if(componentIdentifier == Axis.X) {
 					if(axisValue != 0) {
 						tempAil += axisValue;
-						controlsState.set(FlightControl.AILERON, -(tempAil+trimAileron));
+						actuator.handleParameterChange(FlightControl.AILERON, -(tempAil+trimAileron));
 					}
 					continue;
 				}
@@ -103,8 +101,8 @@ public class MouseVisitor implements InputDeviceVisitor {
 				if(componentIdentifier == Axis.Z) {
 					if(axisValue != 0) {
 						tempThrot += axisValue;
-						controlsState.set(FlightControl.THROTTLE_1, tempThrot*250);
-						controlsState.set(FlightControl.THROTTLE_2, tempThrot*250);
+						actuator.handleParameterChange(FlightControl.THROTTLE_1, tempThrot*250);
+						actuator.handleParameterChange(FlightControl.THROTTLE_2, tempThrot*250);
 					}
 					continue;
 				}

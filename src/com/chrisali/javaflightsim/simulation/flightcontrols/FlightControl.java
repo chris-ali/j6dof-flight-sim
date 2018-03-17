@@ -19,7 +19,7 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.flightcontrols;
 
-import com.chrisali.javaflightsim.simulation.hidcontrollers.AbstractDevice;
+import com.chrisali.javaflightsim.simulation.inputdevices.AbstractDevice;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 /**

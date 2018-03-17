@@ -17,7 +17,7 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.simulation.hidcontrollers;
+package com.chrisali.javaflightsim.simulation.inputdevices;
 
 import java.util.Map;
 
@@ -36,12 +36,12 @@ import net.java.games.input.Controller;
  * @author Christopher
  *
  */
-public class KeyboardVisitor implements InputDeviceVisitor {
+public class KeyboardHandler implements InputDeviceHandler {
 
 	private Map<String, KeyCommand> keyboardAssignments;
 	private ControlParameterActuator actuator;
 
-	public KeyboardVisitor(Map<String, KeyCommand> keyboardAssignments, ControlParameterActuator actuator) {
+	public KeyboardHandler(Map<String, KeyCommand> keyboardAssignments, ControlParameterActuator actuator) {
 		this.keyboardAssignments = keyboardAssignments;
 		this.actuator = actuator;
 	}

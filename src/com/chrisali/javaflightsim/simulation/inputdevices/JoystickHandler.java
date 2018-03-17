@@ -17,7 +17,7 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.simulation.hidcontrollers;
+package com.chrisali.javaflightsim.simulation.inputdevices;
 
 import java.util.Map;
 
@@ -41,12 +41,12 @@ import net.java.games.input.Component.Identifier.Axis;
  * @author Christopher
  *
  */
-public class JoystickVisitor implements InputDeviceVisitor {
+public class JoystickHandler implements InputDeviceHandler {
 	
 	private Map<String, JoystickAssignments> joystickAssignments;
 	private ControlParameterActuator actuator;
 	
-	public JoystickVisitor(Map<String, JoystickAssignments> joystickAssignments, ControlParameterActuator actuator) {
+	public JoystickHandler(Map<String, JoystickAssignments> joystickAssignments, ControlParameterActuator actuator) {
 		this.joystickAssignments = joystickAssignments;
 		this.actuator = actuator;
 	}

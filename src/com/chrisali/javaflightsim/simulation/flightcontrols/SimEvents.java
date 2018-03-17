@@ -17,7 +17,7 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.simulation.hidcontrollers;
+package com.chrisali.javaflightsim.simulation.flightcontrols;
 
 import java.util.Set;
 
@@ -33,9 +33,9 @@ import com.chrisali.javaflightsim.simulation.setup.Options;
  * @author Christopher
  *
  */
-public class Events {
+public class SimEvents {
 	
-	private static final Logger logger = LogManager.getLogger(Events.class);
+	private static final Logger logger = LogManager.getLogger(SimEvents.class);
 	
 	// Keep track if button is pressed, so events occur only once if button held down 
 	private static boolean pausePressed = false;
@@ -44,7 +44,21 @@ public class Events {
 	// Keep track of reset, so that it can only be run once per pause
 	private static boolean wasReset = false;
 	
-	public static void pauseSimulation(Set<Options> options, boolean isPressed) {
+	private static Set<Options> options;
+	
+	private static SimulationController simController;
+	
+	public static void init(SimulationController controller) {
+		simController = controller;
+		options = simController.getConfiguration().getSimulationOptions();
+	}
+	
+	/**
+	 * Pauses and unpauses the simulation 
+	 * 
+	 * @param isPressed
+	 */
+	public static void pauseUnpauseSimulation(boolean isPressed) {
 		if(isPressed && !options.contains(Options.PAUSED) && !pausePressed) {
 			options.add(Options.PAUSED);
 			logger.debug("Simulation Paused!");
@@ -58,8 +72,11 @@ public class Events {
 		}
 	}
 	
-	// When simulation paused, can be reset once per pause with "R" key
-	public static void resetSimulation(Set<Options> options, boolean isPressed) {
+	/**
+	 * When the simulation is paused, it can be reset back to initial conditions once per pause with this method 
+	 * @param isPressed
+	 */
+	public static void resetSimulation(boolean isPressed) {
 		if(isPressed && options.contains(Options.PAUSED) && !options.contains(Options.RESET) && !resetPressed && !wasReset) {
 			options.add(Options.RESET);
 			logger.debug("Resetting simulation...");
@@ -71,11 +88,17 @@ public class Events {
 		}
 	}
 	
-	public static void stopSimulation(SimulationController simController) {
-		//simController.stopSimulation();
+	/**
+	 * Commands {@link SimulationController} to stop the simulation
+	 */
+	public static void stopSimulation() {
+		simController.stopSimulation();
 	}
 	
-	public static void plotSimulation(SimulationController simController) {
+	/**
+	 * Commands {@link SimulationController} to generate plots of the simulation thus far
+	 */
+	public static void plotSimulation() {
 		if(!simController.isPlotWindowVisible()) {
 			simController.plotSimulation();
 		}

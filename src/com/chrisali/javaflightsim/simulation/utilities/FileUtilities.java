@@ -34,7 +34,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.InstrumentPanel;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
-import com.chrisali.javaflightsim.simulation.flightcontrols.AnalysisControls;
+import com.chrisali.javaflightsim.simulation.flightcontrols.analysis.AnalysisControls;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;

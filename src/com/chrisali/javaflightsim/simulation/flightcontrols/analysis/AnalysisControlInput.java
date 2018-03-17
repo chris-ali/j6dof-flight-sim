@@ -17,11 +17,12 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.simulation.flightcontrols;
+package com.chrisali.javaflightsim.simulation.flightcontrols.analysis;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

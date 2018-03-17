@@ -29,13 +29,14 @@ import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
-import com.chrisali.javaflightsim.simulation.hidcontrollers.AbstractDevice;
-import com.chrisali.javaflightsim.simulation.hidcontrollers.Joystick;
-import com.chrisali.javaflightsim.simulation.hidcontrollers.JoystickVisitor;
-import com.chrisali.javaflightsim.simulation.hidcontrollers.Keyboard;
-import com.chrisali.javaflightsim.simulation.hidcontrollers.KeyboardVisitor;
-import com.chrisali.javaflightsim.simulation.hidcontrollers.Mouse;
-import com.chrisali.javaflightsim.simulation.hidcontrollers.MouseVisitor;
+import com.chrisali.javaflightsim.simulation.flightcontrols.analysis.AnalysisControls;
+import com.chrisali.javaflightsim.simulation.inputdevices.AbstractDevice;
+import com.chrisali.javaflightsim.simulation.inputdevices.Joystick;
+import com.chrisali.javaflightsim.simulation.inputdevices.JoystickHandler;
+import com.chrisali.javaflightsim.simulation.inputdevices.Keyboard;
+import com.chrisali.javaflightsim.simulation.inputdevices.KeyboardHandler;
+import com.chrisali.javaflightsim.simulation.inputdevices.Mouse;
+import com.chrisali.javaflightsim.simulation.inputdevices.MouseHandler;
 import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -65,9 +66,9 @@ public class FlightControlsStateManager implements Steppable {
 	private AnalysisControls analysisControls;
 
 	// Visitors are used to poll devices for data and handle the results in an actuator object within the visitor
-	private JoystickVisitor joystickVisitor;
-    private KeyboardVisitor keyboardVisitor;
-    private MouseVisitor mouseVisitor;
+	private JoystickHandler joystickVisitor;
+    private KeyboardHandler keyboardVisitor;
+    private MouseHandler mouseVisitor;
 	
 	public FlightControlsStateManager(SimulationController simController, AtomicInteger simTimeMS) {
 		logger.debug("Initializing flight controls...");
@@ -75,6 +76,8 @@ public class FlightControlsStateManager implements Steppable {
 		SimulationConfiguration simConfig = simController.getConfiguration();
 		options = simConfig.getSimulationOptions();
 		this.simTimeMS = simTimeMS;
+		
+		SimEvents.init(simController);
 
 		ControlsConfiguration controlsConfig = FileUtilities.readControlsConfiguration();
 		analysisControls = FileUtilities.readAnalysisControls();
@@ -88,16 +91,16 @@ public class FlightControlsStateManager implements Steppable {
 			if (options.contains(Options.USE_JOYSTICK) || options.contains(Options.USE_CH_CONTROLS)) {
 				logger.debug("Joystick controller selected");
 				hidController = new Joystick();
-				joystickVisitor = new JoystickVisitor(controlsConfig.getJoystickAssignments(), actuator);
+				joystickVisitor = new JoystickHandler(controlsConfig.getJoystickAssignments(), actuator);
 			}
 			else if (options.contains(Options.USE_MOUSE)){
 				logger.debug("Mouse controller selected");
 				hidController = new Mouse();
-				mouseVisitor = new MouseVisitor(controlsState, actuator);
+				mouseVisitor = new MouseHandler(controlsState, actuator);
 			}
 			
 			hidKeyboard = new Keyboard();
-			keyboardVisitor = new KeyboardVisitor(controlsConfig.getKeyboardAssignments(), actuator);
+			keyboardVisitor = new KeyboardHandler(controlsConfig.getKeyboardAssignments(), actuator);
 		}
 	}
 	

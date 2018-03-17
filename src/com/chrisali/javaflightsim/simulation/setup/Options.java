@@ -19,9 +19,9 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.setup;
 
-import com.chrisali.javaflightsim.simulation.hidcontrollers.Joystick;
-import com.chrisali.javaflightsim.simulation.hidcontrollers.Keyboard;
-import com.chrisali.javaflightsim.simulation.hidcontrollers.Mouse;
+import com.chrisali.javaflightsim.simulation.inputdevices.Joystick;
+import com.chrisali.javaflightsim.simulation.inputdevices.Keyboard;
+import com.chrisali.javaflightsim.simulation.inputdevices.Mouse;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.swing.instrumentpanel.InstrumentPanel;
 
