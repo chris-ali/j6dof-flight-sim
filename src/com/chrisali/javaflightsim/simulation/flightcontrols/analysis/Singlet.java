@@ -19,10 +19,10 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.flightcontrols.analysis;
 
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -45,21 +45,22 @@ public class Singlet extends AnalysisControlInput {
 	 * control is held in that direction, and the amplitude the amount of deflection in one direction. controlInput uses {@link FlightControl} to select
 	 * the desired control to use as a singlet 
 	 * 
-	 * @param controls
-	 * @param trimControls
 	 * @param timeMS
+	 * @param flightControls
 	 */
 	@Override
-	public void generate(Map<FlightControl, Double> controls, Map<FlightControl, Double> trimControls, AtomicInteger timeMS) {
+	public void generate(AtomicInteger timeMS, FlightControlsState flightControls) {
 		Integer time = timeMS.get();
 		Integer endTimeMS = startTimeMS + durationMS;
+		
+		double trimVal = flightControls.getTrimValue(controlType);
 		
 		boolean started = time.compareTo(startTimeMS) == 1 || time.compareTo(startTimeMS) == 0;
 		boolean ended   = time.compareTo(endTimeMS) == 1 || time.compareTo(endTimeMS) == 0;
 				
 		if (started && !ended)
-			controls.put(controlType, trimControls.get(controlType) + amplitude);
+			flightControls.set(controlType, trimVal + amplitude);
 		else 
-			controls.put(controlType, trimControls.get(controlType));
+			flightControls.set(controlType, trimVal);
 	}	
 }

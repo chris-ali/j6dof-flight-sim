@@ -20,14 +20,13 @@
 package com.chrisali.javaflightsim.simulation.flightcontrols.analysis;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.interfaces.Saveable;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -49,20 +48,20 @@ public class AnalysisControls implements Saveable {
 	public AnalysisControls() { }
 	
 	/**
-	 * Given a list of {@link AnalysisControlInput} objects, update the controls Map as appropriate with a control input at the 
+	 * Given a list of {@link AnalysisControlInput} objects, update the flight controls appropriate with a control input 
+	 * at the appropriate time
 	 * 
 	 * @param timeMS time in milliseconds
 	 * @param flightControls
-	 * @param trimControls
 	 */
-	public void updateFlightControls(AtomicInteger timeMS, Map<FlightControl, Double> flightControls, Map<FlightControl, Double> trimControls) {
+	public void updateFlightControls(AtomicInteger timeMS, FlightControlsState flightControls) {
 		for (AnalysisControlInput input : analysisInputs) {
 			// Only consider an input if simulation time is within a time window (from 7/8 of input start time to 9/8 of end time)
 			boolean withinTimeWindow = timeMS.get() > (7 * input.getStartTimeMS() / 8) &&
 									   timeMS.get() < (9 * (2 * input.getDurationMS() + timeMS.get()) / 8);
 			
 			if (withinTimeWindow)
-				input.generate(flightControls, trimControls, timeMS);
+				input.generate(timeMS, flightControls);
 		}
 	}
 	

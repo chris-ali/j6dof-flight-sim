@@ -19,10 +19,10 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.flightcontrols.analysis;
 
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -69,7 +69,7 @@ public abstract class AnalysisControlInput implements Comparable<AnalysisControl
 		this.amplitude = amplitude;
 	}
 
-	public abstract void generate(Map<FlightControl, Double> controls, Map<FlightControl, Double> trimControls, AtomicInteger timeMS);
+	public abstract void generate(AtomicInteger timeMS, FlightControlsState controlsState);
 
 	public FlightControl getControlType() { return controlType;	}
 

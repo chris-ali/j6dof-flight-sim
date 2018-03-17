@@ -19,10 +19,10 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.flightcontrols.analysis;
 
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -46,16 +46,16 @@ public class Doublet extends AnalysisControlInput {
 	 * control is held in that direction, and the amplitude the amount of deflection in one direction. controlInput uses {@link FlightControl} to select
 	 * the desired control to use as a doublet 
 	 * 
-	 * @param controls
-	 * @param trimControls
 	 * @param timeMS
-	 * @return flightControls EnumMap 
+	 * @param flightControls
 	 */
 	@Override
-	public void generate(Map<FlightControl, Double> controls, Map<FlightControl, Double> trimControls, AtomicInteger timeMS) {
+	public void generate(AtomicInteger timeMS, FlightControlsState flightControls) {
 		Integer time = timeMS.get();
 		Integer firstHalfEndTimeMS = startTimeMS + durationMS;
 		Integer doubletEndTimeMS   = startTimeMS + (2 * durationMS);
+		
+		double trimVal = flightControls.getTrimValue(controlType);
 		
 		boolean startedFirstHalf = time.compareTo(startTimeMS) == 1 || time.compareTo(startTimeMS) == 0;
 		boolean endedFirstHalf   = time.compareTo(firstHalfEndTimeMS) == 1 || time.compareTo(firstHalfEndTimeMS) == 0;
@@ -64,10 +64,10 @@ public class Doublet extends AnalysisControlInput {
 		boolean endedSecondHalf   = time.compareTo(doubletEndTimeMS)   == 1 || time.compareTo(doubletEndTimeMS)   == 0;
 		
 		if (startedFirstHalf && !endedFirstHalf)
-			controls.put(controlType, trimControls.get(controlType) + amplitude);
+			flightControls.set(controlType, trimVal + amplitude);
 		else if (startedSecondHalf && !endedSecondHalf)
-			controls.put(controlType, trimControls.get(controlType) - amplitude);
+			flightControls.set(controlType, trimVal - amplitude);
 		else 
-			controls.put(controlType, trimControls.get(controlType));
+			flightControls.set(controlType, trimVal);
 	}	
 }

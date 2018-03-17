@@ -32,9 +32,9 @@ public class FlightControlActuator implements ControlParameterActuator {
 		
 		this.controlsState = controlsState;
 		
-		trimAileron  = controlsState.getTrimFlightControls().get(AILERON);
-		trimElevator = controlsState.getTrimFlightControls().get(ELEVATOR);
-		trimRudder   = controlsState.getTrimFlightControls().get(RUDDER);
+		trimAileron  = controlsState.getTrimValue(AILERON);
+		trimElevator = controlsState.getTrimValue(ELEVATOR);
+		trimRudder   = controlsState.getTrimValue(RUDDER);
 	}
 	
 	// Need to find a better way of selecting the right method to call

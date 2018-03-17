@@ -116,7 +116,7 @@ public class FlightControlsStateManager implements Steppable {
 				if (hidKeyboard != null)
 					hidKeyboard.collectControlDeviceValues(keyboardVisitor);
 			} else {
-				analysisControls.updateFlightControls(simTimeMS, controlsState.getFlightControls(), controlsState.getTrimFlightControls());
+				analysisControls.updateFlightControls(simTimeMS, controlsState);
 			}
 			
 			limitControls(controlsState);

@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
- * Handles the exact state of flight controls that other aspects of the simulation (engine, aerodynamics, ground reaction)
+ * Handles the exact current, trim and transient states of flight controls that other aspects of the simulation (engine, aerodynamics, ground reaction)
  * will see. {@link FlightControlsStateManager} 
  * 
  * @author Christopher Ali
@@ -69,14 +69,14 @@ public class FlightControlsState {
 			flightControls.put(entry.getKey(), trimflightControls.get(entry.getKey()));
 	}
 
-	public Map<FlightControl, Double> getTrimFlightControls() { return trimflightControls; }
-
 	public Map<FlightControl, Double> getFlightControls() { return flightControls; }
 	
 	public double get(FlightControl parameter) { return flightControls.get(parameter); }
 	
 	public void set(FlightControl parameter, Double value) { flightControls.put(parameter, value); }
 
+	public double getTrimValue(FlightControl parameter) { return trimflightControls.get(parameter); }
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
