@@ -65,42 +65,42 @@ public class FlightControlsStateManager implements Steppable {
 	private Keyboard hidKeyboard;
 	private AnalysisControls analysisControls;
 
-	// Visitors are used to poll devices for data and handle the results in an actuator object within the visitor
-	private JoystickHandler joystickVisitor;
-    private KeyboardHandler keyboardVisitor;
-    private MouseHandler mouseVisitor;
+	private ControlParameterActuator actuator;
+	
+	private JoystickHandler joystickHandler;
+    private KeyboardHandler keyboardHandler;
+    private MouseHandler mouseHandler;
 	
 	public FlightControlsStateManager(SimulationController simController, AtomicInteger simTimeMS) {
 		logger.debug("Initializing flight controls...");
 		
-		SimulationConfiguration simConfig = simController.getConfiguration();
-		options = simConfig.getSimulationOptions();
-		this.simTimeMS = simTimeMS;
-		
 		SimEvents.init(simController);
 
+		SimulationConfiguration simConfig = simController.getConfiguration();
+		options = simConfig.getSimulationOptions();
+		controlsState = new FlightControlsState(simConfig);
+		actuator = new FlightControlActuator(simConfig, controlsState);
+
+		this.simTimeMS = simTimeMS;
+		
 		ControlsConfiguration controlsConfig = FileUtilities.readControlsConfiguration();
 		analysisControls = FileUtilities.readAnalysisControls();
-		
-		controlsState = new FlightControlsState(simConfig);
-
-		ControlParameterActuator actuator = new FlightControlActuator(simConfig, controlsState);
 
 		// Use controllers for pilot in loop simulation if ANALYSIS_MODE not enabled 
 		if (!options.contains(Options.ANALYSIS_MODE)) {
 			if (options.contains(Options.USE_JOYSTICK) || options.contains(Options.USE_CH_CONTROLS)) {
 				logger.debug("Joystick controller selected");
 				hidController = new Joystick();
-				joystickVisitor = new JoystickHandler(controlsConfig.getJoystickAssignments(), actuator);
+				joystickHandler = new JoystickHandler(controlsConfig.getJoystickAssignments(), actuator);
 			}
 			else if (options.contains(Options.USE_MOUSE)){
 				logger.debug("Mouse controller selected");
 				hidController = new Mouse();
-				mouseVisitor = new MouseHandler(controlsState, actuator);
+				mouseHandler = new MouseHandler(controlsState, actuator);
 			}
 			
 			hidKeyboard = new Keyboard();
-			keyboardVisitor = new KeyboardHandler(controlsConfig.getKeyboardAssignments(), actuator);
+			keyboardHandler = new KeyboardHandler(controlsConfig.getKeyboardAssignments(), actuator);
 		}
 	}
 	
@@ -111,12 +111,12 @@ public class FlightControlsStateManager implements Steppable {
 			// otherwise, controls updated using generated doublets
 			if (!options.contains(Options.ANALYSIS_MODE)) {
 				if (hidController != null) 
-					hidController.collectControlDeviceValues(joystickVisitor != null ? joystickVisitor : mouseVisitor);
+					hidController.collectControlDeviceValues(joystickHandler != null ? joystickHandler : mouseHandler);
 		
 				if (hidKeyboard != null)
-					hidKeyboard.collectControlDeviceValues(keyboardVisitor);
+					hidKeyboard.collectControlDeviceValues(keyboardHandler);
 			} else {
-				analysisControls.updateFlightControls(simTimeMS, controlsState);
+				analysisControls.updateFlightControls(simTimeMS, actuator, controlsState);
 			}
 			
 			limitControls(controlsState);

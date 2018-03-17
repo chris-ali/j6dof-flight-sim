@@ -26,6 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.interfaces.Saveable;
+import com.chrisali.javaflightsim.simulation.flightcontrols.ControlParameterActuator;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
@@ -52,16 +53,17 @@ public class AnalysisControls implements Saveable {
 	 * at the appropriate time
 	 * 
 	 * @param timeMS time in milliseconds
+	 * @param actuator
 	 * @param flightControls
 	 */
-	public void updateFlightControls(AtomicInteger timeMS, FlightControlsState flightControls) {
+	public void updateFlightControls(AtomicInteger timeMS, ControlParameterActuator actuator, FlightControlsState flightControls) {
 		for (AnalysisControlInput input : analysisInputs) {
 			// Only consider an input if simulation time is within a time window (from 7/8 of input start time to 9/8 of end time)
 			boolean withinTimeWindow = timeMS.get() > (7 * input.getStartTimeMS() / 8) &&
 									   timeMS.get() < (9 * (2 * input.getDurationMS() + timeMS.get()) / 8);
 			
 			if (withinTimeWindow)
-				input.generate(timeMS, flightControls);
+				input.generate(timeMS, actuator, flightControls);
 		}
 	}
 	

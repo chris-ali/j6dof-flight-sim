@@ -21,6 +21,7 @@ package com.chrisali.javaflightsim.simulation.flightcontrols.analysis;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.chrisali.javaflightsim.simulation.flightcontrols.ControlParameterActuator;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -69,7 +70,7 @@ public abstract class AnalysisControlInput implements Comparable<AnalysisControl
 		this.amplitude = amplitude;
 	}
 
-	public abstract void generate(AtomicInteger timeMS, FlightControlsState controlsState);
+	public abstract void generate(AtomicInteger timeMS, ControlParameterActuator actuator, FlightControlsState controlsState);
 
 	public FlightControl getControlType() { return controlType;	}
 

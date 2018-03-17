@@ -21,6 +21,7 @@ package com.chrisali.javaflightsim.simulation.flightcontrols.analysis;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.chrisali.javaflightsim.simulation.flightcontrols.ControlParameterActuator;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -47,10 +48,11 @@ public class Doublet extends AnalysisControlInput {
 	 * the desired control to use as a doublet 
 	 * 
 	 * @param timeMS
+	 * @param actuator
 	 * @param flightControls
 	 */
 	@Override
-	public void generate(AtomicInteger timeMS, FlightControlsState flightControls) {
+	public void generate(AtomicInteger timeMS, ControlParameterActuator actuator,  FlightControlsState flightControls) {
 		Integer time = timeMS.get();
 		Integer firstHalfEndTimeMS = startTimeMS + durationMS;
 		Integer doubletEndTimeMS   = startTimeMS + (2 * durationMS);
@@ -64,10 +66,10 @@ public class Doublet extends AnalysisControlInput {
 		boolean endedSecondHalf   = time.compareTo(doubletEndTimeMS)   == 1 || time.compareTo(doubletEndTimeMS)   == 0;
 		
 		if (startedFirstHalf && !endedFirstHalf)
-			flightControls.set(controlType, trimVal + amplitude);
+			flightControls.set(controlType, (trimVal + amplitude));
 		else if (startedSecondHalf && !endedSecondHalf)
-			flightControls.set(controlType, trimVal - amplitude);
+			flightControls.set(controlType, (trimVal - amplitude));
 		else 
-			flightControls.set(controlType, trimVal);
+			flightControls.set(controlType, (trimVal));
 	}	
 }

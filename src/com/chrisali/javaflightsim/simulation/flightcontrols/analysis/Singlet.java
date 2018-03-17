@@ -21,6 +21,7 @@ package com.chrisali.javaflightsim.simulation.flightcontrols.analysis;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.chrisali.javaflightsim.simulation.flightcontrols.ControlParameterActuator;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -46,10 +47,11 @@ public class Singlet extends AnalysisControlInput {
 	 * the desired control to use as a singlet 
 	 * 
 	 * @param timeMS
+	 * @param actuator
 	 * @param flightControls
 	 */
 	@Override
-	public void generate(AtomicInteger timeMS, FlightControlsState flightControls) {
+	public void generate(AtomicInteger timeMS, ControlParameterActuator actuator,  FlightControlsState flightControls) {
 		Integer time = timeMS.get();
 		Integer endTimeMS = startTimeMS + durationMS;
 		
@@ -59,8 +61,8 @@ public class Singlet extends AnalysisControlInput {
 		boolean ended   = time.compareTo(endTimeMS) == 1 || time.compareTo(endTimeMS) == 0;
 				
 		if (started && !ended)
-			flightControls.set(controlType, trimVal + amplitude);
+			flightControls.set(controlType, (trimVal + amplitude));
 		else 
-			flightControls.set(controlType, trimVal);
+			flightControls.set(controlType, (trimVal));
 	}	
 }

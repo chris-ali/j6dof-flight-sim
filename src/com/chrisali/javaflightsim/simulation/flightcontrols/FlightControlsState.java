@@ -40,6 +40,7 @@ public class FlightControlsState {
 	
 	private Map<FlightControl, Double> flightControls;
 	private Map<FlightControl, Double> trimflightControls;
+	private Map<FlightControl, Double> transientFlightControls;
 	
 	/**
 	 * Initializes the object with a flightControls map of values equal to the initial controls values
@@ -50,15 +51,14 @@ public class FlightControlsState {
 		this(null, simConfig);
 	}
 	
-	public FlightControlsState(Map<FlightControl, Double> flightControls, SimulationConfiguration simConfig) {
+	public FlightControlsState(Map<FlightControl, Double> aFlightControls, SimulationConfiguration simConfig) {
 		logger.debug("Initializing flight controls state...");
 		
-		if (flightControls != null)
-			this.flightControls = new EnumMap<FlightControl, Double>(flightControls);
-		else
-			this.flightControls = new EnumMap<FlightControl, Double>(simConfig.getInitialControls());
+		flightControls = new EnumMap<FlightControl, Double>((aFlightControls != null) ? aFlightControls : simConfig.getInitialControls());
 		
 		trimflightControls = simConfig.getInitialControls();
+		
+		transientFlightControls = new EnumMap<FlightControl, Double>(flightControls);
 	}
 
 	/**
@@ -74,6 +74,10 @@ public class FlightControlsState {
 	public double get(FlightControl parameter) { return flightControls.get(parameter); }
 	
 	public void set(FlightControl parameter, Double value) { flightControls.put(parameter, value); }
+	
+	public double getTransientValue(FlightControl parameter) { return transientFlightControls.get(parameter); }
+	
+	public void setTransientValue(FlightControl parameter, Double value) { transientFlightControls.put(parameter, value); }
 
 	public double getTrimValue(FlightControl parameter) { return trimflightControls.get(parameter); }
 	

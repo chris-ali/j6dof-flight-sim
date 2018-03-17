@@ -79,7 +79,7 @@ public class MouseHandler implements InputDeviceHandler {
 			// Mouse Axes - Read raw mouse relative value, add relative value to temp* variable, and add trim value
 			// to control deflection
 			if(component.isRelative()) {
-				float axisValue = component.getPollData()/10000;
+				float axisValue = component.getPollData()/10;
 				
 				// Y axis (Elevator)
 				if(componentIdentifier == Axis.Y) {
