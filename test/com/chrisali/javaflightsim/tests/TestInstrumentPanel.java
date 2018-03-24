@@ -56,7 +56,7 @@ public class TestInstrumentPanel {
 		
 		configuration.getSimulationOptions().clear();
 		configuration.getSimulationOptions().add(Options.UNLIMITED_FLIGHT);
-		configuration.getSimulationOptions().add(Options.USE_CH_CONTROLS);
+		configuration.getSimulationOptions().add(Options.USE_JOYSTICK);
 		
 		SimulationRunner runner = new SimulationRunner(controller);
 		

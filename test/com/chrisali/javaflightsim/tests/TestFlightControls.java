@@ -19,9 +19,13 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.tests;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.setup.Options;
-import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 /**
@@ -32,27 +36,25 @@ import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
  *
  */
 public class TestFlightControls implements Runnable {
-	private FlightControlsState flightControls;
-	private Thread flightControlsThread;
-	private SimulationConfiguration configuation;
+	private FlightControlsStateManager flightControls;
+	private SimulationController simController;
 	
 	public TestFlightControls() {
-		configuation = FileUtilities.readSimulationConfiguration();
-		configuation.getSimulationOptions().add(Options.USE_CH_CONTROLS);
-		flightControls = new FlightControlsState(configuation);
+		simController = new LWJGLSwingSimulationController(FileUtilities.readSimulationConfiguration());
+		simController.getConfiguration().getSimulationOptions().add(Options.USE_JOYSTICK);
+		
+		flightControls = new FlightControlsStateManager(simController, new AtomicInteger(0));
 	}
 	
 	@Override
 	public void run() {
-		flightControlsThread.start();
-		
 		try {
 			Thread.sleep(500);
 			
 			while (true) {
-				System.out.println(flightControls.toString());
+				flightControls.step();
+				System.out.println(flightControls.getControlsState().toString());
 				System.out.println();
-				System.out.println(configuation.getSimulationOptions());
 				Thread.sleep((long) (250));
 			}
 		} catch (InterruptedException e) {

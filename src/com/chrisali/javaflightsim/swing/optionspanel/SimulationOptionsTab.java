@@ -166,7 +166,6 @@ public class SimulationOptionsTab extends JPanel {
 		DefaultListModel<String> controllerList = new DefaultListModel<>();
 		controllerList.addElement("Joystick");
 		controllerList.addElement("Mouse");
-		controllerList.addElement("CH Controls");
 		controllerList.addElement("Keyboard Only");
 		controllers = new JList<String>(controllerList);
 		controllers.setToolTipText("Chooses which HID controller will control the simulation");
@@ -242,19 +241,15 @@ public class SimulationOptionsTab extends JPanel {
 	private void setDesiredController(String selectedValue) {
 		switch (selectedValue) {
 		case ("Joystick"):
-			simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_CH_CONTROLS || p == Options.USE_KEYBOARD_ONLY));
+			simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_KEYBOARD_ONLY));
 			simulationOptions.add(Options.USE_JOYSTICK);
 			break;
 		case ("Mouse"):
-			simulationOptions.removeIf(p -> (p == Options.USE_JOYSTICK || p == Options.USE_CH_CONTROLS || p == Options.USE_KEYBOARD_ONLY));
+			simulationOptions.removeIf(p -> (p == Options.USE_JOYSTICK || p == Options.USE_KEYBOARD_ONLY));
 			simulationOptions.add(Options.USE_MOUSE);
 			break;
-		case ("CH Controls"):
-			simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_JOYSTICK || p == Options.USE_KEYBOARD_ONLY));
-			simulationOptions.add(Options.USE_CH_CONTROLS);
-			break;
 		case ("Keyboard Only"):
-			simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_JOYSTICK || p == Options.USE_CH_CONTROLS));
+			simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_JOYSTICK));
 			simulationOptions.add(Options.USE_KEYBOARD_ONLY);
 			break;
 		default:
@@ -276,8 +271,6 @@ public class SimulationOptionsTab extends JPanel {
 		showInstrumentPanel.setSelected(simulationOptions.contains(Options.INSTRUMENT_PANEL) ? true : false);
 		
 		if (simulationOptions.contains(Options.USE_KEYBOARD_ONLY))
-			controllers.setSelectedIndex(3);
-		else if (simulationOptions.contains(Options.USE_CH_CONTROLS))
 			controllers.setSelectedIndex(2);
 		else if (simulationOptions.contains(Options.USE_MOUSE))
 			controllers.setSelectedIndex(1);

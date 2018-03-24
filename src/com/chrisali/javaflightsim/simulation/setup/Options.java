@@ -36,7 +36,6 @@ import com.chrisali.javaflightsim.swing.instrumentpanel.InstrumentPanel;
  *	<p>CONSOLE_DISPLAY - Displays every piece of data in {@link Integrate6DOFEquations#getSimOut()} in the console for each step of integration</p>
  *	<p>USE_JOYSTICK - Uses JInput with a {@link Joystick} and {@link Keyboard} to allow pilot in the loop simulation</p>
  *	<p>USE_MOUSE - Uses JInput JInput with a {@link Mouse} and {@link Keyboard} to allow pilot in the loop simulation</p>
- *  <p>USE_CH_CONTROLS - Uses JInput JInput with a {@link Joystick} and {@link Keyboard} to allow pilot in the loop simulation</p>
  *	<p>USE_KEYBOARD_ONLY - Uses JInput to integrate only a {@link Keyboard} to allow pilot in the loop simulation</p>
  *	<p>INSTRUMENT_PANEL - Displays {@link InstrumentPanel} view in out the window view</p>
  */
@@ -48,7 +47,6 @@ public enum Options {
 	CONSOLE_DISPLAY	  ("Console Display"),
 	USE_JOYSTICK	  ("Use Joystick"),
 	USE_MOUSE		  ("Use Mouse"),
-	USE_CH_CONTROLS	  ("Use CH Controls"),
 	USE_KEYBOARD_ONLY ("Use Keyboard Only"),
 	INSTRUMENT_PANEL  ("Show Instrument Panel");
 	

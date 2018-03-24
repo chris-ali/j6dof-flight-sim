@@ -61,10 +61,11 @@ public class SimEvents {
 	public static void pauseUnpauseSimulation(boolean isPressed) {
 		if(isPressed && !options.contains(Options.PAUSED) && !pausePressed) {
 			options.add(Options.PAUSED);
-			logger.debug("Simulation Paused!");
+			logger.debug("Simulation paused!");
 			pausePressed = true;
 		} else if(isPressed && options.contains(Options.PAUSED) && !pausePressed) {
 			options.remove(Options.PAUSED);
+			logger.debug("Simulation unpaused!");
 			wasReset = false;
 			pausePressed = true;
 		} else if(!isPressed && pausePressed) {

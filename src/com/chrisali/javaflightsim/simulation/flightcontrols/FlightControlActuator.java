@@ -138,7 +138,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 			}
 		}
 	}
-	
+
 	/**
 	 * @param value
 	 * @return if a relative {@link FlightControl} parameter is pressed
@@ -178,20 +178,30 @@ public class FlightControlActuator implements ControlParameterActuator {
 	}
 		
 	/**
-	 *  Uses maximum and minimum values defined in {@link FlightControl} to convert normalized 
-	 *  joystick axis value to actual control deflection 
+	 *  Using a transient control value saved in {@link FlightControlsState}, calculates a deflection angle based on a linear
+	 *  rate defined by getRate() and the desired "direct" control value
 	 *  
 	 * @param controlType
 	 * @param value
 	 * @return Actual control deflection
 	 */
 	private double calculateDeflection(FlightControl controlType, double value) {
-		// Calculate positive and negative slope
-		// (elevator has different values for positive/negative max)
-		if (value <= 0) 
-			return (controlType.getMaximum()*Math.abs(value));
-		else
-			return (controlType.getMinimum()*value);
+		return (value <= 0) ? (controlType.getMaximum()*Math.abs(value)) : (controlType.getMinimum()*value);
+		/*
+		double currentValue = controlsState.getTransientValue(controlType);
+		double desiredValue = (value <= 0) ? (controlType.getMaximum()*Math.abs(value)) : (controlType.getMinimum()*value);   
+		
+		double transientDeflection = currentValue;
+		
+		if (desiredValue > currentValue)
+			transientDeflection += getRate(controlType);
+		else if (desiredValue < currentValue)
+			transientDeflection -= getRate(controlType);
+			
+		controlsState.setTransientValue(controlType, transientDeflection);
+		
+		return transientDeflection;
+		*/
 	}
 	
 	/**

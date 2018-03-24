@@ -90,7 +90,7 @@ public class FlightControlsStateManager implements Steppable {
 		
 		// Use controllers for pilot in loop simulation if ANALYSIS_MODE not enabled 
 		if (!options.contains(Options.ANALYSIS_MODE)) {
-			if (options.contains(Options.USE_JOYSTICK) || options.contains(Options.USE_CH_CONTROLS)) {
+			if (options.contains(Options.USE_JOYSTICK)) {
 				logger.debug("Joystick controller selected");
 				hidController = new Joystick();
 				joystickVisitor = new JoystickVisitor(controlsConfig.getJoystickAssignments(), actuator);

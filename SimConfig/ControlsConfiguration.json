@@ -104,6 +104,30 @@
         "1.0" : "AILERON_TRIM_LEFT",
         "0.5" : "AILERON_TRIM_RIGHT"
       }
-    }
+    },
+	"SideWinder Force Feedback 2 Joystick" : {
+	  "axisAssignments" : {
+        "y" : {
+          "axisAssignment" : "ELEVATOR",
+          "deadZone" : 0.0,
+          "sensitivity" : 1.0
+        },
+        "x" : {
+          "axisAssignment" : "AILERON",
+          "deadZone" : 0.0,
+          "sensitivity" : 1.0
+        }
+      },
+      "buttonAssignments" : {
+        "0" : "ELEVATOR_TRIM_DOWN",
+        "1" : "ELEVATOR_TRIM_UP"
+      },
+      "hatAssignments" : {
+        "0.25" : "ELEVATOR_TRIM_DOWN",
+        "0.75" : "ELEVATOR_TRIM_UP",
+        "1.0" : "AILERON_TRIM_LEFT",
+        "0.5" : "AILERON_TRIM_RIGHT"
+      }
+	}
   }
 }
