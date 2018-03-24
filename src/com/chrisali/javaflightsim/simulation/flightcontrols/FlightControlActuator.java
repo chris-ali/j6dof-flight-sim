@@ -138,8 +138,74 @@ public class FlightControlActuator implements ControlParameterActuator {
 			}
 		}
 	}
-
+	
+	/**
+	 * @param value
+	 * @return if a relative {@link FlightControl} parameter is pressed
+	 */
 	private boolean isPressed(float value) { return value == 1.0; }
+	
+	/**
+	 * Standardizes rate of control deflection of keyboard and joystick button inputs regardless of the 
+	 * simulation update rate based on the {@link FlightControl} argument provided and the 
+	 * 
+	 * @param type
+	 */
+	private double getRate(FlightControl type) {
+		switch (type) {
+		case AILERON:
+		case ELEVATOR:
+		case RUDDER:
+			return 0.12 * dt;
+		case THROTTLE_1:
+		case THROTTLE_2:
+		case THROTTLE_3:
+		case THROTTLE_4:
+		case PROPELLER_1:
+		case PROPELLER_2:
+		case PROPELLER_3:
+		case PROPELLER_4:
+		case MIXTURE_1:
+		case MIXTURE_2:
+		case MIXTURE_3:
+		case MIXTURE_4:
+			return 0.5 * dt;
+		case FLAPS:
+			return 0.15 * dt;
+		default:
+			return 0;
+		}
+	}
+		
+	/**
+	 *  Uses maximum and minimum values defined in {@link FlightControl} to convert normalized 
+	 *  joystick axis value to actual control deflection 
+	 *  
+	 * @param controlType
+	 * @param value
+	 * @return Actual control deflection
+	 */
+	private double calculateDeflection(FlightControl controlType, double value) {
+		// Calculate positive and negative slope
+		// (elevator has different values for positive/negative max)
+		if (value <= 0) 
+			return (controlType.getMaximum()*Math.abs(value));
+		else
+			return (controlType.getMinimum()*value);
+	}
+	
+	/**
+	 * Squares a value without removing its sign if negative
+	 * 
+	 * @param value
+	 * @return value squared that retains its original sign
+	 */
+	private double negativeSquare(double value) {
+		if (value < 0)
+			return -(Math.pow(value, 2));
+		else
+			return Math.pow(value, 2);
+	}
 	
 	/** 
 	 * Cycles Landing Gear Down/Up. Use gearPressed to prevent numerous cycles of gear up/down if key held down;
@@ -343,67 +409,5 @@ public class FlightControlActuator implements ControlParameterActuator {
 			controlsState.set(FlightControl.THROTTLE_3, controlsState.get(FlightControl.THROTTLE_3) - getRate(FlightControl.THROTTLE_3));
 			controlsState.set(FlightControl.THROTTLE_4, controlsState.get(FlightControl.THROTTLE_4) - getRate(FlightControl.THROTTLE_4));
 		}
-	}
-
-	/**
-	 * Standardizes rate of control deflection of keyboard and joystick button inputs regardless of the 
-	 * simulation update rate based on the {@link FlightControl} argument provided and the 
-	 * 
-	 * @param type
-	 */
-	private double getRate(FlightControl type) {
-		switch (type) {
-		case AILERON:
-		case ELEVATOR:
-		case RUDDER:
-			return 0.12 * dt;
-		case THROTTLE_1:
-		case THROTTLE_2:
-		case THROTTLE_3:
-		case THROTTLE_4:
-		case PROPELLER_1:
-		case PROPELLER_2:
-		case PROPELLER_3:
-		case PROPELLER_4:
-		case MIXTURE_1:
-		case MIXTURE_2:
-		case MIXTURE_3:
-		case MIXTURE_4:
-			return 0.5 * dt;
-		case FLAPS:
-			return 0.15 * dt;
-		default:
-			return 0;
-		}
-	}
-		
-	/**
-	 *  Uses maximum and minimum values defined in {@link FlightControl} to convert normalized 
-	 *  joystick axis value to actual control deflection 
-	 *  
-	 * @param controlType
-	 * @param value
-	 * @return Actual control deflection
-	 */
-	private double calculateDeflection(FlightControl controlType, double value) {
-		// Calculate positive and negative slope
-		// (elevator has different values for positive/negative max)
-		if (value <= 0) 
-			return (controlType.getMaximum()*Math.abs(value));
-		else
-			return (controlType.getMinimum()*value);
-	}
-	
-	/**
-	 * Squares a value without removing its sign if negative
-	 * 
-	 * @param value
-	 * @return value squared that retains its original sign
-	 */
-	private double negativeSquare(double value) {
-		if (value < 0)
-			return -(Math.pow(value, 2));
-		else
-			return Math.pow(value, 2);
 	}
 }

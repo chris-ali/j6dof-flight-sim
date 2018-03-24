@@ -30,18 +30,18 @@ import net.java.games.input.Component;
 import net.java.games.input.Controller;
 
 /**
- * "Visitor" object that {@link FlightControlsStateManager} calls to poll keyboard data via jInput and send to a {@link ControlParameterActuator}
+ * Visitor that {@link FlightControlsStateManager} calls to poll keyboard data via jInput and send to a {@link ControlParameterActuator}
  * object, which then updates the {@link FlightControlsState} object as needed
  * 
  * @author Christopher
  *
  */
-public class KeyboardHandler implements InputDeviceHandler {
+public class KeyboardVisitor implements InputDeviceVisitor {
 
 	private Map<String, KeyCommand> keyboardAssignments;
 	private ControlParameterActuator actuator;
 
-	public KeyboardHandler(Map<String, KeyCommand> keyboardAssignments, ControlParameterActuator actuator) {
+	public KeyboardVisitor(Map<String, KeyCommand> keyboardAssignments, ControlParameterActuator actuator) {
 		this.keyboardAssignments = keyboardAssignments;
 		this.actuator = actuator;
 	}

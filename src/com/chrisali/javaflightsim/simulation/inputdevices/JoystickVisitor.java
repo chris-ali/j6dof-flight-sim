@@ -35,18 +35,18 @@ import net.java.games.input.Component.Identifier;
 import net.java.games.input.Component.Identifier.Axis;
 
 /**
- * "Visitor" object that {@link FlightControlsStateManager} calls to poll joystick data via jInput and send to a {@link ControlParameterActuator}
+ * Visitor that {@link FlightControlsStateManager} calls to poll joystick data via jInput and send to a {@link ControlParameterActuator}
  * object, which then updates the {@link FlightControlsState} object as needed
  * 
  * @author Christopher
  *
  */
-public class JoystickHandler implements InputDeviceHandler {
+public class JoystickVisitor implements InputDeviceVisitor {
 	
 	private Map<String, JoystickAssignments> joystickAssignments;
 	private ControlParameterActuator actuator;
 	
-	public JoystickHandler(Map<String, JoystickAssignments> joystickAssignments, ControlParameterActuator actuator) {
+	public JoystickVisitor(Map<String, JoystickAssignments> joystickAssignments, ControlParameterActuator actuator) {
 		this.joystickAssignments = joystickAssignments;
 		this.actuator = actuator;
 	}

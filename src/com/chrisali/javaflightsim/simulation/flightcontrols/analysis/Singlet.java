@@ -23,12 +23,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.ControlParameterActuator;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Class that contains time and flight control information to generate a singlet control input 
+ * Class that contains time and flight control information to generate a singlet control input. The start time defines when the singlet should start, the duration indicates how long the 
+ * control is held in that direction, and the amplitude of the deflection (rad) in one direction
  * 
  * @author Christopher
  *
@@ -42,27 +42,22 @@ public class Singlet extends AnalysisControlInput {
 	}
 
 	/**
-	 * Generates a control singlet and then returns to trim value in trimControls. The start time defines when the singlet should start, the duration indicates how long the 
-	 * control is held in that direction, and the amplitude the amount of deflection in one direction. controlInput uses {@link FlightControl} to select
-	 * the desired control to use as a singlet 
+	 * Generates a control singlet and then returns to trim value
 	 * 
 	 * @param timeMS
 	 * @param actuator
-	 * @param flightControls
 	 */
 	@Override
-	public void generate(AtomicInteger timeMS, ControlParameterActuator actuator,  FlightControlsState flightControls) {
+	public void generate(AtomicInteger timeMS, ControlParameterActuator actuator) {
 		Integer time = timeMS.get();
 		Integer endTimeMS = startTimeMS + durationMS;
-		
-		double trimVal = flightControls.getTrimValue(controlType);
 		
 		boolean started = time.compareTo(startTimeMS) == 1 || time.compareTo(startTimeMS) == 0;
 		boolean ended   = time.compareTo(endTimeMS) == 1 || time.compareTo(endTimeMS) == 0;
 				
 		if (started && !ended)
-			flightControls.set(controlType, (trimVal + amplitude));
+			actuator.handleParameterChange(controlType, (float)(amplitude/controlType.getMaximum()));
 		else 
-			flightControls.set(controlType, (trimVal));
+			actuator.handleParameterChange(controlType, 0.0f);
 	}	
 }

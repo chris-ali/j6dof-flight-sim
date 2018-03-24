@@ -27,7 +27,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.interfaces.Saveable;
 import com.chrisali.javaflightsim.simulation.flightcontrols.ControlParameterActuator;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -54,16 +53,15 @@ public class AnalysisControls implements Saveable {
 	 * 
 	 * @param timeMS time in milliseconds
 	 * @param actuator
-	 * @param flightControls
 	 */
-	public void updateFlightControls(AtomicInteger timeMS, ControlParameterActuator actuator, FlightControlsState flightControls) {
+	public void updateFlightControls(AtomicInteger timeMS, ControlParameterActuator actuator) {
 		for (AnalysisControlInput input : analysisInputs) {
-			// Only consider an input if simulation time is within a time window (from 7/8 of input start time to 9/8 of end time)
-			boolean withinTimeWindow = timeMS.get() > (7 * input.getStartTimeMS() / 8) &&
-									   timeMS.get() < (9 * (2 * input.getDurationMS() + timeMS.get()) / 8);
+			// Only consider an input if simulation time is within a time window (from 63/64 of input start time to 65/64 of end time)
+			boolean withinTimeWindow = timeMS.get() > (63 * input.getStartTimeMS() / 64) &&
+									   timeMS.get() < (65 * (2 * input.getDurationMS() + timeMS.get()) / 64);
 			
 			if (withinTimeWindow)
-				input.generate(timeMS, actuator, flightControls);
+				input.generate(timeMS, actuator);
 		}
 	}
 	
@@ -75,4 +73,14 @@ public class AnalysisControls implements Saveable {
 	public List<AnalysisControlInput> getAnalysisInputs() { return analysisInputs; }
 
 	public void setAnalysisInputs(List<AnalysisControlInput> analysisInputs) { this.analysisInputs = analysisInputs; }
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		
+		for (AnalysisControlInput input : analysisInputs)
+			sb.append(input).append("\n");
+		
+		return sb.toString();
+	}
 }

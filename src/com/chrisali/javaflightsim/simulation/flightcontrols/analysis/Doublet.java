@@ -23,12 +23,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.ControlParameterActuator;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Class that contains time and flight control information to generate a doublet control input 
+ * Class that contains time and flight control information to generate a doublet control input. The start time defines when the doublet should start, 
+ * the duration indicates how long the control is held in that direction, and the amplitude of the deflection (rad) in one direction. 
  * 
  * @author Christopher
  *
@@ -43,21 +43,16 @@ public class Doublet extends AnalysisControlInput {
 
 	/**
 	 * Generates a control doublet in the positive and then negative direction (or opposite, if a negative value is specified for amplitude), 
-	 * returning to trim value in trimControls. The start time defines when the doublet should start, the duration indicates how long the 
-	 * control is held in that direction, and the amplitude the amount of deflection in one direction. controlInput uses {@link FlightControl} to select
-	 * the desired control to use as a doublet 
+	 * and then returns to trim value. 
 	 * 
 	 * @param timeMS
 	 * @param actuator
-	 * @param flightControls
 	 */
 	@Override
-	public void generate(AtomicInteger timeMS, ControlParameterActuator actuator,  FlightControlsState flightControls) {
+	public void generate(AtomicInteger timeMS, ControlParameterActuator actuator) {
 		Integer time = timeMS.get();
 		Integer firstHalfEndTimeMS = startTimeMS + durationMS;
 		Integer doubletEndTimeMS   = startTimeMS + (2 * durationMS);
-		
-		double trimVal = flightControls.getTrimValue(controlType);
 		
 		boolean startedFirstHalf = time.compareTo(startTimeMS) == 1 || time.compareTo(startTimeMS) == 0;
 		boolean endedFirstHalf   = time.compareTo(firstHalfEndTimeMS) == 1 || time.compareTo(firstHalfEndTimeMS) == 0;
@@ -66,10 +61,10 @@ public class Doublet extends AnalysisControlInput {
 		boolean endedSecondHalf   = time.compareTo(doubletEndTimeMS)   == 1 || time.compareTo(doubletEndTimeMS)   == 0;
 		
 		if (startedFirstHalf && !endedFirstHalf)
-			flightControls.set(controlType, (trimVal + amplitude));
+			actuator.handleParameterChange(controlType, (float)(amplitude/controlType.getMaximum()));
 		else if (startedSecondHalf && !endedSecondHalf)
-			flightControls.set(controlType, (trimVal - amplitude));
+			actuator.handleParameterChange(controlType, (float)(-amplitude/controlType.getMaximum()));
 		else 
-			flightControls.set(controlType, (trimVal));
+			actuator.handleParameterChange(controlType, 0.0f);
 	}	
 }

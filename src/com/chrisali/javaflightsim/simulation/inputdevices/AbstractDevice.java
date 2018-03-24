@@ -41,12 +41,12 @@ public abstract class AbstractDevice {
 	public abstract void searchForControlDevices();
 	
 	/**
-	 * Polls a capable {@link InputDeviceHandler} and then commands that device to
+	 * Polls a capable {@link InputDeviceVisitor} and then commands that device to
 	 * handle the poll data results 
 	 * 
 	 * @param visitor
 	 */
-	public void collectControlDeviceValues(InputDeviceHandler visitor) {
+	public void collectControlDeviceValues(InputDeviceVisitor visitor) {
 		for (Controller device : controlDeviceList) {
 			if (visitor.canHandleDevice(device)) {
 				if (!device.poll()) continue;

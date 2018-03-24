@@ -23,7 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.chrisali.javaflightsim.simulation.flightcontrols.ControlParameterActuator;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -59,7 +58,7 @@ public abstract class AnalysisControlInput implements Comparable<AnalysisControl
 	protected int durationMS;
 	
 	/**
-	 * The mmaximum value (and direction) of control input that this input should reach in radians
+	 * The mmaximum value (and direction) of control input that this input should reach from trim value in radians
 	 */
 	protected double amplitude; 
 
@@ -70,7 +69,7 @@ public abstract class AnalysisControlInput implements Comparable<AnalysisControl
 		this.amplitude = amplitude;
 	}
 
-	public abstract void generate(AtomicInteger timeMS, ControlParameterActuator actuator, FlightControlsState controlsState);
+	public abstract void generate(AtomicInteger timeMS, ControlParameterActuator actuator);
 
 	public FlightControl getControlType() { return controlType;	}
 
@@ -96,5 +95,11 @@ public abstract class AnalysisControlInput implements Comparable<AnalysisControl
 			return -1;
 		else
 			return 0;
-	}	
+	}
+
+	@Override
+	public String toString() {
+		return "[Type: " + getClass().getSimpleName() + ", Flight Control: " + controlType.toString() + 
+				", Start Time (ms): " + startTimeMS + ", Duration (ms): " + durationMS + ", Amplitude (rad): " + amplitude + "]";
+	}
 }

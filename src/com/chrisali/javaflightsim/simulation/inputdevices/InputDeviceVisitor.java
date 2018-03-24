@@ -21,7 +21,7 @@ package com.chrisali.javaflightsim.simulation.inputdevices;
 
 import net.java.games.input.Controller;
 
-public interface InputDeviceHandler {
+public interface InputDeviceVisitor {
 	boolean canHandleDevice (Controller device);
 	
 	void handleDeviceInput(Controller device);

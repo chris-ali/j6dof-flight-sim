@@ -30,13 +30,13 @@ import net.java.games.input.Component.Identifier;
 import net.java.games.input.Component.Identifier.Axis;
 
 /**
- * "Visitor" object that {@link FlightControlsStateManager} calls to poll joystick data via jInput and send to a {@link ControlParameterActuator}
+ * Visitor that {@link FlightControlsStateManager} calls to poll joystick data via jInput and send to a {@link ControlParameterActuator}
  * object, which then updates the {@link FlightControlsState} object as needed
  * 
  * @author Christopher
  *
  */
-public class MouseHandler implements InputDeviceHandler {
+public class MouseVisitor implements InputDeviceVisitor {
 	
 	private ControlParameterActuator actuator;
 
@@ -50,7 +50,7 @@ public class MouseHandler implements InputDeviceHandler {
 	private float trimElevator = 0.0f;
 	private float trimAileron  = 0.0f;
 	
-	public MouseHandler(FlightControlsState controlsState, ControlParameterActuator actuator) {
+	public MouseVisitor(FlightControlsState controlsState, ControlParameterActuator actuator) {
 		this.actuator = actuator;
 		
 		// Get initial trim values from initial values in controls EnumMap (rad)

@@ -27,26 +27,23 @@ import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
-import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
-import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
+import com.chrisali.javaflightsim.simulation.flightcontrols.analysis.AnalysisControlInput;
 import com.chrisali.javaflightsim.simulation.flightcontrols.analysis.AnalysisControls;
 import com.chrisali.javaflightsim.simulation.inputdevices.AbstractDevice;
 import com.chrisali.javaflightsim.simulation.inputdevices.Joystick;
-import com.chrisali.javaflightsim.simulation.inputdevices.JoystickHandler;
+import com.chrisali.javaflightsim.simulation.inputdevices.JoystickVisitor;
 import com.chrisali.javaflightsim.simulation.inputdevices.Keyboard;
-import com.chrisali.javaflightsim.simulation.inputdevices.KeyboardHandler;
+import com.chrisali.javaflightsim.simulation.inputdevices.KeyboardVisitor;
 import com.chrisali.javaflightsim.simulation.inputdevices.Mouse;
-import com.chrisali.javaflightsim.simulation.inputdevices.MouseHandler;
+import com.chrisali.javaflightsim.simulation.inputdevices.MouseVisitor;
 import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 /**
- * Handles flight controls actuated by human interface devices, such as {@link Joystick}, {@link Keyboard}, 
- * {@link Mouse} or by P/PD controllers such as autopilots and stability augmentation sytems. Also contains 
- * method to inject doublets into controls when simulation is run as analysis. Uses {@link FlightDataListener} 
- * to feed back {@link FlightData} to use in P/PD controllers
+ * Handles flight controls actuated by human interface devices. Also contains 
+ * {@link AnalysisControlInput} functionality when simulation in Analysis Mode
  * 
  * @author Christopher Ali
  *
@@ -67,9 +64,9 @@ public class FlightControlsStateManager implements Steppable {
 
 	private ControlParameterActuator actuator;
 	
-	private JoystickHandler joystickHandler;
-    private KeyboardHandler keyboardHandler;
-    private MouseHandler mouseHandler;
+	private JoystickVisitor joystickVisitor;
+    private KeyboardVisitor keyboardVisitor;
+    private MouseVisitor mouseVisitor;
 	
 	public FlightControlsStateManager(SimulationController simController, AtomicInteger simTimeMS) {
 		logger.debug("Initializing flight controls...");
@@ -85,22 +82,27 @@ public class FlightControlsStateManager implements Steppable {
 		
 		ControlsConfiguration controlsConfig = FileUtilities.readControlsConfiguration();
 		analysisControls = FileUtilities.readAnalysisControls();
-
+		
+		if (analysisControls != null) {
+			logger.debug(analysisControls.getAnalysisInputs().size() + " analysis flight control inputs found:");
+			logger.debug(analysisControls.toString());
+		}
+		
 		// Use controllers for pilot in loop simulation if ANALYSIS_MODE not enabled 
 		if (!options.contains(Options.ANALYSIS_MODE)) {
 			if (options.contains(Options.USE_JOYSTICK) || options.contains(Options.USE_CH_CONTROLS)) {
 				logger.debug("Joystick controller selected");
 				hidController = new Joystick();
-				joystickHandler = new JoystickHandler(controlsConfig.getJoystickAssignments(), actuator);
+				joystickVisitor = new JoystickVisitor(controlsConfig.getJoystickAssignments(), actuator);
 			}
 			else if (options.contains(Options.USE_MOUSE)){
 				logger.debug("Mouse controller selected");
 				hidController = new Mouse();
-				mouseHandler = new MouseHandler(controlsState, actuator);
+				mouseVisitor = new MouseVisitor(controlsState, actuator);
 			}
 			
 			hidKeyboard = new Keyboard();
-			keyboardHandler = new KeyboardHandler(controlsConfig.getKeyboardAssignments(), actuator);
+			keyboardVisitor = new KeyboardVisitor(controlsConfig.getKeyboardAssignments(), actuator);
 		}
 	}
 	
@@ -111,12 +113,12 @@ public class FlightControlsStateManager implements Steppable {
 			// otherwise, controls updated using generated doublets
 			if (!options.contains(Options.ANALYSIS_MODE)) {
 				if (hidController != null) 
-					hidController.collectControlDeviceValues(joystickHandler != null ? joystickHandler : mouseHandler);
+					hidController.collectControlDeviceValues(joystickVisitor != null ? joystickVisitor : mouseVisitor);
 		
 				if (hidKeyboard != null)
-					hidKeyboard.collectControlDeviceValues(keyboardHandler);
+					hidKeyboard.collectControlDeviceValues(keyboardVisitor);
 			} else {
-				analysisControls.updateFlightControls(simTimeMS, actuator, controlsState);
+				analysisControls.updateFlightControls(simTimeMS, actuator);
 			}
 			
 			limitControls(controlsState);
