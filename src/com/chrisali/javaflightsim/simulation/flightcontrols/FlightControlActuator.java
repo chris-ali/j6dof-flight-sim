@@ -25,7 +25,10 @@ public class FlightControlActuator implements ControlParameterActuator {
 	private double flaps   	    = 0.0;
 	
 	// Keep track if button is pressed, so events occur only once if button held down 
-	private static boolean gearPressed = false;
+	private boolean gearPressed = false;
+	
+	//
+	private boolean useTransientLag = true;
 	
 	public FlightControlActuator(SimulationConfiguration configuration, FlightControlsState controlsState) {
 		dt = configuration.getIntegratorConfig().get(IntegratorConfig.DT);
@@ -138,7 +141,43 @@ public class FlightControlActuator implements ControlParameterActuator {
 			}
 		}
 	}
-
+		
+	/**
+	 *  Using a transient control value saved in {@link FlightControlsState}, calculates a deflection angle based on a linear
+	 *  rate defined by getRate() and the desired "direct" control value. If useTransientLag is set to false, the direct
+	 *  value from the input device will be used instead
+	 *  
+	 * @param controlType
+	 * @param value
+	 * @return Actual control deflection
+	 */
+	private double calculateDeflection(FlightControl controlType, double value) {
+		double transientValue = controlsState.getTransientValue(controlType);
+		double desiredValue = (value <= 0) ? (controlType.getMaximum()*Math.abs(value)) : (controlType.getMinimum()*value);   
+						
+		// Scale the rate as desired and current values near each other
+		double rateScale = 0.125; //Math.abs((desiredValue - transientValue) / (value <= 0 ? controlType.getMaximum() : controlType.getMinimum())); //
+		
+		transientValue += (desiredValue - transientValue) * rateScale;
+			
+		controlsState.setTransientValue(controlType, transientValue);
+		
+		return useTransientLag ? transientValue : desiredValue;
+	}
+	
+	/**
+	 * Squares a value without removing its sign if negative
+	 * 
+	 * @param value
+	 * @return value squared that retains its original sign
+	 */
+	private double negativeSquare(double value) {
+		if (value < 0)
+			return -(Math.pow(value, 2));
+		else
+			return Math.pow(value, 2);
+	}
+	
 	/**
 	 * @param value
 	 * @return if a relative {@link FlightControl} parameter is pressed
@@ -176,47 +215,14 @@ public class FlightControlActuator implements ControlParameterActuator {
 			return 0;
 		}
 	}
-		
+
 	/**
-	 *  Using a transient control value saved in {@link FlightControlsState}, calculates a deflection angle based on a linear
-	 *  rate defined by getRate() and the desired "direct" control value
-	 *  
-	 * @param controlType
-	 * @param value
-	 * @return Actual control deflection
-	 */
-	private double calculateDeflection(FlightControl controlType, double value) {
-		return (value <= 0) ? (controlType.getMaximum()*Math.abs(value)) : (controlType.getMinimum()*value);
-		/*
-		double currentValue = controlsState.getTransientValue(controlType);
-		double desiredValue = (value <= 0) ? (controlType.getMaximum()*Math.abs(value)) : (controlType.getMinimum()*value);   
-		
-		double transientDeflection = currentValue;
-		
-		if (desiredValue > currentValue)
-			transientDeflection += getRate(controlType);
-		else if (desiredValue < currentValue)
-			transientDeflection -= getRate(controlType);
-			
-		controlsState.setTransientValue(controlType, transientDeflection);
-		
-		return transientDeflection;
-		*/
-	}
-	
-	/**
-	 * Squares a value without removing its sign if negative
+	 * Configures the actuator to consider transient lagn when calculating the control deflection 
 	 * 
-	 * @param value
-	 * @return value squared that retains its original sign
+	 * @param useTransientLag
 	 */
-	private double negativeSquare(double value) {
-		if (value < 0)
-			return -(Math.pow(value, 2));
-		else
-			return Math.pow(value, 2);
-	}
-	
+	public void setUseTransientLag(boolean useTransientLag) { this.useTransientLag = useTransientLag; }
+
 	/** 
 	 * Cycles Landing Gear Down/Up. Use gearPressed to prevent numerous cycles of gear up/down if key held down;
 	 * need to release key to extend or retract gear again
