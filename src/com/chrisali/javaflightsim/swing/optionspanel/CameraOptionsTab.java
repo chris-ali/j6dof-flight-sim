@@ -20,6 +20,7 @@
 package com.chrisali.javaflightsim.swing.optionspanel;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -28,31 +29,37 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.EnumMap;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
-import com.chrisali.javaflightsim.simulation.setup.DisplayOptions;
+import com.chrisali.javaflightsim.simulation.setup.CameraConfiguration;
+import com.chrisali.javaflightsim.simulation.setup.CameraMode;
 
-public class DisplayOptionsTab extends JPanel {
+public class CameraOptionsTab extends JPanel {
 
 	private static final long serialVersionUID = -2865224216075732617L;
 	
 	private JLabel headerLabel;
-	private JSpinner displayWidthSpinner;
-	private JSpinner displayHeightSpinner;
-	private JCheckBox antiAliasingCheckbox;
+	private JCheckBox showInstrumentPanel;
+	private JList<String> cameraMode;
+	private JSpinner fieldOfView;
 	
-	private EnumMap<DisplayOptions, Integer> displayOptions;
+	private CameraConfiguration cameraConfig;
 	
-	public DisplayOptionsTab() {
+	public CameraOptionsTab() {
 		
 		//-------------------- Panels ---------------------------
 		
@@ -93,50 +100,68 @@ public class DisplayOptionsTab extends JPanel {
 		gc.gridy = 0;
 		gc.insets = spacer;
 		
-		//----------- Anti Aliasing Checkbox --------------------- 
+		//-------------- Controllers List  ------------------------ 
 		gc.gridy++;
 		
 		gc.gridx = 0;
 		gc.anchor = GridBagConstraints.EAST;
-		controlsPanel.add(new JLabel("Anti Aliasing:"), gc);
+		controlsPanel.add(new JLabel("Selected Camera Mode:"), gc);
 		
 		gc.gridx = 1;
 		gc.anchor = GridBagConstraints.WEST;
-		antiAliasingCheckbox = new JCheckBox("Use Anti Aliasing");
-		antiAliasingCheckbox.addActionListener(new ActionListener() {
+		DefaultListModel<String> modeList = new DefaultListModel<>();
+		modeList.addElement(CameraMode.COCKPIT_2D.toString());
+		modeList.addElement(CameraMode.CHASE.toString());
+		cameraMode = new JList<String>(modeList);
+		cameraMode.setToolTipText("Chooses camera mode will be used on the out the window display");
+		cameraMode.setSelectedIndex(0);
+		cameraMode.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+		cameraMode.addMouseListener(new MouseAdapter() {
+			@SuppressWarnings("rawtypes")
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(((JCheckBox)e.getSource()).isSelected())
-					displayOptions.put(DisplayOptions.ANTI_ALIASING, 1);
-				else
-					displayOptions.put(DisplayOptions.ANTI_ALIASING, 0);
+			public void mouseReleased(MouseEvent e) {
+				cameraConfig.setMode(((JList)e.getSource()).getSelectedIndex() == 0 ? CameraMode.COCKPIT_2D : CameraMode.CHASE);
 			}
 		});
-		controlsPanel.add(antiAliasingCheckbox, gc);
+		controlsPanel.add(cameraMode, gc);
 		
-		//------------- Window Width Spinner -------------------- 
+		//------------ Use Instrument Panel ----------------------
 		gc.gridy++;
 		
 		gc.gridx = 0;
 		gc.anchor = GridBagConstraints.EAST;
-		controlsPanel.add(new JLabel("Window Width (pixels):"), gc);
+		controlsPanel.add(new JLabel("Instrument Panel:"), gc);
 		
 		gc.gridx = 1;
 		gc.anchor = GridBagConstraints.WEST;
-		displayWidthSpinner = new JSpinner(new SpinnerNumberModel(1440,320,1920,10));
-		controlsPanel.add(displayWidthSpinner, gc);
+		showInstrumentPanel = new JCheckBox("Show Panel");
+		showInstrumentPanel.setToolTipText("Chooses whether a 2D instrument panel will display");
+		showInstrumentPanel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				cameraConfig.setShowPanel(((JCheckBox) e.getSource()).isSelected());
+			}
+		});
+		controlsPanel.add(showInstrumentPanel, gc);
 		
-		//------------- Window Height Spinner -------------------- 
+		//--------- Field of View Spinner ----------------- 
 		gc.gridy++;
 		
 		gc.gridx = 0;
 		gc.anchor = GridBagConstraints.EAST;
-		controlsPanel.add(new JLabel("Window Height (pixels):"), gc);
+		controlsPanel.add(new JLabel("Field of View (deg):"), gc);
 		
 		gc.gridx = 1;
 		gc.anchor = GridBagConstraints.WEST;
-		displayHeightSpinner = new JSpinner(new SpinnerNumberModel(900,240,1080,10));
-		controlsPanel.add(displayHeightSpinner, gc);
+		fieldOfView = new JSpinner(new SpinnerNumberModel(90,60,120,5));
+		fieldOfView.setToolTipText("Sets the field of view of the out the window view");
+		fieldOfView.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				cameraConfig.setFieldOfView((int) fieldOfView.getValue());
+			}
+		});
+		controlsPanel.add(fieldOfView, gc);
 		
 		//========================== Window Settings ===============================================
 		
@@ -144,22 +169,17 @@ public class DisplayOptionsTab extends JPanel {
 		setSize(dims);
 		setPreferredSize(dims);
 	}
-	
-	protected EnumMap<DisplayOptions, Integer> getDisplayOptions() {
-		return displayOptions;
-	}
 
 	/**
-	 * Reads displayOptions EnumMap to determine how to set {@link DisplayOptionsTab} panel objects
+	 * Reads audioOptions EnumMap to determine how to set {@link CameraOptionsTab} panel objects
 	 * 
-	 * @param displayOptions
+	 * @param audioOptions
 	 */
-	public void setOptionsTab(EnumMap<DisplayOptions, Integer> displayOptions) {
-		this.displayOptions = displayOptions;
+	public void setOptionsTab(CameraConfiguration cameraConfig) {
+		this.cameraConfig = cameraConfig;
 		
-		antiAliasingCheckbox.setSelected(displayOptions.get(DisplayOptions.ANTI_ALIASING) != 0);
-		
-		displayWidthSpinner.setValue(displayOptions.get(DisplayOptions.DISPLAY_WIDTH));
-		displayHeightSpinner.setValue(displayOptions.get(DisplayOptions.DISPLAY_HEIGHT));
+		cameraMode.setSelectedIndex(cameraConfig.getMode().ordinal());
+		showInstrumentPanel.setSelected(cameraConfig.isShowPanel());
+		fieldOfView.setValue(cameraConfig.getFieldOfView());
 	}
 }

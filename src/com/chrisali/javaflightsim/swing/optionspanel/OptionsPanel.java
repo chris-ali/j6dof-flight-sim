@@ -24,14 +24,13 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.EnumMap;
-import java.util.EnumSet;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.swing.CancelButtonListener;
 
 public class OptionsPanel extends JPanel {
@@ -41,6 +40,7 @@ public class OptionsPanel extends JPanel {
 	private SimulationOptionsTab simulationOptionsTab;
 	private DisplayOptionsTab displayOptionsTab;
 	private AudioOptionsTab audioOptionsTab;
+	private CameraOptionsTab cameraOptionsTab;
 	private JButton okButton;
 	private JButton cancelButton;
 	
@@ -83,6 +83,11 @@ public class OptionsPanel extends JPanel {
 		audioOptionsTab = new AudioOptionsTab();
 		optionsTabs.add(audioOptionsTab, "Audio");
 		
+		//-------------- Camera Options Tab ---------------------
+		
+		cameraOptionsTab = new CameraOptionsTab();
+		optionsTabs.add(cameraOptionsTab, "Camera");
+		
 		//----------------- OK Button ----------------------------
 		
 		okButton = new JButton("OK");
@@ -121,14 +126,12 @@ public class OptionsPanel extends JPanel {
 		setPreferredSize(dims);
 	}
 	
-	public void setAllOptions(EnumSet<Options> simulationOptions, int stepSize, 
-									EnumMap<DisplayOptions, Integer> displayOptions,
-									EnumMap<AudioOptions, Float> audioOptions) {
-		this.stepSize = stepSize;
-		simulationOptionsTab.setOptionsTab(simulationOptions, stepSize);
-		displayOptionsTab.setOptionsTab(displayOptions);
-		audioOptionsTab.setOptionsTab(audioOptions);
-		
+	public void setAllOptions(SimulationConfiguration config) {
+		stepSize = config.getSimulationRateHz();
+		simulationOptionsTab.setOptionsTab(config.getSimulationOptions(), stepSize);
+		displayOptionsTab.setOptionsTab(config.getDisplayOptions());
+		audioOptionsTab.setOptionsTab(config.getAudioOptions());
+		cameraOptionsTab.setOptionsTab(config.getCameraConfiguration());
 	}
 	
 	public void setCancelButtonListener(CancelButtonListener cancelButtonListener) {

@@ -36,7 +36,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
-import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
+import com.chrisali.javaflightsim.simulation.setup.AudioOptions;
+import com.chrisali.javaflightsim.simulation.setup.DisplayOptions;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -46,8 +47,6 @@ import com.chrisali.javaflightsim.swing.aircraftpanel.AircraftPanel;
 import com.chrisali.javaflightsim.swing.aircraftpanel.WeightConfiguredListener;
 import com.chrisali.javaflightsim.swing.initialconditionspanel.InitialConditionsConfigurationListener;
 import com.chrisali.javaflightsim.swing.initialconditionspanel.InitialConditionsPanel;
-import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
-import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
 import com.chrisali.javaflightsim.swing.optionspanel.OptionsConfigurationListener;
 import com.chrisali.javaflightsim.swing.optionspanel.OptionsPanel;
 
@@ -148,7 +147,7 @@ public class GuiFrame extends JFrame {
 													EnumMap<DisplayOptions, Integer> displayOptions,
 													EnumMap<AudioOptions, Float> audioOptions) {
 				buttonPanel.setOptionsLabel(options, stepSize);
-				configuration.updateIntegratorStepSize(stepSize);
+				configuration.setSimulationRateHz(stepSize);
 				configuration.updateOptions(options, displayOptions, audioOptions);
 				configuration.save();
 				
@@ -266,15 +265,12 @@ public class GuiFrame extends JFrame {
 					"Error Reading File", JOptionPane.ERROR_MESSAGE);
 		}
 		
-		int stepSize = (int)(1/configuration.getIntegratorConfig().get(IntegratorConfig.DT));
 		String aircraftName = configuration.getSelectedAircraft();
 		
-		buttonPanel.setOptionsLabel(configuration.getSimulationOptions(), stepSize);
+		buttonPanel.setOptionsLabel(configuration.getSimulationOptions(), configuration.getSimulationRateHz());
 		buttonPanel.setAircraftLabel(aircraftName);
 		
 		aircraftPanel.setAircraftPanel(aircraftName);
-		optionsPanel.setAllOptions(configuration.getSimulationOptions(), stepSize, 
-								   configuration.getDisplayOptions(),
-								   configuration.getAudioOptions());
+		optionsPanel.setAllOptions(configuration);
 	}
 }

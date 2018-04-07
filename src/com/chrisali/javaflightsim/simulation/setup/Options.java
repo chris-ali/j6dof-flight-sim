@@ -23,7 +23,6 @@ import com.chrisali.javaflightsim.simulation.inputdevices.Joystick;
 import com.chrisali.javaflightsim.simulation.inputdevices.Keyboard;
 import com.chrisali.javaflightsim.simulation.inputdevices.Mouse;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.swing.instrumentpanel.InstrumentPanel;
 
 /**
  * Provides Enums for the options EnumSet to provide the following options:
@@ -36,8 +35,6 @@ import com.chrisali.javaflightsim.swing.instrumentpanel.InstrumentPanel;
  *	<p>CONSOLE_DISPLAY - Displays every piece of data in {@link Integrate6DOFEquations#getSimOut()} in the console for each step of integration</p>
  *	<p>USE_JOYSTICK - Uses JInput with a {@link Joystick} and {@link Keyboard} to allow pilot in the loop simulation</p>
  *	<p>USE_MOUSE - Uses JInput JInput with a {@link Mouse} and {@link Keyboard} to allow pilot in the loop simulation</p>
- *	<p>USE_KEYBOARD_ONLY - Uses JInput to integrate only a {@link Keyboard} to allow pilot in the loop simulation</p>
- *	<p>INSTRUMENT_PANEL - Displays {@link InstrumentPanel} view in out the window view</p>
  */
 public enum Options {
 	ANALYSIS_MODE     ("Analysis Mode"),
@@ -46,9 +43,7 @@ public enum Options {
 	RESET			  ("Reset"),
 	CONSOLE_DISPLAY	  ("Console Display"),
 	USE_JOYSTICK	  ("Use Joystick"),
-	USE_MOUSE		  ("Use Mouse"),
-	USE_KEYBOARD_ONLY ("Use Keyboard Only"),
-	INSTRUMENT_PANEL  ("Show Instrument Panel");
+	USE_MOUSE		  ("Use Mouse");
 	
 	private String option;
 	

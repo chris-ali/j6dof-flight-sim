@@ -17,18 +17,20 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.swing.optionspanel;
+package com.chrisali.javaflightsim.simulation.setup;
 
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.EventListener;
-
-import com.chrisali.javaflightsim.simulation.setup.AudioOptions;
-import com.chrisali.javaflightsim.simulation.setup.DisplayOptions;
-import com.chrisali.javaflightsim.simulation.setup.Options;
-
-public interface OptionsConfigurationListener extends EventListener {
-	public void simulationOptionsConfigured(EnumSet<Options> options, int stepSize, 
-											EnumMap<DisplayOptions, Integer> displayOptions,
-											EnumMap<AudioOptions, Float> audioOptions);
+/**
+ *	Used by the CameraConfiguration to select an appropriate camera mode in the Out the Window display
+ */
+public enum CameraMode {
+	COCKPIT_2D ("2D Cockpit View"),
+	COCKPIT_3D ("3D Cockpit View"),
+	CHASE 	   ("Chase View"),
+	FLYBY 	   ("Fly-by View");
+	
+	private String option;
+	
+	private CameraMode(String option) {this.option = option;}
+	
+	public String toString() {return option;}
 }

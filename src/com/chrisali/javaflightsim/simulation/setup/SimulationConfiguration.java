@@ -14,8 +14,6 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
-import com.chrisali.javaflightsim.swing.optionspanel.AudioOptions;
-import com.chrisali.javaflightsim.swing.optionspanel.DisplayOptions;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
@@ -37,35 +35,22 @@ public class SimulationConfiguration implements Saveable {
 	private EnumMap<FlightControl, Double> initialControls; 
 	private String selectedAircraft;
 
-	/**
-	 * Initializes initial settings, configurations and conditions
-	 * to be edited through the menu options in the view
-	 */
+	private CameraConfiguration cameraConfiguration;
+
 	public SimulationConfiguration() { }
-	
-	/**
-	 * @return simulationOptions EnumSet
-	 */
-	public EnumSet<Options> getSimulationOptions() {return simulationOptions;}
-	
-	/**
-	 * @return displayOptions EnumMap
-	 */
-	public EnumMap<DisplayOptions, Integer> getDisplayOptions() {return displayOptions;}
-	
-	/**
-	 * @return audioOptions EnumMap
-	 */
-	public EnumMap<AudioOptions, Float> getAudioOptions() {return audioOptions;}
+
+	public EnumSet<Options> getSimulationOptions() { return simulationOptions; }
+
+	public EnumMap<DisplayOptions, Integer> getDisplayOptions() { return displayOptions; }
+
+	public EnumMap<AudioOptions, Float> getAudioOptions() { return audioOptions; }
 	
 	/**
 	 * Saves all configuration fields in this instance to a JSON file via {@link FileUtilities#serializeJson(String, String, Object)}
 	 */
 	@Override
 	public void save() { 
-		FileUtilities.serializeJson(SimDirectories.SIM_CONFIG.toString(), 
-									this.getClass().getSimpleName(), 
-									this); 
+		FileUtilities.serializeJson(SimDirectories.SIM_CONFIG.toString(), this.getClass().getSimpleName(), this); 
 	}
 	
 	/**
@@ -92,32 +77,33 @@ public class SimulationConfiguration implements Saveable {
 	
 	public void setIntegratorConfig(EnumMap<IntegratorConfig, Double> integratorConfig) { this.integratorConfig = integratorConfig;	}
 
-	/**
-	 * Updates the IntegratorConfig file with stepSize inverted and converted to a double  
-	 * 
-	 * @param stepSize
-	 */
-	public void updateIntegratorStepSize(int stepSize) {
-		logger.debug("Updating simulation rate to " + stepSize + " Hz...");
-		
-		try {	
-			integratorConfig.put(IntegratorConfig.DT, (1/((double)stepSize)));
-		} catch (Exception e) {
-			logger.error("Error updating integrator configuration!", e);
+	@JsonIgnore
+	public int getSimulationRateHz() {
+		return (int)(1/integratorConfig.get(IntegratorConfig.DT));
+	}
+
+	@JsonIgnore
+	public void setSimulationRateHz(int simulationRateHz) {
+		if (simulationRateHz == 0) {
+			logger.warn("Attempted to set simulation rate to 0 Hz, ignoring...");			
+			return;
 		}
+		
+		integratorConfig.put(IntegratorConfig.DT, (1/((double)simulationRateHz)));
 	}
 
 	public EnumMap<FlightControl, Double> getInitialControls() { return initialControls; }
 
-
 	public void setInitialControls(EnumMap<FlightControl, Double> initialControls) { this.initialControls = initialControls; }
-	
+		
+	public CameraConfiguration getCameraConfiguration() { return cameraConfiguration; }
+
+	public void setCameraConfiguration(CameraConfiguration cameraConfiguration) { this.cameraConfiguration = cameraConfiguration; }
 
 	public EnumMap<InitialConditions, Double> getInitialConditions() { return initialConditions; }
 	
-
 	public void setInitialConditions(EnumMap<InitialConditions, Double> initialConditions) { this.initialConditions = initialConditions; }
-	
+
 	/**
 	 * Updates initialConditions file with the following arguments, converted to radians and ft/sec:
 	 * 

@@ -55,7 +55,6 @@ public class SimulationOptionsTab extends JPanel {
 	private JLabel headerLabel;
 	private JCheckBox analysisMode;
 	private JCheckBox consoleDisplay;
-	private JCheckBox showInstrumentPanel;
 	private JList<String> controllers;
 	private JSpinner stepSizeSpinner;
 	private StepSizeValueChangedListener stepSizeValueChangedListener;
@@ -166,9 +165,8 @@ public class SimulationOptionsTab extends JPanel {
 		DefaultListModel<String> controllerList = new DefaultListModel<>();
 		controllerList.addElement("Joystick");
 		controllerList.addElement("Mouse");
-		controllerList.addElement("Keyboard Only");
 		controllers = new JList<String>(controllerList);
-		controllers.setToolTipText("Chooses which HID controller will control the simulation");
+		controllers.setToolTipText("Chooses which input device will control the simulation");
 		controllers.setSelectedIndex(0);
 		controllers.setEnabled(!analysisMode.isSelected());
 		controllers.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
@@ -179,29 +177,6 @@ public class SimulationOptionsTab extends JPanel {
 			}
 		});
 		controlsPanel.add(controllers, gc);
-		
-		//------------ Use Instrument Panel ----------------------
-		gc.gridy++;
-		
-		gc.gridx = 0;
-		gc.anchor = GridBagConstraints.EAST;
-		controlsPanel.add(new JLabel("Instrument Panel:"), gc);
-		
-		gc.gridx = 1;
-		gc.anchor = GridBagConstraints.WEST;
-		showInstrumentPanel = new JCheckBox("Show Panel");
-		showInstrumentPanel.setToolTipText("Chooses whether a Swing instrument panel with gauges will display when the simulation runs");
-		showInstrumentPanel.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (((JCheckBox) e.getSource()).isSelected())
-					simulationOptions.add(Options.INSTRUMENT_PANEL);
-				else 
-					simulationOptions.remove(Options.INSTRUMENT_PANEL);
-			}
-		});
-		
-		controlsPanel.add(showInstrumentPanel, gc);
 		
 		//--------- Simulation Step Size Spinner ----------------- 
 		gc.gridy++;
@@ -241,16 +216,12 @@ public class SimulationOptionsTab extends JPanel {
 	private void setDesiredController(String selectedValue) {
 		switch (selectedValue) {
 		case ("Joystick"):
-			simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_KEYBOARD_ONLY));
+			simulationOptions.removeIf(p -> (p == Options.USE_MOUSE));
 			simulationOptions.add(Options.USE_JOYSTICK);
 			break;
 		case ("Mouse"):
-			simulationOptions.removeIf(p -> (p == Options.USE_JOYSTICK || p == Options.USE_KEYBOARD_ONLY));
+			simulationOptions.removeIf(p -> (p == Options.USE_JOYSTICK));
 			simulationOptions.add(Options.USE_MOUSE);
-			break;
-		case ("Keyboard Only"):
-			simulationOptions.removeIf(p -> (p == Options.USE_MOUSE || p == Options.USE_JOYSTICK));
-			simulationOptions.add(Options.USE_KEYBOARD_ONLY);
 			break;
 		default:
 			break;
@@ -268,11 +239,8 @@ public class SimulationOptionsTab extends JPanel {
 		
 		analysisMode.setSelected(simulationOptions.contains(Options.ANALYSIS_MODE) ? true : false);
 		consoleDisplay.setSelected(simulationOptions.contains(Options.CONSOLE_DISPLAY) ? true : false);
-		showInstrumentPanel.setSelected(simulationOptions.contains(Options.INSTRUMENT_PANEL) ? true : false);
 		
-		if (simulationOptions.contains(Options.USE_KEYBOARD_ONLY))
-			controllers.setSelectedIndex(2);
-		else if (simulationOptions.contains(Options.USE_MOUSE))
+		if (simulationOptions.contains(Options.USE_MOUSE))
 			controllers.setSelectedIndex(1);
 		else
 			controllers.setSelectedIndex(0);

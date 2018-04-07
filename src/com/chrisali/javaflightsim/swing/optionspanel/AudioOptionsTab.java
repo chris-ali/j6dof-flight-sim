@@ -38,6 +38,8 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.chrisali.javaflightsim.simulation.setup.AudioOptions;
+
 public class AudioOptionsTab extends JPanel {
 
 	private static final long serialVersionUID = -2865224216075732617L;

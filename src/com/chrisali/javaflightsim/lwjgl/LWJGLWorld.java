@@ -62,7 +62,7 @@ import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
-import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.CameraMode;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
@@ -240,7 +240,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		
 		// Camera tied to ownship as first person view
 		camera = new Camera(ownship);
-		camera.setChaseView(true);
+		camera.setChaseView(configuration.getCameraConfiguration().getMode() == CameraMode.CHASE);
 		
 		ownship.setScale(camera.isChaseView() ? 1.25f : 0f);
 
@@ -275,7 +275,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		interfaceTextures = new ArrayList<>();
 		panel = FileUtilities.readInstrumentPanelConfiguration(configuration.getSelectedAircraft());
 		
-		if (configuration.getSimulationOptions().contains(Options.INSTRUMENT_PANEL)) {				
+		if (configuration.getCameraConfiguration().isShowPanel()) {				
 			interfaceTextures = panel.loadAndGetTextures(loader, configuration.getSelectedAircraft());
 			
 			camera.setPilotPosition(new Vector3f(0, 5, 0));
@@ -317,7 +317,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			camera.move();
 
 			// Record flight data into text string to display on OTW screen 
-			simTexts.update(receivedFlightData, configuration.getSimulationOptions(), camera, ownship);
+			simTexts.update(receivedFlightData, configuration, camera, ownship);
 			
 			// Instrument Panel
 			panel.update(receivedFlightData);

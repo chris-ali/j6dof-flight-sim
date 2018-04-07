@@ -17,19 +17,19 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.swing.optionspanel;
+package com.chrisali.javaflightsim.simulation.setup;
 
 /**
- *	Used by the displayOptions EnumSet to set options for the out the window display
+ *	Used by the audioOptions EnumSet to set volume settings for different types of sounds
  */
-public enum DisplayOptions {
-	DISPLAY_WIDTH   ("display_width"),
-	DISPLAY_HEIGHT  ("display_height"),
-	ANTI_ALIASING   ("anti_aliasing");
+public enum AudioOptions {
+	ENGINE_VOLUME      ("engine_volume"),
+	SYSTEMS_VOLUME     ("systems_volume"),
+	ENVIRONMENT_VOLUME ("environment_volume");
 	
 	private String option;
 	
-	private DisplayOptions(String option) {this.option = option;}
+	private AudioOptions(String option) {this.option = option;}
 	
 	public String toString() {return option;}
 }

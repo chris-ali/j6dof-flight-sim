@@ -22,7 +22,6 @@ package com.chrisali.javaflightsim.lwjgl.interfaces.text;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
@@ -31,6 +30,7 @@ import com.chrisali.javaflightsim.lwjgl.entities.Camera;
 import com.chrisali.javaflightsim.lwjgl.entities.Entity;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.simulation.setup.Options;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
  * Contains text strings that are rendered by LWJGL to display various simulation info
@@ -59,8 +59,8 @@ public class SimulationTexts {
 	 * @param flightData
 	 * @param options
 	 */
-	public void update(Map<FlightDataType, Double> flightData, Set<Options> options, Camera camera, Entity entity) {
-		if (!options.contains(Options.INSTRUMENT_PANEL)) {
+	public void update(Map<FlightDataType, Double> flightData, SimulationConfiguration config, Camera camera, Entity entity) {
+		if (!config.getCameraConfiguration().isShowPanel()) {
 			texts.get("FlightData").setTextString(setTelemetryText(flightData));
 			
 			if (camera.isChaseView()) {
@@ -69,7 +69,7 @@ public class SimulationTexts {
 			}
 		}
 				
-		texts.get("Paused").setTextString(options.contains(Options.PAUSED) ? "PAUSED" : "");
+		texts.get("Paused").setTextString(config.getSimulationOptions().contains(Options.PAUSED) ? "PAUSED" : "");
 	}
 	
 	/**
