@@ -27,7 +27,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 	// Keep track if button is pressed, so events occur only once if button held down 
 	private boolean gearPressed = false;
 	
-	//
+	// If true, don't directly calculate controls; use a transient value 
 	private boolean useTransientLag = true;
 	
 	public FlightControlActuator(SimulationConfiguration configuration, FlightControlsState controlsState) {
@@ -53,8 +53,8 @@ public class FlightControlActuator implements ControlParameterActuator {
 			} else if (parameter.equals(AILERON_TRIM_RIGHT)) {
 				if (isPressed(value)) aileronTrimRight();
 			} else if (parameter.equals(BRAKES)) {
-				brakeLeft(BRAKE_L.getMaximum());
-				brakeRight(BRAKE_R.getMaximum());
+				pedal(BRAKE_L, BRAKE_L.getMaximum());
+				pedal(BRAKE_R, BRAKE_R.getMaximum());
 			} else if (parameter.equals(CENTER_CONTROLS)) {
 				if (isPressed(value)) centerControls();
 			} else if (parameter.equals(DECREASE_FLAPS)) {
@@ -103,59 +103,62 @@ public class FlightControlActuator implements ControlParameterActuator {
 		}
 		else {
 			if (parameter.equals(AILERON)) {
-				aileron(value);
+				trimmableControl(AILERON, value, trimAileron);
 			} else if (parameter.equals(BRAKE_L)) {
-				brakeLeft(value);
+				pedal(BRAKE_L, value);
 			} else if (parameter.equals(BRAKE_R)) {
-				brakeRight(value);
+				pedal(BRAKE_R, value);
 			} else if (parameter.equals(ELEVATOR)) {
-				elevator(value);
+				trimmableControl(ELEVATOR, value, trimElevator);
 			} else if (parameter.equals(FLAPS)) {
 			} else if (parameter.equals(GEAR)) {
 			} else if (parameter.equals(MIXTURE_1)) {
-				mixture1(value);
+				lever(MIXTURE_1, value);
 			} else if (parameter.equals(MIXTURE_2)) {
-				mixture2(value);
+				lever(MIXTURE_2, value);
 			} else if (parameter.equals(MIXTURE_3)) {
-				mixture3(value);
+				lever(MIXTURE_3, value);
 			} else if (parameter.equals(MIXTURE_4)) {
-				mixture4(value);
+				lever(MIXTURE_4, value);
 			} else if (parameter.equals(PROPELLER_1)) {
-				propeller1(value);
+				lever(PROPELLER_1, value);
 			} else if (parameter.equals(PROPELLER_2)) {
-				propeller2(value);
+				lever(PROPELLER_2, value);
 			} else if (parameter.equals(PROPELLER_3)) {
-				propeller3(value);
+				lever(PROPELLER_3, value);
 			} else if (parameter.equals(PROPELLER_4)) {
-				propeller4(value);
+				lever(PROPELLER_4, value);
 			} else if (parameter.equals(RUDDER)) {
-				rudder(value);
+				trimmableControl(RUDDER, value, trimRudder);
 			} else if (parameter.equals(THROTTLE_1)) {
-				throttle1(value);
+				lever(THROTTLE_1, value);
 			} else if (parameter.equals(THROTTLE_2)) {
-				throttle2(value);
+				lever(THROTTLE_2, value);
 			} else if (parameter.equals(THROTTLE_3)) {
-				throttle3(value);
+				lever(THROTTLE_3, value);
 			} else if (parameter.equals(THROTTLE_4)) {
-				throttle4(value);
+				lever(THROTTLE_4, value);
 			}
 		}
 	}
 		
 	/**
-	 *  Using a transient control value saved in {@link FlightControlsState}, calculates a deflection angle based on a linear
+	 *  Using a transient control value saved in {@link FlightControlsState}, calculates a control value based on a linear
 	 *  rate defined by getRate() and the desired "direct" control value. If useTransientLag is set to false, the direct
 	 *  value from the input device will be used instead
 	 *  
 	 * @param controlType
 	 * @param value
-	 * @return Actual control deflection
+	 * @return Actual control value
 	 */
 	private double calculateDeflection(FlightControl controlType, double value) {
+		// In-between value updated each simulation step
 		double transientValue = controlsState.getTransientValue(controlType);
+		
+		// Final value that the transient value seeks out
 		double desiredValue = (value <= 0) ? (controlType.getMaximum()*Math.abs(value)) : (controlType.getMinimum()*value);   
 						
-		// Scale the rate as desired and current values near each other
+		// Scale the rate as desired and transient values near each other
 		double rateScale = 0.125; //Math.abs((desiredValue - transientValue) / (value <= 0 ? controlType.getMaximum() : controlType.getMinimum())); //
 		
 		transientValue += (desiredValue - transientValue) * rateScale;
@@ -222,7 +225,43 @@ public class FlightControlActuator implements ControlParameterActuator {
 	 * @param useTransientLag
 	 */
 	public void setUseTransientLag(boolean useTransientLag) { this.useTransientLag = useTransientLag; }
-
+	
+	/**
+	 * Flight controls that have a trim control associated with them (elevator, rudder, aileron) 
+	 * should use this method to calculate their actual value; includes a call to negativeSquare()
+	 * to reduce the linearity of the polled value, giving a "gentler" response
+	 * 
+	 * @param type flight control in question
+	 * @param value polled value from an input device
+	 * @param trimValue saved trim value 
+	 */
+	private void trimmableControl(FlightControl type, double value, double trimValue) {
+		double deflection = calculateDeflection(type, negativeSquare(value));	
+		controlsState.set(type, (deflection + trimValue));
+	}
+	
+	/**
+	 * Flight controls without trim (brakes) should use this; includes a call to negativeSquare()
+	 * to reduce the linearity of the polled value, giving a "gentler" response
+	 * 
+	 * @param type
+	 * @param value
+	 */
+	private void pedal(FlightControl type, double value) {
+		controlsState.set(type, negativeSquare(value));
+	}
+	
+	/**
+	 * Certain lever-based flight controls (throttle, propeller, mixture) require an shift of their polled 
+	 * value to provide a value between 0 and 1; no smoothing is added via negativeSquare()
+	 * 
+	 * @param type
+	 * @param value
+	 */
+	private void lever(FlightControl type, double value) {
+		controlsState.set(type, -(value-1)/2);
+	}
+	
 	/** 
 	 * Cycles Landing Gear Down/Up. Use gearPressed to prevent numerous cycles of gear up/down if key held down;
 	 * need to release key to extend or retract gear again
@@ -231,199 +270,128 @@ public class FlightControlActuator implements ControlParameterActuator {
 	 * @param buttonPressed
 	 */
 	private void cycleGear(boolean buttonPressed) {
-		if (!gearPressed && controlsState.get(FlightControl.GEAR) < 0.5) {
+		if (!gearPressed && controlsState.get(GEAR) < 0.5) {
 			if(buttonPressed) {
-				controlsState.set(FlightControl.GEAR, 1.0);
+				controlsState.set(GEAR, 1.0);
 				gearPressed = true;
 			}
-		} else if (!gearPressed && controlsState.get(FlightControl.GEAR) > 0.5) {
+		} else if (!gearPressed && controlsState.get(GEAR) > 0.5) {
 			if(buttonPressed) {
-				controlsState.set(FlightControl.GEAR, 0.0);
+				controlsState.set(GEAR, 0.0);
 				gearPressed = true;
 			}
 		} else if (gearPressed && !buttonPressed) {
 			gearPressed = false;
-		} 
+		}
 	}
 	
 	private void retractGear() {
-		controlsState.set(FlightControl.GEAR, FlightControl.GEAR.getMinimum());	
+		controlsState.set(GEAR, GEAR.getMinimum());	
 	}
 
 	private void extendGear() {
-		controlsState.set(FlightControl.GEAR, FlightControl.GEAR.getMaximum());
+		controlsState.set(GEAR, GEAR.getMaximum());
 	}
 
 	private void retractFlaps() {
-		if (flaps >= FlightControl.FLAPS.getMinimum())
-			controlsState.set(FlightControl.FLAPS, (flaps -= getRate(FlightControl.FLAPS)));
+		if (flaps >= FLAPS.getMinimum())
+			controlsState.set(FLAPS, (flaps -= getRate(FLAPS)));
 	}
 	
 	private void extendFlaps() {
-		if (flaps <= FlightControl.FLAPS.getMaximum()) 
-			controlsState.set(FlightControl.FLAPS, (flaps += getRate(FlightControl.FLAPS)));
+		if (flaps <= FLAPS.getMaximum()) 
+			controlsState.set(FLAPS, (flaps += getRate(FLAPS)));
 	}
 	
 	private void aileronTrimLeft() {
-		if(trimAileron >= FlightControl.AILERON.getMinimum()) 
-			trimAileron += getRate(FlightControl.AILERON)/10;
+		if(trimAileron >= AILERON.getMinimum()) 
+			trimAileron += getRate(AILERON)/10;
 	}
 	
 	private void aileronTrimRight() {
-		if(trimAileron <= FlightControl.AILERON.getMaximum()) 
-			trimAileron -= getRate(FlightControl.AILERON)/10;
+		if(trimAileron <= AILERON.getMaximum()) 
+			trimAileron -= getRate(AILERON)/10;
 	}
 	
 	private void rudderTrimRight() {
-		if(trimRudder >= FlightControl.RUDDER.getMinimum()) 
-			trimRudder -= getRate(FlightControl.RUDDER)/10;
+		if(trimRudder >= RUDDER.getMinimum()) 
+			trimRudder -= getRate(RUDDER)/10;
 	}
 	
 	private void rudderTrimLeft() {
-		if(trimRudder <= FlightControl.RUDDER.getMaximum()) 
-			trimRudder += getRate(FlightControl.RUDDER)/10;
+		if(trimRudder <= RUDDER.getMaximum()) 
+			trimRudder += getRate(RUDDER)/10;
 	}
 	
 	private void elevatorTrimDown() {
-		if (trimElevator <= FlightControl.ELEVATOR.getMaximum()) 
-			trimElevator += getRate(FlightControl.ELEVATOR)/10;
+		if (trimElevator <= ELEVATOR.getMaximum()) 
+			trimElevator += getRate(ELEVATOR)/10;
 	}
 	
 	private void elevatorTrimUp() {
-		if (trimElevator >= FlightControl.ELEVATOR.getMinimum()) 
-			trimElevator -= getRate(FlightControl.ELEVATOR)/10;
+		if (trimElevator >= ELEVATOR.getMinimum()) 
+			trimElevator -= getRate(ELEVATOR)/10;
 	}
-	
-	private void elevator(double value) {
-		double deflection = calculateDeflection(FlightControl.ELEVATOR, negativeSquare(value));	
-		controlsState.set(FlightControl.ELEVATOR, (deflection + trimElevator));
-	}
-	
-	private void aileron(double value) {
-		double deflection = calculateDeflection(FlightControl.AILERON, negativeSquare(value));
-		controlsState.set(FlightControl.AILERON, (deflection + trimAileron));
-	}
-	
-	private void rudder(double value) {
-		double deflection = calculateDeflection(FlightControl.RUDDER, negativeSquare(value));
-		controlsState.set(FlightControl.RUDDER, (deflection + trimRudder));
-	}
-	
+
 	private void elevatorDown() {
-		if (controlsState.get(FlightControl.ELEVATOR) <= FlightControl.ELEVATOR.getMaximum())
-			controlsState.set(FlightControl.ELEVATOR, controlsState.get(FlightControl.ELEVATOR) + getRate(FlightControl.ELEVATOR));
+		if (controlsState.get(ELEVATOR) <= ELEVATOR.getMaximum())
+			controlsState.set(ELEVATOR, controlsState.get(ELEVATOR) + getRate(ELEVATOR));
 	}
 	
 	private void elevatorUp() {
-		if (controlsState.get(FlightControl.ELEVATOR) >= FlightControl.ELEVATOR.getMinimum())
-			controlsState.set(FlightControl.ELEVATOR, controlsState.get(FlightControl.ELEVATOR) - getRate(FlightControl.ELEVATOR));
+		if (controlsState.get(ELEVATOR) >= ELEVATOR.getMinimum())
+			controlsState.set(ELEVATOR, controlsState.get(ELEVATOR) - getRate(ELEVATOR));
 	}
 	
 	private void aileronLeft() {
-		if (controlsState.get(FlightControl.AILERON) >= FlightControl.AILERON.getMinimum())
-			controlsState.set(FlightControl.AILERON, controlsState.get(FlightControl.AILERON) + getRate(FlightControl.AILERON));
+		if (controlsState.get(AILERON) >= AILERON.getMinimum())
+			controlsState.set(AILERON, controlsState.get(AILERON) + getRate(AILERON));
 	}
 	
 	private void aileronRight() {
-		if (controlsState.get(FlightControl.AILERON) <= FlightControl.AILERON.getMaximum())
-			controlsState.set(FlightControl.AILERON, controlsState.get(FlightControl.AILERON) - getRate(FlightControl.AILERON));
+		if (controlsState.get(AILERON) <= AILERON.getMaximum())
+			controlsState.set(AILERON, controlsState.get(AILERON) - getRate(AILERON));
 	}
 	
 	private void rudderLeft() {
-		if (controlsState.get(FlightControl.RUDDER) >= FlightControl.RUDDER.getMinimum())
-			controlsState.set(FlightControl.RUDDER, controlsState.get(FlightControl.RUDDER) - getRate(FlightControl.RUDDER));
+		if (controlsState.get(RUDDER) >= RUDDER.getMinimum())
+			controlsState.set(RUDDER, controlsState.get(RUDDER) - getRate(RUDDER));
 	}
 	
 	private void rudderRight() {
-		if (controlsState.get(FlightControl.RUDDER) <= FlightControl.RUDDER.getMaximum())
-			controlsState.set(FlightControl.RUDDER, controlsState.get(FlightControl.RUDDER) + getRate(FlightControl.RUDDER));
+		if (controlsState.get(RUDDER) <= RUDDER.getMaximum())
+			controlsState.set(RUDDER, controlsState.get(RUDDER) + getRate(RUDDER));
 	}
 	
 	private void centerControls() {
-		controlsState.set(FlightControl.ELEVATOR, trimElevator);
-		controlsState.set(FlightControl.AILERON, trimAileron);
-		controlsState.set(FlightControl.RUDDER, trimRudder);
+		controlsState.set(ELEVATOR, trimElevator);
+		controlsState.set(AILERON, trimAileron);
+		controlsState.set(RUDDER, trimRudder);
 	}
-	
-	private void brakeRight(double value) {
-		controlsState.set(FlightControl.BRAKE_R, negativeSquare(value));
-	}
-	
-	private void brakeLeft(double value) {
-		controlsState.set(FlightControl.BRAKE_L, negativeSquare(value));
-	}
-	
-	private void throttle1(double value) {
-		controlsState.set(FlightControl.THROTTLE_1, -(value-1)/2);
-	}
-	
-	private void throttle2(double value) {
-		controlsState.set(FlightControl.THROTTLE_2, -(value-1)/2);
-	}
-	
-	private void throttle3(double value) {
-		controlsState.set(FlightControl.THROTTLE_3, -(value-1)/2);
-	}
-	
-	private void throttle4(double value) {
-		controlsState.set(FlightControl.THROTTLE_4, -(value-1)/2);
-	}
-	
-	private void propeller1(double value) {
-		controlsState.set(FlightControl.PROPELLER_1, -(value-1)/2);
-	}
-	
-	private void propeller2(double value) {
-		controlsState.set(FlightControl.PROPELLER_2, -(value-1)/2);
-	}
-	
-	private void propeller3(double value) {
-		controlsState.set(FlightControl.PROPELLER_3, -(value-1)/2);
-	}
-	
-	private void propeller4(double value) {
-		controlsState.set(FlightControl.PROPELLER_4, -(value-1)/2);
-	}
-	
-	private void mixture1(double value) {
-		controlsState.set(FlightControl.MIXTURE_1, -(value-1)/2);
-	}
-	
-	private void mixture2(double value) {
-		controlsState.set(FlightControl.MIXTURE_2, -(value-1)/2);
-	}
-	
-	private void mixture3(double value) {
-		controlsState.set(FlightControl.MIXTURE_2, -(value-1)/2);
-	}
-	
-	private void mixture4(double value) {
-		controlsState.set(FlightControl.MIXTURE_2, -(value-1)/2);
-	}
-	
+		
 	private void increaseThrottle() {
-		if (controlsState.get(FlightControl.THROTTLE_1) <= FlightControl.THROTTLE_1.getMaximum() &&
-			controlsState.get(FlightControl.THROTTLE_2) <= FlightControl.THROTTLE_2.getMaximum() &&
-			controlsState.get(FlightControl.THROTTLE_3) <= FlightControl.THROTTLE_3.getMaximum() &&
-			controlsState.get(FlightControl.THROTTLE_4) <= FlightControl.THROTTLE_4.getMaximum()) {
+		if (controlsState.get(THROTTLE_1) <= THROTTLE_1.getMaximum() &&
+			controlsState.get(THROTTLE_2) <= THROTTLE_2.getMaximum() &&
+			controlsState.get(THROTTLE_3) <= THROTTLE_3.getMaximum() &&
+			controlsState.get(THROTTLE_4) <= THROTTLE_4.getMaximum()) {
 			
-			controlsState.set(FlightControl.THROTTLE_1, controlsState.get(FlightControl.THROTTLE_1) + getRate(FlightControl.THROTTLE_1));
-			controlsState.set(FlightControl.THROTTLE_2, controlsState.get(FlightControl.THROTTLE_2) + getRate(FlightControl.THROTTLE_2));
-			controlsState.set(FlightControl.THROTTLE_3, controlsState.get(FlightControl.THROTTLE_3) + getRate(FlightControl.THROTTLE_3));
-			controlsState.set(FlightControl.THROTTLE_4, controlsState.get(FlightControl.THROTTLE_4) + getRate(FlightControl.THROTTLE_4));
+			controlsState.set(THROTTLE_1, controlsState.get(THROTTLE_1) + getRate(THROTTLE_1));
+			controlsState.set(THROTTLE_2, controlsState.get(THROTTLE_2) + getRate(THROTTLE_2));
+			controlsState.set(THROTTLE_3, controlsState.get(THROTTLE_3) + getRate(THROTTLE_3));
+			controlsState.set(THROTTLE_4, controlsState.get(THROTTLE_4) + getRate(THROTTLE_4));
 		}
 	}
 	
 	private void decreaseThrottle() {
-		if (controlsState.get(FlightControl.THROTTLE_1) >= FlightControl.THROTTLE_1.getMinimum() &&
-			controlsState.get(FlightControl.THROTTLE_2) >= FlightControl.THROTTLE_2.getMinimum() &&
-			controlsState.get(FlightControl.THROTTLE_3) >= FlightControl.THROTTLE_3.getMinimum() &&
-			controlsState.get(FlightControl.THROTTLE_4) >= FlightControl.THROTTLE_4.getMinimum()) {
+		if (controlsState.get(THROTTLE_1) >= THROTTLE_1.getMinimum() &&
+			controlsState.get(THROTTLE_2) >= THROTTLE_2.getMinimum() &&
+			controlsState.get(THROTTLE_3) >= THROTTLE_3.getMinimum() &&
+			controlsState.get(THROTTLE_4) >= THROTTLE_4.getMinimum()) {
 			
-			controlsState.set(FlightControl.THROTTLE_1, controlsState.get(FlightControl.THROTTLE_1) - getRate(FlightControl.THROTTLE_1));
-			controlsState.set(FlightControl.THROTTLE_2, controlsState.get(FlightControl.THROTTLE_2) - getRate(FlightControl.THROTTLE_2));
-			controlsState.set(FlightControl.THROTTLE_3, controlsState.get(FlightControl.THROTTLE_3) - getRate(FlightControl.THROTTLE_3));
-			controlsState.set(FlightControl.THROTTLE_4, controlsState.get(FlightControl.THROTTLE_4) - getRate(FlightControl.THROTTLE_4));
+			controlsState.set(THROTTLE_1, controlsState.get(THROTTLE_1) - getRate(THROTTLE_1));
+			controlsState.set(THROTTLE_2, controlsState.get(THROTTLE_2) - getRate(THROTTLE_2));
+			controlsState.set(THROTTLE_3, controlsState.get(THROTTLE_3) - getRate(THROTTLE_3));
+			controlsState.set(THROTTLE_4, controlsState.get(THROTTLE_4) - getRate(THROTTLE_4));
 		}
 	}
 }
