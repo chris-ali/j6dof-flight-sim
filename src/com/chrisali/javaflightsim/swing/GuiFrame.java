@@ -24,7 +24,6 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.EnumMap;
 import java.util.EnumSet;
 
 import javax.swing.JFrame;
@@ -36,8 +35,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
-import com.chrisali.javaflightsim.simulation.setup.AudioOptions;
-import com.chrisali.javaflightsim.simulation.setup.DisplayOptions;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -143,12 +140,10 @@ public class GuiFrame extends JFrame {
 		optionsPanel = new OptionsPanel();
 		optionsPanel.setOptionsConfigurationListener(new OptionsConfigurationListener() {
 			@Override
-			public void simulationOptionsConfigured(EnumSet<Options> options, int stepSize, 
-													EnumMap<DisplayOptions, Integer> displayOptions,
-													EnumMap<AudioOptions, Float> audioOptions) {
+			public void simulationOptionsConfigured(EnumSet<Options> options, int stepSize) {
 				buttonPanel.setOptionsLabel(options, stepSize);
 				configuration.setSimulationRateHz(stepSize);
-				configuration.updateOptions(options, displayOptions, audioOptions);
+				configuration.updateOptions(options);
 				configuration.save();
 				
 				setSize(dims);

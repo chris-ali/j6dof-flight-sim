@@ -186,6 +186,9 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	private void startUp() {
 		logger.debug("Starting up LWJGL display...");
 		DisplayManager.createDisplay();
+		DisplayManager.setHeight(configuration.getDisplayConfiguration().getDisplayHeight());
+		DisplayManager.setWidth(configuration.getDisplayConfiguration().getDisplayWidth());
+		DisplayManager.setAaSamples(configuration.getDisplayConfiguration().isUseAntiAliasing() ? 2 : 0);
 		
 		loader = new Loader();
 		
@@ -195,6 +198,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		MasterRenderer.setSkyColor(new Vector3f(0.70f, 0.90f, 1.0f));
 		MasterRenderer.setFogDensity(0.0005f);
 		MasterRenderer.setFogGradient(3.5f);
+		MasterRenderer.setFov(configuration.getCameraConfiguration().getFieldOfView());
 		
 		logger.debug("Initializing audio...");
 		

@@ -34,7 +34,6 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.simulation.propulsion.Engine;
-import com.chrisali.javaflightsim.simulation.setup.AudioOptions;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
@@ -103,8 +102,7 @@ public class SoundCollection {
 	}
 	
 	private Aircraft aircraft;
-	
-	
+		
 	private float engineVolume;
 	private float systemsVolume;
 	private float environmentVolume;
@@ -122,8 +120,7 @@ public class SoundCollection {
 	 *	Fills soundSources EnumMap with {@link SoundSource} objects, which are references to audio
 	 *  files in .Resources/Audio, and sets their initial properties. Uses {@link SimulationConfiguration}
 	 *  to get {@link AircraftBuilder} reference to determine how many engines to assign sounds to, and where 
-	 *  to position them relative to the listener. Also uses {@link SimulationConfiguration} to get Map of audio 
-	 *  options to set the volumes of various types of sounds
+	 *  to position them relative to the listener
 	 *  
 	 *  @param configuration
 	 */
@@ -131,12 +128,11 @@ public class SoundCollection {
 		
 		logger.debug("Initializing Sound Collections...");
 		
-		Map<AudioOptions, Float> audioOptions = configuration.getAudioOptions();
 		aircraft = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
 		
-		engineVolume = audioOptions.get(AudioOptions.ENGINE_VOLUME);
-		systemsVolume = audioOptions.get(AudioOptions.SYSTEMS_VOLUME);
-		environmentVolume = audioOptions.get(AudioOptions.ENVIRONMENT_VOLUME);
+		engineVolume = configuration.getAudioConfiguration().getEngineVolume();
+		systemsVolume = configuration.getAudioConfiguration().getSystemsVolume();
+		environmentVolume = configuration.getAudioConfiguration().getEnvironmentVolume();
 		
 		soundSources = new EnumMap<>(SoundEvent.class);
 		soundValues = new EnumMap<>(SoundCategory.class);

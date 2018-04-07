@@ -57,7 +57,7 @@ public class CameraOptionsTab extends JPanel {
 	private JList<String> cameraMode;
 	private JSpinner fieldOfView;
 	
-	private CameraConfiguration cameraConfig;
+	private CameraConfiguration cameraConfiguration;
 	
 	public CameraOptionsTab() {
 		
@@ -120,7 +120,7 @@ public class CameraOptionsTab extends JPanel {
 			@SuppressWarnings("rawtypes")
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				cameraConfig.setMode(((JList)e.getSource()).getSelectedIndex() == 0 ? CameraMode.COCKPIT_2D : CameraMode.CHASE);
+				cameraConfiguration.setMode(((JList)e.getSource()).getSelectedIndex() == 0 ? CameraMode.COCKPIT_2D : CameraMode.CHASE);
 			}
 		});
 		controlsPanel.add(cameraMode, gc);
@@ -139,7 +139,7 @@ public class CameraOptionsTab extends JPanel {
 		showInstrumentPanel.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				cameraConfig.setShowPanel(((JCheckBox) e.getSource()).isSelected());
+				cameraConfiguration.setShowPanel(((JCheckBox) e.getSource()).isSelected());
 			}
 		});
 		controlsPanel.add(showInstrumentPanel, gc);
@@ -158,7 +158,7 @@ public class CameraOptionsTab extends JPanel {
 		fieldOfView.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				cameraConfig.setFieldOfView((int) fieldOfView.getValue());
+				cameraConfiguration.setFieldOfView((int) fieldOfView.getValue());
 			}
 		});
 		controlsPanel.add(fieldOfView, gc);
@@ -171,15 +171,15 @@ public class CameraOptionsTab extends JPanel {
 	}
 
 	/**
-	 * Reads audioOptions EnumMap to determine how to set {@link CameraOptionsTab} panel objects
+	 * Reads cameraConfiguration to set {@link CameraOptionsTab} panel objects
 	 * 
-	 * @param audioOptions
+	 * @param cameraConfiguration
 	 */
-	public void setOptionsTab(CameraConfiguration cameraConfig) {
-		this.cameraConfig = cameraConfig;
+	public void setOptionsTab(CameraConfiguration cameraConfiguration) {
+		this.cameraConfiguration = cameraConfiguration;
 		
-		cameraMode.setSelectedIndex(cameraConfig.getMode().ordinal());
-		showInstrumentPanel.setSelected(cameraConfig.isShowPanel());
-		fieldOfView.setValue(cameraConfig.getFieldOfView());
+		cameraMode.setSelectedIndex(cameraConfiguration.getMode().ordinal());
+		showInstrumentPanel.setSelected(cameraConfiguration.isShowPanel());
+		fieldOfView.setValue(cameraConfiguration.getFieldOfView());
 	}
 }

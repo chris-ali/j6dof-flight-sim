@@ -22,29 +22,23 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public class SimulationConfiguration implements Saveable {
 	
-	//Logging
 	@JsonIgnore
 	private static final Logger logger = LogManager.getLogger(SimulationConfiguration.class);
 	
-	// Configuration
-	private EnumMap<DisplayOptions, Integer> displayOptions;
-	private EnumMap<AudioOptions, Float> audioOptions;
 	private EnumSet<Options> simulationOptions;
 	private EnumMap<InitialConditions, Double> initialConditions;
 	private EnumMap<IntegratorConfig, Double> integratorConfig;
 	private EnumMap<FlightControl, Double> initialControls; 
 	private String selectedAircraft;
 
+	private DisplayConfiguration displayConfiguration;
+	
+	private AudioConfiguration audioConfiguration;
+	
 	private CameraConfiguration cameraConfiguration;
 
 	public SimulationConfiguration() { }
-
-	public EnumSet<Options> getSimulationOptions() { return simulationOptions; }
-
-	public EnumMap<DisplayOptions, Integer> getDisplayOptions() { return displayOptions; }
-
-	public EnumMap<AudioOptions, Float> getAudioOptions() { return audioOptions; }
-	
+		
 	/**
 	 * Saves all configuration fields in this instance to a JSON file via {@link FileUtilities#serializeJson(String, String, Object)}
 	 */
@@ -53,24 +47,18 @@ public class SimulationConfiguration implements Saveable {
 		FileUtilities.serializeJson(SimDirectories.SIM_CONFIG.toString(), this.getClass().getSimpleName(), this); 
 	}
 	
+	public EnumSet<Options> getSimulationOptions() { return simulationOptions; }
+	
 	/**
 	 * Updates simulation and display options
 	 * 
 	 * @param newOptions
-	 * @param newDisplayOptions
-	 * @param newAudioOptions
 	 */
-	public void updateOptions(EnumSet<Options> newOptions, EnumMap<DisplayOptions, Integer> newDisplayOptions,
-							  EnumMap<AudioOptions, Float> newAudioOptions) {
+	public void updateOptions(EnumSet<Options> newOptions) {
 		logger.debug("Updating simulation options...");
 		
-		try {
-			simulationOptions = EnumSet.copyOf(newOptions);
-			displayOptions = newDisplayOptions;
-			audioOptions = newAudioOptions;
-		} catch (Exception e) {
-			logger.error("Error updating simulation options!", e);
-		}
+		try { simulationOptions = EnumSet.copyOf(newOptions); } 
+		catch (Exception e) { logger.error("Error updating simulation options!", e); }
 	}
 		
 	public EnumMap<IntegratorConfig, Double> getIntegratorConfig() { return integratorConfig; }
@@ -91,15 +79,17 @@ public class SimulationConfiguration implements Saveable {
 		
 		integratorConfig.put(IntegratorConfig.DT, (1/((double)simulationRateHz)));
 	}
+	
+	public CameraConfiguration getCameraConfiguration() { return cameraConfiguration; }
+		
+	public AudioConfiguration getAudioConfiguration() { return audioConfiguration; }
+
+	public DisplayConfiguration getDisplayConfiguration() { return displayConfiguration; }
 
 	public EnumMap<FlightControl, Double> getInitialControls() { return initialControls; }
 
 	public void setInitialControls(EnumMap<FlightControl, Double> initialControls) { this.initialControls = initialControls; }
 		
-	public CameraConfiguration getCameraConfiguration() { return cameraConfiguration; }
-
-	public void setCameraConfiguration(CameraConfiguration cameraConfiguration) { this.cameraConfiguration = cameraConfiguration; }
-
 	public EnumMap<InitialConditions, Double> getInitialConditions() { return initialConditions; }
 	
 	public void setInitialConditions(EnumMap<InitialConditions, Double> initialConditions) { this.initialConditions = initialConditions; }

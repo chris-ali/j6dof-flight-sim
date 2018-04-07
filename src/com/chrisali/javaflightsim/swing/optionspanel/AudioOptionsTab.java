@@ -26,7 +26,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.EnumMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -38,7 +37,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.chrisali.javaflightsim.simulation.setup.AudioOptions;
+import com.chrisali.javaflightsim.simulation.setup.AudioConfiguration;
 
 public class AudioOptionsTab extends JPanel {
 
@@ -52,7 +51,7 @@ public class AudioOptionsTab extends JPanel {
 	private JSlider environmentVolumeSlider;
 	private float environmentVolume;
 	
-	private EnumMap<AudioOptions, Float> audioOptions;
+	private AudioConfiguration audioConfiguration;
 	
 	public AudioOptionsTab() {
 		
@@ -109,7 +108,7 @@ public class AudioOptionsTab extends JPanel {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				engineVolume = ((float)engineVolumeSlider.getValue())/((float)engineVolumeSlider.getMaximum());
-				audioOptions.put(AudioOptions.ENGINE_VOLUME, engineVolume);
+				audioConfiguration.setEngineVolume(engineVolume);
 			}
 		});
 		controlsPanel.add(engineVolumeSlider, gc);
@@ -128,7 +127,7 @@ public class AudioOptionsTab extends JPanel {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				systemsVolume = ((float)systemsVolumeSlider.getValue())/((float)systemsVolumeSlider.getMaximum());
-				audioOptions.put(AudioOptions.SYSTEMS_VOLUME, systemsVolume);
+				audioConfiguration.setSystemsVolume(systemsVolume);
 			}
 		});
 		controlsPanel.add(systemsVolumeSlider, gc);
@@ -147,7 +146,7 @@ public class AudioOptionsTab extends JPanel {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				environmentVolume = ((float)environmentVolumeSlider.getValue())/((float)environmentVolumeSlider.getMaximum());
-				audioOptions.put(AudioOptions.ENVIRONMENT_VOLUME, environmentVolume);
+				audioConfiguration.setEngineVolume(environmentVolume);
 			}
 		});
 		controlsPanel.add(environmentVolumeSlider, gc);
@@ -159,20 +158,16 @@ public class AudioOptionsTab extends JPanel {
 		setPreferredSize(dims);
 	}
 	
-	protected EnumMap<AudioOptions, Float> getAudioOptions() {
-		return audioOptions;
-	}
-
 	/**
-	 * Reads audioOptions EnumMap to determine how to set {@link AudioOptionsTab} panel objects
+	 * Reads audioConfiguration to set {@link AudioOptionsTab} panel objects
 	 * 
-	 * @param audioOptions
+	 * @param audioConfiguration
 	 */
-	public void setOptionsTab(EnumMap<AudioOptions, Float> audioOptions) {
-		this.audioOptions = audioOptions;
+	public void setOptionsTab(AudioConfiguration audioConfiguration) {
+		this.audioConfiguration = audioConfiguration;
 		
-		engineVolumeSlider.setValue((int)(100*audioOptions.get(AudioOptions.ENGINE_VOLUME)));
-		systemsVolumeSlider.setValue((int)(100*audioOptions.get(AudioOptions.SYSTEMS_VOLUME)));
-		environmentVolumeSlider.setValue((int)(100*audioOptions.get(AudioOptions.ENVIRONMENT_VOLUME)));
+		engineVolumeSlider.setValue((int)(100*audioConfiguration.getEngineVolume()));
+		systemsVolumeSlider.setValue((int)(100*audioConfiguration.getSystemsVolume()));
+		environmentVolumeSlider.setValue((int)(100*audioConfiguration.getEnvironmentVolume()));
 	}
 }

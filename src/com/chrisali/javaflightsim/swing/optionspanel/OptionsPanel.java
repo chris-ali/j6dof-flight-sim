@@ -98,9 +98,7 @@ public class OptionsPanel extends JPanel {
 					simulationOptionsTab.getSimulationOptions().add(Options.UNLIMITED_FLIGHT);
 				
 				if (optionsConfigurationListener != null) {
-					optionsConfigurationListener.simulationOptionsConfigured(simulationOptionsTab.getSimulationOptions(), stepSize,
-																			displayOptionsTab.getDisplayOptions(),
-																			audioOptionsTab.getAudioOptions());
+					optionsConfigurationListener.simulationOptionsConfigured(simulationOptionsTab.getSimulationOptions(), stepSize);
 				}
 			}
 		});
@@ -129,8 +127,8 @@ public class OptionsPanel extends JPanel {
 	public void setAllOptions(SimulationConfiguration config) {
 		stepSize = config.getSimulationRateHz();
 		simulationOptionsTab.setOptionsTab(config.getSimulationOptions(), stepSize);
-		displayOptionsTab.setOptionsTab(config.getDisplayOptions());
-		audioOptionsTab.setOptionsTab(config.getAudioOptions());
+		displayOptionsTab.setOptionsTab(config.getDisplayConfiguration());
+		audioOptionsTab.setOptionsTab(config.getAudioConfiguration());
 		cameraOptionsTab.setOptionsTab(config.getCameraConfiguration());
 	}
 	
