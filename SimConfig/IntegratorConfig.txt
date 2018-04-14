@@ -1,3 +1,0 @@
-startTime = 0.0
-dt = 0.02
-endTime = 100.0

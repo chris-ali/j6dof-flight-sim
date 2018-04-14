@@ -1,14 +1,4 @@
 {
-  "displayOptions" : {
-    "DISPLAY_WIDTH" : 1440,
-    "DISPLAY_HEIGHT" : 900,
-    "ANTI_ALIASING" : 0
-  },
-  "audioOptions" : {
-    "ENGINE_VOLUME" : 0.7,
-    "SYSTEMS_VOLUME" : 0.19,
-    "ENVIRONMENT_VOLUME" : 0.54
-  },
   "simulationOptions" : [ "UNLIMITED_FLIGHT", "USE_JOYSTICK" ],
   "initialConditions" : {
     "INITU" : 210.0,
@@ -28,7 +18,7 @@
   },
   "integratorConfig" : {
     "STARTTIME" : 0.0,
-    "DT" : 0.03333333333333333,
+    "DT" : 0.008333333333333333,
     "ENDTIME" : 100.0
   },
   "initialControls" : {
@@ -52,5 +42,22 @@
     "BRAKE_L" : 0.0,
     "BRAKE_R" : 0.0
   },
-  "selectedAircraft" : "TwinNavion"
+  "selectedAircraft" : "TwinNavion",
+  "displayConfiguration" : {
+    "useAntiAliasing" : false,
+    "anisotropicFiltering" : 0,
+    "displayHeight" : 900,
+    "displayWidth" : 1440
+  },
+  "audioConfiguration" : {
+    "engineVolume" : 0.54,
+    "systemsVolume" : 0.19,
+    "environmentVolume" : 0.54
+  },
+  "cameraConfiguration" : {
+    "mode" : "COCKPIT_2D",
+    "showPanel" : false,
+    "fieldOfView" : 85,
+    "initialConditions" : null
+  }
 }
