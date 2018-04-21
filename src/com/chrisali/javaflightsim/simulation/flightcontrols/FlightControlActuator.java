@@ -189,7 +189,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 	
 	/**
 	 * Standardizes rate of control deflection of keyboard and joystick button inputs regardless of the 
-	 * simulation update rate based on the {@link FlightControl} argument provided and the 
+	 * simulation update rate based on the {@link FlightControl} argument provided
 	 * 
 	 * @param type
 	 */
@@ -198,7 +198,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 		case AILERON:
 		case ELEVATOR:
 		case RUDDER:
-			return 0.12 * dt;
+			return 0.00012 / dt;
 		case THROTTLE_1:
 		case THROTTLE_2:
 		case THROTTLE_3:
@@ -211,9 +211,9 @@ public class FlightControlActuator implements ControlParameterActuator {
 		case MIXTURE_2:
 		case MIXTURE_3:
 		case MIXTURE_4:
-			return 0.5 * dt;
+			return 0.0005 / dt;
 		case FLAPS:
-			return 0.15 * dt;
+			return 0.00015 / dt;
 		default:
 			return 0;
 		}
