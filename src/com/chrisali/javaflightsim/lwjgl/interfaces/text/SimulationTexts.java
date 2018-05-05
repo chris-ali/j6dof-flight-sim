@@ -29,6 +29,7 @@ import org.lwjgl.util.vector.Vector3f;
 import com.chrisali.javaflightsim.lwjgl.entities.Camera;
 import com.chrisali.javaflightsim.lwjgl.entities.Entity;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
+import com.chrisali.javaflightsim.simulation.setup.CameraMode;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
@@ -63,7 +64,7 @@ public class SimulationTexts {
 		if (!config.getCameraConfiguration().isShowPanel()) {
 			texts.get("FlightData").setTextString(setTelemetryText(flightData));
 			
-			if (camera.isChaseView()) {
+			if (config.getCameraConfiguration().getMode() == CameraMode.CHASE) {
 				texts.get("Camera").setTextString(setCameraPosText(camera));
 				texts.get("Entity").setTextString(setOwnshipPosText(entity));
 			}

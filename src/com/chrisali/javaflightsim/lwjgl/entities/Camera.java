@@ -19,8 +19,12 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.lwjgl.entities;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector3f;
+
+import com.chrisali.javaflightsim.simulation.setup.CameraMode;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
  * Camera for the game engine, which needs an {@link Entity} as a reference to follow.
@@ -41,7 +45,7 @@ public class Camera {
 	private float mouseSensitivity = 0.1f;
 	
 	// Camera in relation to player/ownship
-	private float cameraDistanceToEntity;
+	private float cameraDistanceToEntity = 30.0f;
 	private float cameraToEntityPhi = 0.0f;
 	private float cameraToEntityTheta = 0.0f;
 	private float cameraToEntityPsi = 90.0f;
@@ -51,7 +55,6 @@ public class Camera {
 	 */
 	private float pitchOffset = 0.0f;
 	
-	private boolean isChaseView = false;
 	private Vector3f pilotPosition;
 	
 	private Entity entityToFollow;
@@ -72,6 +75,67 @@ public class Camera {
 	}
 	
 	/**
+	 * Translates and rotates the camera based on the entity's position and angles; these
+	 * values are then sent to the shader classes where OpenGL can draw the scene. <p />
+	 * 
+	 * Also reconfigures the camera mode depending on the Keyboard key press
+	 */
+	public void move(SimulationConfiguration configuration) {
+		reconfigureCamera(configuration);
+		
+		switch (configuration.getCameraConfiguration().getMode()) {
+		case CHASE:
+			moveChaseView();
+			break;
+		case COCKPIT_2D:
+			move2DCockpitView();
+			break;
+		case COCKPIT_3D:
+			move2DCockpitView();
+			break;
+		case FLYBY:
+			moveChaseView();
+			break;
+		default:
+			move2DCockpitView();
+			break;
+		}
+	}
+	
+	/**
+	 * Defines how the camera should move when the camera mode in {@link SimulationConfiguration} is set to
+	 * {@link CameraMode#CHASE}
+	 */
+	private void moveChaseView() {
+		cameraDistanceToEntity -= Mouse.getDWheel() * 0.05f;
+		
+		if(Mouse.isButtonDown(1)) {
+			cameraToEntityTheta += Mouse.getDY() * mouseSensitivity;
+			cameraToEntityPsi   += Mouse.getDX() * mouseSensitivity;
+		}
+		
+		calculateCameraPosition();
+		
+		roll   =  cameraToEntityPhi   % 180;
+		pitch  =  (cameraToEntityTheta + entityToFollow.getRotZ()) % 180;
+		yaw    = -(cameraToEntityPsi   + entityToFollow.getRotY()) % 360;
+	}
+	
+	/**
+	 * Defines how the camera should move when the camera mode in {@link SimulationConfiguration} is set to
+	 * {@link CameraMode#COCKPIT_2D}
+	 */
+	private void move2DCockpitView() {
+		position.x = entityToFollow.getPosition().x + pilotPosition.x;
+		position.y = entityToFollow.getPosition().y + pilotPosition.y;
+		position.z = entityToFollow.getPosition().z + pilotPosition.z;
+				
+		roll   = -entityToFollow.getRotX(); 
+		pitch  =  entityToFollow.getRotZ() + pitchOffset;
+		yaw    = -entityToFollow.getRotY() - 90;
+	}
+	
+	/**
 	 * Sets the position of the camera based on trigometric calculations performed in the XZ plane of
 	 * the entity
 	 */
@@ -88,34 +152,36 @@ public class Camera {
 	}
 	
 	/**
-	 * Translates and rotates the camera based on the entity's position and angles; these
-	 * values are then sent to the shader classes where OpenGL can draw the scene. <p />
+	 * Changes the camera mode when the following keys are pressed: <p/><p/>
 	 * 
-	 * If chase view is enabled, mouse inputs are tracked here to move/rotate/zoom the 
-	 * camera as needed
+	 * 7 - 2D Cockpit with instrument panel<p/>
+	 * 8 - 2D Cockpit with no instrument panel<p/>
+	 * 9 - Chase view
+	 * 
+	 * @param configuration
 	 */
-	public void move() {
-		if(isChaseView)  {
-			cameraDistanceToEntity -= Mouse.getDWheel() * 0.05f;
-			
-			if(Mouse.isButtonDown(1)) {
-				cameraToEntityTheta += Mouse.getDY() * mouseSensitivity;
-				cameraToEntityPsi   += Mouse.getDX() * mouseSensitivity;
-			}
-			
-			calculateCameraPosition();
-			
-			roll   =  cameraToEntityPhi   % 180;
-			pitch  =  (cameraToEntityTheta + entityToFollow.getRotZ()) % 180;
-			yaw    = -(cameraToEntityPsi   + entityToFollow.getRotY()) % 360;			
-		} else {
-			position.x = entityToFollow.getPosition().x + pilotPosition.x;
-			position.y = entityToFollow.getPosition().y + pilotPosition.y;
-			position.z = entityToFollow.getPosition().z + pilotPosition.z;
-					
-			roll   = -entityToFollow.getRotX(); 
-			pitch  =  entityToFollow.getRotZ() + pitchOffset;
-			yaw    = -entityToFollow.getRotY() - 90;
+	private void reconfigureCamera(SimulationConfiguration configuration) {
+		if (Keyboard.isKeyDown(Keyboard.KEY_7)) {
+			setPilotPosition(new Vector3f(0, 5, 0));
+			setPitchOffset(25);
+
+			configuration.getCameraConfiguration().setShowPanel(true);
+			configuration.getCameraConfiguration().setMode(CameraMode.COCKPIT_2D);
+			entityToFollow.setRender(false);
+		} else if (Keyboard.isKeyDown(Keyboard.KEY_8)) {
+			setPilotPosition(new Vector3f(0, 0, 0));
+			setPitchOffset(0);
+
+			configuration.getCameraConfiguration().setShowPanel(false);
+			configuration.getCameraConfiguration().setMode(CameraMode.COCKPIT_2D);
+			entityToFollow.setRender(false);
+		} else if (Keyboard.isKeyDown(Keyboard.KEY_9)) {
+			setPilotPosition(new Vector3f(0, 0, 0));
+			setPitchOffset(0);
+						
+			configuration.getCameraConfiguration().setShowPanel(false);
+			configuration.getCameraConfiguration().setMode(CameraMode.CHASE);
+			entityToFollow.setRender(true);
 		}
 	}
 	
@@ -160,20 +226,6 @@ public class Camera {
 	public void setYaw(float yaw) { this.yaw = yaw;	}
 
 	public void setMouseSensitivity(float mouseSensitivity) { this.mouseSensitivity = mouseSensitivity; }
-
-	public boolean isChaseView() { return isChaseView; }
-	
-	/**
-	 * Sets the camera to use the mouse to pan around if true, 
-	 * otherwise a fixed first person view is used
-	 * 
-	 * @param isChaseView
-	 */
-	public void setChaseView(boolean isChaseView) {
-		this.isChaseView = isChaseView;
-		cameraToEntityTheta = isChaseView ? 15f : 0f;
-		cameraDistanceToEntity = isChaseView ? 30.0f : 0.0f;
-	}
 
 	public Vector3f getPilotPosition() { return pilotPosition; }
 

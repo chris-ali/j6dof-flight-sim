@@ -29,6 +29,8 @@ public class Entity {
 	private float rotX, rotY, rotZ;
 	private float scale;
 	
+	private boolean render = true;
+	
 	private int textureIndex = 0;
 	
 	public Entity(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
@@ -113,5 +115,21 @@ public class Entity {
 
 	public void setScale(float scale) {
 		this.scale = scale;
+	}
+
+	/**
+	 * @return if this entity will be rendered using the render engine
+	 */
+	public boolean isRender() {
+		return render;
+	}
+
+	/**
+	 * Sets if this entity should be rendered by the render engine
+	 * 
+	 * @param render
+	 */
+	public void setRender(boolean render) {
+		this.render = render;
 	}
 }

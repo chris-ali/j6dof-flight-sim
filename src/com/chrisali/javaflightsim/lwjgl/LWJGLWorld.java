@@ -20,6 +20,7 @@
 package com.chrisali.javaflightsim.lwjgl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -62,7 +63,6 @@ import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
-import com.chrisali.javaflightsim.simulation.setup.CameraMode;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
@@ -94,7 +94,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	
 	// Interface
 	private SimulationTexts simTexts;
-	private List<InterfaceTexture> interfaceTextures;
+	private Map<String, List<InterfaceTexture>> interfaceTextures;
 	private InterfaceRenderer interfaceRenderer;
 	private InstrumentPanel panel;
 	
@@ -130,7 +130,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			
 			ParticleMaster.renderParticles(camera);
 			
-			interfaceRenderer.render(interfaceTextures);
+			interfaceRenderer.render(configuration, interfaceTextures);
 
 			TextMaster.render(simTexts.getTexts());
 						
@@ -240,16 +240,11 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			    								new ModelTexture(loader.loadTexture("airplane", OTWDirectories.ENTITIES.toString())));
 
 		ownship = new Ownship(airplane, configuration.getInitialConditions(), 1.25f);
+		entities.addToStaticEntities(ownship);
 		
 		logger.debug("Setting up camera...");
 		
-		// Camera tied to ownship as first person view
 		camera = new Camera(ownship);
-		camera.setChaseView(configuration.getCameraConfiguration().getMode() == CameraMode.CHASE);
-		
-		ownship.setScale(camera.isChaseView() ? 1.25f : 0f);
-
-		entities.addToStaticEntities(ownship);
 				
 		//================================= Terrain ==========================================================
 		
@@ -277,16 +272,10 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		simTexts = new SimulationTexts(new FontType(loader, "ubuntu"));
 		
 		// Instrument Panel and Gauges
-		interfaceTextures = new ArrayList<>();
+		interfaceTextures = new HashMap<String, List<InterfaceTexture>>();
 		panel = FileUtilities.readInstrumentPanelConfiguration(configuration.getSelectedAircraft());
-		
-		if (configuration.getCameraConfiguration().isShowPanel()) {				
-			interfaceTextures = panel.loadAndGetTextures(loader, configuration.getSelectedAircraft());
-			
-			camera.setPilotPosition(new Vector3f(0, 5, 0));
-			camera.setPitchOffset(25);
-		}
-				
+		interfaceTextures.put(InstrumentPanel.class.getSimpleName(), panel.loadAndGetTextures(loader, configuration.getSelectedAircraft()));
+
 		//==================================== Audio =========================================================
 		
 		logger.debug("Generating sound collection...");
@@ -319,7 +308,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			
 			// Ownship movement; let camera track ownhip 1-1 for now
 			ownship.move(receivedFlightData);
-			camera.move();
+			camera.move(configuration);
 
 			// Record flight data into text string to display on OTW screen 
 			simTexts.update(receivedFlightData, configuration, camera, ownship);

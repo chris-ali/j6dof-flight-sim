@@ -20,6 +20,7 @@
 package com.chrisali.javaflightsim.lwjgl.renderengine;
 
 import java.util.List;
+import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
@@ -27,11 +28,13 @@ import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 
+import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.InstrumentPanel;
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.lwjgl.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.models.RawModel;
 import com.chrisali.javaflightsim.lwjgl.shaders.InterfaceShader;
 import com.chrisali.javaflightsim.lwjgl.utilities.RenderingUtilities;
+import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 public class InterfaceRenderer {
 	
@@ -44,7 +47,7 @@ public class InterfaceRenderer {
 		shader = new InterfaceShader();
 	}
 	
-	public void render(List<InterfaceTexture> interfaceTextures) {
+	public void render(SimulationConfiguration configuration, Map<String, List<InterfaceTexture>> interfaceTextures) {
 		shader.start();
 		
 		GL30.glBindVertexArray(quad.getVaoID());
@@ -53,16 +56,21 @@ public class InterfaceRenderer {
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		GL11.glDisable(GL11.GL_DEPTH_TEST);
 		
-		for (InterfaceTexture interfaceTexture : interfaceTextures) {
-			GL13.glActiveTexture(GL13.GL_TEXTURE0);
-			GL11.glBindTexture(GL11.GL_TEXTURE_2D, interfaceTexture.getTexture());
+		for (Map.Entry<String, List<InterfaceTexture>> entry : interfaceTextures.entrySet()) {
+			if (!configuration.getCameraConfiguration().isShowPanel() && entry.getKey().matches(InstrumentPanel.class.getSimpleName()))
+				continue;
 			
-			Matrix4f matrix = RenderingUtilities.createTransformationMatrix(interfaceTexture.getPosition(),
-																			interfaceTexture.getRotation(),
-																			interfaceTexture.getScale());
-			shader.loadTransformation(matrix);
-			
-			GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
+			for (InterfaceTexture interfaceTexture : entry.getValue()) {
+				GL13.glActiveTexture(GL13.GL_TEXTURE0);
+				GL11.glBindTexture(GL11.GL_TEXTURE_2D, interfaceTexture.getTexture());
+				
+				Matrix4f matrix = RenderingUtilities.createTransformationMatrix(interfaceTexture.getPosition(),
+						interfaceTexture.getRotation(),
+						interfaceTexture.getScale());
+				shader.loadTransformation(matrix);
+				
+				GL11.glDrawArrays(GL11.GL_TRIANGLE_STRIP, 0, quad.getVertexCount());
+			}		
 		}
 		
 		GL11.glEnable(GL11.GL_DEPTH_TEST);

@@ -93,12 +93,20 @@ public class MasterRenderer {
 	 * @param clippingPlane
 	 */
 	public void renderWholeScene(EntityCollections entityCollection, TreeMap<String, Terrain> terrainTreeMap, List<Light> lights, Camera camera, Vector4f clippingPlane) {
-		// Process miscellaneous entities from entityCollention
-		for(Entity entity : entityCollection.getStaticEntities())
+		// Process miscellaneous entities from entityCollention only if they are set to be rendered
+		for(Entity entity : entityCollection.getStaticEntities()) {
+			if (!entity.isRender())
+				continue;
+			
 			processEntity(entity);
+		}
 		
-		for(Entity entity : entityCollection.getLitEntities())
+		for(Entity entity : entityCollection.getLitEntities()) { 
+			if (!entity.isRender())
+				continue;
+			
 			processEntity(entity);
+		}
 		
 		this.terrainTree = new TreeSet<>(terrainTreeMap.values());
 		
