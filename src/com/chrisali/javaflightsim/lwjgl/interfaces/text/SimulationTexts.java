@@ -67,7 +67,12 @@ public class SimulationTexts {
 			if (config.getCameraConfiguration().getMode() == CameraMode.CHASE) {
 				texts.get("Camera").setTextString(setCameraPosText(camera));
 				texts.get("Entity").setTextString(setOwnshipPosText(entity));
+			} else {
+				texts.get("Camera").setTextString("");
+				texts.get("Entity").setTextString("");
 			}
+		} else {
+			texts.get("FlightData").setTextString("");
 		}
 				
 		texts.get("Paused").setTextString(config.getSimulationOptions().contains(Options.PAUSED) ? "PAUSED" : "");

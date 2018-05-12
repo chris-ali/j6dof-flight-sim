@@ -63,6 +63,7 @@ import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
+import com.chrisali.javaflightsim.simulation.setup.CameraMode;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
@@ -240,6 +241,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			    								new ModelTexture(loader.loadTexture("airplane", OTWDirectories.ENTITIES.toString())));
 
 		ownship = new Ownship(airplane, configuration.getInitialConditions(), 1.25f);
+		ownship.setRender(configuration.getCameraConfiguration().getMode() == CameraMode.CHASE);
 		entities.addToStaticEntities(ownship);
 		
 		logger.debug("Setting up camera...");
