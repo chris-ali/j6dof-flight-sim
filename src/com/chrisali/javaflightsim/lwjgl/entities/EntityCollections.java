@@ -233,16 +233,9 @@ public class EntityCollections {
 	 * @param scale
 	 */
 	public void createStaticEntity(String entityName, float xPos, float zPos, float yRot, float scale) {
-		
-		TexturedModel staticEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, OTWDirectories.ENTITIES.toString(), loader), 
-														new ModelTexture(loader.loadTexture(entityName, OTWDirectories.ENTITIES.toString())));
 		float yPos = Terrain.getCurrentTerrain(terrainTree, xPos, zPos).getTerrainHeight(xPos, zPos);
 		
-		logger.debug("Generating a(n)" + entityName + " at: (" + xPos + ", " + yPos + ", " + zPos + ")...");
-
-		Vector3f position = new Vector3f(xPos, yPos, zPos);
-		
-		miscStaticEntities.add(new Entity(staticEntity, position, 0, yRot, 0, scale));
+		createStaticEntity(entityName, new Vector3f(xPos, yPos, zPos), 0, yRot, 0, scale);
 	}
 	
 	/**
@@ -253,13 +246,7 @@ public class EntityCollections {
 	 * @param scale
 	 */
 	public void createStaticEntity(String entityName, Player player, float scale) {
-		logger.debug("Generating a(n)" + entityName + " at the ownship's postion: (" + 
-					player.getPosition().x + ", " + player.getPosition().y + ", " + player.getPosition().z + ")...");
-		
-		TexturedModel staticEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, OTWDirectories.ENTITIES.toString(), loader), 
-														new ModelTexture(loader.loadTexture(entityName, OTWDirectories.ENTITIES.toString())));
-
-		miscStaticEntities.add(new Entity(staticEntity, player.getPosition(), player.getRotX(), player.getRotY(), player.getRotZ(), scale));
+		createStaticEntity(entityName, player.getPosition(), player.getRotX(), player.getRotY(), player.getRotZ(), scale);
 	}
 	
 	/**
@@ -308,17 +295,9 @@ public class EntityCollections {
 	 */
 	public void createLitEntity(String entityName, float xPos, float zPos, float yRot, float scale, 
 								 Vector3f color, Vector3f attenuation, Vector3f lightPosOffset) {
-		TexturedModel litEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, OTWDirectories.ENTITIES.toString(), loader), 
-													 new ModelTexture(loader.loadTexture(entityName, OTWDirectories.ENTITIES.toString())));
 		float yPos = Terrain.getCurrentTerrain(terrainTree, xPos, zPos).getTerrainHeight(xPos, zPos);
-		Vector3f position = new Vector3f(xPos, yPos, zPos);
 		
-		logger.debug("Generating a(n)" + entityName + " at: (" + xPos + ", " + yPos + ", " + zPos + ")...");
-		
-		miscLitEntities.add(new Entity(litEntity, position, 0, yRot, 0, scale));
-		
-		Light light = new Light(Vector3f.add(position, lightPosOffset, position), color, attenuation);
-		lights.add(light);
+		createLitEntity(entityName, new Vector3f(xPos, yPos, zPos), 0, yRot, 0, scale, color, attenuation, lightPosOffset);
 	}
 	
 	/**
@@ -336,17 +315,8 @@ public class EntityCollections {
 	 */
 	public void createLitEntity(String entityName, Player player, float scale, 
 								Vector3f color, Vector3f attenuation, Vector3f lightPosOffset) {
-		logger.debug("Generating a(n)" + entityName + " at the ownship's postion: (" + 
-					player.getPosition().x + ", " + player.getPosition().y + ", " + player.getPosition().z + ")...");
-		
-		TexturedModel litEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, OTWDirectories.ENTITIES.toString(), loader), 
-													 new ModelTexture(loader.loadTexture(entityName, OTWDirectories.ENTITIES.toString())));
-		Vector3f position = player.getPosition();
-		
-		miscLitEntities.add(new Entity(litEntity, position, player.getRotX(), player.getRotY(), player.getRotZ(), scale));
-		
-		Light light = new Light(Vector3f.add(position, lightPosOffset, position), color, attenuation);
-		lights.add(light);
+		createLitEntity(entityName, player.getPosition(), player.getRotX(), player.getRotY(), player.getRotZ(), 
+						scale, color, attenuation, lightPosOffset);
 	}
 	
 	public void addToStaticEntities(Entity entity) {

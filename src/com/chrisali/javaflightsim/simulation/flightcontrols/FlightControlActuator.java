@@ -95,8 +95,6 @@ public class FlightControlActuator implements ControlParameterActuator {
 				SimEvents.pauseUnpauseSimulation(isPressed(value));
 			} else if (parameter.equals(RESET_SIM)) {
 				SimEvents.resetSimulation(isPressed(value));
-			} else if (parameter.equals(EXIT_SIMULATION)) {
-				if (isPressed(value)) SimEvents.stopSimulation();
 			} else if (parameter.equals(GENERATE_PLOTS)) {
 				if (isPressed(value)) SimEvents.plotSimulation();
 			} 

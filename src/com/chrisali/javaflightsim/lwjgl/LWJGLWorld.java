@@ -28,6 +28,7 @@ import java.util.TreeMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -140,7 +141,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			logger.error("Error encountered while running LWJGL display!", e);
 		}
 		
-		if(Display.isCloseRequested()) {
+		if(Display.isCloseRequested() || Keyboard.isKeyDown(Keyboard.KEY_Q)) {
 			fireWindowClosed();
 			cleanUp();
 		}
