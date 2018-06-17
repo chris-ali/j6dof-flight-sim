@@ -1,5 +1,5 @@
-# j6dof-flight-sim 
-JavaFlightSim - A Six Degree of Freedom (6DOF) Flight Simulator Written in Java by Chris Ali
+# Java Flight Simulator 
+*A Six Degree of Freedom (6DOF) Flight Simulator Written in Java by Chris Ali*
 
 This program was written to apply my knowledge and background in Flight Dynamics to build my Java language skills. It can run as a simple analysis tool for flight dynamics, as well as a real time simulation for pilot-in-the-loop use. When configured as a pilot in the loop simulation, a LWJGL out-the-window display opens and the user can control the simulation using a joystick, keyboard or mouse.
 
