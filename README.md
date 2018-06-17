@@ -5,6 +5,15 @@ This program was written to apply my knowledge and background in Flight Dynamics
 
 One day I'd like to tie objectives or a scoring element into the simulation to make it a game as well.
 
+
+![flight1](https://user-images.githubusercontent.com/15899769/41509534-5f47bc40-7223-11e8-8ef0-eb4707c23bf7.PNG)
+
+![flight2](https://user-images.githubusercontent.com/15899769/41509536-637cc350-7223-11e8-8c19-971704a33a87.PNG)
+
+![flight3](https://user-images.githubusercontent.com/15899769/41509537-66a0b2b2-7223-11e8-9ce8-05e963e096f6.PNG)
+
+![analysis](https://user-images.githubusercontent.com/15899769/41509538-6cc8fdd4-7223-11e8-8b62-106062c8bda4.PNG)
+
 ## Assumptions and Simplifications
 -JavaFlightSim assumes a non-rotating Earth.
  
