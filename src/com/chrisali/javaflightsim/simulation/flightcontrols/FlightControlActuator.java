@@ -16,6 +16,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 	
 	FlightControlsState controlsState;
 	
+	// Scales the values in getRate() depending on the rate the simulation is running at
 	private double dt = 0.05;
 	
 	// Add trim values to getDeflection() to emulate trim deflections
@@ -26,6 +27,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 	
 	// Keep track if button is pressed, so events occur only once if button held down 
 	private boolean gearPressed = false;
+	private boolean gearLeverDown = false;
 	
 	// If true, don't directly calculate controls; use a transient value 
 	private boolean useTransientLag = true;
@@ -35,12 +37,14 @@ public class FlightControlActuator implements ControlParameterActuator {
 		
 		this.controlsState = controlsState;
 		
+		gearLeverDown = controlsState.get(GEAR) == 1.0;
+		
 		trimAileron  = controlsState.getTrimValue(AILERON);
 		trimElevator = controlsState.getTrimValue(ELEVATOR);
 		trimRudder   = controlsState.getTrimValue(RUDDER);
 	}
 	
-	// Need to find a better way of selecting the right method to call
+	// TODO Need to find a better way of selecting the right method to call
 	@Override
 	public void handleParameterChange(ControlParameter parameter, float value) {
 		if(parameter.isRelative()) {
@@ -138,6 +142,8 @@ public class FlightControlActuator implements ControlParameterActuator {
 				lever(THROTTLE_4, value);
 			}
 		}
+		
+		continuous(GEAR, gearLeverDown ? GEAR.getMinimum() : GEAR.getMaximum());
 	}
 		
 	/**
@@ -157,7 +163,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 		double desiredValue = (value <= 0) ? (controlType.getMaximum()*Math.abs(value)) : (controlType.getMinimum()*value);   
 						
 		// Scale the rate as desired and transient values near each other
-		double rateScale = 0.125; //Math.abs((desiredValue - transientValue) / (value <= 0 ? controlType.getMaximum() : controlType.getMinimum())); //
+		double rateScale = 0.125;
 		
 		transientValue += (desiredValue - transientValue) * rateScale;
 			
@@ -212,6 +218,8 @@ public class FlightControlActuator implements ControlParameterActuator {
 			return 0.0005 / dt;
 		case FLAPS:
 			return 0.00015 / dt;
+		case GEAR:
+			return 0.000015 / dt;
 		default:
 			return 0;
 		}
@@ -260,35 +268,42 @@ public class FlightControlActuator implements ControlParameterActuator {
 		controlsState.set(type, -(value-1)/2);
 	}
 	
+	/**
+	 * Certain controls (flaps, gear, etc) continously, gradually actuate until they reach their desired position
+	 * 
+	 * @param type
+	 * @param desiredValue
+	 */
+	private void continuous(FlightControl type, double desiredValue) {
+		double currentValue = controlsState.get(type);
+		
+		if (currentValue != desiredValue && desiredValue > type.getMinimum())
+			controlsState.set(type, (currentValue -= getRate(type)));
+		else if (currentValue != desiredValue && desiredValue < type.getMaximum()) 
+			controlsState.set(type, (currentValue += getRate(type)));
+	}
+	
 	/** 
-	 * Cycles Landing Gear Down/Up. Use gearPressed to prevent numerous cycles of gear up/down if key held down;
-	 * need to release key to extend or retract gear again
+	 * Cycles Landing Gear Down/Up. Uses gearPressed so that the key needs to be released to extend or retract gear again
 	 * 
 	 * @param controls
 	 * @param buttonPressed
 	 */
 	private void cycleGear(boolean buttonPressed) {
-		if (!gearPressed && controlsState.get(GEAR) < 0.5) {
-			if(buttonPressed) {
-				controlsState.set(GEAR, 1.0);
-				gearPressed = true;
-			}
-		} else if (!gearPressed && controlsState.get(GEAR) > 0.5) {
-			if(buttonPressed) {
-				controlsState.set(GEAR, 0.0);
-				gearPressed = true;
-			}
+		if (!gearPressed && buttonPressed) {
+			gearLeverDown = gearLeverDown ? false : true;
+			gearPressed = true;
 		} else if (gearPressed && !buttonPressed) {
 			gearPressed = false;
 		}
 	}
 	
 	private void retractGear() {
-		controlsState.set(GEAR, GEAR.getMinimum());	
+		gearLeverDown = false;
 	}
 
 	private void extendGear() {
-		controlsState.set(GEAR, GEAR.getMaximum());
+		gearLeverDown = true;
 	}
 
 	private void retractFlaps() {
