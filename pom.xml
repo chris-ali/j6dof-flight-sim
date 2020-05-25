@@ -28,7 +28,16 @@
 	<properties>
 		<finalName>${project.artifactId}-${project.version}.jar</finalName>
 		<main.class>com.chrisali.javaflightsim.RunJavaFlightSimulator</main.class>
+		<jme3_g>org.jmonkeyengine</jme3_g>
+    	<jme3_v>3.2.0-stable</jme3_v>
 	</properties>
+
+	<repositories>
+		<repository>
+		  <id>jcenter</id>
+		  <url>https://jcenter.bintray.com</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -195,5 +204,27 @@
 		  <version>4.12</version>
 		  <scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>${jme3_g}</groupId>
+			<artifactId>jme3-core</artifactId>
+			<version>${jme3_v}</version>
+		  </dependency>
+		  <dependency>
+			<groupId>${jme3_g}</groupId>
+			<artifactId>jme3-desktop</artifactId>
+			<version>${jme3_v}</version>
+			<scope>runtime</scope>
+		  </dependency>
+		  <dependency>
+			<groupId>${jme3_g}</groupId>
+			<artifactId>jme3-lwjgl</artifactId>
+			<version>${jme3_v}</version>
+		  </dependency>
+		  <dependency>
+			<groupId>${jme3_g}</groupId>
+			<artifactId>jme3-terrain</artifactId>
+			<version>${jme3_v}</version>
+		  </dependency>
 	</dependencies>
 </project>
