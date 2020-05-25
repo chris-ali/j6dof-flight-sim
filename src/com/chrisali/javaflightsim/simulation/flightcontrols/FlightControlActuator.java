@@ -226,7 +226,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 	}
 
 	/**
-	 * Configures the actuator to consider transient lagn when calculating the control deflection 
+	 * Configures the actuator to consider transient lag when calculating the control deflection 
 	 * 
 	 * @param useTransientLag
 	 */

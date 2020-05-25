@@ -8,6 +8,7 @@
 *.log
 *.txt
 *.dll
+*.so
 .factorypath
 *.json
 /target/

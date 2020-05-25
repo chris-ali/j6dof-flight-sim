@@ -33,6 +33,7 @@ package com.chrisali.javaflightsim.tests;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
+import com.jme3.asset.plugins.ZipLocator;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
@@ -98,6 +99,7 @@ public class TestJMEWorld extends SimpleApplication {
         setupKeys();
 
         // First, we load up our textures and the heightmap texture for the terrain
+        assetManager.registerLocator("assets.zip", ZipLocator.class);
 
         // TERRAIN TEXTURE material
         matTerrain = new Material(assetManager, "Common/MatDefs/Terrain/TerrainLighting.j3md");
