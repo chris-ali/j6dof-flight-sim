@@ -98,7 +98,7 @@ public class JoystickVisitor implements InputDeviceVisitor {
 				
 				// Joystick Axes
 				if(axisAssignments != null){
-					JoystickAxis axis = axisAssignments.get(componentName);
+					JoystickAxis axis = axisAssignments.get(componentName.toUpperCase());
 					
 					if(axis != null)					
 						actuator.handleParameterChange(axis.getAxisAssignment(), pollValue);				
