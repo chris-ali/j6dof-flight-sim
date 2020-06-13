@@ -1,5 +1,8 @@
 /.settings/
+/.vscode/
 /bin/
+/target/
+/natives/
 /Release/
 *.jar
 *.exe
@@ -10,6 +13,3 @@
 *.dll
 *.so
 .factorypath
-*.json
-/target/
-/natives/
