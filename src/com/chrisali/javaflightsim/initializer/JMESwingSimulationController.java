@@ -24,47 +24,39 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.chrisali.javaflightsim.interfaces.SimulationController;
-import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
-import com.chrisali.javaflightsim.simulation.SimulationRunner;
+import com.chrisali.javaflightsim.simulation.SimulationStepper;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
-import com.chrisali.javaflightsim.swing.GuiFrame;
 import com.chrisali.javaflightsim.swing.consoletable.ConsoleTablePanel;
 import com.chrisali.javaflightsim.swing.plotting.PlotWindow;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Controls the configuration and running of processes supporting the simulation component of JavaFlightSim. This consists of: 
  * <p>The simulation engine that integrates the 6DOF equations ({@link Integrate6DOFEquations})</p>
- * <p>Initialization and control of the LWJGL out the window (OTW) world ({@link LWJGLWorld})</p>
- * <p>Initializing the Swing GUI menus</p>
  * <p>Plotting of the simulation states and data ({@link PlotWindow})</p>
  * <p>Raw data display of simulation states ({@link ConsoleTablePanel})</p>
  * 
  * @author Christopher Ali
  *
  */
-public class LWJGLSwingSimulationController implements SimulationController {
+public class JMESwingSimulationController implements SimulationController {
 	
 	//Logging
-	private static final Logger logger = LogManager.getLogger(LWJGLSwingSimulationController.class);
+	private static final Logger logger = LogManager.getLogger(JMESwingSimulationController.class);
 	
 	// Configuration
 	private SimulationConfiguration configuration;
 	
-	// Simulation and Threads
-	private SimulationRunner runner;
-	private Thread runnerThread;
-	
-	// Menus and Integrated Simulation Window
-	private GuiFrame guiFrame;
-	
+	// Simulation
+	private SimulationStepper stepper;
+		
 	// Plotting
 	private PlotWindow plotWindow;
 	
@@ -74,9 +66,8 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	/**
 	 * Initializes initial settings, configurations and conditions to be edited through menu options
 	 */
-	public LWJGLSwingSimulationController(SimulationConfiguration configuration) {
+	public JMESwingSimulationController(SimulationConfiguration configuration) {
 		this.configuration = configuration;
-		guiFrame = new GuiFrame(this);
 	}
 	
 	//============================== Configuration =========================================================
@@ -90,12 +81,12 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	//=============================== Simulation ===========================================================
 
 	/**
-	 * Initializes, trims and starts the flight controls, simulation (and flight and environment data, if selected) threads.
+	 * Initializes, trims and starts the flight controls, simulation, and flight/environment data steppers.
 	 * Depending on options specified, a console panel and/or plot window will also be initialized and opened 
 	 */
 	@Override
 	public void startSimulation() {
-		if (runner != null && runner.isRunning()) {
+		if (stepper != null && stepper.isRunning()) {
 			logger.warn("Simulation is already running! Please wait until it has finished");
 			return;
 		}
@@ -107,26 +98,18 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		logger.debug("Trimming aircraft...");
 		Trimming.trimSim(configuration, false);
 		
-		logger.debug("Initializing simulation runner...");
-		runner = new SimulationRunner(this);
-
-		logger.debug("Initializaing and starting simulation runner thread...");
-		runnerThread = new Thread(runner);
-		runnerThread.start();
+		logger.debug("Initializing simulation stepper...");
+		stepper = new SimulationStepper(this);
 	}
 	
 	/**
-	 * Stops simulation and data transfer threads (if running), closes the raw data {@link ConsoleTablePanel},
-	 * {@link SimulationWindow}, and opens the main menus window again
+	 * Stops simulation stepping
 	 */
 	@Override
 	public void stopSimulation() {
 		logger.debug("Stopping simulation...");
 
-		runner.setRunning(false);	
-		
-		logger.debug("Returning to menus...");
-		guiFrame.setVisible(true);
+		stepper.setRunning(false);
 	}
 
 	/**
@@ -134,7 +117,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	@Override
 	public boolean isSimulationRunning() {
-		return (runner != null && runner.isRunning());
+		return (stepper != null && stepper.isRunning());
 	}
 	
 	/**
@@ -142,14 +125,14 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 * @see SimOuts
 	 */
 	public List<Map<SimOuts, Double>> getLogsOut() {
-		return (runner != null && runner.isRunning()) ? runner.getSimulation().getLogsOut() : null;
+		return (stepper != null && stepper.isRunning()) ? stepper.getSimulation().getLogsOut() : null;
 	}
 	
 	/**
 	 * @return if simulation was able to clear data kept in logsOut
 	 */
 	public boolean clearLogsOut() {
-		return (runner != null && runner.isRunning()) ? runner.getSimulation().clearLogsOut() : false;
+		return (stepper != null && stepper.isRunning()) ? stepper.getSimulation().clearLogsOut() : false;
 	}
 		
 	//=============================== Plotting =============================================================
@@ -217,9 +200,10 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 * @param file
 	 * @throws IOException
 	 */
+	@Override
 	public void saveConsoleOutput(File file) throws IOException {
 		logger.debug("Saving console output to: " + file.getAbsolutePath());
 		
-		FileUtilities.saveToCSVFile(file, runner.getSimulation().getLogsOut());
+		FileUtilities.saveToCSVFile(file, stepper.getSimulation().getLogsOut());
 	}
 }
