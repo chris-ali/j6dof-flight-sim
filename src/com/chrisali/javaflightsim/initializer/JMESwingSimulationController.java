@@ -124,6 +124,7 @@ public class JMESwingSimulationController implements SimulationController {
 	 * @return ArrayList of simulation output data 
 	 * @see SimOuts
 	 */
+	@Override
 	public List<Map<SimOuts, Double>> getLogsOut() {
 		return (stepper != null && stepper.isRunning()) ? stepper.getSimulation().getLogsOut() : null;
 	}
@@ -131,6 +132,7 @@ public class JMESwingSimulationController implements SimulationController {
 	/**
 	 * @return if simulation was able to clear data kept in logsOut
 	 */
+	@Override
 	public boolean clearLogsOut() {
 		return (stepper != null && stepper.isRunning()) ? stepper.getSimulation().clearLogsOut() : false;
 	}
