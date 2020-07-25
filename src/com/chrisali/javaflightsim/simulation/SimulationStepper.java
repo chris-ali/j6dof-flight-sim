@@ -29,8 +29,8 @@ import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
+import com.chrisali.javaflightsim.simulation.flightcontrols.ExternalFlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -51,7 +51,7 @@ public class SimulationStepper {
 	private static final Logger logger = LogManager.getLogger(SimulationStepper.class);
 	private static final int TO_MILLISEC = 1000;
 
-	private FlightControlsStateManager flightControlsManager;
+	private ExternalFlightControlsStateManager flightControlsManager;
 	private Integrate6DOFEquations simulation;
 	
 	private FlightData flightData;
@@ -83,7 +83,7 @@ public class SimulationStepper {
 		frameStepMS = (int) (integratorConfig.get(IntegratorConfig.DT) * TO_MILLISEC);
 		
 		logger.debug("Initializing flight controls manager...");
-		flightControlsManager = new FlightControlsStateManager(simController, timeMS);
+		flightControlsManager = new ExternalFlightControlsStateManager(simController, timeMS);
 		
 		logger.debug("Initializing simulation...");
 		simulation = new Integrate6DOFEquations(flightControlsManager.getControlsState(), configuration);
@@ -95,7 +95,7 @@ public class SimulationStepper {
 
 		logger.debug("Initializing environment data transfer...");
 		environmentData = new EnvironmentData(outTheWindow);
-		environmentData.addEnvironmentDataListener(simulation);	
+		environmentData.addEnvironmentDataListener(simulation);
 		*/
 
 		if (options.contains(Options.CONSOLE_DISPLAY))
@@ -105,7 +105,7 @@ public class SimulationStepper {
 	/**
 	 * Main call where {@link Steppable} components are step updated each time this is called depending on the current value of time
 	 */
-	public void step() {			
+	public void stepAll() {			
 		if (!running)
 			return;
 
@@ -122,7 +122,7 @@ public class SimulationStepper {
 			
 			if (environmentData != null && environmentData.canStepNow(timeMS.get()))
 				environmentData.step();
-			
+
 			timeMS.addAndGet(frameStepMS);
 		} catch (Exception ez) {
 			logger.error("Exception encountered while iteration of simulation. Attempting to continue...", ez);
@@ -136,7 +136,7 @@ public class SimulationStepper {
 	 */
 	public void addFlightDataListener(FlightDataListener listener) {
 		if (flightData != null) 
-			flightData.addFlightDataListener(listener);
+			flightData.addListener(listener);
 	}
 	
 	/**
@@ -146,7 +146,7 @@ public class SimulationStepper {
 	 */
 	public void addEnvironmentDataListener(EnvironmentDataListener listener) {
 		if (environmentData != null) 
-			environmentData.addEnvironmentDataListener(listener);
+			environmentData.addListener(listener);
 	}
 		
 	public Integrate6DOFEquations getSimulation() { return simulation; }

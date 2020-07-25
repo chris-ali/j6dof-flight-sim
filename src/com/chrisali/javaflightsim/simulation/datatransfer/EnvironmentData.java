@@ -30,12 +30,11 @@ import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.interfaces.OTWWorld;
 import com.chrisali.javaflightsim.interfaces.Steppable;
-import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 /**
- *	Interacts with {@link LWJGLWorld} and any registered listeners to pass data from the out the window display back to
- *	the simulation {@link Integrate6DOFEquations}. Uses threading to obtain data at a reasonable rate
+ *	Interacts with {@link OTWWorld} and any registered listeners to pass data from the out the window display back to
+ *	the simulation {@link Integrate6DOFEquations}. Relatively thread safe.
  */
 public class EnvironmentData implements Steppable {
 	
@@ -46,12 +45,6 @@ public class EnvironmentData implements Steppable {
 	private OTWWorld outTheWindow;
 	private List<EnvironmentDataListener> dataListenerList;
 	
-	/**
-	 * Creates an instance of {@link EnvironmentData} with a reference to {@link LWJGLWorld} so
-	 * that the thread in this class knows when the out the window display is running
-	 * 
-	 * @param outTheWindow
-	 */
 	public EnvironmentData(OTWWorld outTheWindow) {
 		this.outTheWindow = outTheWindow;
 		this.dataListenerList = new ArrayList<>();
@@ -60,7 +53,7 @@ public class EnvironmentData implements Steppable {
 	public Map<EnvironmentDataType, Double> getEnvironmentData() { return environmentData; }
 	
 	/**
-	 * Polls simOut for data, and assigns and converts the values needed to the flightData EnumMap  
+	 * Polls OTW for environment data, then assigns and converts the values needed for the environmentData EnumMap  
 	 * 
 	 * @param simOut
 	 */
@@ -80,7 +73,7 @@ public class EnvironmentData implements Steppable {
 	@Override
 	public void step() {
 		try {
-			if(outTheWindow != null)
+			if (outTheWindow != null)
 				updateData(outTheWindow.getTerrainHeight());
 		} catch (Exception e) {
 			logger.error("Exception encountered while running environment data listener!", e);
@@ -89,17 +82,17 @@ public class EnvironmentData implements Steppable {
 	
 	/**
 	 * Adds a listener that implements {@link EnvironmentDataListener} to a list of listeners that can listen
-	 * to {@link NewEnvironmentData} 
+	 * to {@link EnvironmentData} 
 	 * 
 	 * @param dataListener
 	 */
-	public void addEnvironmentDataListener(EnvironmentDataListener dataListener) {
+	public void addListener(EnvironmentDataListener dataListener) {
 		logger.debug("Adding environment data listener: " + dataListener.getClass());
 		dataListenerList.add(dataListener);
 	}
 	
 	/**
-	 * Lets registered listeners know that data has arrived from the {@link LWJGLWorld} thread
+	 * Lets registered listeners know that data has arrived from {@link OTWWorld}
 	 * so that they can use it as needed
 	 */
 	private void fireDataArrived() {

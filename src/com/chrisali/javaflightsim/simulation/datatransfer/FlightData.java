@@ -35,7 +35,7 @@ import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
  *	Interacts with {@link Integrate6DOFEquations} and any registered listeners to pass flight data from the simulation
- *	listeners. Uses threading to obtain data from the simulation at a reasonable rate
+ *	listeners. Relatively thread safe.
  */
 public class FlightData implements Steppable {
 	
@@ -45,13 +45,7 @@ public class FlightData implements Steppable {
 	
 	private Integrate6DOFEquations simulation;
 	private List<FlightDataListener> dataListenerList;
-	
-	/**
-	 * Creates an instance of {@link FlightData} with a reference to {@link Integrate6DOFEquations} so
-	 * that the thread in this class knows when the simulation is running
-	 * 
-	 * @param simulation
-	 */
+
 	public FlightData(Integrate6DOFEquations simulation) {
 		this.simulation = simulation;
 		this.dataListenerList = new ArrayList<>();
@@ -122,17 +116,17 @@ public class FlightData implements Steppable {
 	
 	/**
 	 * Adds a listener that implements {@link FlightDataListener} to a list of listeners that can listen
-	 * to {@link NewFlightData} 
+	 * to {@link FlightData} 
 	 * 
 	 * @param dataListener
 	 */
-	public void addFlightDataListener(FlightDataListener dataListener) {
+	public void addListener(FlightDataListener dataListener) {
 		logger.debug("Adding flight data listener: " + dataListener.getClass());
 		dataListenerList.add(dataListener);
 	}
 	
 	/**
-	 * Lets registered listeners know that data has arrived from the {@link Integrate6DOFEquations} thread
+	 * Lets registered listeners know that data has arrived from {@link Integrate6DOFEquations}
 	 * so that they can use it as needed
 	 */
 	private void fireDataArrived() {

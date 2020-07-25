@@ -129,11 +129,11 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 
 			logger.debug("Initializing flight data transfer...");
 			flightData = new FlightData(simulation);
-			flightData.addFlightDataListener(outTheWindow);
+			flightData.addListener(outTheWindow);
 
 			logger.debug("Initializing environment data transfer...");
 			environmentData = new EnvironmentData(outTheWindow);
-			environmentData.addEnvironmentDataListener(simulation);		
+			environmentData.addListener(simulation);		
 		}
 	}
 	
@@ -198,7 +198,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 	 */
 	public void addFlightDataListener(FlightDataListener listener) {
 		if (flightData != null) 
-			flightData.addFlightDataListener(listener);
+			flightData.addListener(listener);
 	}
 	
 	/**
@@ -208,7 +208,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 	 */
 	public void addEnvironmentDataListener(EnvironmentDataListener listener) {
 		if (environmentData != null) 
-			environmentData.addEnvironmentDataListener(listener);
+			environmentData.addListener(listener);
 	}
 		
 	public Integrate6DOFEquations getSimulation() { return simulation; }
