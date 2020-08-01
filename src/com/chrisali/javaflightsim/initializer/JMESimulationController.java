@@ -46,10 +46,10 @@ import org.apache.logging.log4j.Logger;
  * @author Christopher Ali
  *
  */
-public class JMESwingSimulationController implements SimulationController {
+public class JMESimulationController implements SimulationController {
 	
 	//Logging
-	private static final Logger logger = LogManager.getLogger(JMESwingSimulationController.class);
+	private static final Logger logger = LogManager.getLogger(JMESimulationController.class);
 	
 	// Configuration
 	private SimulationConfiguration configuration;
@@ -66,7 +66,7 @@ public class JMESwingSimulationController implements SimulationController {
 	/**
 	 * Initializes initial settings, configurations and conditions to be edited through menu options
 	 */
-	public JMESwingSimulationController(SimulationConfiguration configuration) {
+	public JMESimulationController(SimulationConfiguration configuration) {
 		this.configuration = configuration;
 	}
 	

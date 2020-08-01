@@ -25,22 +25,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.interfaces.Steppable;
+import com.chrisali.javaflightsim.simulation.flightcontrols.ExternalFlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
-import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
- *	Interacts with any registered listeners to pass input data from keyboards or controllers 
- *  into the simulation {@link Integrate6DOFEquations}. Relatively thread safe.
+ *	Container of input data from external keyboards or controllers 
+ *  into the simulation using {@link ExternalFlightControlsStateManager}. Relatively thread safe.
  */
-public class InputData implements Steppable {
-	
-	private static final Logger logger = LogManager.getLogger(InputData.class);
-	
+public class InputData {
+
 	/**
 	 * Map of Joystick axis commands and their respective values
 	 */
@@ -51,25 +45,21 @@ public class InputData implements Steppable {
 	 */ 
 	private List<KeyCommand> keyCommands = Collections.synchronizedList(new ArrayList<KeyCommand>());
 
-	private List<InputDataListener> dataListenerList;
-
-	public InputData() {
-		this.dataListenerList = new ArrayList<>();
-	}
+	public InputData() {}
 
 	/**
-	 * Thread safely assigns values needed for list of KeyCommands   
+	 * Thread safely adds new KeyCommand that has been pressed since last polled
 	 * 
 	 * @param command
 	 */
-	public void updateKeyCommands(KeyCommand command) {
+	public void addKeyPressed(KeyCommand command) {
 		synchronized (keyCommands) {
 			keyCommands.add(command);
 		}
 	}
 
 	/**
-	 * Thread safely assigns values needed for map of Joystick Inputs
+	 * Thread safely assigns values of map of Joystick Inputs
 	 * 
 	 * @param axis
 	 * @param value
@@ -79,51 +69,12 @@ public class InputData implements Steppable {
 			joystickInputs.put(axis, value);
 		}
 	}
-		
-	@Override
-	public boolean canStepNow(int simTimeMS) {
-		return simTimeMS % 1 == 0;
+
+	public Map<FlightControl, Float> getJoystickInputs() { 
+		return joystickInputs; 
 	}
 
-	@Override
-	public void step() {
-		try {
-			fireDataArrived();
-
-			synchronized (keyCommands) {
-				keyCommands.clear();
-			}
-
-			synchronized (joystickInputs) {
-				joystickInputs.clear();
-			}
-		} catch (Exception e) {
-			logger.error("Exception encountered while stepping input data!", e);
-		}
+	public List<KeyCommand> getKeyCommands() { 
+		return keyCommands; 
 	}
-	
-	/**
-	 * Adds a listener that implements {@link InputDataListener} to a list of listeners that can listen
-	 * to {@link InputData} 
-	 * 
-	 * @param dataListener
-	 */
-	public void addListener(InputDataListener dataListener) {
-		logger.debug("Adding input data listener: " + dataListener.getClass());
-		dataListenerList.add(dataListener);
-	}
-	
-	/**
-	 * Lets registered listeners know that input data has arrived from so that they can use it as needed
-	 */
-	private void fireDataArrived() {
-		for (InputDataListener listener : dataListenerList) {
-			if(listener != null) 
-				listener.onInputDataReceived(this);
-		}
-	}
-
-	public Map<FlightControl, Float> getJoystickInputs() { return joystickInputs; }
-
-	public List<KeyCommand> getKeyCommands() { return keyCommands; }
 }

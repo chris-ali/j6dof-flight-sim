@@ -28,26 +28,21 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.interfaces.Steppable;
-import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
- *	Interacts with {@link Integrate6DOFEquations} and any registered listeners to pass flight data from the simulation
- *	listeners. Relatively thread safe.
+ *	Passes converted flight data from the simulation to any registered listeners. Relatively thread safe.
  */
-public class FlightData implements Steppable {
+public class FlightData {
 	
 	private static final Logger logger = LogManager.getLogger(FlightData.class);
 	
 	private Map<FlightDataType, Double> flightData = Collections.synchronizedMap(new EnumMap<FlightDataType, Double>(FlightDataType.class));
 	
-	private Integrate6DOFEquations simulation;
 	private List<FlightDataListener> dataListenerList;
 
-	public FlightData(Integrate6DOFEquations simulation) {
-		this.simulation = simulation;
+	public FlightData() {
 		this.dataListenerList = new ArrayList<>();
 	}
 	
@@ -98,25 +93,9 @@ public class FlightData implements Steppable {
 		
 		fireDataArrived();
 	}
-		
-	@Override
-	public boolean canStepNow(int simTimeMS) {
-		return simTimeMS % 1 == 0;
-	}
 
-	@Override
-	public void step() {
-		try {
-			if(simulation.getSimOut() != null)
-				updateData(simulation.getSimOut());
-		} catch (Exception ez) {
-			logger.error("Exception encountered in Flight Data Listener!", ez);
-		}
-	}
-	
 	/**
-	 * Adds a listener that implements {@link FlightDataListener} to a list of listeners that can listen
-	 * to {@link FlightData} 
+	 * Adds a {@link FlightDataListener} to a list that can listen for {@link FlightData} 
 	 * 
 	 * @param dataListener
 	 */
@@ -126,8 +105,7 @@ public class FlightData implements Steppable {
 	}
 	
 	/**
-	 * Lets registered listeners know that data has arrived from {@link Integrate6DOFEquations}
-	 * so that they can use it as needed
+	 * Lets registered listeners know that data has arrived so that they can use it as needed
 	 */
 	private void fireDataArrived() {
 		for (FlightDataListener listener : dataListenerList) {

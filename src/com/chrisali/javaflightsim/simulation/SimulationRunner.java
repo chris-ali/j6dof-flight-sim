@@ -30,8 +30,6 @@ import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.lwjgl.events.WindowClosedListener;
-import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
-import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
@@ -60,7 +58,6 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 	private LWJGLWorld outTheWindow;
 	
 	private FlightData flightData;
-	private EnvironmentData environmentData;
 	
 	private Map<IntegratorConfig, Double> integratorConfig;
 	private Set<Options> options;	
@@ -125,15 +122,12 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 			logger.debug("Initializing LWJGL world...");
 			outTheWindow = new LWJGLWorld(simController);
 			outTheWindow.addWindowClosedListener(this);
+			outTheWindow.addEnvironmentDataListener(simulation);
 			outTheWindow.init();
 
 			logger.debug("Initializing flight data transfer...");
-			flightData = new FlightData(simulation);
+			flightData = new FlightData();
 			flightData.addListener(outTheWindow);
-
-			logger.debug("Initializing environment data transfer...");
-			environmentData = new EnvironmentData(outTheWindow);
-			environmentData.addListener(simulation);		
 		}
 	}
 	
@@ -158,12 +152,9 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 				if (simulation.canStepNow(timeMS.get()))
 					simulation.step();
 				
-				if (flightData != null && flightData.canStepNow(timeMS.get()))
-					flightData.step();
-				
-				if (environmentData != null && environmentData.canStepNow(timeMS.get()))
-					environmentData.step();
-				
+				if (flightData != null)
+					flightData.updateData(simulation.getSimOut());
+
 				if (outTheWindow != null && outTheWindow.canStepNow(timeMS.get()))
 					outTheWindow.step();
 				
@@ -201,24 +192,12 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 			flightData.addListener(listener);
 	}
 	
-	/**
-	 * Adds {@link EnvironmentDataListener} objects external to {@link SimulationRunner} to environmentDataListener's listener list
-	 * 
-	 * @param listener
-	 */
-	public void addEnvironmentDataListener(EnvironmentDataListener listener) {
-		if (environmentData != null) 
-			environmentData.addListener(listener);
-	}
-		
 	public Integrate6DOFEquations getSimulation() { return simulation; }
 	
-	public FlightControlsState getFlightControls() { return flightControlsManager.getControlsState(); }
-
 	public AtomicInteger getTimeMS() { return timeMS; }
 	
 	/**
-	 * @return If out the window display is running
+	 * @return If out sumulation is running
 	 */
 	public synchronized boolean isRunning() { return running; }
 	

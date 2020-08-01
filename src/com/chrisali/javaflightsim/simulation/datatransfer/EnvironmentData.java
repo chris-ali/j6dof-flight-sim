@@ -19,86 +19,31 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.datatransfer;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.chrisali.javaflightsim.interfaces.OTWWorld;
-import com.chrisali.javaflightsim.interfaces.Steppable;
-import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
-
 /**
- *	Interacts with {@link OTWWorld} and any registered listeners to pass data from the out the window display back to
- *	the simulation {@link Integrate6DOFEquations}. Relatively thread safe.
+ *	Container of data to transmit values such as terrain height back into the simulation. Relatively thread safe.
  */
-public class EnvironmentData implements Steppable {
-	
-	private static final Logger logger = LogManager.getLogger(EnvironmentData.class);
-	
+public class EnvironmentData {
+
 	private Map<EnvironmentDataType, Double> environmentData = Collections.synchronizedMap(new EnumMap<EnvironmentDataType, Double>(EnvironmentDataType.class));
+
+	public EnvironmentData() {}
 	
-	private OTWWorld outTheWindow;
-	private List<EnvironmentDataListener> dataListenerList;
-	
-	public EnvironmentData(OTWWorld outTheWindow) {
-		this.outTheWindow = outTheWindow;
-		this.dataListenerList = new ArrayList<>();
+	public Map<EnvironmentDataType, Double> getEnvironmentData() { 
+		return environmentData; 
 	}
 	
-	public Map<EnvironmentDataType, Double> getEnvironmentData() { return environmentData; }
-	
 	/**
-	 * Polls OTW for environment data, then assigns and converts the values needed for the environmentData EnumMap  
+	 * Assigns and converts the values needed for the environmentData EnumMap  
 	 * 
-	 * @param simOut
+	 * @param terrainHeight
 	 */
 	public void updateData(float terrainHeight) {
 		synchronized (environmentData) {
 			environmentData.put(EnvironmentDataType.TERRAIN_HEIGHT, (double) terrainHeight);
-		}
-		
-		fireDataArrived();
-	}
-		
-	@Override
-	public boolean canStepNow(int simTimeMS) {
-		return simTimeMS % 1 == 0;
-	}
-
-	@Override
-	public void step() {
-		try {
-			if (outTheWindow != null)
-				updateData(outTheWindow.getTerrainHeight());
-		} catch (Exception e) {
-			logger.error("Exception encountered while running environment data listener!", e);
-		}
-	}
-	
-	/**
-	 * Adds a listener that implements {@link EnvironmentDataListener} to a list of listeners that can listen
-	 * to {@link EnvironmentData} 
-	 * 
-	 * @param dataListener
-	 */
-	public void addListener(EnvironmentDataListener dataListener) {
-		logger.debug("Adding environment data listener: " + dataListener.getClass());
-		dataListenerList.add(dataListener);
-	}
-	
-	/**
-	 * Lets registered listeners know that data has arrived from {@link OTWWorld}
-	 * so that they can use it as needed
-	 */
-	private void fireDataArrived() {
-		for (EnvironmentDataListener listener : dataListenerList) {
-			if(listener != null) 
-				listener.onEnvironmentDataReceived(this);
 		}
 	}
 

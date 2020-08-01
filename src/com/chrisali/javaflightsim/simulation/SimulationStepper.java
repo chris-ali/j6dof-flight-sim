@@ -25,8 +25,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
-import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
-import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.flightcontrols.ExternalFlightControlsStateManager;
@@ -55,7 +53,6 @@ public class SimulationStepper {
 	private Integrate6DOFEquations simulation;
 	
 	private FlightData flightData;
-	private EnvironmentData environmentData;
 	
 	private Map<IntegratorConfig, Double> integratorConfig;
 	private Set<Options> options;	
@@ -88,16 +85,10 @@ public class SimulationStepper {
 		logger.debug("Initializing simulation...");
 		simulation = new Integrate6DOFEquations(flightControlsManager.getControlsState(), configuration);
 		
-		/*
 		logger.debug("Initializing flight data transfer...");
-		flightData = new FlightData(simulation);
-		flightData.addFlightDataListener(outTheWindow);
-
-		logger.debug("Initializing environment data transfer...");
-		environmentData = new EnvironmentData(outTheWindow);
-		environmentData.addEnvironmentDataListener(simulation);
-		*/
-
+		flightData = new FlightData();
+		//flightData.addFlightDataListener(outTheWindow);
+		
 		if (options.contains(Options.CONSOLE_DISPLAY))
 			simController.initializeConsole();
 	}
@@ -117,11 +108,8 @@ public class SimulationStepper {
 			if (simulation.canStepNow(timeMS.get()))
 				simulation.step();
 			
-			if (flightData != null && flightData.canStepNow(timeMS.get()))
-				flightData.step();
-			
-			if (environmentData != null && environmentData.canStepNow(timeMS.get()))
-				environmentData.step();
+			if (flightData != null)
+				flightData.updateData(simulation.getSimOut());
 
 			timeMS.addAndGet(frameStepMS);
 		} catch (Exception ez) {
@@ -138,21 +126,9 @@ public class SimulationStepper {
 		if (flightData != null) 
 			flightData.addListener(listener);
 	}
-	
-	/**
-	 * Adds {@link EnvironmentDataListener} objects external to {@link SimulationStepper} to environmentDataListener's listener list
-	 * 
-	 * @param listener
-	 */
-	public void addEnvironmentDataListener(EnvironmentDataListener listener) {
-		if (environmentData != null) 
-			environmentData.addListener(listener);
-	}
 		
 	public Integrate6DOFEquations getSimulation() { return simulation; }
 	
-	public FlightControlsState getFlightControls() { return flightControlsManager.getControlsState(); }
-
 	public AtomicInteger getTimeMS() { return timeMS; }
 	
 	/**
