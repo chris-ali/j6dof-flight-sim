@@ -19,87 +19,132 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.integration;
 
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * This Enum is used with {@link Integrate6DOFEquations} to define the EnumMap returned in {@link Integrate6DOFEquations#getSimOut()}. 
- * The string field is used in the console output to show the name of each value for clarity 
+ * This Enum is used with {@link Integrate6DOFEquations} to define the simOut
+ * EnumMap. The String and DecimalFormat fields are used in the console output to 
+ * show the name of each value, formatted for clarity.
  */
 public enum SimOuts {
-	TIME 		("Time [sec]"),
-	U 			("u [ft/sec]"),
-	U_DOT 		("u_dot [ft/sec^2]"),
-	V 			("v [ft/sec]"),
-	V_DOT 		("v_dot [ft/sec^2]"),
-	W			("w [ft/sec]"),
-	W_DOT		("w_dot [ft/sec^2]"),
-	NORTH		("N [ft]"),
-	NORTH_DOT	("N_dot [ft/sec]"),
-	EAST		("E [ft]"),
-	EAST_DOT	("E_dot [ft/sec]"),
-	ALT			("Alt [ft]"),
-	ALT_DOT		("Alt_dot [ft/sec]"),
-	PHI			("Phi [rad]"),
-	PHI_DOT		("Phi_dot [rad/sec]"),
-	THETA		("theta [rad]"),
-	THETA_DOT	("theta_dot [rad/sec]"),
-	PSI			("psi [rad]"),
-	PSI_DOT		("psi_dot [rad/sec]"),
-	P			("p [rad/sec]"),
-	P_DOT		("p_dot [rad/sec^2]"),
-	Q			("q [rad/sec]"),
-	Q_DOT		("q_dot [rad/sec^2]"),
-	R			("r [rad/sec]"),
-	R_DOT		("r_dot [rad/sec^2]"),
-	TAS			("TAS [ft/sec]"),
-	BETA		("Beta [rad]"),
-	ALPHA		("Alpha [rad]"),
-	ALPHA_DOT	("Alpha_dot [rad/sec]"),
-	MACH		("Mach"),
-	LAT			("Lat [rad]"),
-	LAT_DOT		("Lat_dot [rad/sec]"),
-	LON			("Lon [rad]"),
-	LON_DOT		("Lon_dot [rad/sec]"),
-	A_X			("A_x [ft/sec^2]"),
-	AN_X		("An_x [g]"),
-	A_Y			("A_y [ft/sec^2]"),
-	AN_Y		("An_y [g]"),
-	A_Z			("A_z [ft/sec^2]"),
-	AN_Z		("An_z [g]"),
-	L			("L [ft*lbf/sec^2]"),
-	M			("M [ft*lbf/sec^2]"),
-	N			("N [ft*lbf/sec^2]"),
-	THRUST_1	("Thrust 1 [lbf]"),
-	RPM_1		("RPM 1"),
-	FUEL_FLOW_1	("Fuel Flow 1"),
-	THRUST_2	("Thrust 2 [lbf]"),
-	RPM_2		("RPM 2"),
-	FUEL_FLOW_2	("Fuel Flow 2"),
-	THRUST_3	("Thrust 3 [lbf]"),
-	RPM_3		("RPM 3"),
-	FUEL_FLOW_3	("Fuel Flow 3"),
-	THRUST_4	("Thrust 4 [lbf]"),
-	RPM_4		("RPM 4"),
-	FUEL_FLOW_4	("Fuel Flow 4"),
-	ELEVATOR	("Elevator [rad]"),
-	AILERON		("Aileron [rad]"),
-	RUDDER		("Rudder [rad"),
-	THROTTLE_1	("Throttle 1"),
-	THROTTLE_2	("Throttle 2"),
-	THROTTLE_3	("Throttle 3"),
-	THROTTLE_4	("Throttle 4"),
-	PROPELLER_1	("Propeller 1"),
-	PROPELLER_2	("Propeller 2"),
-	PROPELLER_3	("Propeller 3"),
-	PROPELLER_4	("Propeller 4"),
-	MIXTURE_1	("Mixture 1"),
-	MIXTURE_2	("Mixture 2"),
-	MIXTURE_3	("Mixture 3"),
-	MIXTURE_4	("Mixture 4"),
-	GEAR		("Gear"),
-	FLAPS		("Flaps [rad]");
+	TIME 		(0,  "Time [sec]", 			new DecimalFormat("#.##")),
+	U 			(1,  "u [ft/sec]", 			new DecimalFormat("#.####")),
+	U_DOT 		(2,  "u_dot [ft/sec^2]", 	new DecimalFormat("#.####")),
+	V 			(3,  "v [ft/sec]", 			new DecimalFormat("#.####")),
+	V_DOT 		(4,  "v_dot [ft/sec^2]", 	new DecimalFormat("#.####")),
+	W			(5,  "w [ft/sec]", 			new DecimalFormat("#.####")),
+	W_DOT		(6,  "w_dot [ft/sec^2]", 	new DecimalFormat("#.####")),
+	NORTH		(7,  "N [ft]", 				new DecimalFormat("#.#")),
+	NORTH_DOT	(8,  "N_dot [ft/sec]", 		new DecimalFormat("#.####")),
+	EAST		(9,  "E [ft]", 				new DecimalFormat("#.#")),
+	EAST_DOT	(10, "E_dot [ft/sec]", 		new DecimalFormat("#.####")),
+	ALT			(11, "Alt [ft]", 			new DecimalFormat("#.#")),
+	ALT_DOT		(12, "Alt_dot [ft/sec]", 	new DecimalFormat("#.####")),
+	PHI			(13, "Phi [rad]", 			new DecimalFormat("#.####")),
+	PHI_DOT		(14, "Phi_dot [rad/sec]", 	new DecimalFormat("#.####")),
+	THETA		(15, "theta [rad]", 		new DecimalFormat("#.####")),
+	THETA_DOT	(16, "theta_dot [rad/sec]", new DecimalFormat("#.####")),
+	PSI			(17, "psi [rad]", 			new DecimalFormat("#.####")),
+	PSI_DOT		(18, "psi_dot [rad/sec]", 	new DecimalFormat("#.####")),
+	P			(19, "p [rad/sec]", 		new DecimalFormat("#.####")),
+	P_DOT		(20, "p_dot [rad/sec^2]", 	new DecimalFormat("#.####")),
+	Q			(21, "q [rad/sec]", 		new DecimalFormat("#.####")),
+	Q_DOT		(22, "q_dot [rad/sec^2]", 	new DecimalFormat("#.####")),
+	R			(23, "r [rad/sec]", 		new DecimalFormat("#.####")),
+	R_DOT		(24, "r_dot [rad/sec^2]", 	new DecimalFormat("#.####")),
+	TAS			(25, "TAS [ft/sec]", 		new DecimalFormat("#.##")),
+	BETA		(26, "Beta [rad]", 			new DecimalFormat("#.####")),
+	ALPHA		(27, "Alpha [rad]", 		new DecimalFormat("#.####")),
+	ALPHA_DOT	(28, "Alpha_dot [rad/sec]", new DecimalFormat("#.####")),
+	MACH		(29, "Mach", 				new DecimalFormat("#.####")),
+	LAT			(30, "Lat [rad]", 			new DecimalFormat("#.####")),
+	LAT_DOT		(31, "Lat_dot [rad/sec]", 	new DecimalFormat("#.######")),
+	LON			(32, "Lon [rad]", 			new DecimalFormat("#.####")),
+	LON_DOT		(33, "Lon_dot [rad/sec]", 	new DecimalFormat("#.######")),
+	A_X			(34, "A_x [ft/sec^2]", 		new DecimalFormat("#.####")),
+	AN_X		(35, "An_x [g]", 			new DecimalFormat("#.####")),
+	A_Y			(36, "A_y [ft/sec^2]", 		new DecimalFormat("#.####")),
+	AN_Y		(37, "An_y [g]", 			new DecimalFormat("#.####")),
+	A_Z			(38, "A_z [ft/sec^2]", 		new DecimalFormat("#.####")),
+	AN_Z		(39, "An_z [g]", 			new DecimalFormat("#.####")),
+	L			(40, "L [ft*lbf/sec^2]", 	new DecimalFormat("#.####")),
+	M			(41, "M [ft*lbf/sec^2]", 	new DecimalFormat("#.####")),
+	N			(42, "N [ft*lbf/sec^2]", 	new DecimalFormat("#.####")),
+	THRUST_1	(43, "Thrust 1 [lbf]", 		new DecimalFormat("#.##")),
+	RPM_1		(44, "RPM 1", 				new DecimalFormat("#.##")),
+	FUEL_FLOW_1	(45, "Fuel Flow 1", 		new DecimalFormat("#.##")),
+	THRUST_2	(46, "Thrust 2 [lbf]", 		new DecimalFormat("#.##")),
+	RPM_2		(47, "RPM 2", 				new DecimalFormat("#.##")),
+	FUEL_FLOW_2	(48, "Fuel Flow 2", 		new DecimalFormat("#.##")),
+	THRUST_3	(49, "Thrust 3 [lbf]", 		new DecimalFormat("#.##")),
+	RPM_3		(50, "RPM 3", 				new DecimalFormat("#.##")),
+	FUEL_FLOW_3	(51, "Fuel Flow 3", 		new DecimalFormat("#.##")),
+	THRUST_4	(52, "Thrust 4 [lbf]", 		new DecimalFormat("#.##")),
+	RPM_4		(53, "RPM 4", 				new DecimalFormat("#.##")),
+	FUEL_FLOW_4	(54, "Fuel Flow 4", 		new DecimalFormat("#.##")),
+	ELEVATOR	(55, "Elevator [rad]", 		new DecimalFormat("#.##")),
+	AILERON		(56, "Aileron [rad]", 		new DecimalFormat("#.##")),
+	RUDDER		(57, "Rudder [rad", 		new DecimalFormat("#.##")),
+	THROTTLE_1	(58, "Throttle 1", 			new DecimalFormat("#.#")),
+	THROTTLE_2	(59, "Throttle 2", 			new DecimalFormat("#.#")),
+	THROTTLE_3	(60, "Throttle 3", 			new DecimalFormat("#.#")),
+	THROTTLE_4	(61, "Throttle 4", 			new DecimalFormat("#.#")),
+	PROPELLER_1	(62, "Propeller 1", 		new DecimalFormat("#.#")),
+	PROPELLER_2	(63, "Propeller 2", 		new DecimalFormat("#.#")),
+	PROPELLER_3	(64, "Propeller 3", 		new DecimalFormat("#.#")),
+	PROPELLER_4	(65, "Propeller 4", 		new DecimalFormat("#.#")),
+	MIXTURE_1	(66, "Mixture 1", 			new DecimalFormat("#.#")),
+	MIXTURE_2	(67, "Mixture 2", 			new DecimalFormat("#.#")),
+	MIXTURE_3	(68, "Mixture 3", 			new DecimalFormat("#.#")),
+	MIXTURE_4	(69, "Mixture 4", 			new DecimalFormat("#.#")),
+	GEAR		(70, "Gear", 				new DecimalFormat("#.#")),
+	FLAPS		(71, "Flaps [rad]", 		new DecimalFormat("#.#"));
 	
-	private final String simOut;
+	private final int index;
+
+	private final String name;
+
+	private final DecimalFormat format;
 	
-	private SimOuts(String simOut) {this.simOut = simOut;}
+	private SimOuts(int index, String simOut, DecimalFormat format) {
+		this.index  = index;
+		this.name   = simOut;
+		this.format = format;
+	}
 	
-	public String toString() {return simOut;}
+	/**
+	 * @return Friendly name of this enum
+	 */
+	@Override
+	public String toString() {return name;}
+
+	/**
+	 * @return Decimal place formatting for this enum
+	 */
+	public DecimalFormat getFormat() {return format;}
+
+	/**
+	 * @return Column index of this enum
+	 */
+	public int getIndex() {return index;}
+
+	private static Map<Integer, SimOuts> simOutMap = new HashMap<Integer, SimOuts>();
+
+	// Statically initialize this map for performant access with getByIndex()
+	static {
+		for (SimOuts simOut : SimOuts.values()) {
+			simOutMap.put(simOut.index, simOut);
+		}
+	}
+
+	/**
+	 * Finds a SimOuts enum given a specified index
+	 * @param index
+	 * @return SimOuts enum or null if value not found in enum
+	 */
+	public static SimOuts getByIndex(int index) {
+		return simOutMap.get(index);
+	}
 }

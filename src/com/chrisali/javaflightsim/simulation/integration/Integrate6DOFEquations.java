@@ -351,12 +351,10 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 	
 	/**
 	 *  Adds simulation data to the ArrayList {@link Integrate6DOFEquations#getLogsOut()} after each successful step of integration 
-	 *  for plotting and outputs to the console, if set in {@link Integrate6DOFEquations#options}. 
-	 *  The data calculated in each step of integration is available in the EnumMap {@link Integrate6DOFEquations#getSimOut()}. All
-	 *  collections are synchronized to mitigate data access problems from threading
+	 *  for plotting, outputs to the console, etc
 	 */
 	private void logData() {
-		// Need to initialize within logData(), else plots won't display correctly
+		// Need to initialize within logData(), otherwise plots won't display correctly
 		simOut = Collections.synchronizedMap(new EnumMap<SimOuts, Double>(SimOuts.class));
 		
 		synchronized (simOut) {
@@ -488,13 +486,6 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 	 */
 	public synchronized boolean clearLogsOut() { return logsOut.removeAll(logsOut); }
 	
-	/**
-	 * Returns an EnumMap of data for a single step of integration accomplished in {@link Integrate6DOFEquations#accelAndMoments#logData(double)}	
-	 * 
-	 * @return simOut
-	 */
-	public synchronized Map<SimOuts, Double> getSimOut() { return Collections.unmodifiableMap(simOut); }
-	
 	//========================================= Time ============================================================
 	
 	/**
@@ -533,7 +524,7 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 	 * 
 	 * @param dataListener
 	 */
-	public void addListener(FlightDataListener dataListener) {
+	public void addFlightDataListener(FlightDataListener dataListener) {
 		logger.debug("Adding flight data listener: " + dataListener.getClass());
 		flightDataListeners.add(dataListener);
 	}

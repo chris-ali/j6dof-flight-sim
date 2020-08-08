@@ -122,7 +122,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 			outTheWindow.addinputDataListener(flightControlsManager);
 			outTheWindow.init();
 
-			simulation.addListener(outTheWindow);
+			simulation.addFlightDataListener(outTheWindow);
 		}
 	}
 	
