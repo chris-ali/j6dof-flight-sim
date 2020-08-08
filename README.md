@@ -1,7 +1,7 @@
 # Java Flight Simulator 
 *A Six Degree of Freedom (6DOF) Flight Simulator Written in Java by Chris Ali*
 
-This program was written to apply my knowledge and background in Flight Dynamics to build my Java language skills. It can run as a simple analysis tool for flight dynamics, as well as a real time simulation for pilot-in-the-loop use. When configured as a pilot in the loop simulation, a LWJGL out-the-window display opens and the user can control the simulation using a joystick, keyboard or mouse.
+This program was written to apply my knowledge and background in Flight Dynamics to build my Java language skills. It can run as a simple analysis tool for flight dynamics, as well as a real time simulation for pilot-in-the-loop use. When configured as a pilot in the loop simulation, a LWJGL out-the-window display opens and the user can control the simulation using a joystick or keyboard.
 
 One day I'd like to tie objectives or a scoring element into the simulation to make it a game as well.
 
@@ -30,18 +30,13 @@ One day I'd like to tie objectives or a scoring element into the simulation to m
 - Use of USAF Digital DATCOM to calculate stability derivatives for creating custom and/or more accurate aircraft
 
 ## Libraries
-- This program makes use of the Apache Commons Math libraries to do the numerical integration (Runge-Kutta) necessary to make the program tick.
+- The Apache Commons Math libraries perform the numerical integration (Runge-Kutta) necessary to make the program tick.
 
-- In addition, the jFreeChart libraries are used to graph the simulation states after the simulation stops.
+- jFreeChart libraries are used to graph the simulation states after the simulation stops.
 
-- jinput is used for joystick, mouse and keyboard support
+- jinput is used for joystick support
 
-- Instrument panel gauges were created using Gerrit Grunwald's SteelSeries Swing port: 
-https://github.com/HanSolo/SteelSeries-Swing 
-
-- LWJGL is used to create the out the window display using OpenGL
-
-- OpenAL generates the sounds for the simulation 
+- LWJGL is used to create the out the window display and sounds using OpenGL and OpenAL
 
 ## Reference
 - The 6DOF state equations come from *Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.*
