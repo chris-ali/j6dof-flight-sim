@@ -39,6 +39,8 @@ import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentDataType;
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.enviroment.Environment;
 import com.chrisali.javaflightsim.simulation.enviroment.EnvironmentParameters;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
@@ -119,6 +121,10 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 	
 	// Options
 	private EnumSet<Options> options;
+
+	// Listeners
+	private List<FlightDataListener> flightDataListeners;
+	private FlightData flightData;
 	
 	/**
 	 * Creates the {@link Integrate6DOFEquations} object with references to {@link FlightControlsState} and {@link SimulationConfiguration}
@@ -130,10 +136,13 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 	public Integrate6DOFEquations(FlightControlsState flightControls, SimulationConfiguration configuration) {
 		this.flightControls = flightControls;
 		
-	    controlsMap 	   = flightControls.getFlightControls();
-		aircraft 		   = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
-		engineList   	   = aircraft.getEngines();
-		options		       = configuration.getSimulationOptions();
+	    controlsMap 	    = flightControls.getFlightControls();
+		aircraft 		    = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
+		engineList   	    = aircraft.getEngines();
+		options		        = configuration.getSimulationOptions();
+		
+		flightData			= new FlightData();
+		flightDataListeners = new ArrayList<>();
 		
 		// Use Apache Commons Lang to convert EnumMap values into primitive double[]
 		initialConditions = resetInitialConditions = ArrayUtils.toPrimitive(configuration.getInitialConditions().values()
@@ -227,6 +236,10 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 				
 				// Update output log
 				logData();
+
+				// Update flight data for any listeners
+				flightData.updateData(simOut);
+				fireFlightDataArrived();
 
 				// Increment time
 				t += integratorConfig[1];
@@ -504,6 +517,8 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 		// Subtract standard temperature from argument to get deviation from standard, then convert C deg to F deg 
 		Environment.setDeltaIsa((temperature-15)*9/5);
 	}
+
+	//==================================== Events ==========================================================
 	
 	@Override
 	public void onEnvironmentDataReceived(EnvironmentData environmentData) {
@@ -511,5 +526,25 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 		
 		if (environmentData != null)
 			terrainHeight = (receivedEnvironmentData.get(EnvironmentDataType.TERRAIN_HEIGHT)*15)+5;
+	}
+
+	/**
+	 * Adds a {@link FlightDataListener} to a list that can listen for {@link FlightData} 
+	 * 
+	 * @param dataListener
+	 */
+	public void addListener(FlightDataListener dataListener) {
+		logger.debug("Adding flight data listener: " + dataListener.getClass());
+		flightDataListeners.add(dataListener);
+	}
+
+	/**
+	 * Lets registered listeners know that data has arrived so that they can use it as needed
+	 */
+	private void fireFlightDataArrived() {
+		for (FlightDataListener listener : flightDataListeners) {
+			if(listener != null) 
+				listener.onFlightDataReceived(flightData);
+		}
 	}
 }

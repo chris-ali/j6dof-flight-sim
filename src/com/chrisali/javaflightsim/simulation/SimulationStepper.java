@@ -25,8 +25,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
-import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
-import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
@@ -51,9 +49,7 @@ public class SimulationStepper {
 
 	private FlightControlsStateManager flightControlsManager;
 	private Integrate6DOFEquations simulation;
-	
-	private FlightData flightData;
-	
+		
 	private Map<IntegratorConfig, Double> integratorConfig;
 	private Set<Options> options;	
 		
@@ -83,11 +79,8 @@ public class SimulationStepper {
 		flightControlsManager = new FlightControlsStateManager(simController, timeMS);
 		
 		logger.debug("Initializing simulation...");
-		simulation = new Integrate6DOFEquations(flightControlsManager.getControlsState(), configuration);
-		
-		logger.debug("Initializing flight data transfer...");
-		flightData = new FlightData();
-		//flightData.addFlightDataListener(outTheWindow);
+		simulation = new Integrate6DOFEquations(flightControlsManager.getControlsState(), configuration);;
+		//simulation.addFlightDataListener(outTheWindow);
 		
 		if (options.contains(Options.CONSOLE_DISPLAY))
 			simController.initializeConsole();
@@ -107,26 +100,13 @@ public class SimulationStepper {
 				
 			if (simulation.canStepNow(timeMS.get()))
 				simulation.step();
-			
-			if (flightData != null)
-				flightData.updateData(simulation.getSimOut());
 
 			timeMS.addAndGet(frameStepMS);
 		} catch (Exception ez) {
 			logger.error("Exception encountered while iteration of simulation. Attempting to continue...", ez);
 		} 
 	}
-
-	/**
-	 * Adds {@link FlightDataListener} objects external to {@link SimulationStepper} to flightData's listener list
-	 * 
-	 * @param listener
-	 */
-	public void addFlightDataListener(FlightDataListener listener) {
-		if (flightData != null) 
-			flightData.addListener(listener);
-	}
-		
+	
 	public Integrate6DOFEquations getSimulation() { return simulation; }
 	
 	public AtomicInteger getTimeMS() { return timeMS; }

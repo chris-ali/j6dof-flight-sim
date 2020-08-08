@@ -19,14 +19,9 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.datatransfer;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
@@ -35,18 +30,10 @@ import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
  *	Passes converted flight data from the simulation to any registered listeners. Relatively thread safe.
  */
 public class FlightData {
-	
-	private static final Logger logger = LogManager.getLogger(FlightData.class);
-	
+
 	private Map<FlightDataType, Double> flightData = Collections.synchronizedMap(new EnumMap<FlightDataType, Double>(FlightDataType.class));
 	
-	private List<FlightDataListener> dataListenerList;
-
-	public FlightData() {
-		this.dataListenerList = new ArrayList<>();
-	}
-	
-	public Map<FlightDataType, Double> getFlightData() {return flightData;}
+	public FlightData() {}
 	
 	/**
 	 * Polls simOut for data, and assigns and converts the values needed to the flightData EnumMap  
@@ -90,28 +77,10 @@ public class FlightData {
 			
 			flightData.put(FlightDataType.PITCH_RATE, Math.toDegrees(simOut.get(SimOuts.Q)));
 		}
-		
-		fireDataArrived();
 	}
 
-	/**
-	 * Adds a {@link FlightDataListener} to a list that can listen for {@link FlightData} 
-	 * 
-	 * @param dataListener
-	 */
-	public void addListener(FlightDataListener dataListener) {
-		logger.debug("Adding flight data listener: " + dataListener.getClass());
-		dataListenerList.add(dataListener);
-	}
-	
-	/**
-	 * Lets registered listeners know that data has arrived so that they can use it as needed
-	 */
-	private void fireDataArrived() {
-		for (FlightDataListener listener : dataListenerList) {
-			if(listener != null) 
-				listener.onFlightDataReceived(this);
-		}
+	public Map<FlightDataType, Double> getFlightData() {
+		return flightData;
 	}
 
 	@Override
