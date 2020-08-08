@@ -32,6 +32,7 @@ import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.lwjgl.events.WindowClosedListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
+import com.chrisali.javaflightsim.simulation.flightcontrols.ExternalFlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
@@ -53,7 +54,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 
 	private SimulationController simController;
 	
-	private FlightControlsStateManager flightControlsManager;
+	private ExternalFlightControlsStateManager flightControlsManager;
 	private Integrate6DOFEquations simulation;
 	private LWJGLWorld outTheWindow;
 	
@@ -85,7 +86,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 		configureSimulationTime();
 		
 		logger.debug("Initializing flight controls manager...");
-		flightControlsManager = new FlightControlsStateManager(simController, timeMS);
+		flightControlsManager = new ExternalFlightControlsStateManager(simController, timeMS);
 		
 		logger.debug("Initializing simulation...");
 		simulation = new Integrate6DOFEquations(flightControlsManager.getControlsState(), configuration);
@@ -123,6 +124,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 			outTheWindow = new LWJGLWorld(simController);
 			outTheWindow.addWindowClosedListener(this);
 			outTheWindow.addEnvironmentDataListener(simulation);
+			outTheWindow.addinputDataListener(flightControlsManager);
 			outTheWindow.init();
 
 			logger.debug("Initializing flight data transfer...");

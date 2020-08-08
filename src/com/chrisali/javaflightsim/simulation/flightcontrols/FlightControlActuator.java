@@ -141,6 +141,9 @@ public class FlightControlActuator implements ControlParameterActuator {
 			} else if (parameter.equals(THROTTLE_4)) {
 				lever(THROTTLE_4, value);
 			}
+
+			SimEvents.pauseUnpauseSimulation(false);
+			SimEvents.resetSimulation(false);
 		}
 		
 		continuous(GEAR, gearLeverDown ? GEAR.getMinimum() : GEAR.getMaximum());

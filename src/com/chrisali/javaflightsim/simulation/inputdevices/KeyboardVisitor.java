@@ -38,10 +38,10 @@ import net.java.games.input.Controller;
  */
 public class KeyboardVisitor implements InputDeviceVisitor {
 
-	private Map<String, KeyCommand> keyboardAssignments;
+	private Map<Integer, KeyCommand> keyboardAssignments;
 	private ControlParameterActuator actuator;
 
-	public KeyboardVisitor(Map<String, KeyCommand> keyboardAssignments, ControlParameterActuator actuator) {
+	public KeyboardVisitor(Map<Integer, KeyCommand> keyboardAssignments, ControlParameterActuator actuator) {
 		this.keyboardAssignments = keyboardAssignments;
 		this.actuator = actuator;
 	}

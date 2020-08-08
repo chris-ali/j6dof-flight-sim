@@ -142,8 +142,8 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 
 			TextMaster.render(simTexts.getTexts());
 
-			//InputMaster.update();
-			//fireInputDataReceived();
+			InputMaster.update();
+			fireInputDataReceived();
 						
 			environmentData.updateData(terrainCollection.getTerrainHeight(ownship));
 			fireEnvironmentDataReceived();

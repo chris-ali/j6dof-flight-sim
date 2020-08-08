@@ -59,7 +59,16 @@ public class InputData {
 	}
 
 	/**
-	 * Thread safely assigns values of map of Joystick Inputs
+	 * Clears the collection of keys pressed for the next polling
+	 */
+	public void clearKeysPressed() {
+		synchronized (keyCommands) {
+			keyCommands.clear();
+		}
+	}
+
+	/**
+	 * Thread safely assigns values of map of joystick inputs
 	 * 
 	 * @param axis
 	 * @param value

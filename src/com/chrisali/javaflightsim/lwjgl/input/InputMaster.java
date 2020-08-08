@@ -20,10 +20,9 @@
 package com.chrisali.javaflightsim.lwjgl.input;
 
 import java.util.Map;
-import java.util.Set;
 
+import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.InputData;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.JoystickAxis;
 import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
@@ -37,13 +36,20 @@ import org.lwjgl.input.Controller;
 import org.lwjgl.input.Controllers;
 import org.lwjgl.input.Keyboard;
 
+/**
+ * Handles polling and reading input values from controllers and keyboards into collections that can easily 
+ * be used with the simulation
+ */
 public class InputMaster {
     private static InputData inputData;
     private static ControlsConfiguration controlsConfig;
     private static int controllerCount;
 
     private static final Logger logger = LogManager.getLogger(InputMaster.class);
-        
+    
+    /**
+     * Reads controls configuration and initializes all attached controllers
+     */
     public static void init() {
         inputData = new InputData();
         controlsConfig = FileUtilities.readControlsConfiguration();
@@ -61,14 +67,23 @@ public class InputMaster {
         }
     }
 
+    /**
+     * Shuts down any controller resources being used by JWJGL engine
+     */
     public static void cleanUp() {
         Controllers.destroy();
     }
 
+    /**
+     * Polls controllers for new data, and then translates these values into commands and axis 
+     * deflections for {@link FlightData}
+     */
     public static void update() {
-        //TODO Revise (de)serialization of controls to use int values for keys/axes that are "legible" for LWJGL Keyboard and Controller classes
-        for (Map.Entry<String, KeyCommand> entry : controlsConfig.getKeyboardAssignments().entrySet()) {
-            if (Keyboard.isKeyDown(key))
+        inputData.clearKeysPressed();
+
+        // Keyboard keys are integers that change depending on the engine implementation for maximum confusion
+        for (Map.Entry<Integer, KeyCommand> entry : controlsConfig.getKeyboardAssignments().entrySet()) {
+            if (Keyboard.isKeyDown(entry.getKey()))
                 inputData.addKeyPressed(entry.getValue());
         }
 
@@ -84,7 +99,7 @@ public class InputMaster {
             JoystickAssignments joystickAssignments = allJoystickAssignments.get(controller.getName());
             
             // Loop through joystick axes on connected controller
-            for (int axisIndex; axisIndex < controller.getAxisCount(); axisIndex++) {
+            for (int axisIndex = 0; axisIndex < controller.getAxisCount(); axisIndex++) {
                 JoystickAxis axis = joystickAssignments.getAxisAssignments().get(controller.getAxisName(axisIndex));
 
                 // If controls configuration has an assignment for this axis, use it
