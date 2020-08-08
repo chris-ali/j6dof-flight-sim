@@ -27,7 +27,7 @@ import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
-import com.chrisali.javaflightsim.simulation.flightcontrols.ExternalFlightControlsStateManager;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
@@ -49,7 +49,7 @@ public class SimulationStepper {
 	private static final Logger logger = LogManager.getLogger(SimulationStepper.class);
 	private static final int TO_MILLISEC = 1000;
 
-	private ExternalFlightControlsStateManager flightControlsManager;
+	private FlightControlsStateManager flightControlsManager;
 	private Integrate6DOFEquations simulation;
 	
 	private FlightData flightData;
@@ -80,7 +80,7 @@ public class SimulationStepper {
 		frameStepMS = (int) (integratorConfig.get(IntegratorConfig.DT) * TO_MILLISEC);
 		
 		logger.debug("Initializing flight controls manager...");
-		flightControlsManager = new ExternalFlightControlsStateManager(simController, timeMS);
+		flightControlsManager = new FlightControlsStateManager(simController, timeMS);
 		
 		logger.debug("Initializing simulation...");
 		simulation = new Integrate6DOFEquations(flightControlsManager.getControlsState(), configuration);

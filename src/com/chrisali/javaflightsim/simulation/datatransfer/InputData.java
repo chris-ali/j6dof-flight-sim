@@ -25,13 +25,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.simulation.flightcontrols.ExternalFlightControlsStateManager;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 
 /**
  *	Container of input data from external keyboards or controllers 
- *  into the simulation using {@link ExternalFlightControlsStateManager}. Relatively thread safe.
+ *  into the simulation using {@link FlightControlsStateManager}. Relatively thread safe.
  */
 public class InputData {
 

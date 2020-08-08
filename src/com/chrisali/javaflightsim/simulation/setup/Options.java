@@ -19,9 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.setup;
 
-import com.chrisali.javaflightsim.simulation.inputdevices.Joystick;
-import com.chrisali.javaflightsim.simulation.inputdevices.Keyboard;
-import com.chrisali.javaflightsim.simulation.inputdevices.Mouse;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 /**
@@ -33,8 +30,8 @@ import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
  *	<p>PAUSED - Pauses the integration and therefore the simulation; used in combination with RESET to return the simulation to initial conditions</p>
  *	<p>RESET - Resets the integration to initial conditions using {@link IntegrationSetup#gatherInitialConditions(String)}</p>
  *	<p>CONSOLE_DISPLAY - Displays every piece of data in {@link Integrate6DOFEquations#getSimOut()} in the console for each step of integration</p>
- *	<p>USE_JOYSTICK - Uses JInput with a {@link Joystick} and {@link Keyboard} to allow pilot in the loop simulation</p>
- *	<p>USE_MOUSE - Uses JInput JInput with a {@link Mouse} and {@link Keyboard} to allow pilot in the loop simulation</p>
+ *	<p>USE_JOYSTICK - Uses a joystick and keyboard while running pilot in the loop simulation</p>
+ *	<p>USE_MOUSE - Uses mouse and keyboard while running pilot in the loop simulation</p>
  */
 public enum Options {
 	ANALYSIS_MODE     ("Analysis Mode"),

@@ -19,13 +19,11 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.flightcontrols;
 
-import com.chrisali.javaflightsim.simulation.inputdevices.AbstractDevice;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 
 /**
  * Enum that provides the keys for the controls EnumMap in {@link Integrate6DOFEquations}. 
- * Minima and maxima are also defined in this class as constants to be used in HID controller 
- * classes that implement {@link AbstractDevice}
+ * Minima and maxima are also defined in this class as constants to be used with HID controllers
  */
 public enum FlightControl implements ControlParameter {
 	ELEVATOR    ("Elevator", 		Math.toRadians(-25), Math.toRadians(15)), // "Minimum" is up elevator
