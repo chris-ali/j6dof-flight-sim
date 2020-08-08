@@ -1,21 +1,21 @@
 {
   "keyboardAssignments" : {
-    "DOWN" : "ELEVATOR_UP",
-    "LEFT" : "AILERON_LEFT",
-    "G" : "GEAR_UP_DOWN",
-    "L" : "GENERATE_PLOTS",
-    "PG UP" : "INCREASE_THROTTLE",
-    "P" : "PAUSE_UNPAUSE_SIM",
-    "F6" : "DECREASE_FLAPS",
-    "Q" : "EXIT_SIMULATION",
-    "F7" : "INCREASE_FLAPS",
-    "R" : "RESET_SIM",
-    "PG DOWN" : "DECREASE_THROTTLE",
-    "RIGHT" : "AILERON_RIGHT",
-    "UP" : "ELEVATOR_DOWN"
+    "208" : "ELEVATOR_UP",
+    "203" : "AILERON_LEFT",
+    "34" : "GEAR_UP_DOWN",
+    "38" : "GENERATE_PLOTS",
+    "201" : "INCREASE_THROTTLE",
+    "25" : "PAUSE_UNPAUSE_SIM",
+    "64" : "DECREASE_FLAPS",
+    "16" : "EXIT_SIMULATION",
+    "65" : "INCREASE_FLAPS",
+    "19" : "RESET_SIM",
+    "209" : "DECREASE_THROTTLE",
+    "205" : "AILERON_RIGHT",
+    "200" : "ELEVATOR_DOWN"
   },
   "joystickAssignments" : {
-    "ch throttle quadrant usb" : {
+    "CH PRODUCTS CH THROTTLE QUADRANT" : {
       "axisAssignments" : {
         "RX" : {
           "axisAssignment" : "PROPELLER_2",
@@ -60,7 +60,7 @@
       },
       "hatAssignments" : null
     },
-    "ch pro pedals usb" : {
+    "CH PRODUCTS CH PRO PEDALS USB " : {
       "axisAssignments" : {
         "X" : {
           "axisAssignment" : "BRAKE_R",
@@ -81,7 +81,7 @@
       "buttonAssignments" : null,
       "hatAssignments" : null
     },
-    "ch flight sim yoke usb" : {
+    "CH PRODUCTS CH FLIGHT SIM YOKE USB " : {
       "axisAssignments" : {
         "X" : {
           "axisAssignment" : "ELEVATOR",
@@ -105,7 +105,7 @@
         "0.5" : "AILERON_TRIM_RIGHT"
       }
     },
-	"SideWinder Force Feedback 2 Joystick" : {
+	"Microsoft SideWinder Force Feedback 2 Joystick" : {
 	  "axisAssignments" : {
         "y" : {
           "axisAssignment" : "ELEVATOR",
@@ -129,7 +129,7 @@
         "0.5" : "AILERON_TRIM_RIGHT"
       }
 	},
-	"Controller (XBOX 360 For Windows)" : {
+	"Microsoft X-Box 360 pad" : {
 	  "axisAssignments" : {
         "y" : {
           "axisAssignment" : "ELEVATOR",
@@ -141,7 +141,7 @@
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-		"z" : {
+		    "rx" : {
           "axisAssignment" : "RUDDER",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
