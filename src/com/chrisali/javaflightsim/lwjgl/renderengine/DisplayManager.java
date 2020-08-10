@@ -21,13 +21,14 @@ package com.chrisali.javaflightsim.lwjgl.renderengine;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.Sys;
-import org.lwjgl.opengl.ContextAttribs;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.PixelFormat;
+
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
+
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.system.MemoryUtil.*;
 
 /**
  * Handles the creation, updating and closing of the LWJGL OTW display window 
@@ -45,37 +46,79 @@ public class DisplayManager {
 	private static int width = 1440;
 	
 	private static int aaSamples = 0;
-	
 	private static int colorDepth = 24;
-	
+	private static boolean useFullScreen = false;
+
 	private static long lastFrameTime;
 	private static float delta;
+
+	/**
+     * The handle of the window.
+     */
+	private static long window;
+	
+	/**
+     * A reference to the error callback so it doesn't get GCd.
+     */
+    private static GLFWErrorCallback errorCallback;
 	
 	/**
 	 * Creates the OpenGL display in its own window
 	 */
 	public static void createDisplay() {
-		try {
-			ContextAttribs attribs = new ContextAttribs(3,3)
-										.withForwardCompatible(true)
-										.withProfileCore(true);
-			Display.setDisplayMode(new DisplayMode(width, height));
-			Display.setTitle("Java Flight Simulator");
-			Display.create(new PixelFormat().withSamples(aaSamples).withDepthBits(colorDepth),attribs);
-		} catch (LWJGLException e) {
-			logger.error("An error was encountered while creating the LWJGL display!", e);
-		}
+		logger.debug("Initializing GLFW display...");
+
+		//Initialize GLFW.
+		glfwInit();
 		
-		GL11.glViewport(0, 0, width, height);
+        //Setup an error callback to print GLFW errors to the console.
+		glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));
+
+		//Request an OpenGL 3.3 Core context.
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); 
+		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+		glfwWindowHint(GLFW_DEPTH_BITS, colorDepth);
+		glfwWindowHint(GLFW_SAMPLES, aaSamples);
+
+		//TODO Add fullscreen support
+        long monitor = 0;
+        if(useFullScreen) {
+            //Get the primary monitor.
+			monitor = glfwGetPrimaryMonitor();
+			
+            //Retrieve the desktop resolution
+            GLFWVidMode vidMode = glfwGetVideoMode(monitor);
+            width = vidMode.width();
+            height = vidMode.height();
+        }
+				
+		window = glfwCreateWindow(width, height, "Java Flight Simulator", monitor, NULL);
+		
+		if (window == 0)
+			throw new RuntimeException("Failed to create GLFW display!");
+
+		glfwMakeContextCurrent(window);
+		GL.createCapabilities();
+		glViewport(0, 0, width, height);
 		lastFrameTime = getCurrentTime();
+
+		glfwShowWindow(window);
+
+		logger.debug("...done!");
 	}
 	
 	/**
 	 * Updates the display by rendering one frame based on the frame rate defined in {@link DisplayManager}
 	 */
 	public static void updateDisplay() {
-		Display.sync(frameRateLimit);
-		Display.update();
+		//Display.sync(frameRateLimit);
+		
+		glfwPollEvents();
+		glfwSwapBuffers(window);
+
 		long currentFrameTime = getCurrentTime();
 		delta = (currentFrameTime - lastFrameTime)/1000f;	
 		lastFrameTime = currentFrameTime;
@@ -86,11 +129,11 @@ public class DisplayManager {
 	}
 	
 	public static void closeDisplay() {
-		Display.destroy();
+		glfwDestroyWindow(window);
 	}
 	
 	private static long getCurrentTime() {
-		return Sys.getTime()*1000/Sys.getTimerResolution();
+		return (long)glfwGetTime() * 1000;
 	}
 	
 	public static int getHeight() {
@@ -127,5 +170,21 @@ public class DisplayManager {
 	
 	public static float getAspectRatio() {
 		return ((float)width)/((float)height);
+	}
+
+	public static boolean isUseFullScreen() {
+		return useFullScreen;
+	}
+
+	public static void setUseFullScreen(boolean useFullScreen) {
+		DisplayManager.useFullScreen = useFullScreen;
+	}
+
+	public static long getWindow() {
+		return window;
+	}
+
+	public static void setWindow(long window) {
+		DisplayManager.window = window;
 	}
 }

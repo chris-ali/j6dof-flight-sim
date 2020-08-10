@@ -12,4 +12,5 @@
 *.txt
 *.dll
 *.so
+*.json
 .factorypath

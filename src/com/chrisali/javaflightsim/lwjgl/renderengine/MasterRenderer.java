@@ -26,10 +26,11 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
+
+import static org.lwjgl.opengl.GL15.*;
 
 import com.chrisali.javaflightsim.lwjgl.entities.Camera;
 import com.chrisali.javaflightsim.lwjgl.entities.Entity;
@@ -74,12 +75,12 @@ public class MasterRenderer {
 	}
 	
 	public static void enableCulling() {
-		GL11.glEnable(GL11.GL_CULL_FACE);
-		GL11.glCullFace(GL11.GL_BACK);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 	}
 	
 	public static void disableCulling() {
-		GL11.glDisable(GL11.GL_CULL_FACE);
+		glDisable(GL_CULL_FACE);
 	}
 	
 	/**
@@ -125,9 +126,9 @@ public class MasterRenderer {
 	}
 
 	private void render(List<Light> lights, Camera camera, Vector4f clippingPlane) {
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-		GL11.glClearColor(skyRed, skyGreen, skyBlue, 1);
+		glEnable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(skyRed, skyGreen, skyBlue, 1);
 
 		staticShader.start();
 		staticShader.loadClippingPlane(clippingPlane);

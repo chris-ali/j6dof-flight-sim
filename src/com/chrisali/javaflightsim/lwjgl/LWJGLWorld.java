@@ -28,9 +28,10 @@ import java.util.Random;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 import com.chrisali.javaflightsim.interfaces.OTWWorld;
 import com.chrisali.javaflightsim.interfaces.SimulationController;
@@ -142,8 +143,9 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 
 			TextMaster.render(simTexts.getTexts());
 
-			InputMaster.update();
-			fireInputDataReceived();
+			//TODO need to convert inputs into GLFW
+			//InputMaster.update();
+			//fireInputDataReceived();
 						
 			environmentData.updateData(terrainCollection.getTerrainHeight(ownship));
 			fireEnvironmentDataReceived();
@@ -153,8 +155,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			logger.error("Error encountered while running LWJGL display!", e);
 		}
 		
-		if(Display.isCloseRequested() || Keyboard.isKeyDown(Keyboard.KEY_Q)) {
-			fireWindowClosed();
+		if(glfwWindowShouldClose(DisplayManager.getWindow())) { // || Keyboard.isKeyDown(Keyboard.KEY_Q)
 			cleanUp();
 		}
 	}
@@ -177,16 +178,21 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	 * Closes all display and rendering processes, and closes display window 
 	 */
 	private void cleanUp() {
+		fireWindowClosed();
+
 		try {  
 			logger.debug("Cleaning up and closing LWJGL display...");
 			
-			InputMaster.cleanUp();
+			//InputMaster.cleanUp();
 			AudioMaster.cleanUp();
 			ParticleMaster.cleanUp();
 			TextMaster.cleanUp();
 			masterRenderer.cleanUp();
 			interfaceRenderer.cleanUp();
 			loader.cleanUp();			
+		}
+		catch (NullPointerException e) {
+			logger.warn("Unable to clean up LWJGL display. Assets may not have been initialized in the first place!");
 		}
 		catch (Exception e) {
 			logger.fatal("Error encountered when cleaning up LWJGL display!", e);
@@ -228,7 +234,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 
 		logger.debug("Initializing control inputs and environment data transfer...");
 		
-		InputMaster.init();
+		//InputMaster.init();
 		environmentData = new EnvironmentData();
 		
 		interfaceRenderer = new InterfaceRenderer(loader);

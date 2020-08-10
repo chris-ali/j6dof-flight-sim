@@ -21,12 +21,13 @@ package com.chrisali.javaflightsim.lwjgl.renderengine;
 
 import java.util.List;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.*;
 
 import com.chrisali.javaflightsim.lwjgl.entities.Camera;
 import com.chrisali.javaflightsim.lwjgl.loader.Loader;
@@ -74,7 +75,7 @@ public class WaterRenderer {
 								MasterRenderer.getSkyColor().y, 
 								MasterRenderer.getSkyColor().z);
 			shader.connectTextures();
-			GL11.glDrawArrays(GL11.GL_TRIANGLES, 0, quad.getVertexCount());
+			glDrawArrays(GL_TRIANGLES, 0, quad.getVertexCount());
 		}
 		unbind();
 	}
@@ -87,22 +88,22 @@ public class WaterRenderer {
 		waveFactor %= 1;
 		shader.loadWaves(waveStrength, waveFactor);
 		
-		GL30.glBindVertexArray(quad.getVaoID());
-		GL20.glEnableVertexAttribArray(0);
+		glBindVertexArray(quad.getVaoID());
+		glEnableVertexAttribArray(0);
 		
-		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, waterFrameBuffers.getReflectionTexture());
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, waterFrameBuffers.getReflectionTexture());
 		
-		GL13.glActiveTexture(GL13.GL_TEXTURE1);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, waterFrameBuffers.getRefractionTexture());
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, waterFrameBuffers.getRefractionTexture());
 		
-		GL13.glActiveTexture(GL13.GL_TEXTURE2);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, dudvTexture);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, dudvTexture);
 	}
 	
 	private void unbind(){
-		GL20.glDisableVertexAttribArray(0);
-		GL30.glBindVertexArray(0);
+		glDisableVertexAttribArray(0);
+		glBindVertexArray(0);
 		shader.stop();
 	}
 

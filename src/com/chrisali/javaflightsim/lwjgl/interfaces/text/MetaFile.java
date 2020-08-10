@@ -26,9 +26,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.opengl.Display;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 /**
  * Provides functionality for getting the values from a font file.
@@ -72,7 +75,7 @@ public class MetaFile {
 	 *            - the font file.
 	 */
 	protected MetaFile(File file) {
-		this.aspectRatio = (double) Display.getWidth() / (double) Display.getHeight();
+		this.aspectRatio = DisplayManager.getAspectRatio();
 		openFile(file);
 		loadPaddingData();
 		loadLineSizes();

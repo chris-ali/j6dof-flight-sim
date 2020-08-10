@@ -22,6 +22,7 @@ package com.chrisali.javaflightsim.lwjgl.loader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.LinkedList;
@@ -30,16 +31,16 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL14;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL33;
-import org.lwjgl.opengl.GLContext;
-import org.newdawn.slick.opengl.Texture;
-import org.newdawn.slick.opengl.TextureLoader;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL14.*;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL33.*;
+
+import de.matthiasmann.twl.utils.PNGDecoder;
+import de.matthiasmann.twl.utils.PNGDecoder.Format;
 
 import com.chrisali.javaflightsim.lwjgl.models.RawModel;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
@@ -100,24 +101,24 @@ public class Loader {
 	}
 	
 	private int createVAO() {
-		int vaoID = GL30.glGenVertexArrays();
+		int vaoID = glGenVertexArrays();
 		vaoList.add(vaoID);
-		GL30.glBindVertexArray(vaoID);
+		glBindVertexArray(vaoID);
 		return vaoID;
 	}
 	
 	private void unbindVAO() {
-		GL30.glBindVertexArray(0);
+		glBindVertexArray(0);
 	}
 
 	//================================== VBO Methods =============================================
 
 	public int createEmptyVBO(int floatCount) {
-		int vbo = GL15.glGenBuffers();
+		int vbo = glGenBuffers();
 		vboList.add(vbo);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
-		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, floatCount * 4, GL15.GL_STREAM_DRAW);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, floatCount * 4, GL_STREAM_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		return vbo;
 	}
@@ -126,26 +127,26 @@ public class Loader {
 		buffer.clear();
 		buffer.put(data);
 		buffer.flip();
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
-		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer.capacity() * 4, GL15.GL_STREAM_DRAW);
-		GL15.glBufferSubData(GL15.GL_ARRAY_BUFFER, 0, buffer);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, buffer.capacity() * 4, GL_STREAM_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
 	public void addInstancedAttribute(int vao, int vbo, int attribute, int dataSize, int instancedDataLength,
 			int offset) {
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbo);
-		GL30.glBindVertexArray(vao);
-		GL20.glVertexAttribPointer(attribute, dataSize, GL11.GL_FLOAT, false, instancedDataLength * 4, offset * 4);
-		GL33.glVertexAttribDivisor(attribute, 1);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-		GL30.glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBindVertexArray(vao);
+		glVertexAttribPointer(attribute, dataSize, GL_FLOAT, false, instancedDataLength * 4, offset * 4);
+		glVertexAttribDivisor(attribute, 1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 	}
 	
 	//========================================== Textures ===========================================
 
 	/**
-	 * Loads a texture into memory using SlikUtils png loader using a specific directory stemming from the ./Resources
+	 * Loads a texture into memory with PNGDecoder using a specific directory stemming from the ./Resources
 	 * directory. Sets anisotropic filtering for textures as well in this method
 	 * 
 	 * @param fileName
@@ -157,7 +158,7 @@ public class Loader {
 	}
 	
 	/**
-	 * Loads a texture into memory using SlikUtils png loader using a specific directory stemming from the ./Resources
+	 * Loads a texture into memory with PNGDecoder using a specific directory stemming from the ./Resources
 	 * directory. Sets anisotropic filtering for textures as well in this method
 	 * 
 	 * @param rootDirectory
@@ -166,63 +167,75 @@ public class Loader {
 	 * @return texture ID
 	 */
 	public int loadTexture(String rootDirectory,String fileName, String directory) {
-		int textureID = loadAndGetTexture(rootDirectory, fileName, directory).getTextureID();
+		int textureID = loadAndGetTextureID(rootDirectory, fileName, directory);
 		textureList.add(textureID);
 
 		return textureID;
 	}
 	
 	/**
-	 * Loads a texture into memory using SlikUtils png loader using a specific directory stemming from the ./Resources
+	 * Loads a texture into memory with PNGDecoder using a specific directory stemming from the ./Resources
 	 * directory. Sets anisotropic filtering for textures as well in this method. Returns the Texture obect directly so that
 	 * the file's properties can be used elsewhere
 	 * 
 	 * @param fileName
 	 * @param directory
-	 * @return Texture object
+	 * @return OpenGL texture ID
 	 */
-	public Texture loadAndGetTexture(String fileName, String directory) {
-		return loadAndGetTexture(OTWDirectories.RESOURCES.toString(), fileName, directory);
+	public int loadAndGetTexture(String fileName, String directory) {
+		return loadAndGetTextureID(OTWDirectories.RESOURCES.toString(), fileName, directory);
 	}
 	
 	/**
-	 * Loads a texture into memory using SlikUtils png loader using a specific directory stemming from the rootDirectory
+	 * Loads a texture into memory with PNGDecoder using a specific directory stemming from the rootDirectory
 	 * argument. Sets anisotropic filtering for textures as well in this method. Returns the Texture obect directly so that
 	 * the file's properties can be used elsewhere
 	 * 
 	 * @param rootDirectory
 	 * @param fileName
 	 * @param directory
-	 * @return Texture object
+	 * @return OpenGL texture ID
 	 */
-	public Texture loadAndGetTexture(String rootDirectory, String fileName, String directory) {
-		Texture texture = null;
-		
+	public int loadAndGetTextureID(String rootDirectory, String fileName, String directory) {
 		try {
-			texture = TextureLoader.getTexture("PNG",
-					new FileInputStream(rootDirectory + File.separator + directory + File.separator + fileName + OTWFiles.TEXTURE_EXT.toString()));
-		
-			GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR_MIPMAP_LINEAR);
-			
+			PNGDecoder decoder = new PNGDecoder(new FileInputStream(rootDirectory + File.separator + directory 
+												+ File.separator + fileName + OTWFiles.TEXTURE_EXT.toString()));
+
+			ByteBuffer buf = ByteBuffer.allocateDirect(4 * decoder.getWidth() * decoder.getHeight());
+			decoder.decode(buf, decoder.getWidth() * 4, Format.RGBA);
+			buf.flip();
+
+			// Create a new OpenGL texture 
+			int textureId = glGenTextures();
+
+			// Bind the texture
+			glBindTexture(GL_TEXTURE_2D, textureId);
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, decoder.getWidth(), decoder.getHeight(), 
+						0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+
+			glGenerateMipmap(GL_TEXTURE_2D);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			/* TODO Fix Anisotropic Filtering
 			// Set Anisotropic Filtering
 			if (GLContext.getCapabilities().GL_EXT_texture_filter_anisotropic && useAnisotropicFiltering) {
-				float value = Math.min(4f, GL11.glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
-				GL11.glTexParameterf(GL11.GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, value);
+				float value = Math.min(4f, glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
+				glTexParameterf(GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, value);
 			}
-			
-			GL11.glTexParameterf(GL11.GL_TEXTURE_2D, GL14.GL_TEXTURE_LOD_BIAS, -0.4f);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL11.GL_REPEAT);
-			GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL11.GL_REPEAT);
+			*/
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -0.4f);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 				
-			return texture;
+			return textureId;
 		} catch (IOException e) {
 			logger.error("Could not load texture: " + fileName + OTWFiles.TEXTURE_EXT.toString(), e);
 		}
 		
-		return texture;
+		return 0;
 	}
 		
 	public static void setUseAnisotropicFiltering(boolean useAnisotropicFiltering) {
@@ -232,21 +245,21 @@ public class Loader {
 	//=================================== Indices and Buffers ========================================
 	
 	private void storeDataInAttributeList(int attributeNumber, int coordinateSize, float[] data) {
-		int vboID = GL15.glGenBuffers();
+		int vboID = glGenBuffers();
 		vboList.add(vboID);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboID);
+		glBindBuffer(GL_ARRAY_BUFFER, vboID);
 		FloatBuffer buffer = storeDataInFloatBuffer(data);
-		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
-		GL20.glVertexAttribPointer(attributeNumber, coordinateSize, GL11.GL_FLOAT, false, 0, 0);
-		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+		glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+		glVertexAttribPointer(attributeNumber, coordinateSize, GL_FLOAT, false, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
 	private void bindIndicesBuffer(int[] indices) {
-		int vboId = GL15.glGenBuffers();
+		int vboId = glGenBuffers();
 		vboList.add(vboId);
-		GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboId);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboId);
 		IntBuffer buffer = storeDataInIntBuffer(indices);
-		GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, buffer, GL15.GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
 	}
 
 	private IntBuffer storeDataInIntBuffer(int[] data) {
@@ -265,11 +278,11 @@ public class Loader {
 	
 	public void cleanUp() {
 		for (int vao : vaoList)
-			GL30.glDeleteVertexArrays(vao);
+			glDeleteVertexArrays(vao);
 		for (int vbo : vboList)
-			GL15.glDeleteBuffers(vbo);
+			glDeleteBuffers(vbo);
 		for (int texture : textureList)
-			GL11.glDeleteTextures(texture);
+			glDeleteTextures(texture);
 		
 		vaoList.clear();
 		vboList.clear();

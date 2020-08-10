@@ -23,16 +23,25 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.LWJGLException;
+
 import org.lwjgl.openal.AL;
-import org.lwjgl.openal.AL10;
+import org.lwjgl.openal.ALC;
+import org.lwjgl.openal.ALCCapabilities;
+import org.lwjgl.openal.ALCapabilities;
+import org.lwjgl.openal.EXTThreadLocalContext;
 import org.lwjgl.util.WaveData;
 import org.lwjgl.util.vector.Vector3f;
+
+import static org.lwjgl.openal.ALC11.*;
+import static org.lwjgl.openal.AL10.*;
+import static org.lwjgl.system.MemoryUtil.*;
 
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWFiles;
@@ -42,25 +51,50 @@ public class AudioMaster {
 	private static final Logger logger = LogManager.getLogger(AudioMaster.class);
 	
 	private static List<Integer> buffers = new ArrayList<Integer>();
+
+	private static long device;
+	private static long context;
 	
 	public static void init() {
-		try {AL.create();} 
-		catch (LWJGLException e) {logger.error("Unable to initialize OpenAL!", e);}
+		try {
+			device = alcOpenDevice((ByteBuffer) null);
+
+			if (device == NULL)
+				throw new IllegalStateException("Failed to open the default device.");
+
+			ALCCapabilities capabilities = ALC.createCapabilities(device);
+			
+			if (!capabilities.OpenALC10)
+				throw new IllegalStateException("Failed to open the default device.");
+			
+			context = alcCreateContext(device, (IntBuffer) null);
+				
+			EXTThreadLocalContext.alcSetThreadContext(context);
+			
+			ALCapabilities caps = AL.createCapabilities(capabilities);
+		
+			if(alcMakeContextCurrent(context))
+				logger.debug("Successfully started OpenAL context for device:" + device);
+
+		} 
+		catch (Exception e) {
+			logger.error("Unable to initialize OpenAL!", e);
+		}
 	}
 	
 	public static void setListenerData(Vector3f position, Vector3f  velocity) {
-		AL10.alListener3f(AL10.AL_POSITION, position.x, position.y, position.z);
-		AL10.alListener3f(AL10.AL_VELOCITY, velocity.x, velocity.y, velocity.z);
+		alListener3f(AL_POSITION, position.x, position.y, position.z);
+		alListener3f(AL_VELOCITY, velocity.x, velocity.y, velocity.z);
 	}
 	
 	public static int loadSound(String directory, String fileName) {
-		int buffer = AL10.alGenBuffers();
+		int buffer = alGenBuffers();
 		buffers.add(buffer);
 				
 		try {
 			String path = OTWDirectories.RESOURCES.toString() + File.separator + directory + File.separator + fileName + OTWFiles.SOUND_EXT.toString();
 			WaveData waveFile = WaveData.create(new BufferedInputStream(new FileInputStream(path)));
-			AL10.alBufferData(buffer, waveFile.format, waveFile.data, waveFile.samplerate);
+			alBufferData(buffer, waveFile.format, waveFile.data, waveFile.samplerate);
 			waveFile.dispose();
 		} catch (IOException | NullPointerException e) {
 			logger.error("Could not load sound: " + fileName + OTWFiles.SOUND_EXT.toString() + "!", e);
@@ -70,8 +104,12 @@ public class AudioMaster {
 	}
 
 	public static void cleanUp() {
-		for (int buffer : buffers) {AL10.alDeleteBuffers(buffer);}
-		
-		AL.destroy();
+		for (int buffer : buffers) 
+			alDeleteBuffers(buffer);
+
+		alcMakeContextCurrent(NULL);
+		AL.setCurrentThread(null);
+		alcDestroyContext(context);
+		alcCloseDevice(device);
 	}
 }

@@ -81,7 +81,7 @@ public class Camera {
 	 * Also reconfigures the camera mode depending on the Keyboard key press
 	 */
 	public void move(SimulationConfiguration configuration) {
-		reconfigureCamera(configuration);
+		//reconfigureCamera(configuration); //TODO disabled until GLFW keyboard calls can be made
 		
 		switch (configuration.getCameraConfiguration().getMode()) {
 		case CHASE:
@@ -107,13 +107,14 @@ public class Camera {
 	 * {@link CameraMode#CHASE}
 	 */
 	private void moveChaseView() {
+		/* TODO disabled until GLFW mouse calls can be made
 		cameraDistanceToEntity -= Mouse.getDWheel() * 0.05f;
 		
 		if(Mouse.isButtonDown(1)) {
 			cameraToEntityTheta += Mouse.getDY() * mouseSensitivity;
 			cameraToEntityPsi   += Mouse.getDX() * mouseSensitivity;
 		}
-		
+		*/
 		calculateCameraPosition();
 		
 		roll   =  cameraToEntityPhi   % 180;
