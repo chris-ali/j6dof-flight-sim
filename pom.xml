@@ -31,7 +31,6 @@
 		<jme3_g>org.jmonkeyengine</jme3_g>
 		<jme3_v>3.2.0-stable</jme3_v>
 		<lwjgl.version>3.2.3</lwjgl.version>
-		<joml.version>1.9.25</joml.version>
 	</properties>
 
 	<repositories>
@@ -193,11 +192,6 @@
 			<groupId>org.lwjgl</groupId>
 			<artifactId>lwjgl-opengl</artifactId>
 			<classifier>${lwjgl.natives}</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.joml</groupId>
-			<artifactId>joml</artifactId>
-			<version>${joml.version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.lwjgl.lwjgl/lwjgl_util -->
