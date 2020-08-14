@@ -50,11 +50,15 @@ public class SimulationTexts implements InputDataListener {
 	private DecimalFormat df2 = new DecimalFormat("0.00");
 	private DecimalFormat df0 = new DecimalFormat("0");
 
-	public SimulationTexts(FontType font) {
-		texts.put("FlightData", new GUIText("", 0.5f, font, new Vector2f(0.01f, 0.01f), 1f, false));
-		texts.put("Camera", new GUIText("", 0.5f, font, new Vector2f(0.01f, 0.05f), 1f, false));
-		texts.put("Entity", new GUIText("", 0.5f, font, new Vector2f(0.01f, 0.09f), 1f, false));
-		texts.put("Paused", new GUIText("PAUSED", 1.15f, font, new Vector2f(0.5f, 0.5f), 1f, false, new Vector3f(1, 0, 0)));
+	private SimulationConfiguration configuration;
+
+	public SimulationTexts(FontType font, SimulationConfiguration configuration) {
+		texts.put("FlightData", new GUIText("", 0.5f, font, new Vector2f(0.01f, 0.01f), 1f, false, true));
+		texts.put("Camera", new GUIText("", 0.5f, font, new Vector2f(0.01f, 0.05f), 1f, false, true));
+		texts.put("Entity", new GUIText("", 0.5f, font, new Vector2f(0.01f, 0.09f), 1f, false, true));
+		texts.put("Paused", new GUIText("PAUSED", 1.15f, font, new Vector2f(0.5f, 0.5f), 1f, false, new Vector3f(1, 0, 0), false));
+
+		this.configuration = configuration;
 	}
 
 	/**
@@ -62,31 +66,21 @@ public class SimulationTexts implements InputDataListener {
 	 * selected options
 	 * 
 	 * @param flightData
-	 * @param options
+	 * @param camera
+	 * @param entity
 	 */
-	public void update(Map<FlightDataType, Double> flightData, SimulationConfiguration config, Camera camera,
-			Entity entity) {
-		if (!config.getCameraConfiguration().isShowPanel()) {
-			texts.get("FlightData").setTextString(setTelemetryText(flightData));
-
-			if (config.getCameraConfiguration().getMode() == CameraMode.CHASE) {
-				texts.get("Camera").setTextString(setCameraPosText(camera));
-				texts.get("Entity").setTextString(setOwnshipPosText(entity));
-			} else {
-				texts.get("Camera").setTextString("");
-				texts.get("Entity").setTextString("");
-			}
-		} else {
-			texts.get("FlightData").setTextString("");
-		}
-		// TODO Move these into an inputdatalistener event
-		texts.get("Paused").setTextString(config.getSimulationOptions().contains(Options.PAUSED) ? "PAUSED" : "");
+	public void update(Map<FlightDataType, Double> flightData, Camera camera, Entity entity) {
+		texts.get("FlightData").setTextString(setTelemetryText(flightData));
+		texts.get("Camera").setTextString(setCameraPosText(camera));
+		texts.get("Entity").setTextString(setEntityPosText(entity));
 	}
 	
 	@Override
 	public void onInputDataReceived(InputData inputData) {
-		// TODO Auto-generated method stub
-
+		texts.get("FlightData").setVisible(!configuration.getCameraConfiguration().isShowPanel());
+		texts.get("Camera").setVisible(configuration.getCameraConfiguration().getMode() == CameraMode.CHASE);
+		texts.get("Entity").setVisible(configuration.getCameraConfiguration().getMode() == CameraMode.CHASE);
+		texts.get("Paused").setVisible(configuration.getSimulationOptions().contains(Options.PAUSED));
 	}
 
 	/**
@@ -97,7 +91,7 @@ public class SimulationTexts implements InputDataListener {
 	 * @return string displaying flight data output
 	 */
 	private String setTelemetryText(Map<FlightDataType, Double> flightData) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		try {
 			sb.append("AIRSPEED: ").append(df0.format(flightData.get(FlightDataType.IAS))).append(" KIAS | ")
@@ -130,6 +124,9 @@ public class SimulationTexts implements InputDataListener {
 	private String setCameraPosText(Camera camera) {
 		StringBuffer sb = new StringBuffer();
 
+		if (camera == null)
+			return sb.toString();
+
 		sb.append("CAMERA:\n").append("ROLL: ").append(df0.format(camera.getRoll())).append(" DEG | ").append("PITCH: ")
 				.append(df0.format(camera.getPitch())).append(" DEG | ").append("YAW: ")
 				.append(df0.format(camera.getYaw())).append(" DEG | ").append("\n").append("X POS: ")
@@ -147,8 +144,11 @@ public class SimulationTexts implements InputDataListener {
 	 * @param flightData
 	 * @return string displaying entity data output
 	 */
-	private String setOwnshipPosText(Entity entity) {
+	private String setEntityPosText(Entity entity) {
 		StringBuffer sb = new StringBuffer();
+
+		if (entity == null)
+			return sb.toString();
 
 		sb.append(entity.getClass().getSimpleName().toUpperCase()).append(":\n").append("ROLL: ")
 				.append(df0.format(entity.getRotX())).append(" DEG | ").append("PITCH: ")
@@ -168,5 +168,4 @@ public class SimulationTexts implements InputDataListener {
 	public void setTexts(Map<String, GUIText> texts) {
 		this.texts = texts;
 	}
-
 }

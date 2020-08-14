@@ -70,7 +70,7 @@ public class TerrainRenderer {
 		glEnableVertexAttribArray(2);
 		
 		bindTextures(terrain);
-		terrainShader.loadShineVariables(1, 0); //TODO
+		terrainShader.loadShineVariables(1, 0);
 	}
 	
 	private void bindTextures(Terrain terrain) {

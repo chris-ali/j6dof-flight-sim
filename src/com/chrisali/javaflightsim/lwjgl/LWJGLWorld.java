@@ -295,7 +295,8 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		logger.debug("Generating on-screen text and panel...");
 		
 		// On-screen text
-		simTexts = new SimulationTexts(new FontType(loader, "ubuntu"));
+		simTexts = new SimulationTexts(new FontType(loader, "ubuntu"), configuration);
+		inputDataListeners.add(simTexts);
 		
 		// Instrument Panel and Gauges
 		interfaceTextures = new HashMap<String, List<InterfaceTexture>>();
@@ -324,7 +325,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			camera.move();
 
 			// Record flight data into text string to display on OTW screen 
-			simTexts.update(receivedFlightData, configuration, camera, ownship);
+			simTexts.update(receivedFlightData, camera, ownship);
 			
 			// Instrument Panel
 			panel.update(receivedFlightData);

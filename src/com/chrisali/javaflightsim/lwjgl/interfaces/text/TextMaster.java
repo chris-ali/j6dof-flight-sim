@@ -43,6 +43,9 @@ public class TextMaster {
 	
 	public static void render(Map<String, GUIText> textMap) {
 		for (Map.Entry<String, GUIText> entry : textMap.entrySet()) {
+			if(!entry.getValue().isVisible())
+				continue;
+				
 			TextMaster.loadText(entry.getValue());
 			
 			renderer.render(texts);
