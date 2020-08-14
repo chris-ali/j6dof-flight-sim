@@ -49,6 +49,11 @@ import com.chrisali.javaflightsim.lwjgl.utilities.OTWFiles;
 public class AudioMaster {
 	
 	private static final Logger logger = LogManager.getLogger(AudioMaster.class);
+
+	/**
+	 * Reference to the OpenAL Capabilities of this thread
+	 */
+	private static ALCapabilities alCapabilities;
 	
 	private static List<Integer> buffers = new ArrayList<Integer>();
 
@@ -71,7 +76,7 @@ public class AudioMaster {
 				
 			EXTThreadLocalContext.alcSetThreadContext(context);
 			
-			ALCapabilities caps = AL.createCapabilities(capabilities);
+			alCapabilities = AL.createCapabilities(capabilities);
 		
 			if(alcMakeContextCurrent(context))
 				logger.debug("Successfully started OpenAL context for device:" + device);
@@ -111,5 +116,9 @@ public class AudioMaster {
 		AL.setCurrentThread(null);
 		alcDestroyContext(context);
 		alcCloseDevice(device);
+	}
+
+	public static ALCapabilities getAlCapabilities() {
+		return alCapabilities;
 	}
 }

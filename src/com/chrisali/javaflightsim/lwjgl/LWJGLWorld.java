@@ -27,7 +27,6 @@ import java.util.Random;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -68,6 +67,7 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.simulation.datatransfer.InputDataListener;
 import com.chrisali.javaflightsim.simulation.setup.CameraMode;
+import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
@@ -143,9 +143,8 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 
 			TextMaster.render(simTexts.getTexts());
 
-			//TODO need to convert inputs into GLFW
-			//InputMaster.update();
-			//fireInputDataReceived();
+			InputMaster.update();
+			fireInputDataReceived();
 						
 			environmentData.updateData(terrainCollection.getTerrainHeight(ownship));
 			fireEnvironmentDataReceived();
@@ -155,7 +154,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			logger.error("Error encountered while running LWJGL display!", e);
 		}
 		
-		if(glfwWindowShouldClose(DisplayManager.getWindow())) { // || Keyboard.isKeyDown(Keyboard.KEY_Q)
+		if(glfwWindowShouldClose(DisplayManager.getWindow()) || InputMaster.getInputData().getKeyCommands().contains(KeyCommand.EXIT_SIMULATION)) {
 			cleanUp();
 		}
 	}
@@ -183,7 +182,6 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		try {  
 			logger.debug("Cleaning up and closing LWJGL display...");
 			
-			//InputMaster.cleanUp();
 			AudioMaster.cleanUp();
 			ParticleMaster.cleanUp();
 			TextMaster.cleanUp();
@@ -234,7 +232,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 
 		logger.debug("Initializing control inputs and environment data transfer...");
 		
-		//InputMaster.init();
+		InputMaster.init();
 		environmentData = new EnvironmentData();
 		
 		interfaceRenderer = new InterfaceRenderer(loader);
@@ -271,7 +269,8 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		
 		logger.debug("Setting up camera...");
 		
-		camera = new Camera(ownship);
+		camera = new Camera(ownship, configuration.getCameraConfiguration());
+		inputDataListeners.add(camera);
 				
 		//================================= Terrain ==========================================================
 		
@@ -322,7 +321,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			
 			// Ownship movement; let camera track ownhip 1-1 for now
 			ownship.move(receivedFlightData);
-			camera.move(configuration);
+			camera.move();
 
 			// Record flight data into text string to display on OTW screen 
 			simTexts.update(receivedFlightData, configuration, camera, ownship);

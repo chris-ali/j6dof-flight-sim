@@ -29,8 +29,10 @@ import com.chrisali.javaflightsim.simulation.utilities.SimDirectories;
  * Contains user-defined key, button (and eventually axis) bindings for each controller for jinput 
  * to control the aircraft in the simulation. Used to (de)serialize the file ControlsConfiguration.json
  * 
+ * Uses GLFW integer IDs to handle key/axis/button/hat assignments
+ * 
  * @author Christopher
- *
+ * @see https://www.glfw.org/docs/latest/group__input.html
  */
 public class ControlsConfiguration implements Saveable {
 
@@ -68,32 +70,32 @@ public class ControlsConfiguration implements Saveable {
 	public static class JoystickAssignments {
 
 		/**
-		 * String key is the name of the joystick axis
+		 * Integer key is the name of the joystick axis
 		 */
-		private Map<String, JoystickAxis> axisAssignments;
+		private Map<Integer, JoystickAxis> axisAssignments;
 		
 		/**
-		 * String key is the name of the joystick button
+		 * Integer key is the name of the joystick button
 		 */
-		private Map<String, KeyCommand> buttonAssignments;
+		private Map<Integer, KeyCommand> buttonAssignments;
 		
 		/**
-		 * Float key is the direction of the joystick hat
+		 * Integer key is the direction of the joystick hat
 		 */
-		private Map<Float, KeyCommand> hatAssignments;
+		private Map<Integer, KeyCommand> hatAssignments;
 		
 		public JoystickAssignments() {}
 		
-		public Map<String, JoystickAxis> getAxisAssignments() { return axisAssignments; }
+		public Map<Integer, JoystickAxis> getAxisAssignments() { return axisAssignments; }
 		
-		public void setAxisAssignments(Map<String, JoystickAxis> joystickAxisAssignments) { this.axisAssignments = joystickAxisAssignments; }
+		public void setAxisAssignments(Map<Integer, JoystickAxis> joystickAxisAssignments) { this.axisAssignments = joystickAxisAssignments; }
 		
-		public Map<String, KeyCommand> getButtonAssignments() { return buttonAssignments; }
+		public Map<Integer, KeyCommand> getButtonAssignments() { return buttonAssignments; }
 		
-		public void setButtonAssignments(Map<String, KeyCommand> joystickButtonAssignments) { this.buttonAssignments = joystickButtonAssignments; }
+		public void setButtonAssignments(Map<Integer, KeyCommand> joystickButtonAssignments) { this.buttonAssignments = joystickButtonAssignments; }
 		
-		public Map<Float, KeyCommand> getHatAssignments() { return hatAssignments; }
+		public Map<Integer, KeyCommand> getHatAssignments() { return hatAssignments; }
 		
-		public void setHatAssignments(Map<Float, KeyCommand> joystickHatAssignments) { this.hatAssignments = joystickHatAssignments; }
+		public void setHatAssignments(Map<Integer, KeyCommand> joystickHatAssignments) { this.hatAssignments = joystickHatAssignments; }
 	}
 }

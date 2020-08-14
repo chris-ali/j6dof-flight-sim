@@ -19,8 +19,11 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.lwjgl.input;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.Map;
 
+import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.InputData;
 import com.chrisali.javaflightsim.simulation.setup.ControlsConfiguration;
@@ -31,47 +34,58 @@ import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Controller;
-import org.lwjgl.input.Controllers;
-import org.lwjgl.input.Keyboard;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 /**
  * Handles polling and reading input values from controllers and keyboards into collections that can easily 
  * be used with the simulation
+ * 
+ * All inputs' axis, button and hat IDs used here refer to the GLFW input specification 
+ * 
+ * @author Christopher
+ * @see https://www.glfw.org/docs/latest/group__input.html
  */
 public class InputMaster {
     private static InputData inputData;
     private static ControlsConfiguration controlsConfig;
-    private static int controllerCount;
-
+    
     private static final Logger logger = LogManager.getLogger(InputMaster.class);
     
     /**
-     * Reads controls configuration and initializes all attached controllers
+     * Reads controls configuration and initializes all event callbacks for mouse and keyboard
      */
     public static void init() {
         inputData = new InputData();
         controlsConfig = FileUtilities.readControlsConfiguration();
 
-        try {
-            Controllers.create();
-            controllerCount = Controllers.getControllerCount();
+        logger.debug("Setting up GLFW Mouse and Keyboard callbacks");
 
-            logger.debug("Found " + controllerCount + " joystick controllers:");
-            for (int i = 0; i < controllerCount; i++) {
-                logger.debug(Controllers.getController(i).getName());
+        glfwSetKeyCallback(DisplayManager.getWindow(), (window, key, scancode, action, mods) -> {
+            inputData.clearKeysPressed();
+
+            // Keyboard keys are integers that change depending on the engine implementation for maximum confusion
+            for (Map.Entry<Integer, KeyCommand> entry : controlsConfig.getKeyboardAssignments().entrySet()) {
+                if (key == entry.getKey() && (action == GLFW_PRESS || action == GLFW_REPEAT))
+                    inputData.addKeyPressed(entry.getValue());
             }
-        } catch (LWJGLException e) {
-            logger.error("Encountered an error when loading joystick controllers!", e);
-        }
-    }
+        });
 
-    /**
-     * Shuts down any controller resources being used by JWJGL engine
-     */
-    public static void cleanUp() {
-        Controllers.destroy();
+        glfwSetScrollCallback(DisplayManager.getWindow(), (window, xoffset, yoffset) -> {
+            inputData.setMouseScrollOffset(yoffset);
+        });
+
+        glfwSetMouseButtonCallback(DisplayManager.getWindow(), (windowHnd, button, action, mods) -> {
+            inputData.addMouseButtonPressed(button);
+            
+            if (action == GLFW_RELEASE)
+                inputData.clearMouseButtonsPressed();
+        });
+
+        glfwSetCursorPosCallback(DisplayManager.getWindow(), (windowHnd, xpos, ypos) -> {
+            inputData.setMouseXPos(xpos);
+            inputData.setMouseYPos(ypos);
+        });
     }
 
     /**
@@ -79,54 +93,60 @@ public class InputMaster {
      * deflections for {@link FlightData}
      */
     public static void update() {
-        inputData.clearKeysPressed();
+        updateJoysticks();
+    }
 
-        // Keyboard keys are integers that change depending on the engine implementation for maximum confusion
-        for (Map.Entry<Integer, KeyCommand> entry : controlsConfig.getKeyboardAssignments().entrySet()) {
-            if (Keyboard.isKeyDown(entry.getKey()))
-                inputData.addKeyPressed(entry.getValue());
-        }
-
-        Controllers.poll();
-
+    //TODO Need to remap axis names with GLFW axis and button IDs instead
+    private static void updateJoysticks() {
         Map<String, JoystickAssignments> allJoystickAssignments = controlsConfig.getJoystickAssignments();
 
         // Loop through all conntected controllers
-        for (int controllerIndex = 0; controllerIndex < controllerCount; controllerIndex++) {
-            Controller controller = Controllers.getController(controllerIndex);
+        for (int GLFW_JOYSTICK = 0; GLFW_JOYSTICK < 15; GLFW_JOYSTICK++) {
+            String controllerName = glfwGetJoystickName(GLFW_JOYSTICK);
+            
+            // Anything past the first instance of a null will not have any joystick data 
+            if (controllerName == null)
+                break;
+            
+            FloatBuffer glfwAxes = glfwGetJoystickAxes(GLFW_JOYSTICK);
+            ByteBuffer glfwButtons = glfwGetJoystickButtons(GLFW_JOYSTICK);
+            ByteBuffer glfwHats = glfwGetJoystickHats(GLFW_JOYSTICK);
 
             // Get assignments for a single joystick
-            JoystickAssignments joystickAssignments = allJoystickAssignments.get(controller.getName());
+            JoystickAssignments joystickAssignments = allJoystickAssignments.get(controllerName);
             
+            if (joystickAssignments == null)
+                continue;
+
             // Loop through joystick axes on connected controller
-            for (int axisIndex = 0; axisIndex < controller.getAxisCount(); axisIndex++) {
-                JoystickAxis axis = joystickAssignments.getAxisAssignments().get(controller.getAxisName(axisIndex));
+            Map<Integer, JoystickAxis> axisAssignments = joystickAssignments.getAxisAssignments();
+            for (int axisIndex = 0; axisIndex < glfwAxes.capacity(); axisIndex++) {
+                JoystickAxis axis = axisAssignments.get(axisIndex);
 
                 // If controls configuration has an assignment for this axis, use it
                 if (axis != null)
-                    inputData.updateJoystickInputs(axis.getAxisAssignment(), controller.getAxisValue(axisIndex));
+                    inputData.updateJoystickInputs(axis.getAxisAssignment(), glfwAxes.get(axisIndex));
             }
 
             // Loop through buttons on connected controller
-            for (int buttonIndex= 0; buttonIndex< controller.getButtonCount(); buttonIndex++) {
-                Map<String, KeyCommand> buttonAssignments = joystickAssignments.getButtonAssignments();
+            Map<Integer, KeyCommand> buttonAssignments = joystickAssignments.getButtonAssignments();
+            for (int buttonIndex = 0; buttonIndex < glfwButtons.capacity(); buttonIndex++) {
                 
                 // If controls configuration has an assignment for this pressed button, use it
-                if (controller.isButtonPressed(buttonIndex)) {
-                    KeyCommand command = buttonAssignments.get(controller.getButtonName(buttonIndex));
+                if (glfwButtons.get(buttonIndex) == GLFW_TRUE) {
+                    KeyCommand command = buttonAssignments.get(buttonIndex);
 
                     if (command != null)
                         inputData.addKeyPressed(command);
                 }
             }
 
-            // May need to reassign hat to use POV X and Y in controls config
-            Map<Float, KeyCommand> hatAssignments = joystickAssignments.getHatAssignments();
+            // Determine hat direction on connected controller, if supported
+            Map<Integer, KeyCommand> hatAssignments = joystickAssignments.getHatAssignments();
             if (hatAssignments != null) {
-                float hatVal = controller.getPovX();
-                KeyCommand command = hatAssignments.get(hatVal);
+                KeyCommand command = hatAssignments.get((int)glfwHats.get(0));
 
-                if (hatVal > 0  && command != null)
+                if (command != null)
                     inputData.addKeyPressed(command);
             }
         }

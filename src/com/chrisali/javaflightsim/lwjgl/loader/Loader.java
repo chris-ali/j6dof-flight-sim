@@ -31,6 +31,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.EXTTextureFilterAnisotropic;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL14.*;
@@ -43,6 +44,7 @@ import de.matthiasmann.twl.utils.PNGDecoder;
 import de.matthiasmann.twl.utils.PNGDecoder.Format;
 
 import com.chrisali.javaflightsim.lwjgl.models.RawModel;
+import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWFiles;
 
@@ -217,13 +219,13 @@ public class Loader {
 
 			glGenerateMipmap(GL_TEXTURE_2D);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			/* TODO Fix Anisotropic Filtering
+			
 			// Set Anisotropic Filtering
-			if (GLContext.getCapabilities().GL_EXT_texture_filter_anisotropic && useAnisotropicFiltering) {
+			if (DisplayManager.getGlCapabilities().GL_EXT_texture_filter_anisotropic && useAnisotropicFiltering) {
 				float value = Math.min(4f, glGetFloat(EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT));
 				glTexParameterf(GL_TEXTURE_2D, EXTTextureFilterAnisotropic.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, value);
 			}
-			*/
+			
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -0.4f);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

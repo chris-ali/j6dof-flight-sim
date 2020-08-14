@@ -31,8 +31,6 @@ import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static org.lwjgl.glfw.GLFW.*;
-
 /**
  * Provides functionality for getting the values from a font file.
  * 

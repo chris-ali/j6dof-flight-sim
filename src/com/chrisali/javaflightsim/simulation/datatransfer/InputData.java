@@ -19,6 +19,7 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.datatransfer;
 
+import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,11 +30,22 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateM
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl;
 import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 
+import org.lwjgl.BufferUtils;
+
 /**
- *	Container of input data from external keyboards or controllers 
+ *	Container of input data from external keyboards, mice or controllers 
  *  into the simulation using {@link FlightControlsStateManager}. Relatively thread safe.
  */
 public class InputData {
+
+	private DoubleBuffer mouseXPos;
+	private DoubleBuffer mouseYPos;
+	private DoubleBuffer mouseScrollOffset;
+
+	/**
+	 * List of mouse buttons that have been pressed since last polled
+	 */ 
+	private List<Integer> mouseButtonsPressed = Collections.synchronizedList(new ArrayList<Integer>());  
 
 	/**
 	 * Map of Joystick axis commands and their respective values
@@ -45,7 +57,11 @@ public class InputData {
 	 */ 
 	private List<KeyCommand> keyCommands = Collections.synchronizedList(new ArrayList<KeyCommand>());
 
-	public InputData() {}
+	public InputData() {
+		mouseXPos = BufferUtils.createDoubleBuffer(1);
+		mouseYPos = BufferUtils.createDoubleBuffer(1);
+		mouseScrollOffset = BufferUtils.createDoubleBuffer(1);
+	}
 
 	/**
 	 * Thread safely adds new KeyCommand that has been pressed since last polled
@@ -59,11 +75,32 @@ public class InputData {
 	}
 
 	/**
+	 * Thread safely adds new mouse button that has been pressed since last polled
+	 * 
+	 * @see GLFW_MOUSE_BUTTON_x
+	 * @param command
+	 */
+	public void addMouseButtonPressed(int mouseButton) {
+		synchronized (mouseButtonsPressed) {
+			mouseButtonsPressed.add(mouseButton);
+		}
+	}
+
+	/**
 	 * Clears the collection of keys pressed for the next polling
 	 */
 	public void clearKeysPressed() {
 		synchronized (keyCommands) {
 			keyCommands.clear();
+		}
+	}
+
+	/**
+	 * Clears the collection of mouse buttons pressed for the next polling
+	 */
+	public void clearMouseButtonsPressed() {
+		synchronized (mouseButtonsPressed) {
+			mouseButtonsPressed.clear();
 		}
 	}
 
@@ -85,5 +122,49 @@ public class InputData {
 
 	public List<KeyCommand> getKeyCommands() { 
 		return keyCommands; 
+	}
+
+	/**
+	 * @return if the provided key command enum has been presed since last poll
+	 * @param command 
+	 */
+	public boolean isCommandPressed(KeyCommand command) {
+		return keyCommands.contains(command);
+	}
+
+	public double getMouseXPos() {
+		return mouseXPos.get(0);
+	}
+
+	public void setMouseXPos(double mouseXPos) {
+		this.mouseXPos.put(0, mouseXPos);
+	}
+
+	public double getMouseYPos() {
+		return mouseYPos.get(0);
+	}
+
+	public void setMouseYPos(double mouseYPos) {
+		this.mouseYPos.put(0, mouseYPos);
+	}
+
+	public double getMouseScrollOffset() {
+		return mouseScrollOffset.get(0);
+	}
+
+	public void setMouseScrollOffset(double scrollOffset) {
+		mouseScrollOffset.put(0, scrollOffset);
+	}
+
+	public List<Integer> getMouseButtonsPressed() {
+		return mouseButtonsPressed;
+	}
+
+	/**
+	 * @return if the provided mouse button ID has been presed since last poll
+	 * @param mouseButtonID GLFW mouse button ID 
+	 */
+	public boolean isMousePressed(int mouseButtonID) {
+		return mouseButtonsPressed.contains(mouseButtonID);
 	}
 }

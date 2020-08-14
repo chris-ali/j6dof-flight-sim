@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GLCapabilities;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -60,7 +61,13 @@ public class DisplayManager {
 	/**
      * A reference to the error callback so it doesn't get GCd.
      */
-    private static GLFWErrorCallback errorCallback;
+	@SuppressWarnings("unused")
+	private static GLFWErrorCallback errorCallback;
+	
+	/**
+	 * Reference to the OpenGL Capabilities of this thread
+	 */
+	private static GLCapabilities glCapabilities;
 	
 	/**
 	 * Creates the OpenGL display in its own window
@@ -101,8 +108,11 @@ public class DisplayManager {
 			throw new RuntimeException("Failed to create GLFW display!");
 
 		glfwMakeContextCurrent(window);
-		GL.createCapabilities();
+
+		glCapabilities = GL.createCapabilities();
+
 		glViewport(0, 0, width, height);
+
 		lastFrameTime = getCurrentTime();
 
 		glfwShowWindow(window);
@@ -114,8 +124,6 @@ public class DisplayManager {
 	 * Updates the display by rendering one frame based on the frame rate defined in {@link DisplayManager}
 	 */
 	public static void updateDisplay() {
-		//Display.sync(frameRateLimit);
-		
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 
@@ -186,5 +194,9 @@ public class DisplayManager {
 
 	public static void setWindow(long window) {
 		DisplayManager.window = window;
+	}
+
+	public static GLCapabilities getGlCapabilities() {
+		return glCapabilities;
 	}
 }
