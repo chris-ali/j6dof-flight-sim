@@ -35,7 +35,7 @@ public class RunJavaFlightSimulator {
 	
 	public static void main(String[] args) {
 		logger.debug("===============================================");
-		logger.debug("Java Flight Simulator v0.4a by Christopher Ali");
+		logger.debug("Java Flight Simulator v0.6a by Christopher Ali");
 		logger.debug("===============================================");
 		
 		Initializer.selectRunConfigurationAndRun();
