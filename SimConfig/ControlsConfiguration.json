@@ -131,8 +131,8 @@
         "8" : "AILERON_TRIM_LEFT",
         "4" : "AILERON_TRIM_RIGHT"
       }
-	},
-	"Xbox Controller" : {
+    },
+	"Microsoft X-Box 360 pad" : {
 	  "axisAssignments" : {
         "0" : {
           "axisAssignment" : "ELEVATOR",
@@ -144,7 +144,7 @@
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-		    "3" : {
+	    "3" : {
           "axisAssignment" : "RUDDER",
           "deadZone" : 0.0,
           "sensitivity" : 1.0

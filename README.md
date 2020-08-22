@@ -42,3 +42,10 @@ One day I'd like to tie objectives or a scoring element into the simulation to m
 - The 6DOF state equations come from *Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.*
 
 - Trimming method and other simulation strategies come from *Principles of Flight Simulation, Allerton David* 
+
+## Building and Development
+- Maven is required to build project and generate natives
+
+- Running build script ./buildJavaFlightSim.sh will execute the Maven task, package all required dependencies and natives, and generate natives in the workspace folder
+
+- buildJavaFlightSim.sh should be compatible with in Windows if running through WSL shell

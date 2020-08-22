@@ -59,7 +59,7 @@ public class InputMaster {
         inputData = new InputData();
         controlsConfig = FileUtilities.readControlsConfiguration();
 
-        logger.debug("Setting up GLFW Mouse and Keyboard callbacks");
+        logger.debug("Setting up GLFW Mouse and Keyboard callbacks...");
 
         glfwSetKeyCallback(DisplayManager.getWindow(), (window, key, scancode, action, mods) -> {
             inputData.clearKeysPressed();
@@ -86,6 +86,18 @@ public class InputMaster {
             inputData.setMouseXPos(xpos);
             inputData.setMouseYPos(ypos);
         });
+
+        logger.debug("Connected joysticks:");
+
+        // Loop through all conntected controllers
+        for (int GLFW_JOYSTICK = 0; GLFW_JOYSTICK < 15; GLFW_JOYSTICK++) {
+            String controllerName = glfwGetJoystickName(GLFW_JOYSTICK);
+            
+            if (controllerName == null)
+                break;
+            
+            logger.debug("Index " + GLFW_JOYSTICK + ": " + controllerName);
+        }
     }
 
     /**
@@ -96,7 +108,6 @@ public class InputMaster {
         updateJoysticks();
     }
 
-    //TODO Need to remap axis names with GLFW axis and button IDs instead
     private static void updateJoysticks() {
         Map<String, JoystickAssignments> allJoystickAssignments = controlsConfig.getJoystickAssignments();
 
@@ -142,6 +153,7 @@ public class InputMaster {
             }
 
             // Determine hat direction on connected controller, if supported
+            //TODO figure out hat assignments
             Map<Integer, KeyCommand> hatAssignments = joystickAssignments.getHatAssignments();
             if (hatAssignments != null) {
                 KeyCommand command = hatAssignments.get((int)glfwHats.get(0));

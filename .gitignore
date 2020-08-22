@@ -5,6 +5,7 @@
 /natives/
 /Release/
 *.jar
+*.zip
 *.exe
 *.classpath
 *.project

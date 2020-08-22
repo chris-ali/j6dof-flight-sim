@@ -42,12 +42,9 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.debug.Arrow;
 import com.jme3.terrain.geomipmap.TerrainLodControl;
 import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator;
@@ -66,11 +63,6 @@ public class TestJMEWorld extends SimpleApplication {
 
     private TerrainQuad terrain;
     Material matTerrain;
-    Material matWire;
-    boolean wireframe = false;
-    boolean triPlanar = false;
-    boolean wardiso = false;
-    boolean minnaert = false;
     protected BitmapText hintText;
     PointLight pl;
     Geometry lightMdl;
@@ -178,12 +170,6 @@ public class TestJMEWorld extends SimpleApplication {
         matTerrain.setTexture("NormalMap_4", normalMapGrass);
         matTerrain.setTexture("NormalMap_6", normalMapRoad);
 
-        
-        // WIREFRAME material (used to debug the terrain, only useful for this test case)
-        matWire = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        matWire.getAdditionalRenderState().setWireframe(true);
-        matWire.setColor("Color", ColorRGBA.Green);
-        
         createSky();
 
         // CREATE HEIGHTMAP
@@ -200,8 +186,7 @@ public class TestJMEWorld extends SimpleApplication {
         /*
          * Here we create the actual terrain. The tiles will be 65x65, and the total size of the
          * terrain will be 513x513. It uses the heightmap we created to generate the height values.
-         */
-        /**
+         *
          * Optimal terrain patch size is 65 (64x64).
          * The total size is up to you. At 1025 it ran fine for me (200+FPS), however at
          * size=2049 it got really slow. But that is a jump from 2 million to 8 million triangles...
@@ -216,9 +201,6 @@ public class TestJMEWorld extends SimpleApplication {
         terrain.setLocalTranslation(0, -100, 0);
         terrain.setLocalScale(1f, 1f, 1f);
         rootNode.attachChild(terrain);
-        
-        //Material debugMat = assetManager.loadMaterial("Common/Materials/VertexColor.j3m");
-        //terrain.generateDebugTangents(debugMat);
 
         DirectionalLight light = new DirectionalLight();
         light.setDirection((new Vector3f(-0.1f, -0.1f, -0.1f)).normalize());
@@ -227,8 +209,6 @@ public class TestJMEWorld extends SimpleApplication {
         cam.setLocation(new Vector3f(0, 10, -10));
         cam.lookAtDirection(new Vector3f(0, -1.5f, -1).normalizeLocal(), Vector3f.UNIT_Y);
         flyCam.setMoveSpeed(400);
-        
-        rootNode.attachChild(createAxisMarker(20));
     }
 
     public void loadHintText() {
@@ -255,40 +235,9 @@ public class TestJMEWorld extends SimpleApplication {
         @Override
         public void onAction(String name, boolean pressed, float tpf) {
             if (name.equals("wireframe") && !pressed) {
-                wireframe = !wireframe;
-                if (wireframe) {
-                    terrain.setMaterial(matWire);
-                } else {
-                    terrain.setMaterial(matTerrain);
-                }
+
             } else if (name.equals("triPlanar") && !pressed) {
-                triPlanar = !triPlanar;
-                if (triPlanar) {
-                    matTerrain.setBoolean("useTriPlanarMapping", true);
-                    // planar textures don't use the mesh's texture coordinates but real world coordinates,
-                    // so we need to convert these texture coordinate scales into real world scales so it looks
-                    // the same when we switch to/from tr-planar mode (1024f is the alphamap size)
-                    matTerrain.setFloat("DiffuseMap_0_scale", 1f / (1024f / dirtScale));
-                    matTerrain.setFloat("DiffuseMap_1_scale", 1f / (1024f / darkRockScale));
-                    matTerrain.setFloat("DiffuseMap_2_scale", 1f / (1024f / pinkRockScale));
-                    matTerrain.setFloat("DiffuseMap_3_scale", 1f / (1024f / riverRockScale));
-                    matTerrain.setFloat("DiffuseMap_4_scale", 1f / (1024f / grassScale));
-                    matTerrain.setFloat("DiffuseMap_5_scale", 1f / (1024f / brickScale));
-                    matTerrain.setFloat("DiffuseMap_6_scale", 1f / (1024f / roadScale));
-                } else {
-                    matTerrain.setBoolean("useTriPlanarMapping", false);
-                    
-                    matTerrain.setFloat("DiffuseMap_0_scale", dirtScale);
-                    matTerrain.setFloat("DiffuseMap_1_scale", darkRockScale);
-                    matTerrain.setFloat("DiffuseMap_2_scale", pinkRockScale);
-                    matTerrain.setFloat("DiffuseMap_3_scale", riverRockScale);
-                    matTerrain.setFloat("DiffuseMap_4_scale", grassScale);
-                    matTerrain.setFloat("DiffuseMap_5_scale", brickScale);
-                    matTerrain.setFloat("DiffuseMap_6_scale", roadScale);
-                    
-                    
-                    
-                }
+
             } if (name.equals("DetachControl") && !pressed) {
                 TerrainLodControl control = terrain.getControl(TerrainLodControl.class);
                 if (control != null)
@@ -296,8 +245,7 @@ public class TestJMEWorld extends SimpleApplication {
                 else {
                     control = new TerrainLodControl(terrain, cam);
                     terrain.addControl(control);
-                }
-                    
+                }      
             }
         }
     };
@@ -312,36 +260,5 @@ public class TestJMEWorld extends SimpleApplication {
 
         Spatial sky = SkyFactory.createSky(assetManager, west, east, north, south, up, down);
         rootNode.attachChild(sky);
-    }
-    
-    protected Node createAxisMarker(float arrowSize) {
-
-        Material redMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        redMat.getAdditionalRenderState().setWireframe(true);
-        redMat.setColor("Color", ColorRGBA.Red);
-        
-        Material greenMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        greenMat.getAdditionalRenderState().setWireframe(true);
-        greenMat.setColor("Color", ColorRGBA.Green);
-        
-        Material blueMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        blueMat.getAdditionalRenderState().setWireframe(true);
-        blueMat.setColor("Color", ColorRGBA.Blue);
-
-        Node axis = new Node();
-
-        // create arrows
-        Geometry arrowX = new Geometry("arrowX", new Arrow(new Vector3f(arrowSize, 0, 0)));
-        arrowX.setMaterial(redMat);
-        Geometry arrowY = new Geometry("arrowY", new Arrow(new Vector3f(0, arrowSize, 0)));
-        arrowY.setMaterial(greenMat);
-        Geometry arrowZ = new Geometry("arrowZ", new Arrow(new Vector3f(0, 0, arrowSize)));
-        arrowZ.setMaterial(blueMat);
-        axis.attachChild(arrowX);
-        axis.attachChild(arrowY);
-        axis.attachChild(arrowZ);
-
-        //axis.setModelBound(new BoundingBox());
-        return axis;
     }
 }

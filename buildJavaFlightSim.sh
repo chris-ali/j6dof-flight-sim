@@ -1,54 +1,53 @@
 #!/bin/bash
 
-#After Maven build:
-#	- Move jar w/dependencies and natives folder out of target/
-#	- Rename jar to javaflightsimulator.jar
-#	- Create shell/batch script with folloeing command: java -Djava.library.path=natives/ -jar javaflightsimulator.jar
-#	- For shell script need sudo chmod u+x javaflightsimulator.sh
-#	- Compress Aircraft/ SimConfig/ Resources/ natives/ Documentation.docx #javaflightsimulator.jar, javaflightsimulator.bat and javaflightsimulator.sh
+# Builds project, runs tests, generates natives, packages all dependencies into jar file in target/
+mvn package
 
-# Use to run in shell and bat scripts
-runCommand="java -Djava.library.path=natives/ -jar javaflightsimulator.jar" 
+echo "Maven build complete! Packaging build artifacts..."
 
-echo ${runCommand} >> javaflightsimulator.sh
-
-# Makes shell script executable
-chmod u+x javaflightsimulator.sh
-
-echo ${runCommand} >> javaflightsimulator.bat
-
-# Find a jar with dependencies inside target/ 
-cd target
-oldFileName=`ls javaflightsim-*-jar-*`
-cd ..
-
-# Parse the version number from the jar file name
-versionNumber="v0.1a"
-
-if [[ "${oldFileName}" =~ [([\w]+)-(v[0-9]\.[0-9][a-zA-Z]+)([\S]+).jar] ]]; then 
-	versionNumber=${BASH_REMATCH[2]}
-fi
-
-archiveName="javaflightsim-${versionNumber}"
-newFileName="javaflightsimulator.jar"
+# Parse the version number and project names from the pom file
+versionNumber=$(grep -e '<version>' -m 1  pom.xml | cut -c 11-14)
+artifactId=$(grep -e '<artifactId>' -m 1  pom.xml | cut -c 14-26)
+mavenArchiveName=$(ls target/${artifactId}-${versionNumber}-* | cut -c 8-)
+finalFileName=$(grep -e '<name>' -m 1  pom.xml | cut -c 8-28 | awk '{gsub(/ /,"", $0); print tolower($0)}')
+buildDirectory=${finalFileName}
 
 # Temp archive directory
-mkdir build/
+mkdir ${buildDirectory}/
 
-# Move/copy files as needed 
-cp -f target/${oldFileName} build/${newFileName}
+echo "Creating run scripts..."
+
+# Use to run program in shell and bat scripts
+runCommand="java -Djava.library.path=natives/ -jar ${finalFileName}.jar" 
+
+echo ${runCommand} >> ${buildDirectory}/${finalFileName}.sh
+echo ${runCommand} >> ${buildDirectory}/${finalFileName}.bat
+
+# Makes shell script executable
+chmod u+x ${buildDirectory}/${finalFileName}.sh
+
+echo "Copying build artifacts from ./target/ ..."
+
+# Move/copy/rename files as needed 
+cp -f target/${mavenArchiveName} ${buildDirectory}/${finalFileName}.jar
 
 cp -r -f target/natives/ natives/
-cp -r target/natives/ build/natives/
+cp -r target/natives/ ${buildDirectory}/natives/
 
-cp -r -f Aircraft/  build/Aircraft/
-cp -r -f Resources/ build/Resources/
-cp -r -f SimConfig/ build/SimConfig/
-cp -f Documentation.docx build/Documentation.docx
-cp -f LICENSE build/LICENSE
-cp javaflightsimulator.sh build/javaflightsimulator.sh
-cp javaflightsimulator.bat build/javaflightsimulator.bat
+cp -r -f Aircraft/ ${buildDirectory}/Aircraft/
+cp -r -f Resources/ ${buildDirectory}/Resources/
+cp -r -f SimConfig/ ${buildDirectory}/SimConfig/
+cp -f Documentation.odt ${buildDirectory}/Documentation.odt
+cp -f LICENSE ${buildDirectory}/LICENSE
+
+echo "Compressing build artifacts..."
 
 # Create an archive and remove the temp build folder 
-zip -r -9 -q ${archiveName}.zip build/*
-rm -r -f build
+mkdir -p Release
+archiveName=${finalFileName}-v${versionNumber}.zip
+zip -r -9 -q ${archiveName} ${buildDirectory}/*
+mv ${archiveName} Release/${archiveName}
+rm -r -f ${buildDirectory}
+
+echo "...done!"
+echo "Your build ${archiveName} is located in ./Release/"

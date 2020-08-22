@@ -130,7 +130,7 @@ public abstract class ShaderProgram {
 		StringBuilder shaderSource = new StringBuilder();
 		
 		try {
-			InputStream in = Class.class.getResourceAsStream(file);
+			InputStream in = ShaderProgram.class.getResourceAsStream(file);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 			String line;
 			while((line=reader.readLine())!=null) {
