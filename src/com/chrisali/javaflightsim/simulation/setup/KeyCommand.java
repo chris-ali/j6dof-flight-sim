@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,12 @@ public enum KeyCommand implements ControlParameter {
 	EXIT_SIMULATION		("Exit Simulation", 0),
 	GENERATE_PLOTS		("Generate Plots", 0),
 	PAUSE_UNPAUSE_SIM	("Pause/Unpause Simulation", 0),
-	RESET_SIM			("Reset Simulation", 0);
+	RESET_SIM			("Reset Simulation", 0),
+	USE_COCKPIT	  	    ("Use No Panel Cockpit View", 0),
+	USE_COCKPIT_2D 		("Use 2D Panel Cockpit View", 0),
+	USE_COCKPIT_3D 		("Use 3D Panel Cockpit View", 0),
+	USE_CHASE 	   		("Use Chase View", 0),
+	USE_FLYBY			("Use Fly-by View", 0);
 	
 	private String name;
 	private final double minimum;

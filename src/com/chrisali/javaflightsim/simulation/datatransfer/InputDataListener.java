@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,8 +17,10 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim.swing.instrumentpanel;
+package com.chrisali.javaflightsim.simulation.datatransfer;
 
-public interface ClosePanelListener {
-	public void panelWindowClosed();
+import java.util.EventListener;
+
+public interface InputDataListener extends EventListener {
+	public void onInputDataReceived(InputData inputData);
 }

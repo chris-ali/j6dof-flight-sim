@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,12 +21,17 @@ package com.chrisali.javaflightsim.tests;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.initializer.JMESimulationController;
 import com.chrisali.javaflightsim.interfaces.SimulationController;
+import com.chrisali.javaflightsim.lwjgl.input.InputMaster;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
+
+import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.DisplayMode;
 
 /**
  * Test class for {@link FlightControlsState}. Creates flight controls object and thread to
@@ -40,10 +45,18 @@ public class TestFlightControls implements Runnable {
 	private SimulationController simController;
 	
 	public TestFlightControls() {
-		simController = new LWJGLSwingSimulationController(FileUtilities.readSimulationConfiguration());
+		simController = new JMESimulationController(FileUtilities.readSimulationConfiguration());
 		simController.getConfiguration().getSimulationOptions().add(Options.USE_JOYSTICK);
 		
 		flightControls = new FlightControlsStateManager(simController, new AtomicInteger(0));
+		
+		try {
+			InputMaster.init();
+			Display.create();
+			Display.setDisplayMode(new DisplayMode(320, 240));
+		} catch (LWJGLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -51,15 +64,16 @@ public class TestFlightControls implements Runnable {
 		try {
 			Thread.sleep(500);
 			
-			while (true) {
-				flightControls.step();
+			while (!Display.isCloseRequested()) {
+				InputMaster.update();
+				flightControls.onInputDataReceived(InputMaster.getInputData());
 				System.out.println(flightControls.getControlsState().toString());
 				System.out.println();
-				Thread.sleep((long) (250));
+				Thread.sleep((long) (1000));
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
+		} 
 	}
 	
 	public static void main(String[] args) {new Thread(new TestFlightControls()).start();}

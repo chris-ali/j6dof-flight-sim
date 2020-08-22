@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ public class GUIText {
 	private FontType font;
 
 	private boolean centerText = false;
+	private boolean visible = true;
 
 	/**
 	 * Creates a new text, loads the text's quads into a VAO, and adds the text
@@ -69,9 +70,11 @@ public class GUIText {
 	 *            the line, based on this line length value.
 	 * @param centered
 	 *            - whether the text should be centered or not.
+	 * @param visible
+	 * 			  - if the text is visible.  
 	 */
 	public GUIText(String text, float fontSize, FontType font, Vector2f position, float maxLineLength,
-			boolean centered) {
+			boolean centered, boolean visible) {
 		this.textString = text;
 		this.fontSize = fontSize;
 		this.font = font;
@@ -105,11 +108,13 @@ public class GUIText {
 	 * @param centered
 	 *            - whether the text should be centered or not.
 	 * @param color
-	 * 			  - the color of the text.    
+	 * 			  - the color of the text.
+	 * @param visible
+	 * 			  - if the text is visible.     
 	 */
 	public GUIText(String text, float fontSize, FontType font, Vector2f position, float maxLineLength,
-			boolean centered, Vector3f color) {
-		this(text, fontSize, font, position, maxLineLength, centered);
+			boolean centered, Vector3f color, boolean visible) {
+		this(text, fontSize, font, position, maxLineLength, centered, visible);
 		
 		this.color = color;
 	}
@@ -248,5 +253,13 @@ public class GUIText {
 	 */
 	public int getTextMeshVao() {
 		return textMeshVao;
+	}
+
+	public boolean isVisible() {
+		return visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 }

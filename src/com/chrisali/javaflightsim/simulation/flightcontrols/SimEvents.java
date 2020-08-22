@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@ public class SimEvents {
 	private static final Logger logger = LogManager.getLogger(SimEvents.class);
 	
 	// Keep track if button is pressed, so events occur only once if button held down 
-	private static boolean pausePressed = false;
 	private static boolean resetPressed = false;
 	
 	// Keep track of reset, so that it can only be run once per pause
@@ -59,18 +58,14 @@ public class SimEvents {
 	 * @param isPressed
 	 */
 	public static void pauseUnpauseSimulation(boolean isPressed) {
-		if(isPressed && !options.contains(Options.PAUSED) && !pausePressed) {
+		if(isPressed && !options.contains(Options.PAUSED)) {
 			options.add(Options.PAUSED);
 			logger.debug("Simulation paused!");
-			pausePressed = true;
-		} else if(isPressed && options.contains(Options.PAUSED) && !pausePressed) {
+		} else if(isPressed && options.contains(Options.PAUSED)) {
 			options.remove(Options.PAUSED);
 			logger.debug("Simulation unpaused!");
 			wasReset = false;
-			pausePressed = true;
-		} else if(!isPressed && pausePressed) {
-			pausePressed = false;
-		}
+		} 
 	}
 	
 	/**

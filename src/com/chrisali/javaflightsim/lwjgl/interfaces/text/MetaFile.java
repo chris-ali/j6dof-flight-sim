@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,9 +26,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.opengl.Display;
 
 /**
  * Provides functionality for getting the values from a font file.
@@ -72,7 +73,7 @@ public class MetaFile {
 	 *            - the font file.
 	 */
 	protected MetaFile(File file) {
-		this.aspectRatio = (double) Display.getWidth() / (double) Display.getHeight();
+		this.aspectRatio = DisplayManager.getAspectRatio();
 		openFile(file);
 		loadPaddingData();
 		loadLineSizes();

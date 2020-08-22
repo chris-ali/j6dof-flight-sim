@@ -1,6 +1,12 @@
 package com.chrisali.javaflightsim.interfaces;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
@@ -25,4 +31,12 @@ public interface SimulationController {
 	public void startSimulation();
 
 	public void stopSimulation();
+
+	public boolean isSimulationRunning();
+
+	public List<Map<SimOuts, Double>> getLogsOut();
+
+	public boolean clearLogsOut();
+
+	public void saveConsoleOutput(File selectedFile) throws IOException;
 }

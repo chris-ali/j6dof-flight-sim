@@ -18,7 +18,7 @@
   },
   "integratorConfig" : {
     "STARTTIME" : 0.0,
-    "DT" : 0.008333333333333333,
+    "DT" : 0.03333333333333333,
     "ENDTIME" : 100.0
   },
   "initialControls" : {

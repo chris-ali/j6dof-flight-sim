@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.util.vector.Vector2f;
-import org.newdawn.slick.opengl.Texture;
 
 import com.chrisali.javaflightsim.lwjgl.interfaces.ui.InterfaceTexture;
 import com.chrisali.javaflightsim.lwjgl.loader.Loader;
@@ -103,9 +102,8 @@ public abstract class AbstractGauge {
 		logger.debug("Loading "+ getClass().getSimpleName() +"'s associated textures...");
 
 		for (Map.Entry<String, InterfaceTexture> entry : gaugeTextures.entrySet()) {
-			Texture texture = loader.loadAndGetTexture(entry.getKey(), OTWDirectories.GAUGES.toString()); 
-
-			entry.getValue().setTexture(texture.getTextureID());
+			int texture = loader.loadAndGetTexture(entry.getKey(), OTWDirectories.GAUGES.toString()); 
+			entry.getValue().setTexture(texture);
 		}
 	}
 	

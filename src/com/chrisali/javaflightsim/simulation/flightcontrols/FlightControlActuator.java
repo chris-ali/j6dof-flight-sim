@@ -141,6 +141,9 @@ public class FlightControlActuator implements ControlParameterActuator {
 			} else if (parameter.equals(THROTTLE_4)) {
 				lever(THROTTLE_4, value);
 			}
+
+			SimEvents.pauseUnpauseSimulation(false);
+			SimEvents.resetSimulation(false);
 		}
 		
 		continuous(GEAR, gearLeverDown ? GEAR.getMinimum() : GEAR.getMaximum());
@@ -226,7 +229,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 	}
 
 	/**
-	 * Configures the actuator to consider transient lagn when calculating the control deflection 
+	 * Configures the actuator to consider transient lag when calculating the control deflection 
 	 * 
 	 * @param useTransientLag
 	 */

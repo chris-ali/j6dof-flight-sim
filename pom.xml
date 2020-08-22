@@ -1,5 +1,5 @@
 <!--
-  Copyright (C) 2016-2017 Christopher Ali
+  Copyright (C) 2016-2020 Christopher Ali
   
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,13 +22,23 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.chrisali</groupId>
 	<artifactId>javaflightsim</artifactId>
-	<version>0.4a</version>
+	<version>0.6a</version>
 	<name>Java Flight Simulator</name>
 	
 	<properties>
 		<finalName>${project.artifactId}-${project.version}.jar</finalName>
 		<main.class>com.chrisali.javaflightsim.RunJavaFlightSimulator</main.class>
+		<jme3_g>org.jmonkeyengine</jme3_g>
+		<jme3_v>3.2.0-stable</jme3_v>
+		<lwjgl.version>3.2.3</lwjgl.version>
 	</properties>
+
+	<repositories>
+		<repository>
+		  <id>jcenter</id>
+		  <url>https://jcenter.bintray.com</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -48,15 +58,15 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.6.1</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>11</source>
+					<target>11</target>
 				</configuration>
 			</plugin>
 
 			<plugin>
-				<groupId>com.googlecode.mavennatives</groupId>
-				<artifactId>maven-nativedependencies-plugin</artifactId>
-				<version>0.0.7</version>
+				<groupId>com.teamtter.mavennatives</groupId>
+				<artifactId>nativedependencies-maven-plugin</artifactId>
+				<version>1.0.6</version>
 				<executions>
 					<execution>
 						<id>unpacknatives</id>
@@ -70,7 +80,7 @@
 			
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<id>bundle-project-sources</id>
@@ -94,12 +104,94 @@
 		</plugins>
 	</build>
 
+	<!-- Profiles for each natives OS version that LWJGL should provide -->
+	<profiles>
+		<profile>
+			<id>lwjgl-natives-linux-amd64</id>
+			<activation>
+				<os>
+					<family>unix</family>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+				<lwjgl.natives>natives-linux</lwjgl.natives>
+			</properties>
+		</profile>
+		<profile>
+			<id>lwjgl-natives-macos-amd64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+				<lwjgl.natives>natives-macos</lwjgl.natives>
+			</properties>
+		</profile>
+		<profile>
+			<id>lwjgl-natives-windows-amd64</id>
+			<activation>
+				<os>
+					<family>windows</family>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+				<lwjgl.natives>natives-windows</lwjgl.natives>
+			</properties>
+		</profile>
+	</profiles>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.lwjgl</groupId>
+				<artifactId>lwjgl-bom</artifactId>
+				<version>${lwjgl.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.lwjgl.lwjgl/lwjgl -->
 		<dependency>
-			<groupId>org.lwjgl.lwjgl</groupId>
+			<groupId>org.lwjgl</groupId>
 			<artifactId>lwjgl</artifactId>
-			<version>2.9.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl-glfw</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl-openal</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl-opengl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl</artifactId>
+			<classifier>${lwjgl.natives}</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl-glfw</artifactId>
+			<classifier>${lwjgl.natives}</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl-openal</artifactId>
+			<classifier>${lwjgl.natives}</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.lwjgl</groupId>
+			<artifactId>lwjgl-opengl</artifactId>
+			<classifier>${lwjgl.natives}</classifier>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.lwjgl.lwjgl/lwjgl_util -->
@@ -113,14 +205,14 @@
 		<dependency>
 			<groupId>org.jfree</groupId>
 			<artifactId>jfreechart</artifactId>
-			<version>1.0.19</version>
+			<version>1.5.0</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.5</version>
+			<version>3.11</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-math3 -->
@@ -130,24 +222,18 @@
 			<version>3.6.1</version>
 		</dependency>
 		
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-csv -->
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-csv</artifactId>
-		    <version>1.3</version>
+		    <version>1.8</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.bidib.jbidib.eu.hansolo/SteelSeries -->
-		<dependency>
-			<groupId>org.bidib.jbidib.eu.hansolo</groupId>
-			<artifactId>SteelSeries</artifactId>
-			<version>3.9.31.1</version>
-		</dependency>
-		
 		 <!-- the core, which includes Streaming API, shared low-level abstractions (but NOT data-binding) -->
 		 <dependency>
 		   <groupId>com.fasterxml.jackson.core</groupId>
 		   <artifactId>jackson-core</artifactId>
-		   <version>2.9.0</version>
+		   <version>2.11.2</version>
 		 </dependency>
 		
 		 <!-- Just the annotations; use this dependency if you want to attach annotations
@@ -155,45 +241,61 @@
 		 <dependency>
 		   <groupId>com.fasterxml.jackson.core</groupId>
 		   <artifactId>jackson-annotations</artifactId>
-		   <version>2.9.0</version>
+		   <version>2.11.2</version>
 		</dependency>
 		
 		<!-- databinding; ObjectMapper, JsonNode and related classes are here -->
 		<dependency>
 		  <groupId>com.fasterxml.jackson.core</groupId>
 		  <artifactId>jackson-databind</artifactId>
-		  <version>2.10.0.pr1</version>
+      <version>2.11.2</version>
 		</dependency>
 		
 		<dependency>
-		    <groupId>org.slick2d</groupId>
-		    <artifactId>slick2d-core</artifactId>
-		    <version>1.0.2</version>
-		    <exclusions>
-		    	<exclusion>
-		    		<groupId>javax.jnlp</groupId>
-		    		<artifactId>jnlp-api</artifactId>
-		    	</exclusion>
-		    </exclusions>
+			<groupId>org.l33tlabs.twl</groupId>
+			<artifactId>pngdecoder</artifactId>
+			<version>1.0</version>
 		</dependency>
 		
 		<dependency>
 		    <groupId>org.apache.logging.log4j</groupId>
 		    <artifactId>log4j-api</artifactId>
-		    <version>2.8.2</version>
+		    <version>2.13.3</version>
 		</dependency>
 		
 		<dependency>
 		    <groupId>org.apache.logging.log4j</groupId>
 		    <artifactId>log4j-core</artifactId>
-		    <version>2.13.2</version>
+        <version>2.13.3</version>
 		</dependency>
 		
 		<dependency>
 		  <groupId>junit</groupId>
 		  <artifactId>junit</artifactId>
-		  <version>4.12</version>
+		  <version>4.13</version>
 		  <scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>${jme3_g}</groupId>
+			<artifactId>jme3-core</artifactId>
+			<version>${jme3_v}</version>
+		  </dependency>
+		  <dependency>
+			<groupId>${jme3_g}</groupId>
+			<artifactId>jme3-desktop</artifactId>
+			<version>${jme3_v}</version>
+			<scope>runtime</scope>
+		  </dependency>
+		  <dependency>
+			<groupId>${jme3_g}</groupId>
+			<artifactId>jme3-lwjgl</artifactId>
+			<version>${jme3_v}</version>
+		  </dependency>
+		  <dependency>
+			<groupId>${jme3_g}</groupId>
+			<artifactId>jme3-terrain</artifactId>
+			<version>${jme3_v}</version>
+		  </dependency>
 	</dependencies>
 </project>

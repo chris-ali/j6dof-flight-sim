@@ -1,78 +1,81 @@
 {
   "keyboardAssignments" : {
-    "DOWN" : "ELEVATOR_UP",
-    "LEFT" : "AILERON_LEFT",
-    "G" : "GEAR_UP_DOWN",
-    "L" : "GENERATE_PLOTS",
-    "PG UP" : "INCREASE_THROTTLE",
-    "P" : "PAUSE_UNPAUSE_SIM",
-    "F6" : "DECREASE_FLAPS",
-    "Q" : "EXIT_SIMULATION",
-    "F7" : "INCREASE_FLAPS",
-    "R" : "RESET_SIM",
-    "PG DOWN" : "DECREASE_THROTTLE",
-    "RIGHT" : "AILERON_RIGHT",
-    "UP" : "ELEVATOR_DOWN"
+    "264" : "ELEVATOR_UP",
+    "263" : "AILERON_LEFT",
+    "71" : "GEAR_UP_DOWN",
+    "76" : "GENERATE_PLOTS",
+    "266" : "INCREASE_THROTTLE",
+    "80" : "PAUSE_UNPAUSE_SIM",
+    "295" : "DECREASE_FLAPS",
+    "81" : "EXIT_SIMULATION",
+    "296" : "INCREASE_FLAPS",
+    "82" : "RESET_SIM",
+    "267" : "DECREASE_THROTTLE",
+    "262" : "AILERON_RIGHT",
+    "265" : "ELEVATOR_DOWN",
+    "55" : "USE_COCKPIT",
+    "56" : "USE_COCKPIT_2D",
+    "57" : "USE_CHASE"
   },
   "joystickAssignments" : {
-    "ch throttle quadrant usb" : {
+    "CH PRODUCTS CH THROTTLE QUADRANT" : {
       "axisAssignments" : {
-        "RX" : {
+        "3" : {
           "axisAssignment" : "PROPELLER_2",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-        "RY" : {
+        "4" : {
           "axisAssignment" : "MIXTURE_1",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-        "X" : {
+        "0" : {
           "axisAssignment" : "THROTTLE_1",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-        "RZ" : {
+        "5" : {
           "axisAssignment" : "MIXTURE_2",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-        "Y" : {
+        "1" : {
           "axisAssignment" : "THROTTLE_2",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-        "Z" : {
+        "2" : {
           "axisAssignment" : "PROPELLER_1",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         }
       },
       "buttonAssignments" : {
-        "11" : "ELEVATOR_TRIM_UP",
-        "2" : "AILERON_TRIM_LEFT",
-        "3" : "AILERON_TRIM_RIGHT",
-        "4" : "GEAR_UP",
-        "5" : "GEAR_DOWN",
-        "6" : "DECREASE_FLAPS",
-        "7" : "INCREASE_FLAPS",
-        "10" : "ELEVATOR_TRIM_DOWN"
+        "10" : "ELEVATOR_TRIM_UP",
+        "1" : "AILERON_TRIM_LEFT",
+        "2" : "AILERON_TRIM_RIGHT",
+        "3" : "GEAR_UP",
+        "4" : "GEAR_DOWN",
+        "5" : "DECREASE_FLAPS",
+        "6" : "INCREASE_FLAPS",
+        "9" : "ELEVATOR_TRIM_DOWN"
       },
       "hatAssignments" : null
     },
-    "ch pro pedals usb" : {
+    "CH PRODUCTS CH PRO PEDALS USB " : {
       "axisAssignments" : {
-        "X" : {
+        "0" : {
           "axisAssignment" : "BRAKE_R",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-        "Y" : {
+        "1" : {
           "axisAssignment" : "BRAKE_L",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-        "Z" : {
+        "2" : {
           "axisAssignment" : "RUDDER",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
@@ -81,14 +84,14 @@
       "buttonAssignments" : null,
       "hatAssignments" : null
     },
-    "ch flight sim yoke usb" : {
+    "CH PRODUCTS CH FLIGHT SIM YOKE USB " : {
       "axisAssignments" : {
-        "X" : {
+        "0" : {
           "axisAssignment" : "ELEVATOR",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-        "Y" : {
+        "1" : {
           "axisAssignment" : "AILERON",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
@@ -99,20 +102,20 @@
         "1" : "ELEVATOR_TRIM_UP"
       },
       "hatAssignments" : {
-        "0.25" : "ELEVATOR_TRIM_DOWN",
-        "0.75" : "ELEVATOR_TRIM_UP",
-        "1.0" : "AILERON_TRIM_LEFT",
-        "0.5" : "AILERON_TRIM_RIGHT"
+        "1" : "ELEVATOR_TRIM_DOWN",
+        "4" : "ELEVATOR_TRIM_UP",
+        "8" : "AILERON_TRIM_LEFT",
+        "2" : "AILERON_TRIM_RIGHT"
       }
     },
-	"SideWinder Force Feedback 2 Joystick" : {
+	"Microsoft SideWinder Force Feedback 2 Joystick" : {
 	  "axisAssignments" : {
-        "y" : {
+        "0" : {
           "axisAssignment" : "ELEVATOR",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-        "x" : {
+        "1" : {
           "axisAssignment" : "AILERON",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
@@ -123,25 +126,25 @@
         "1" : "ELEVATOR_TRIM_UP"
       },
       "hatAssignments" : {
-        "0.25" : "ELEVATOR_TRIM_DOWN",
-        "0.75" : "ELEVATOR_TRIM_UP",
-        "1.0" : "AILERON_TRIM_LEFT",
-        "0.5" : "AILERON_TRIM_RIGHT"
+        "1" : "ELEVATOR_TRIM_DOWN",
+        "2" : "ELEVATOR_TRIM_UP",
+        "8" : "AILERON_TRIM_LEFT",
+        "4" : "AILERON_TRIM_RIGHT"
       }
-	},
-	"Controller (XBOX 360 For Windows)" : {
+    },
+	"Microsoft X-Box 360 pad" : {
 	  "axisAssignments" : {
-        "y" : {
+        "0" : {
           "axisAssignment" : "ELEVATOR",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-        "x" : {
+        "1" : {
           "axisAssignment" : "AILERON",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-		"z" : {
+	    "3" : {
           "axisAssignment" : "RUDDER",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
@@ -152,10 +155,10 @@
         "1" : "ELEVATOR_TRIM_UP"
       },
       "hatAssignments" : {
-        "0.25" : "ELEVATOR_TRIM_DOWN",
-        "0.75" : "ELEVATOR_TRIM_UP",
-        "1.0" : "AILERON_TRIM_LEFT",
-        "0.5" : "AILERON_TRIM_RIGHT"
+        "1" : "ELEVATOR_TRIM_DOWN",
+        "4" : "ELEVATOR_TRIM_UP",
+        "8" : "AILERON_TRIM_LEFT",
+        "2" : "AILERON_TRIM_RIGHT"
       }
 	}
   }

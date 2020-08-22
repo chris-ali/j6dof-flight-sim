@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,45 +19,21 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation.datatransfer;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.chrisali.javaflightsim.interfaces.Steppable;
-import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 
 /**
- *	Interacts with {@link Integrate6DOFEquations} and any registered listeners to pass flight data from the simulation
- *	listeners. Uses threading to obtain data from the simulation at a reasonable rate
+ *	Passes converted flight data from the simulation to any registered listeners. Relatively thread safe.
  */
-public class FlightData implements Steppable {
-	
-	private static final Logger logger = LogManager.getLogger(FlightData.class);
-	
+public class FlightData {
+
 	private Map<FlightDataType, Double> flightData = Collections.synchronizedMap(new EnumMap<FlightDataType, Double>(FlightDataType.class));
 	
-	private Integrate6DOFEquations simulation;
-	private List<FlightDataListener> dataListenerList;
-	
-	/**
-	 * Creates an instance of {@link FlightData} with a reference to {@link Integrate6DOFEquations} so
-	 * that the thread in this class knows when the simulation is running
-	 * 
-	 * @param simulation
-	 */
-	public FlightData(Integrate6DOFEquations simulation) {
-		this.simulation = simulation;
-		this.dataListenerList = new ArrayList<>();
-	}
-	
-	public Map<FlightDataType, Double> getFlightData() {return flightData;}
+	public FlightData() {}
 	
 	/**
 	 * Polls simOut for data, and assigns and converts the values needed to the flightData EnumMap  
@@ -101,45 +77,10 @@ public class FlightData implements Steppable {
 			
 			flightData.put(FlightDataType.PITCH_RATE, Math.toDegrees(simOut.get(SimOuts.Q)));
 		}
-		
-		fireDataArrived();
-	}
-		
-	@Override
-	public boolean canStepNow(int simTimeMS) {
-		return simTimeMS % 1 == 0;
 	}
 
-	@Override
-	public void step() {
-		try {
-			if(simulation.getSimOut() != null)
-				updateData(simulation.getSimOut());
-		} catch (Exception ez) {
-			logger.error("Exception encountered in Flight Data Listener!", ez);
-		}
-	}
-	
-	/**
-	 * Adds a listener that implements {@link FlightDataListener} to a list of listeners that can listen
-	 * to {@link NewFlightData} 
-	 * 
-	 * @param dataListener
-	 */
-	public void addFlightDataListener(FlightDataListener dataListener) {
-		logger.debug("Adding flight data listener: " + dataListener.getClass());
-		dataListenerList.add(dataListener);
-	}
-	
-	/**
-	 * Lets registered listeners know that data has arrived from the {@link Integrate6DOFEquations} thread
-	 * so that they can use it as needed
-	 */
-	private void fireDataArrived() {
-		for (FlightDataListener listener : dataListenerList) {
-			if(listener != null) 
-				listener.onFlightDataReceived(this);
-		}
+	public Map<FlightDataType, Double> getFlightData() {
+		return flightData;
 	}
 
 	@Override

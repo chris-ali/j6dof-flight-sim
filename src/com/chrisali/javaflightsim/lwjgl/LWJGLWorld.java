@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,14 +24,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 import com.chrisali.javaflightsim.interfaces.OTWWorld;
 import com.chrisali.javaflightsim.interfaces.SimulationController;
@@ -42,6 +41,7 @@ import com.chrisali.javaflightsim.lwjgl.entities.EntityCollections;
 import com.chrisali.javaflightsim.lwjgl.entities.Light;
 import com.chrisali.javaflightsim.lwjgl.entities.Ownship;
 import com.chrisali.javaflightsim.lwjgl.events.WindowClosedListener;
+import com.chrisali.javaflightsim.lwjgl.input.InputMaster;
 import com.chrisali.javaflightsim.lwjgl.interfaces.gauges.InstrumentPanel;
 import com.chrisali.javaflightsim.lwjgl.interfaces.text.FontType;
 import com.chrisali.javaflightsim.lwjgl.interfaces.text.SimulationTexts;
@@ -56,15 +56,18 @@ import com.chrisali.javaflightsim.lwjgl.particles.ParticleTexture;
 import com.chrisali.javaflightsim.lwjgl.renderengine.DisplayManager;
 import com.chrisali.javaflightsim.lwjgl.renderengine.InterfaceRenderer;
 import com.chrisali.javaflightsim.lwjgl.renderengine.MasterRenderer;
-import com.chrisali.javaflightsim.lwjgl.terrain.Terrain;
 import com.chrisali.javaflightsim.lwjgl.terrain.TerrainCollection;
 import com.chrisali.javaflightsim.lwjgl.textures.ModelTexture;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
 import com.chrisali.javaflightsim.simulation.SimulationRunner;
+import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
+import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
+import com.chrisali.javaflightsim.simulation.datatransfer.InputDataListener;
 import com.chrisali.javaflightsim.simulation.setup.CameraMode;
+import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
@@ -100,10 +103,14 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	private InterfaceRenderer interfaceRenderer;
 	private InstrumentPanel panel;
 	
+	// Fields that interface with the simulation
 	private SimulationConfiguration configuration;
+	private EnvironmentData environmentData;
 	
 	// Event Listeners
 	private List<WindowClosedListener> windowClosedListeners = new ArrayList<>();
+	private List<InputDataListener> inputDataListeners = new ArrayList<>();
+	private List<EnvironmentDataListener> environmentDataListeners = new ArrayList<>();
 			
 	/**
 	 * Sets up OTW display with {@link SimulationConfiguration} provided by {@link SimulationController} 
@@ -135,14 +142,19 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			interfaceRenderer.render(configuration, interfaceTextures);
 
 			TextMaster.render(simTexts.getTexts());
+
+			InputMaster.update();
+			fireInputDataReceived();
 						
+			environmentData.updateData(terrainCollection.getTerrainHeight(ownship));
+			fireEnvironmentDataReceived();
+			
 			DisplayManager.updateDisplay();
 		} catch (Exception e) {
 			logger.error("Error encountered while running LWJGL display!", e);
 		}
 		
-		if(Display.isCloseRequested() || Keyboard.isKeyDown(Keyboard.KEY_Q)) {
-			fireWindowClosed();
+		if(glfwWindowShouldClose(DisplayManager.getWindow()) || InputMaster.getInputData().getKeyCommands().contains(KeyCommand.EXIT_SIMULATION)) {
 			cleanUp();
 		}
 	}
@@ -165,6 +177,8 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	 * Closes all display and rendering processes, and closes display window 
 	 */
 	private void cleanUp() {
+		fireWindowClosed();
+
 		try {  
 			logger.debug("Cleaning up and closing LWJGL display...");
 			
@@ -174,6 +188,9 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			masterRenderer.cleanUp();
 			interfaceRenderer.cleanUp();
 			loader.cleanUp();			
+		}
+		catch (NullPointerException e) {
+			logger.warn("Unable to clean up LWJGL display. Assets may not have been initialized in the first place!");
 		}
 		catch (Exception e) {
 			logger.fatal("Error encountered when cleaning up LWJGL display!", e);
@@ -212,6 +229,11 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		
 		ParticleMaster.init(loader, masterRenderer.getProjectionMatrix());
 		TextMaster.init(loader);
+
+		logger.debug("Initializing control inputs and environment data transfer...");
+		
+		InputMaster.init();
+		environmentData = new EnvironmentData();
 		
 		interfaceRenderer = new InterfaceRenderer(loader);
 	}
@@ -247,7 +269,8 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		
 		logger.debug("Setting up camera...");
 		
-		camera = new Camera(ownship);
+		camera = new Camera(ownship, configuration.getCameraConfiguration());
+		inputDataListeners.add(camera);
 				
 		//================================= Terrain ==========================================================
 		
@@ -272,7 +295,8 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		logger.debug("Generating on-screen text and panel...");
 		
 		// On-screen text
-		simTexts = new SimulationTexts(new FontType(loader, "ubuntu"));
+		simTexts = new SimulationTexts(new FontType(loader, "ubuntu"), configuration);
+		inputDataListeners.add(simTexts);
 		
 		// Instrument Panel and Gauges
 		interfaceTextures = new HashMap<String, List<InterfaceTexture>>();
@@ -286,21 +310,8 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		soundCollection = new SoundCollection(configuration);
 	}
 	
-	@Override
-	public synchronized float getTerrainHeight() {
-		if (terrainCollection == null)
-			return 0.0f;
-		
-		TreeMap<String, Terrain> terrainTree = terrainCollection.getTerrainTree();
-		Vector3f position = ownship.getPosition();
-		
-		// Terrain object ownship is currently on
-		Terrain currentTerrain = Terrain.getCurrentTerrain(terrainTree, position.x, position.z);
-		
-		// If outside world bounds, return 0 as terrain height
-		return (currentTerrain == null) ? 0.0f : currentTerrain.getTerrainHeight(position.x, position.z);
-	}
-
+	// =============================== Events =====================================
+	
 	@Override
 	public void onFlightDataReceived(FlightData flightData) {
 		Map<FlightDataType, Double> receivedFlightData = flightData.getFlightData();
@@ -311,17 +322,15 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			
 			// Ownship movement; let camera track ownhip 1-1 for now
 			ownship.move(receivedFlightData);
-			camera.move(configuration);
+			camera.move();
 
 			// Record flight data into text string to display on OTW screen 
-			simTexts.update(receivedFlightData, configuration, camera, ownship);
+			simTexts.update(receivedFlightData, camera, ownship);
 			
 			// Instrument Panel
 			panel.update(receivedFlightData);
 		}
 	}
-	
-	// =============================== Events =====================================
 	
 	public void addWindowClosedListener(WindowClosedListener listener) {
 		if (windowClosedListeners != null) {
@@ -329,9 +338,33 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			windowClosedListeners.add(listener);
 		}
 	}
+
+	public void addinputDataListener(InputDataListener listener) {
+		if (inputDataListeners != null) {
+			logger.debug("Adding input data listener: " + listener.getClass());
+			inputDataListeners.add(listener);
+		}
+	}
+
+	public void addEnvironmentDataListener(EnvironmentDataListener listener) {
+		if (environmentDataListeners != null) {
+			logger.debug("Adding environment data listener: " + listener.getClass());
+			environmentDataListeners.add(listener);
+		}
+	}
 	
 	private void fireWindowClosed() {
 		for (WindowClosedListener listener : windowClosedListeners)
 			listener.onWindowClosed();
+	}
+
+	private void fireInputDataReceived() {
+		for (InputDataListener listener : inputDataListeners)
+			listener.onInputDataReceived(InputMaster.getInputData());
+	}
+
+	private void fireEnvironmentDataReceived() {
+		for (EnvironmentDataListener listener : environmentDataListeners)
+			listener.onEnvironmentDataReceived(environmentData);
 	}
 }

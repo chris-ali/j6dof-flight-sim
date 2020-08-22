@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,13 +24,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL13;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL31;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL31.*;
 
 import com.chrisali.javaflightsim.lwjgl.entities.Camera;
 import com.chrisali.javaflightsim.lwjgl.loader.Loader;
@@ -97,7 +98,7 @@ public class ParticleRenderer {
 				updateTextureCoordinateInfo(particle, vboData);
 			}
 			loader.updateVBO(vbo, vboData, buffer);
-			GL31.glDrawArraysInstanced(GL11.GL_TRIANGLE_STRIP, 0, quad.getVertexCount(), particleList.size());
+			glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, quad.getVertexCount(), particleList.size());
 		}
 
 		finishRendering();
@@ -155,12 +156,12 @@ public class ParticleRenderer {
 
 	private void bindTexture(ParticleTexture texture) {
 		if (texture.usesAdditiveBlending())
-			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		else
-			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		GL13.glActiveTexture(GL13.GL_TEXTURE0);
-		GL11.glBindTexture(GL11.GL_TEXTURE_2D, texture.getTextureID());
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
 		shader.loadNumberOfAtlasRows(texture.getNumberOfAtlasRows());
 	}
 
@@ -170,29 +171,29 @@ public class ParticleRenderer {
 
 	private void prepare() {
 		shader.start();
-		GL30.glBindVertexArray(quad.getVaoID());
-		GL20.glEnableVertexAttribArray(0);
-		GL20.glEnableVertexAttribArray(1);
-		GL20.glEnableVertexAttribArray(2);
-		GL20.glEnableVertexAttribArray(3);
-		GL20.glEnableVertexAttribArray(4);
-		GL20.glEnableVertexAttribArray(5);
-		GL20.glEnableVertexAttribArray(6);
-		GL11.glEnable(GL11.GL_BLEND);
-		GL11.glDepthMask(false);
+		glBindVertexArray(quad.getVaoID());
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+		glEnableVertexAttribArray(3);
+		glEnableVertexAttribArray(4);
+		glEnableVertexAttribArray(5);
+		glEnableVertexAttribArray(6);
+		glEnable(GL_BLEND);
+		glDepthMask(false);
 	}
 
 	private void finishRendering() {
-		GL11.glDepthMask(true);
-		GL11.glDisable(GL11.GL_BLEND);
-		GL20.glDisableVertexAttribArray(0);
-		GL20.glDisableVertexAttribArray(1);
-		GL20.glDisableVertexAttribArray(2);
-		GL20.glDisableVertexAttribArray(3);
-		GL20.glDisableVertexAttribArray(4);
-		GL20.glDisableVertexAttribArray(5);
-		GL20.glDisableVertexAttribArray(6);
-		GL30.glBindVertexArray(0);
+		glDepthMask(true);
+		glDisable(GL_BLEND);
+		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
+		glDisableVertexAttribArray(3);
+		glDisableVertexAttribArray(4);
+		glDisableVertexAttribArray(5);
+		glDisableVertexAttribArray(6);
+		glBindVertexArray(0);
 		shader.stop();
 	}
 

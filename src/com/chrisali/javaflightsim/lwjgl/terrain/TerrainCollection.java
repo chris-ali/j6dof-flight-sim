@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,8 @@ import com.chrisali.javaflightsim.lwjgl.loader.Loader;
 import com.chrisali.javaflightsim.lwjgl.textures.TerrainTexture;
 import com.chrisali.javaflightsim.lwjgl.textures.TerrainTexturePack;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
+
+import org.lwjgl.util.vector.Vector3f;
 
 /**
  * An array of {@link Terrain} objects used to model out the world 
@@ -81,7 +83,26 @@ public class TerrainCollection {
 		return new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture); 
 	}
 
+	/**
+	 * 
+	 * @return TreeMap of terrains as part of this collection
+	 */
 	public TreeMap<String, Terrain> getTerrainTree() {
 		return terrainTree;
+	}
+
+	/**
+	 * Calculates the height of the terrain in the exaxt spot that the ownship is currently over 
+	 * 
+	 * @return terrain height [ft]
+	 */
+	public synchronized float getTerrainHeight(Ownship ownship) {
+		Vector3f position = ownship.getPosition();
+		
+		// Terrain object ownship is currently on
+		Terrain currentTerrain = Terrain.getCurrentTerrain(terrainTree, position.x, position.z);
+		
+		// If outside world bounds, return 0 as terrain height
+		return (currentTerrain == null) ? 0.0f : currentTerrain.getTerrainHeight(position.x, position.z);
 	}
 }

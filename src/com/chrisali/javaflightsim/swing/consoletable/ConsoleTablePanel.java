@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,8 +42,7 @@ import javax.swing.SwingWorker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
-import com.chrisali.javaflightsim.simulation.SimulationRunner;
+import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
 
 public class ConsoleTablePanel extends JFrame {
@@ -53,11 +52,11 @@ public class ConsoleTablePanel extends JFrame {
 	private static final Logger logger = LogManager.getLogger(EnvironmentData.class);
 	
 	private JTable table;
-	private LWJGLSwingSimulationController controller;
+	private SimulationController controller;
 	private ConsoleTableModel consoleTableModel;
 	private SwingWorker<Void,Integer> tableRefreshWorker;
 	
-	public ConsoleTablePanel(LWJGLSwingSimulationController controller, SimulationRunner runner) {
+	public ConsoleTablePanel(SimulationController controller) {
 		super("Raw Data Output");
 		
 		setLayout(new BorderLayout());
@@ -67,7 +66,7 @@ public class ConsoleTablePanel extends JFrame {
 		//-------------- Table Panel ------------------------
 		
 		consoleTableModel = new ConsoleTableModel();
-		consoleTableModel.setData(runner.getSimulation().getLogsOut());
+		consoleTableModel.setData(controller.getLogsOut());
 		table = new JTable(consoleTableModel);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setColumnSelectionAllowed(true);
@@ -75,13 +74,13 @@ public class ConsoleTablePanel extends JFrame {
 		tableRefreshWorker = new SwingWorker<Void, Integer>() {
 			@Override
 			protected void done() {
-				//if (!runner.isRunning())
+				//if (!controller.isSimulationRunning())
 				//	ConsoleTablePanel.this.setVisible(false);
 			}
 
 			@Override
 			protected Void doInBackground() throws Exception {
-				while (runner.isRunning()) {
+				while (controller.isSimulationRunning()) {
 					consoleTableModel.fireTableDataChanged();
 					Thread.sleep(50);
 				}

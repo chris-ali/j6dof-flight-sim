@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
+import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -58,19 +58,19 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	private Thread refreshPlotThread;
 	private ProgressDialog progressDialog;
 
-	private LWJGLSwingSimulationController controller;
+	private SimulationController controller;
 	private PlotConfiguration plotConfiguration;
 	private List<Map<SimOuts, Double>> logsOut;
 	
 	/**
 	 * Plots data from the simulation in a Swing window. It loops through 
-	 * the {@link PlotWindow#simPlotCategories} set to create {@link SimulationPlot} objects using the data 
+	 * the {@link PlotWindow#simPlotCategories()} set to create {@link SimulationPlot} objects using the data 
 	 * from {@link Integrate6DOFEquations#getLogsOut()}, and assigns them to tabs in a JTabbedPane. 
 	 * 
 	 * @param String simPlotCetegories
-	 * @param LWJGLSwingSimulationController controller
+	 * @param SimulationController controller
 	 */
-	public PlotWindow(LWJGLSwingSimulationController controller) {
+	public PlotWindow(SimulationController controller) {
 		super(controller.getConfiguration().getSelectedAircraft() + " Plots");
 		setLayout(new BorderLayout());
 		

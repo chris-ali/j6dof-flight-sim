@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016-2018 Christopher Ali
+ * Copyright (C) 2016-2020 Christopher Ali
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -128,6 +128,14 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		logger.debug("Returning to menus...");
 		guiFrame.setVisible(true);
 	}
+
+	/**
+	 * @return if simulation is running
+	 */
+	@Override
+	public boolean isSimulationRunning() {
+		return (runner != null && runner.isRunning());
+	}
 	
 	/**
 	 * @return ArrayList of simulation output data 
@@ -189,7 +197,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 			if(consoleTablePanel != null)
 				consoleTablePanel.setVisible(false);
 			
-			consoleTablePanel = new ConsoleTablePanel(this, runner);
+			consoleTablePanel = new ConsoleTablePanel(this);
 			consoleTablePanel.startTableRefresh();			
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
@@ -212,10 +220,6 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	public void saveConsoleOutput(File file) throws IOException {
 		logger.debug("Saving console output to: " + file.getAbsolutePath());
 		
-		try {			
-			FileUtilities.saveToCSVFile(file, runner.getSimulation().getLogsOut());
-		} catch (Exception e) {
-			logger.error("An error occurred while saving console output!", e);
-		}
+		FileUtilities.saveToCSVFile(file, runner.getSimulation().getLogsOut());
 	}
 }
