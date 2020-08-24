@@ -102,15 +102,15 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		
 		configuration = FileUtilities.readSimulationConfiguration();
 			
-		logger.debug("Starting simulation...");
+		logger.info("Starting simulation...");
 		
-		logger.debug("Trimming aircraft...");
+		logger.info("Trimming aircraft...");
 		Trimming.trimSim(configuration, false);
 		
-		logger.debug("Initializing simulation runner...");
+		logger.info("Initializing simulation runner...");
 		runner = new SimulationRunner(this);
 
-		logger.debug("Initializaing and starting simulation runner thread...");
+		logger.info("Initializaing and starting simulation runner thread...");
 		runnerThread = new Thread(runner);
 		runnerThread.start();
 	}
@@ -121,11 +121,11 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	@Override
 	public void stopSimulation() {
-		logger.debug("Stopping simulation...");
+		logger.info("Stopping simulation...");
 
 		runner.setRunning(false);	
 		
-		logger.debug("Returning to menus...");
+		logger.info("Returning to menus...");
 		guiFrame.setVisible(true);
 	}
 
@@ -159,7 +159,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	@Override
 	public void plotSimulation() {
-		logger.debug("Plotting simulation results...");
+		logger.info("Plotting simulation results...");
 		
 		try {
 			if(plotWindow != null)
@@ -192,7 +192,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	@Override
 	public void initializeConsole() {
 		try {
-			logger.debug("Starting flight data console...");
+			logger.info("Starting flight data console...");
 			
 			if(consoleTablePanel != null)
 				consoleTablePanel.setVisible(false);
@@ -218,7 +218,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 * @throws IOException
 	 */
 	public void saveConsoleOutput(File file) throws IOException {
-		logger.debug("Saving console output to: " + file.getAbsolutePath());
+		logger.info("Saving console output to: " + file.getAbsolutePath());
 		
 		FileUtilities.saveToCSVFile(file, runner.getSimulation().getLogsOut());
 	}

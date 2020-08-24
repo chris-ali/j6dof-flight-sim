@@ -214,7 +214,7 @@ public class EntityCollections {
 	 * @param scale
 	 */
 	public void createStaticEntity(String entityName, Vector3f position, float xRot, float yRot, float zRot, float scale) {
-		logger.debug("Generating a(n)" + entityName + " at: (" + position.x + ", " + position.y + ", " + position.z + ")...");
+		logger.info("Generating a(n)" + entityName + " at: (" + position.x + ", " + position.y + ", " + position.z + ")...");
 		
 		TexturedModel staticEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, OTWDirectories.ENTITIES.toString(), loader), 
 														new ModelTexture(loader.loadTexture(entityName, OTWDirectories.ENTITIES.toString())));
@@ -266,7 +266,7 @@ public class EntityCollections {
 	 */
 	public void createLitEntity(String entityName, Vector3f position, float xRot, float yRot, float zRot, float scale, 
 								 Vector3f color, Vector3f attenuation, Vector3f lightPosOffset) {
-		logger.debug("Generating a(n)" + entityName + " at: (" + position.x + ", " + position.y + ", " + position.z + ")...");
+		logger.info("Generating a(n)" + entityName + " at: (" + position.x + ", " + position.y + ", " + position.z + ")...");
 		
 		TexturedModel litEntity =  new TexturedModel(OBJLoader.loadObjModel(entityName, OTWDirectories.ENTITIES.toString(), loader), 
 													 new ModelTexture(loader.loadTexture(entityName, OTWDirectories.ENTITIES.toString())));

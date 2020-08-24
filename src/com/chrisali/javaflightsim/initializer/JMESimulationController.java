@@ -93,12 +93,12 @@ public class JMESimulationController implements SimulationController {
 		
 		configuration = FileUtilities.readSimulationConfiguration();
 			
-		logger.debug("Starting simulation...");
+		logger.info("Starting simulation...");
 		
-		logger.debug("Trimming aircraft...");
+		logger.info("Trimming aircraft...");
 		Trimming.trimSim(configuration, false);
 		
-		logger.debug("Initializing simulation stepper...");
+		logger.info("Initializing simulation stepper...");
 		stepper = new SimulationStepper(this);
 	}
 	
@@ -107,7 +107,7 @@ public class JMESimulationController implements SimulationController {
 	 */
 	@Override
 	public void stopSimulation() {
-		logger.debug("Stopping simulation...");
+		logger.info("Stopping simulation...");
 
 		stepper.setRunning(false);
 	}
@@ -144,7 +144,7 @@ public class JMESimulationController implements SimulationController {
 	 */
 	@Override
 	public void plotSimulation() {
-		logger.debug("Plotting simulation results...");
+		logger.info("Plotting simulation results...");
 		
 		try {
 			if(plotWindow != null)
@@ -177,7 +177,7 @@ public class JMESimulationController implements SimulationController {
 	@Override
 	public void initializeConsole() {
 		try {
-			logger.debug("Starting flight data console...");
+			logger.info("Starting flight data console...");
 			
 			if(consoleTablePanel != null)
 				consoleTablePanel.setVisible(false);
@@ -204,7 +204,7 @@ public class JMESimulationController implements SimulationController {
 	 */
 	@Override
 	public void saveConsoleOutput(File file) throws IOException {
-		logger.debug("Saving console output to: " + file.getAbsolutePath());
+		logger.info("Saving console output to: " + file.getAbsolutePath());
 		
 		FileUtilities.saveToCSVFile(file, stepper.getSimulation().getLogsOut());
 	}

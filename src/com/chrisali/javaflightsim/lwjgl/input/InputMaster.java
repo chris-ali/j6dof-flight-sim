@@ -59,13 +59,12 @@ public class InputMaster {
         inputData = new InputData();
         controlsConfig = FileUtilities.readControlsConfiguration();
 
-        logger.debug("Setting up GLFW Mouse and Keyboard callbacks...");
+        logger.info("Setting up GLFW Mouse and Keyboard callbacks...");
 
         glfwSetKeyCallback(DisplayManager.getWindow(), (window, key, scancode, action, mods) -> {
             inputData.clearKeysPressed();
 
-            // Keyboard keys are integers that change depending on the engine implementation for maximum confusion
-            for (Map.Entry<Integer, KeyCommand> entry : controlsConfig.getKeyboardAssignments().entrySet()) {
+            for (Map.Entry<Integer, KeyCommand> entry : controlsConfig.getKeyboardAssignments().entrySet()) {            
                 if (key == entry.getKey() && (action == GLFW_PRESS || action == GLFW_REPEAT))
                     inputData.addKeyPressed(entry.getValue());
             }
@@ -87,7 +86,7 @@ public class InputMaster {
             inputData.setMouseYPos(ypos);
         });
 
-        logger.debug("Connected joysticks:");
+        logger.info("Connected joysticks:");
 
         // Loop through all conntected controllers
         for (int GLFW_JOYSTICK = 0; GLFW_JOYSTICK < 15; GLFW_JOYSTICK++) {
@@ -96,7 +95,7 @@ public class InputMaster {
             if (controllerName == null)
                 break;
             
-            logger.debug("Index " + GLFW_JOYSTICK + ": " + controllerName);
+            logger.info("Index " + GLFW_JOYSTICK + ": " + controllerName);
         }
     }
 

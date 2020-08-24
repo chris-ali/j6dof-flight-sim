@@ -38,7 +38,7 @@ public class SimEvents {
 	private static final Logger logger = LogManager.getLogger(SimEvents.class);
 	
 	// Keep track if button is pressed, so events occur only once if button held down 
-	private static boolean resetPressed = false;
+	private static boolean pausePressed = false;
 	
 	// Keep track of reset, so that it can only be run once per pause
 	private static boolean wasReset = false;
@@ -56,27 +56,24 @@ public class SimEvents {
 	 * Pauses and unpauses the simulation 
 	 */
 	public static void pauseUnpauseSimulation() {
-		if(!options.contains(Options.PAUSED)) {
+		if(!options.contains(Options.PAUSED) && !pausePressed) {
 			options.add(Options.PAUSED);
+			pausePressed = true;
 		} else if(options.contains(Options.PAUSED)) {
 			options.remove(Options.PAUSED);
-			wasReset = false;
+			options.remove(Options.RESET);
+			wasReset = pausePressed = false;
 		} 
 	}
 	
 	/**
-	 * When the simulation is paused, it can be reset back to initial conditions once per pause with this method 
-	 * @param isPressed
+	 * When the simulation is paused, it can be reset back to initial conditions once per pause 
 	 */
-	public static void resetSimulation(boolean isPressed) {
-		if(isPressed && options.contains(Options.PAUSED) && !options.contains(Options.RESET) && !resetPressed && !wasReset) {
+	public static void resetSimulation() {
+		if(options.contains(Options.PAUSED) && !options.contains(Options.RESET) && !wasReset) {
 			options.add(Options.RESET);
-			logger.debug("Resetting simulation...");
+			logger.debug("Resetting simulation to initial conditions...");
 			wasReset = true;
-			resetPressed = true;
-		} else if (!isPressed && resetPressed) {
-			logger.debug("...done!");
-			resetPressed = false;
 		}
 	}
 	

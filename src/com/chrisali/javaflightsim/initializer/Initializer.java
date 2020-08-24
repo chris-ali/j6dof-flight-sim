@@ -28,12 +28,12 @@ public class Initializer {
 	 */
 	public static void selectRunConfigurationAndRun() {
 		
-		logger.debug("Configuring simulation options...");
+		logger.info("Configuring simulation options...");
 		
 		SimulationConfiguration configuration;
 		
 		try {
-			logger.debug("Reading configuration files...");
+			logger.info("Reading configuration files...");
 			
 			configuration = FileUtilities.readSimulationConfiguration();
 		} catch (Exception e) {
@@ -47,19 +47,19 @@ public class Initializer {
 		
 		switch (mode) {
 		case LWJGL_SWING:
-			logger.debug(mode.toString() + " selected");
+			logger.info(mode.toString() + " selected");
 			runSwingLWJGLApp(configuration);
 			break;
 		case SWING_ONLY:
-			logger.debug(mode.toString() + " selected");
+			logger.info(mode.toString() + " selected");
 			runSwingApp(configuration);
 			break;
 		case JMONKEYENGINE:
-			logger.debug(mode.toString() + " selected");
+			logger.info(mode.toString() + " selected");
 			runJMonkeyEngineApp(configuration);
 			break;
 		case NETWORK:
-			logger.debug(mode.toString() + " selected");
+			logger.info(mode.toString() + " selected");
 			runNetworkApp(configuration);
 			break;
 		default:

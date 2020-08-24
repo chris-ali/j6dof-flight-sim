@@ -99,7 +99,7 @@ public abstract class AbstractGauge {
 			return;
 		}
 		
-		logger.debug("Loading "+ getClass().getSimpleName() +"'s associated textures...");
+		logger.info("Loading "+ getClass().getSimpleName() +"'s associated textures...");
 
 		for (Map.Entry<String, InterfaceTexture> entry : gaugeTextures.entrySet()) {
 			int texture = loader.loadAndGetTexture(entry.getKey(), OTWDirectories.GAUGES.toString()); 

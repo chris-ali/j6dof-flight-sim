@@ -34,9 +34,9 @@ public class RunJavaFlightSimulator {
 	private static final Logger logger = LogManager.getLogger(RunJavaFlightSimulator.class);
 	
 	public static void main(String[] args) {
-		logger.debug("===============================================");
-		logger.debug("Java Flight Simulator v0.6a by Christopher Ali");
-		logger.debug("===============================================");
+		logger.info("===============================================");
+		logger.info("Java Flight Simulator v0.6a by Christopher Ali");
+		logger.info("===============================================");
 		
 		Initializer.selectRunConfigurationAndRun();
 	}

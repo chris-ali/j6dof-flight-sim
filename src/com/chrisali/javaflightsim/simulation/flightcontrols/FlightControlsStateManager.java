@@ -61,7 +61,7 @@ public class FlightControlsStateManager implements Steppable, InputDataListener 
 	private AtomicInteger simTimeMS;
 
 	public FlightControlsStateManager(SimulationController simController, AtomicInteger simTimeMS) {
-		logger.debug("Initializing flight controls...");
+		logger.info("Initializing flight controls...");
 
 		SimEvents.init(simController);
 
@@ -74,8 +74,8 @@ public class FlightControlsStateManager implements Steppable, InputDataListener 
 
 		analysisControls = FileUtilities.readAnalysisControls();
 		if (analysisControls != null) {
-			logger.debug(analysisControls.getAnalysisInputs().size() + " analysis flight control inputs found:");
-			logger.debug(analysisControls.toString());
+			logger.info(analysisControls.getAnalysisInputs().size() + " analysis flight control inputs found:");
+			logger.info(analysisControls.toString());
 		}
 	}
 

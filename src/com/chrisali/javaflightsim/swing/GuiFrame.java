@@ -234,7 +234,7 @@ public class GuiFrame extends JFrame {
 				int closeDialog = JOptionPane.showConfirmDialog(GuiFrame.this, "Are you sure you wish to quit?",
 																"Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if (closeDialog == JOptionPane.YES_OPTION) {
-					logger.debug("Closing Java Flight Simulator");
+					logger.info("Closing Java Flight Simulator");
 					
 					System.gc();
 					System.exit(0);

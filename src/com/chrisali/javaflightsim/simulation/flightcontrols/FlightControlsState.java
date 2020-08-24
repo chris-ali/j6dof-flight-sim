@@ -52,7 +52,7 @@ public class FlightControlsState {
 	}
 	
 	public FlightControlsState(Map<FlightControl, Double> aFlightControls, SimulationConfiguration simConfig) {
-		logger.debug("Initializing flight controls state...");
+		logger.info("Initializing flight controls state...");
 		
 		flightControls = new EnumMap<FlightControl, Double>((aFlightControls != null) ? aFlightControls : simConfig.getInitialControls());
 		

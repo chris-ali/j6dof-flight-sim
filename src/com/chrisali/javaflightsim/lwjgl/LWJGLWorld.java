@@ -180,7 +180,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		fireWindowClosed();
 
 		try {  
-			logger.debug("Cleaning up and closing LWJGL display...");
+			logger.info("Cleaning up and closing LWJGL display...");
 			
 			AudioMaster.cleanUp();
 			ParticleMaster.cleanUp();
@@ -203,7 +203,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	 * Sets up all display and rendering processes and prepares them to run
 	 */
 	private void startUp() {
-		logger.debug("Starting up LWJGL display...");
+		logger.info("Starting up LWJGL display...");
 		DisplayManager.setFrameRateLimit(configuration.getSimulationRateHz());
 		DisplayManager.setHeight(configuration.getDisplayConfiguration().getDisplayHeight());
 		DisplayManager.setWidth(configuration.getDisplayConfiguration().getDisplayWidth());
@@ -213,7 +213,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		
 		loader = new Loader();
 		
-		logger.debug("Generating fog and sky...");
+		logger.info("Generating fog and sky...");
 		
 		masterRenderer = new MasterRenderer();
 		MasterRenderer.setSkyColor(new Vector3f(0.70f, 0.90f, 1.0f));
@@ -221,17 +221,17 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		MasterRenderer.setFogGradient(3.5f);
 		MasterRenderer.setFov(configuration.getCameraConfiguration().getFieldOfView());
 		
-		logger.debug("Initializing audio...");
+		logger.info("Initializing audio...");
 		
 		AudioMaster.init();
 		AudioMaster.setListenerData(new Vector3f(0, 0, 0), new Vector3f(0, 0, 0));
 		
-		logger.debug("Loading on-screen text and particles...");
+		logger.info("Loading on-screen text and particles...");
 		
 		ParticleMaster.init(loader, masterRenderer.getProjectionMatrix());
 		TextMaster.init(loader);
 
-		logger.debug("Initializing control inputs and environment data transfer...");
+		logger.info("Initializing control inputs and environment data transfer...");
 		
 		InputMaster.init();
 		environmentData = new EnvironmentData();
@@ -246,20 +246,20 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		
 		//==================================== Sun ===========================================================
 		
-		logger.debug("Generating sun...");
+		logger.info("Generating sun...");
 		
 		lights = new ArrayList<>();
 		lights.add(new Light(new Vector3f(20000, 40000, 20000), new Vector3f(0.95f, 0.95f, 0.95f)));
 		
 		//================================= Entities ==========================================================
 		
-		logger.debug("Generating collections of entities...");
+		logger.info("Generating collections of entities...");
 		
 		entities = new EntityCollections(lights, loader);
 		
 		//================================= Ownship ===========================================================
 		
-		logger.debug("Creating ownship...");
+		logger.info("Creating ownship...");
 		
 		TexturedModel airplane =  new TexturedModel(OBJLoader.loadObjModel("airplane", OTWDirectories.ENTITIES.toString(), loader), 
 			    								new ModelTexture(loader.loadTexture("airplane", OTWDirectories.ENTITIES.toString())));
@@ -268,21 +268,21 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		ownship.setRender(configuration.getCameraConfiguration().getMode() == CameraMode.CHASE);
 		entities.addToStaticEntities(ownship);
 		
-		logger.debug("Setting up camera...");
+		logger.info("Setting up camera...");
 		
 		camera = new Camera(ownship, configuration.getCameraConfiguration());
 		inputDataListeners.add(camera);
 				
 		//================================= Terrain ==========================================================
 		
-		logger.debug("Generating terrain...");
+		logger.info("Generating terrain...");
 		
 		terrainCollection = new TerrainCollection(10, loader, ownship);
 		entities.setTerrainTree(terrainCollection.getTerrainTree());
 		
 		//=============================== Particles ==========================================================
 		
-		logger.debug("Generating clouds...");
+		logger.info("Generating clouds...");
 		
 		ParticleTexture clouds = new ParticleTexture(loader.loadTexture("clouds", OTWDirectories.PARTICLES.toString()), 4, true);
 		
@@ -293,7 +293,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 		
 		//=============================== Interface ==========================================================
 		
-		logger.debug("Generating on-screen text and panel...");
+		logger.info("Generating on-screen text and panel...");
 		
 		// On-screen text
 		simTexts = new SimulationTexts(new FontType(loader, "ubuntu"), configuration);
@@ -306,7 +306,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 
 		//==================================== Audio =========================================================
 		
-		logger.debug("Generating sound collection...");
+		logger.info("Generating sound collection...");
 		
 		soundCollection = new SoundCollection(configuration);
 	}
@@ -335,21 +335,21 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	
 	public void addWindowClosedListener(WindowClosedListener listener) {
 		if (windowClosedListeners != null) {
-			logger.debug("Adding window closed listener: " + listener.getClass());
+			logger.info("Adding window closed listener: " + listener.getClass());
 			windowClosedListeners.add(listener);
 		}
 	}
 
 	public void addinputDataListener(InputDataListener listener) {
 		if (inputDataListeners != null) {
-			logger.debug("Adding input data listener: " + listener.getClass());
+			logger.info("Adding input data listener: " + listener.getClass());
 			inputDataListeners.add(listener);
 		}
 	}
 
 	public void addEnvironmentDataListener(EnvironmentDataListener listener) {
 		if (environmentDataListeners != null) {
-			logger.debug("Adding environment data listener: " + listener.getClass());
+			logger.info("Adding environment data listener: " + listener.getClass());
 			environmentDataListeners.add(listener);
 		}
 	}

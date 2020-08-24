@@ -76,7 +76,7 @@ public class SimulationPlot extends JComponent {
 	 * @param bundle
 	 */
 	public SimulationPlot(List<Map<SimOuts, Double>> logsOut, SubPlotBundle bundle) {
-		logger.debug("Generating a subplot bundle for " + bundle.getTitle() + "...");
+		logger.info("Generating a subplot bundle for " + bundle.getTitle() + "...");
 				
 		plotList = new LinkedList<>();
 		xySeriesData = new LinkedHashMap<>();
@@ -94,7 +94,7 @@ public class SimulationPlot extends JComponent {
 		
 		add(generateChartPanel(bundle), BorderLayout.CENTER);
 		
-		logger.debug("...done!");
+		logger.info("...done!");
 	}
 	
 	/**
@@ -149,7 +149,7 @@ public class SimulationPlot extends JComponent {
 		updateXYSeriesData(logsOut, bundle);
 
 		for (Map.Entry<String, XYSeriesCollection> entry : xyCollections.entrySet()) {
-			logger.debug("Creating a subplot called: " + entry.getKey() + "...");
+			logger.info("Creating a subplot called: " + entry.getKey() + "...");
 			
 			XYPlot subPlot = new XYPlot(entry.getValue(),
 										domainAxis,

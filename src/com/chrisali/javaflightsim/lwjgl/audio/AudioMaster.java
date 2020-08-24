@@ -79,7 +79,7 @@ public class AudioMaster {
 			alCapabilities = AL.createCapabilities(capabilities);
 		
 			if(alcMakeContextCurrent(context))
-				logger.debug("Successfully started OpenAL context for device:" + device);
+				logger.info("Successfully started OpenAL context for device:" + device);
 
 		} 
 		catch (Exception e) {

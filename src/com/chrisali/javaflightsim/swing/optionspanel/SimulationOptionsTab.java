@@ -52,6 +52,7 @@ public class SimulationOptionsTab extends JPanel {
 	private JCheckBox consoleDisplay;
 	private JSpinner stepSizeSpinner;
 	private StepSizeValueChangedListener stepSizeValueChangedListener;
+	private JCheckBox debugMode;
 
 	private EnumSet<Options> simulationOptions;
 	
@@ -164,6 +165,27 @@ public class SimulationOptionsTab extends JPanel {
 		});
 		controlsPanel.add(stepSizeSpinner, gc);
 
+		//---------- Debug Mode Checkbox ------------------- 
+		gc.gridy++;
+		
+		gc.gridx = 0;
+		gc.anchor = GridBagConstraints.EAST;
+		controlsPanel.add(new JLabel("Debug Mode:"), gc);
+		
+		gc.gridx = 1;
+		gc.anchor = GridBagConstraints.WEST;
+		debugMode = new JCheckBox("Enabled");
+		debugMode.setToolTipText("Generates extra logging and telemetry for debug purposes");
+		debugMode.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(((JCheckBox)e.getSource()).isSelected())
+					simulationOptions.add(Options.DEBUG_MODE);
+				else
+					simulationOptions.remove(Options.DEBUG_MODE);
+			}
+		});
+		controlsPanel.add(debugMode, gc);
 		
 		//========================== Window Settings ===============================================
 		
@@ -181,9 +203,10 @@ public class SimulationOptionsTab extends JPanel {
 	public void setOptionsTab(EnumSet<Options> options, int stepSize) {
 		this.simulationOptions = options;
 		
-		analysisMode.setSelected(simulationOptions.contains(Options.ANALYSIS_MODE) ? true : false);
-		consoleDisplay.setSelected(simulationOptions.contains(Options.CONSOLE_DISPLAY) ? true : false);
+		analysisMode.setSelected(simulationOptions.contains(Options.ANALYSIS_MODE));
+		consoleDisplay.setSelected(simulationOptions.contains(Options.CONSOLE_DISPLAY));
 		stepSizeSpinner.setValue(stepSize);
+		debugMode.setSelected(simulationOptions.contains(Options.DEBUG_MODE));
 	}
 	
 	protected EnumSet<Options> getSimulationOptions() {

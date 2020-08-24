@@ -65,85 +65,85 @@ public class FlightControlActuator implements ControlParameterActuator {
 	private void handlePresses(ControlParameter parameter, float value) {
 		switch ((KeyCommand)parameter) {
 			case AILERON_LEFT:
-				if (isPressed(value)) aileronLeft();
+				aileronLeft();
 				break;
 			case AILERON_RIGHT:
-				if (isPressed(value)) aileronRight();
+				aileronRight();
 				break;
 			case AILERON_TRIM_LEFT:
-				if (isPressed(value)) aileronTrimLeft();
+				aileronTrimLeft();
 				break;
 			case AILERON_TRIM_RIGHT:
-				if (isPressed(value)) aileronTrimRight();
+				aileronTrimRight();
 				break;
 			case BRAKES:
 				pedal(BRAKE_L, BRAKE_L.getMaximum());
 				pedal(BRAKE_R, BRAKE_R.getMaximum());
 				break;
 			case CENTER_CONTROLS:
-				if (isPressed(value)) centerControls();
+				centerControls();
 				break;
 			case DECREASE_FLAPS:
-				if (isPressed(value)) retractFlaps();
+				retractFlaps();
 				break;
 			case DECREASE_MIXTURE:
 				break;
 			case DECREASE_PROPELLER:
 				break;
 			case DECREASE_THROTTLE:
-				if (isPressed(value)) decreaseThrottle();
+				decreaseThrottle();
 				break;
 			case ELEVATOR_DOWN:
-				if (isPressed(value)) elevatorDown();
+				elevatorDown();
 				break;
 			case ELEVATOR_TRIM_DOWN:
-				if (isPressed(value)) elevatorTrimDown();
+				elevatorTrimDown();
 				break;
 			case ELEVATOR_TRIM_UP:
-				if (isPressed(value)) elevatorTrimUp();
+				elevatorTrimUp();
 				break;
 			case ELEVATOR_UP:
-				if (isPressed(value)) elevatorUp();
+				elevatorUp();
 				break;
 			case GEAR_DOWN:
-				if (isPressed(value)) extendGear();
+				extendGear();
 				break;
 			case GEAR_UP:
-				if (isPressed(value)) retractGear();
+				retractGear();
 				break;
 			case GEAR_UP_DOWN:
-				cycleGear(isPressed(value));
+				cycleGear();
 				break;
 			case GENERATE_PLOTS:
-				if (isPressed(value)) SimEvents.plotSimulation();
+				SimEvents.plotSimulation();
 				break;
 			case INCREASE_FLAPS:
-				if (isPressed(value)) extendFlaps();
+				extendFlaps();
 				break;
 			case INCREASE_MIXTURE:
 				break;
 			case INCREASE_PROPELLER:
 				break;
 			case INCREASE_THROTTLE:
-				if (isPressed(value)) increaseThrottle();
+				increaseThrottle();
 				break;
 			case PAUSE_UNPAUSE_SIM:
-				if (isPressed(value)) SimEvents.pauseUnpauseSimulation();
+				SimEvents.pauseUnpauseSimulation();
 				break;
 			case RESET_SIM:
-				SimEvents.resetSimulation(isPressed(value));
+				SimEvents.resetSimulation();
 				break;
 			case RUDDER_LEFT:
-				if (isPressed(value)) rudderLeft();
+				rudderLeft();
 				break;
 			case RUDDER_RIGHT:
-				if (isPressed(value)) rudderRight();
+				rudderRight();
 				break;
 			case RUDDER_TRIM_LEFT:
-				if (isPressed(value)) rudderTrimLeft();
+				rudderTrimLeft();
 				break;
 			case RUDDER_TRIM_RIGHT:
-				if (isPressed(value)) rudderTrimRight();
+				rudderTrimRight();
 				break;
 			default:
 				break;
@@ -258,12 +258,6 @@ public class FlightControlActuator implements ControlParameterActuator {
 	}
 	
 	/**
-	 * @param value
-	 * @return if a relative {@link FlightControl} parameter is pressed
-	 */
-	private boolean isPressed(float value) { return value == 1.0; }
-	
-	/**
 	 * Standardizes rate of control deflection of keyboard and joystick button inputs regardless of the 
 	 * simulation update rate based on the {@link FlightControl} argument provided
 	 * 
@@ -359,13 +353,12 @@ public class FlightControlActuator implements ControlParameterActuator {
 	 * Cycles Landing Gear Down/Up. Uses gearPressed so that the key needs to be released to extend or retract gear again
 	 * 
 	 * @param controls
-	 * @param buttonPressed
 	 */
-	private void cycleGear(boolean buttonPressed) {
-		if (!gearPressed && buttonPressed) {
+	private void cycleGear() {
+		if (!gearPressed) {
 			gearLeverDown = gearLeverDown ? false : true;
 			gearPressed = true;
-		} else if (gearPressed && !buttonPressed) {
+		} else if (gearPressed) {
 			gearPressed = false;
 		}
 	}

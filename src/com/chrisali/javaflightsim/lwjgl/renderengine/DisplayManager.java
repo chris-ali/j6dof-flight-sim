@@ -73,7 +73,7 @@ public class DisplayManager {
 	 * Creates the OpenGL display in its own window
 	 */
 	public static void createDisplay() {
-		logger.debug("Initializing GLFW display...");
+		logger.info("Initializing GLFW display...");
 
 		//Initialize GLFW.
 		glfwInit();
@@ -115,7 +115,7 @@ public class DisplayManager {
 
 		glfwShowWindow(window);
 
-		logger.debug("...done!");
+		logger.info("...done!");
 	}
 	
 	/**

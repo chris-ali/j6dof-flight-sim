@@ -80,10 +80,10 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 		
 		configureSimulationTime();
 		
-		logger.debug("Initializing flight controls manager...");
+		logger.info("Initializing flight controls manager...");
 		flightControlsManager = new FlightControlsStateManager(simController, timeMS);
 		
-		logger.debug("Initializing simulation...");
+		logger.info("Initializing simulation...");
 		simulation = new Integrate6DOFEquations(flightControlsManager.getControlsState(), configuration);
 	}
 	
@@ -111,11 +111,11 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 	 */
 	private void configureAnalysisNormalMode() {
 		if (options.contains(Options.ANALYSIS_MODE)) {
-			logger.debug("Running simulation in Analysis Mode...");
+			logger.info("Running simulation in Analysis Mode...");
 		} else {
-			logger.debug("Running simulation in Normal Mode...");
+			logger.info("Running simulation in Normal Mode...");
 						
-			logger.debug("Initializing LWJGL world...");
+			logger.info("Initializing LWJGL world...");
 			outTheWindow = new LWJGLWorld(simController);
 			outTheWindow.addWindowClosedListener(this);
 			outTheWindow.addEnvironmentDataListener(simulation);

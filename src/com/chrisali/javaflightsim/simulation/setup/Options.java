@@ -30,13 +30,15 @@ import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
  *	<p>PAUSED - Pauses the integration and therefore the simulation; used in combination with RESET to return the simulation to initial conditions</p>
  *	<p>RESET - Resets the integration to initial conditions using {@link IntegrationSetup#gatherInitialConditions(String)}</p>
  *	<p>CONSOLE_DISPLAY - Displays every data parameter from {@link Integrate6DOFEquations} in the console for each step of integration</p>
+ *  <p>DEBUG_MODE - Displays extra logging and telemetry for debugging purposes</p>
  */
 public enum Options {
 	ANALYSIS_MODE     ("Analysis Mode"),
 	UNLIMITED_FLIGHT  ("Unlimited Flight"),
 	PAUSED			  ("Paused"),
 	RESET			  ("Reset"),
-	CONSOLE_DISPLAY	  ("Console Display");
+	CONSOLE_DISPLAY	  ("Console Display"),
+	DEBUG_MODE		  ("Debug Mode");
 	
 	private String option;
 	

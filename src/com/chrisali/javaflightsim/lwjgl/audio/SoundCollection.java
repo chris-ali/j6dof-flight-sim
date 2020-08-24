@@ -126,7 +126,7 @@ public class SoundCollection {
 	 */
 	public SoundCollection(SimulationConfiguration configuration) {
 		
-		logger.debug("Initializing Sound Collections...");
+		logger.info("Initializing Sound Collections...");
 		
 		aircraft = FileUtilities.readAircraftConfiguration(configuration.getSelectedAircraft());
 		

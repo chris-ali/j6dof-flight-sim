@@ -137,7 +137,7 @@ public class IntegrateGroundReaction {
 			y0[2*i+1] = 0.0;
 		}
 		
-		logger.debug("Setting up Runge Kutta Integrator for 6DOF calculations...");
+		logger.info("Setting up Runge Kutta Integrator for 6DOF calculations...");
 		
 		integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[2]);
 		t = integratorConfig[0];

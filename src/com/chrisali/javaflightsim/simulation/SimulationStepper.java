@@ -75,10 +75,10 @@ public class SimulationStepper {
 		// Pause thread for frameStepMS milliseconds to emulate real time operation in normal mode
 		frameStepMS = (int) (integratorConfig.get(IntegratorConfig.DT) * TO_MILLISEC);
 		
-		logger.debug("Initializing flight controls manager...");
+		logger.info("Initializing flight controls manager...");
 		flightControlsManager = new FlightControlsStateManager(simController, timeMS);
 		
-		logger.debug("Initializing simulation...");
+		logger.info("Initializing simulation...");
 		simulation = new Integrate6DOFEquations(flightControlsManager.getControlsState(), configuration);;
 		//simulation.addFlightDataListener(outTheWindow);
 		
