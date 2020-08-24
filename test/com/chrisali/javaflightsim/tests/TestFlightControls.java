@@ -26,7 +26,6 @@ import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.lwjgl.input.InputMaster;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
-import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 import org.lwjgl.LWJGLException;
@@ -46,8 +45,6 @@ public class TestFlightControls implements Runnable {
 	
 	public TestFlightControls() {
 		simController = new JMESimulationController(FileUtilities.readSimulationConfiguration());
-		simController.getConfiguration().getSimulationOptions().add(Options.USE_JOYSTICK);
-		
 		flightControls = new FlightControlsStateManager(simController, new AtomicInteger(0));
 		
 		try {

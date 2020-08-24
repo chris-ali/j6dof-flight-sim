@@ -1,5 +1,5 @@
 {
-  "simulationOptions" : [ "UNLIMITED_FLIGHT", "USE_MOUSE" ],
+  "simulationOptions" : [ "UNLIMITED_FLIGHT" ],
   "initialConditions" : {
     "INITU" : 210.0,
     "INITV" : 0.0,
