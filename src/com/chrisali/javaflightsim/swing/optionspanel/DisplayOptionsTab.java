@@ -47,6 +47,7 @@ public class DisplayOptionsTab extends JPanel {
 	private static final long serialVersionUID = -2865224216075732617L;
 	
 	private JLabel headerLabel;
+	private JCheckBox fullScreenCheckbox;
 	private JCheckBox antiAliasingCheckbox;
 	private JSpinner anisotropicFilteringSpinner;
 	private JSpinner displayWidthSpinner;
@@ -94,6 +95,24 @@ public class DisplayOptionsTab extends JPanel {
 		gc.weighty = 1;
 		gc.gridy = 0;
 		gc.insets = spacer;
+
+		//----------- Full Screen Checkbox --------------------- 
+		gc.gridy++;
+		
+		gc.gridx = 0;
+		gc.anchor = GridBagConstraints.EAST;
+		controlsPanel.add(new JLabel("Full Screen:"), gc);
+		
+		gc.gridx = 1;
+		gc.anchor = GridBagConstraints.WEST;
+		fullScreenCheckbox = new JCheckBox("Use Full Screen");
+		fullScreenCheckbox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				displayConfiguration.setUseFullScreen(((JCheckBox)e.getSource()).isSelected());
+			}
+		});
+		controlsPanel.add(fullScreenCheckbox, gc);
 		
 		//----------- Anti Aliasing Checkbox --------------------- 
 		gc.gridy++;
@@ -182,6 +201,7 @@ public class DisplayOptionsTab extends JPanel {
 	public void setOptionsTab(DisplayConfiguration displayConfiguration) {
 		this.displayConfiguration = displayConfiguration;
 		
+		antiAliasingCheckbox.setSelected(displayConfiguration.isUseFullScreen());
 		antiAliasingCheckbox.setSelected(displayConfiguration.isUseAntiAliasing());
 		anisotropicFilteringSpinner.setValue(displayConfiguration.getAnisotropicFiltering());
 		displayHeightSpinner.setValue(displayConfiguration.getDisplayHeight());		

@@ -54,16 +54,12 @@ public class SimEvents {
 	
 	/**
 	 * Pauses and unpauses the simulation 
-	 * 
-	 * @param isPressed
 	 */
-	public static void pauseUnpauseSimulation(boolean isPressed) {
-		if(isPressed && !options.contains(Options.PAUSED)) {
+	public static void pauseUnpauseSimulation() {
+		if(!options.contains(Options.PAUSED)) {
 			options.add(Options.PAUSED);
-			logger.debug("Simulation paused!");
-		} else if(isPressed && options.contains(Options.PAUSED)) {
+		} else if(options.contains(Options.PAUSED)) {
 			options.remove(Options.PAUSED);
-			logger.debug("Simulation unpaused!");
 			wasReset = false;
 		} 
 	}

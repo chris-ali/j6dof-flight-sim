@@ -1,9 +1,9 @@
 package com.chrisali.javaflightsim.simulation.flightcontrols;
 
 import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.*;
-import static com.chrisali.javaflightsim.simulation.setup.KeyCommand.*;
 
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
+import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
@@ -44,109 +44,178 @@ public class FlightControlActuator implements ControlParameterActuator {
 		trimRudder   = controlsState.getTrimValue(RUDDER);
 	}
 	
-	// TODO Need to find a better way of selecting the right method to call
 	@Override
 	public void handleParameterChange(ControlParameter parameter, float value) {
 		if(parameter.isRelative()) {
-			if (parameter.equals(AILERON_LEFT)) {
-				if (isPressed(value)) aileronLeft();
-			} else if (parameter.equals(AILERON_RIGHT)) {
-				if (isPressed(value)) aileronRight();
-			} else if (parameter.equals(AILERON_TRIM_LEFT)) {
-				if (isPressed(value)) aileronTrimLeft();
-			} else if (parameter.equals(AILERON_TRIM_RIGHT)) {
-				if (isPressed(value)) aileronTrimRight();
-			} else if (parameter.equals(BRAKES)) {
-				pedal(BRAKE_L, BRAKE_L.getMaximum());
-				pedal(BRAKE_R, BRAKE_R.getMaximum());
-			} else if (parameter.equals(CENTER_CONTROLS)) {
-				if (isPressed(value)) centerControls();
-			} else if (parameter.equals(DECREASE_FLAPS)) {
-				if (isPressed(value)) retractFlaps();
-			} else if (parameter.equals(DECREASE_MIXTURE)) {
-			} else if (parameter.equals(DECREASE_PROPELLER)) {
-			} else if (parameter.equals(DECREASE_THROTTLE)) {
-				if (isPressed(value)) decreaseThrottle();
-			} else if (parameter.equals(ELEVATOR_DOWN)) {
-				if (isPressed(value)) elevatorDown();
-			} else if (parameter.equals(ELEVATOR_UP)) {
-				if (isPressed(value)) elevatorUp();
-			} else if (parameter.equals(ELEVATOR_TRIM_DOWN)) {
-				if (isPressed(value)) elevatorTrimDown();
-			} else if (parameter.equals(ELEVATOR_TRIM_UP)) {
-				if (isPressed(value)) elevatorTrimUp();
-			} else if (parameter.equals(GEAR_UP_DOWN)) {
-				cycleGear(isPressed(value));
-			} else if (parameter.equals(GEAR_DOWN)) {
-				if (isPressed(value)) extendGear();
-			} else if (parameter.equals(GEAR_UP)) {
-				if (isPressed(value)) retractGear();
-			} else if (parameter.equals(INCREASE_FLAPS)) {
-				if (isPressed(value)) extendFlaps();
-			} else if (parameter.equals(INCREASE_MIXTURE)) {
-			} else if (parameter.equals(INCREASE_PROPELLER)) {
-			} else if (parameter.equals(INCREASE_THROTTLE)) {
-				if (isPressed(value)) increaseThrottle();
-			} else if (parameter.equals(RUDDER_LEFT)) {
-				if (isPressed(value)) rudderLeft();
-			} else if (parameter.equals(RUDDER_RIGHT)) {
-				if (isPressed(value)) rudderRight();
-			} else if (parameter.equals(RUDDER_TRIM_LEFT)) {
-				if (isPressed(value)) rudderTrimLeft();
-			} else if (parameter.equals(RUDDER_TRIM_RIGHT)) {
-				if (isPressed(value)) rudderTrimRight();
-			} else if (parameter.equals(PAUSE_UNPAUSE_SIM)) {
-				SimEvents.pauseUnpauseSimulation(isPressed(value));
-			} else if (parameter.equals(RESET_SIM)) {
-				SimEvents.resetSimulation(isPressed(value));
-			} else if (parameter.equals(GENERATE_PLOTS)) {
-				if (isPressed(value)) SimEvents.plotSimulation();
-			} 
+			handlePresses(parameter, value);
 		}
 		else {
-			if (parameter.equals(AILERON)) {
-				trimmableControl(AILERON, value, trimAileron);
-			} else if (parameter.equals(BRAKE_L)) {
-				pedal(BRAKE_L, value);
-			} else if (parameter.equals(BRAKE_R)) {
-				pedal(BRAKE_R, value);
-			} else if (parameter.equals(ELEVATOR)) {
-				trimmableControl(ELEVATOR, value, trimElevator);
-			} else if (parameter.equals(FLAPS)) {
-			} else if (parameter.equals(GEAR)) {
-			} else if (parameter.equals(MIXTURE_1)) {
-				lever(MIXTURE_1, value);
-			} else if (parameter.equals(MIXTURE_2)) {
-				lever(MIXTURE_2, value);
-			} else if (parameter.equals(MIXTURE_3)) {
-				lever(MIXTURE_3, value);
-			} else if (parameter.equals(MIXTURE_4)) {
-				lever(MIXTURE_4, value);
-			} else if (parameter.equals(PROPELLER_1)) {
-				lever(PROPELLER_1, value);
-			} else if (parameter.equals(PROPELLER_2)) {
-				lever(PROPELLER_2, value);
-			} else if (parameter.equals(PROPELLER_3)) {
-				lever(PROPELLER_3, value);
-			} else if (parameter.equals(PROPELLER_4)) {
-				lever(PROPELLER_4, value);
-			} else if (parameter.equals(RUDDER)) {
-				trimmableControl(RUDDER, value, trimRudder);
-			} else if (parameter.equals(THROTTLE_1)) {
-				lever(THROTTLE_1, value);
-			} else if (parameter.equals(THROTTLE_2)) {
-				lever(THROTTLE_2, value);
-			} else if (parameter.equals(THROTTLE_3)) {
-				lever(THROTTLE_3, value);
-			} else if (parameter.equals(THROTTLE_4)) {
-				lever(THROTTLE_4, value);
-			}
-
-			SimEvents.pauseUnpauseSimulation(false);
-			SimEvents.resetSimulation(false);
+			handleAxes(parameter, value);
 		}
 		
 		continuous(GEAR, gearLeverDown ? GEAR.getMinimum() : GEAR.getMaximum());
+	}
+
+	/**
+	 * Handles any control parameter that can be considered a button or key press
+	 * 
+	 * @param parameter
+	 * @param value
+	 */
+	private void handlePresses(ControlParameter parameter, float value) {
+		switch ((KeyCommand)parameter) {
+			case AILERON_LEFT:
+				if (isPressed(value)) aileronLeft();
+				break;
+			case AILERON_RIGHT:
+				if (isPressed(value)) aileronRight();
+				break;
+			case AILERON_TRIM_LEFT:
+				if (isPressed(value)) aileronTrimLeft();
+				break;
+			case AILERON_TRIM_RIGHT:
+				if (isPressed(value)) aileronTrimRight();
+				break;
+			case BRAKES:
+				pedal(BRAKE_L, BRAKE_L.getMaximum());
+				pedal(BRAKE_R, BRAKE_R.getMaximum());
+				break;
+			case CENTER_CONTROLS:
+				if (isPressed(value)) centerControls();
+				break;
+			case DECREASE_FLAPS:
+				if (isPressed(value)) retractFlaps();
+				break;
+			case DECREASE_MIXTURE:
+				break;
+			case DECREASE_PROPELLER:
+				break;
+			case DECREASE_THROTTLE:
+				if (isPressed(value)) decreaseThrottle();
+				break;
+			case ELEVATOR_DOWN:
+				if (isPressed(value)) elevatorDown();
+				break;
+			case ELEVATOR_TRIM_DOWN:
+				if (isPressed(value)) elevatorTrimDown();
+				break;
+			case ELEVATOR_TRIM_UP:
+				if (isPressed(value)) elevatorTrimUp();
+				break;
+			case ELEVATOR_UP:
+				if (isPressed(value)) elevatorUp();
+				break;
+			case GEAR_DOWN:
+				if (isPressed(value)) extendGear();
+				break;
+			case GEAR_UP:
+				if (isPressed(value)) retractGear();
+				break;
+			case GEAR_UP_DOWN:
+				cycleGear(isPressed(value));
+				break;
+			case GENERATE_PLOTS:
+				if (isPressed(value)) SimEvents.plotSimulation();
+				break;
+			case INCREASE_FLAPS:
+				if (isPressed(value)) extendFlaps();
+				break;
+			case INCREASE_MIXTURE:
+				break;
+			case INCREASE_PROPELLER:
+				break;
+			case INCREASE_THROTTLE:
+				if (isPressed(value)) increaseThrottle();
+				break;
+			case PAUSE_UNPAUSE_SIM:
+				if (isPressed(value)) SimEvents.pauseUnpauseSimulation();
+				break;
+			case RESET_SIM:
+				SimEvents.resetSimulation(isPressed(value));
+				break;
+			case RUDDER_LEFT:
+				if (isPressed(value)) rudderLeft();
+				break;
+			case RUDDER_RIGHT:
+				if (isPressed(value)) rudderRight();
+				break;
+			case RUDDER_TRIM_LEFT:
+				if (isPressed(value)) rudderTrimLeft();
+				break;
+			case RUDDER_TRIM_RIGHT:
+				if (isPressed(value)) rudderTrimRight();
+				break;
+			default:
+				break;
+		}
+	}
+
+	/**
+	 * Handles any control parameter that can be considered an axis movement
+	 * 
+	 * @param parameter
+	 * @param value
+	 */
+	private void handleAxes(ControlParameter parameter, float value) {
+		switch ((FlightControl)parameter) {
+			case AILERON:
+				trimmableControl(AILERON, value, trimAileron);
+				break;
+			case BRAKE_L:
+				pedal(BRAKE_L, value);
+				break;
+			case BRAKE_R:
+				pedal(BRAKE_R, value);
+				break;
+			case ELEVATOR:
+				trimmableControl(ELEVATOR, value, trimElevator);
+				break;
+			case FLAPS:
+				break;
+			case GEAR:
+				break;
+			case MIXTURE_1:
+				lever(MIXTURE_1, value);
+				break;
+			case MIXTURE_2:
+				lever(MIXTURE_2, value);
+				break;
+			case MIXTURE_3:
+				lever(MIXTURE_3, value);
+				break;
+			case MIXTURE_4:
+				lever(MIXTURE_4, value);
+				break;
+			case PROPELLER_1:
+				lever(PROPELLER_1, value);
+				break;
+			case PROPELLER_2:
+				lever(PROPELLER_2, value);
+				break;
+			case PROPELLER_3:
+				lever(PROPELLER_3, value);
+				break;
+			case PROPELLER_4:
+				lever(PROPELLER_4, value);
+				break;
+			case RUDDER:
+				trimmableControl(RUDDER, value, trimRudder);
+				break;
+			case THROTTLE_1:
+				lever(THROTTLE_1, value);
+				break;
+			case THROTTLE_2:
+				lever(THROTTLE_2, value);
+				break;
+			case THROTTLE_3:
+				lever(THROTTLE_3, value);
+				break;
+			case THROTTLE_4:
+				lever(THROTTLE_4, value);
+				break;
+			default:
+				break;
+		}
 	}
 		
 	/**

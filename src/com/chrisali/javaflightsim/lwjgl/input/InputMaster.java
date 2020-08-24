@@ -153,7 +153,6 @@ public class InputMaster {
             }
 
             // Determine hat direction on connected controller, if supported
-            //TODO figure out hat assignments
             Map<Integer, KeyCommand> hatAssignments = joystickAssignments.getHatAssignments();
             if (hatAssignments != null) {
                 KeyCommand command = hatAssignments.get((int)glfwHats.get(0));

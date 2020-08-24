@@ -204,11 +204,12 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	 */
 	private void startUp() {
 		logger.debug("Starting up LWJGL display...");
-		DisplayManager.createDisplay();
 		DisplayManager.setFrameRateLimit(configuration.getSimulationRateHz());
 		DisplayManager.setHeight(configuration.getDisplayConfiguration().getDisplayHeight());
 		DisplayManager.setWidth(configuration.getDisplayConfiguration().getDisplayWidth());
 		DisplayManager.setAaSamples(configuration.getDisplayConfiguration().isUseAntiAliasing() ? 2 : 0);
+		DisplayManager.setUseFullScreen(configuration.getDisplayConfiguration().isUseFullScreen());
+		DisplayManager.createDisplay();
 		
 		loader = new Loader();
 		
