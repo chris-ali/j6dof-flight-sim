@@ -19,25 +19,27 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.initializer;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
+import com.chrisali.javaflightsim.lwjgl.events.WindowClosedListener;
 import com.chrisali.javaflightsim.simulation.SimulationRunner;
+import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
+import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.swing.GuiFrame;
 import com.chrisali.javaflightsim.swing.consoletable.ConsoleTablePanel;
 import com.chrisali.javaflightsim.swing.plotting.PlotWindow;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Controls the configuration and running of processes supporting the simulation component of JavaFlightSim. This consists of: 
@@ -50,14 +52,15 @@ import com.chrisali.javaflightsim.swing.plotting.PlotWindow;
  * @author Christopher Ali
  *
  */
-public class LWJGLSwingSimulationController implements SimulationController {
+public class LWJGLSwingSimulationController implements SimulationController, WindowClosedListener, SimulationEventListener {
 	
 	//Logging
 	private static final Logger logger = LogManager.getLogger(LWJGLSwingSimulationController.class);
 	
 	// Configuration
 	private SimulationConfiguration configuration;
-	
+	private EnumSet<Options> options;
+			
 	// Simulation and Threads
 	private SimulationRunner runner;
 	private Thread runnerThread;
@@ -70,6 +73,8 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	
 	// Raw Data Console
 	private ConsoleTablePanel consoleTablePanel;
+
+	private boolean wasReset = false;
 		
 	/**
 	 * Initializes initial settings, configurations and conditions to be edited through menu options
@@ -101,6 +106,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		}
 		
 		configuration = FileUtilities.readSimulationConfiguration();
+		options = configuration.getSimulationOptions();
 			
 		logger.info("Starting simulation...");
 		
@@ -128,6 +134,56 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		logger.info("Returning to menus...");
 		guiFrame.setVisible(true);
 	}
+			
+	/**
+	 * When LWJGL OTW window is closed, this event is fired
+	 */
+	@Override
+	public void onWindowClosed() {
+		stopSimulation();	
+	}
+	
+	/**
+	 * Stops the simulation
+	 */
+	@Override
+	public void onStopSimulation() {
+		stopSimulation();
+	}
+	
+	/**
+	 * Pauses and unpauses the simulation 
+	 */
+	@Override
+	public void onPauseUnpauseSimulation() {
+		if(!options.contains(Options.PAUSED)) {
+			options.add(Options.PAUSED);
+		} else {
+			options.remove(Options.PAUSED);
+			options.remove(Options.RESET);
+			wasReset = false;
+		} 
+	}
+
+	/**
+	 * When the simulation is paused, it can be reset back to initial conditions once per pause 
+	 */
+	@Override
+	public void onResetSimulation() {
+		if(options.contains(Options.PAUSED) && !options.contains(Options.RESET) && !wasReset) {
+			options.add(Options.RESET);
+			logger.debug("Resetting simulation to initial conditions...");
+			wasReset = true;
+		}
+	}
+
+	/**
+	 * Generates plots of the simulation thus far
+	 */
+	@Override
+	public void onPlotSimulation() {
+		plotSimulation();
+	}
 
 	/**
 	 * @return if simulation is running
@@ -142,7 +198,7 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 * @see SimOuts
 	 */
 	public List<Map<SimOuts, Double>> getLogsOut() {
-		return (runner != null && runner.isRunning()) ? runner.getSimulation().getLogsOut() : null;
+		return (runner != null) ? runner.getSimulation().getLogsOut() : null;
 	}
 	
 	/**
@@ -176,14 +232,6 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	 */
 	public PlotWindow getPlotWindow() { return plotWindow; }
 
-	/**
-	 * @return if the plot window is visible
-	 */
-	@Override
-	public boolean isPlotWindowVisible() {
-		return (plotWindow == null) ? false : plotWindow.isVisible();
-	}
-	
 	//=============================== Console =============================================================
 	
 	/**
@@ -202,24 +250,5 @@ public class LWJGLSwingSimulationController implements SimulationController {
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
 		}
-	}
-	
-	/**
-	 * @return if the raw data console window is visible
-	 */
-	public boolean isConsoleWindowVisible() {
-		return (consoleTablePanel == null) ? false : consoleTablePanel.isVisible();
-	}
-	
-	/**
-	 * Saves the raw data in the console window to a .csv file 
-	 * 
-	 * @param file
-	 * @throws IOException
-	 */
-	public void saveConsoleOutput(File file) throws IOException {
-		logger.info("Saving console output to: " + file.getAbsolutePath());
-		
-		FileUtilities.saveToCSVFile(file, runner.getSimulation().getLogsOut());
 	}
 }

@@ -26,10 +26,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
-import com.chrisali.javaflightsim.lwjgl.events.WindowClosedListener;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
@@ -44,7 +44,7 @@ import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
  * @author Christopher
  *
  */
-public class SimulationRunner implements Runnable, WindowClosedListener {
+public class SimulationRunner implements Runnable {
 	
 	private static final Logger logger = LogManager.getLogger(SimulationRunner.class);
 	private static final int TO_MILLISEC = 1000;
@@ -88,7 +88,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 	}
 	
 	/**
-	 * Sets running parameters (start/end time and frame step time) for the timulation. Time is kept as an AtomicInteger to ensure
+	 * Sets running parameters (start/end time and frame step time) for the simulation. Time is kept as an AtomicInteger to ensure
 	 * atomic incrementation
 	 */
 	public void configureSimulationTime() {
@@ -117,7 +117,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 						
 			logger.info("Initializing LWJGL world...");
 			outTheWindow = new LWJGLWorld(simController);
-			outTheWindow.addWindowClosedListener(this);
+			outTheWindow.addWindowClosedListener((LWJGLSwingSimulationController)simController);
 			outTheWindow.addEnvironmentDataListener(simulation);
 			outTheWindow.addinputDataListener(flightControlsManager);
 			outTheWindow.init();
@@ -165,15 +165,7 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 		
 		running = false;
 	}
-			
-	/**
-	 * When LWJGL OTW window is closed, this event is fired
-	 */
-	@Override
-	public void onWindowClosed() {
-		simController.stopSimulation();	
-	}
-
+	
 	public Integrate6DOFEquations getSimulation() { return simulation; }
 	
 	public AtomicInteger getTimeMS() { return timeMS; }

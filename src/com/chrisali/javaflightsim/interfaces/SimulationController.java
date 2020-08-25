@@ -1,7 +1,5 @@
 package com.chrisali.javaflightsim.interfaces;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -25,9 +23,7 @@ public interface SimulationController {
 	public void plotSimulation();
 	
 	public void initializeConsole();
-	
-	public boolean isPlotWindowVisible();
-	
+		
 	public void startSimulation();
 
 	public void stopSimulation();
@@ -37,6 +33,4 @@ public interface SimulationController {
 	public List<Map<SimOuts, Double>> getLogsOut();
 
 	public boolean clearLogsOut();
-
-	public void saveConsoleOutput(File selectedFile) throws IOException;
 }

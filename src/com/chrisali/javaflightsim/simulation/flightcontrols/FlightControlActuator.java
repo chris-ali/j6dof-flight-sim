@@ -2,9 +2,15 @@ package com.chrisali.javaflightsim.simulation.flightcontrols;
 
 import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Handles setting of values in the Maps in {@link FlightControlsState} for a given {@link ControlParameter} 
@@ -14,7 +20,12 @@ import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
  */
 public class FlightControlActuator implements ControlParameterActuator {
 	
+	private final Logger logger = LogManager.getLogger(FlightControlActuator.class);
+	
 	FlightControlsState controlsState;
+	
+	// Events
+	private List<SimulationEventListener> simulationEventListeners = new ArrayList<>();
 	
 	// Scales the values in getRate() depending on the rate the simulation is running at
 	private double dt = 0.05;
@@ -105,6 +116,10 @@ public class FlightControlActuator implements ControlParameterActuator {
 			case ELEVATOR_UP:
 				elevatorUp();
 				break;
+			case EXIT_SIMULATION:
+				for (SimulationEventListener listener : simulationEventListeners)
+					listener.onStopSimulation();
+				break;
 			case GEAR_DOWN:
 				extendGear();
 				break;
@@ -115,7 +130,8 @@ public class FlightControlActuator implements ControlParameterActuator {
 				cycleGear();
 				break;
 			case GENERATE_PLOTS:
-				SimEvents.plotSimulation();
+				for (SimulationEventListener listener : simulationEventListeners)
+					listener.onPlotSimulation();
 				break;
 			case INCREASE_FLAPS:
 				extendFlaps();
@@ -128,10 +144,12 @@ public class FlightControlActuator implements ControlParameterActuator {
 				increaseThrottle();
 				break;
 			case PAUSE_UNPAUSE_SIM:
-				SimEvents.pauseUnpauseSimulation();
+				for (SimulationEventListener listener : simulationEventListeners)
+					listener.onPauseUnpauseSimulation();
 				break;
 			case RESET_SIM:
-				SimEvents.resetSimulation();
+				for (SimulationEventListener listener : simulationEventListeners)
+					listener.onResetSimulation();
 				break;
 			case RUDDER_LEFT:
 				rudderLeft();
@@ -470,6 +488,13 @@ public class FlightControlActuator implements ControlParameterActuator {
 			controlsState.set(THROTTLE_2, controlsState.get(THROTTLE_2) - getRate(THROTTLE_2));
 			controlsState.set(THROTTLE_3, controlsState.get(THROTTLE_3) - getRate(THROTTLE_3));
 			controlsState.set(THROTTLE_4, controlsState.get(THROTTLE_4) - getRate(THROTTLE_4));
+		}
+	}
+	
+	public void addSimulationEventListener(SimulationEventListener listener) {
+		if (simulationEventListeners != null) {
+			logger.info("Adding simulation event listener: " + listener.getClass());
+			simulationEventListeners.add(listener);
 		}
 	}
 }

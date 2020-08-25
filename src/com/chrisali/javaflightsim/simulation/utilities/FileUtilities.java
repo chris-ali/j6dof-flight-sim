@@ -232,7 +232,7 @@ public class FileUtilities {
 	 */
 	public static void saveToCSVFile(File file, List<Map<SimOuts, Double>> logsOut) throws IOException {
 		
-		logger.info("Saving configuration file to: " + file.getAbsolutePath());
+		logger.info("Saving output to: " + file.getAbsolutePath());
 		
 		BufferedWriter bw = new BufferedWriter(new FileWriter(file.getPath()));
 		

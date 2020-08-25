@@ -19,8 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.initializer;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -161,14 +159,6 @@ public class JMESimulationController implements SimulationController {
 	 */
 	public PlotWindow getPlotWindow() { return plotWindow; }
 
-	/**
-	 * @return if the plot window is visible
-	 */
-	@Override
-	public boolean isPlotWindowVisible() {
-		return (plotWindow == null) ? false : plotWindow.isVisible();
-	}
-	
 	//=============================== Console =============================================================
 	
 	/**
@@ -187,25 +177,5 @@ public class JMESimulationController implements SimulationController {
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
 		}
-	}
-	
-	/**
-	 * @return if the raw data console window is visible
-	 */
-	public boolean isConsoleWindowVisible() {
-		return (consoleTablePanel == null) ? false : consoleTablePanel.isVisible();
-	}
-	
-	/**
-	 * Saves the raw data in the console window to a .csv file 
-	 * 
-	 * @param file
-	 * @throws IOException
-	 */
-	@Override
-	public void saveConsoleOutput(File file) throws IOException {
-		logger.info("Saving console output to: " + file.getAbsolutePath());
-		
-		FileUtilities.saveToCSVFile(file, stepper.getSimulation().getLogsOut());
 	}
 }

@@ -151,10 +151,6 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 		integratorConfig  = ArrayUtils.toPrimitive(configuration.getIntegratorConfig().values()
 				   												.toArray(new Double[integratorConfig.length]));
 		
-		// Run forever as a pilot in the loop simulation
-		if (!options.contains(Options.ANALYSIS_MODE) && options.contains(Options.UNLIMITED_FLIGHT))
-			integratorConfig[2] = Double.POSITIVE_INFINITY; 
-		
 		// Initial time
 		t = integratorConfig[0];
 				

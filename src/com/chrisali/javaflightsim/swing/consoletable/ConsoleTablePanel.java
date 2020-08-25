@@ -26,7 +26,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
+import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -43,13 +43,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.interfaces.SimulationController;
-import com.chrisali.javaflightsim.simulation.datatransfer.EnvironmentData;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 public class ConsoleTablePanel extends JFrame {
 
 	private static final long serialVersionUID = 555700867777925736L;
 	
-	private static final Logger logger = LogManager.getLogger(EnvironmentData.class);
+	private static final Logger logger = LogManager.getLogger(ConsoleTablePanel.class);
 	
 	private JTable table;
 	private SimulationController controller;
@@ -129,8 +129,9 @@ public class ConsoleTablePanel extends JFrame {
 			public void actionPerformed(ActionEvent ev) {
 				if (fileChooser.showSaveDialog(ConsoleTablePanel.this) == JFileChooser.APPROVE_OPTION) {
 					try {
-						controller.saveConsoleOutput(fileChooser.getSelectedFile());
-					} catch (IOException ex) {
+						File file = fileChooser.getSelectedFile();
+						FileUtilities.saveToCSVFile(file, controller.getLogsOut());
+					} catch (Exception ex) {
 						JOptionPane.showMessageDialog(ConsoleTablePanel.this, 
 								"Could not save data to file", "Error", JOptionPane.ERROR_MESSAGE);
 						logger.error("Unable to save CSV file!", ex);

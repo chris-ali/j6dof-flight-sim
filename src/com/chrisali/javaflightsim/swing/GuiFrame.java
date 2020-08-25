@@ -217,7 +217,7 @@ public class GuiFrame extends JFrame {
 				cardPanel.setVisible(false);
 				
 				simulationController.startSimulation();
-				GuiFrame.this.setVisible(configuration.getSimulationOptions().contains(Options.ANALYSIS_MODE) ? true : false);
+				GuiFrame.this.setVisible(configuration.getSimulationOptions().contains(Options.ANALYSIS_MODE));
 			}
 		});
 		add(buttonPanel, BorderLayout.CENTER);
