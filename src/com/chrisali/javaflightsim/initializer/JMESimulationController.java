@@ -23,7 +23,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.SimulationStepper;
 import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
@@ -47,7 +46,7 @@ import org.apache.logging.log4j.Logger;
  * @author Christopher Ali
  *
  */
-public class JMESimulationController implements SimulationController, SimulationEventListener {
+public class JMESimulationController implements SimulationEventListener {
 	
 	//Logging
 	private static final Logger logger = LogManager.getLogger(JMESimulationController.class);
@@ -73,23 +72,13 @@ public class JMESimulationController implements SimulationController, Simulation
 	public JMESimulationController(SimulationConfiguration configuration) {
 		this.configuration = configuration;
 	}
-	
-	//============================== Configuration =========================================================
-	
-	/**
-	 * @return instance of configuraion
-	 */
-	@Override
-	public SimulationConfiguration getConfiguration() { return configuration; }
-	
-	//=============================== Simulation ===========================================================
 
 	/**
 	 * Initializes, trims and starts the flight controls, simulation, and flight/environment data steppers.
 	 * Depending on options specified, a console panel and/or plot window will also be initialized and opened 
 	 */
 	@Override
-	public void startSimulation() {
+	public void onStartSimulation() {
 		if (stepper != null && stepper.isRunning()) {
 			logger.warn("Simulation is already running! Please wait until it has finished");
 			return;
@@ -104,7 +93,7 @@ public class JMESimulationController implements SimulationController, Simulation
 		Trimming.trimSim(configuration, false);
 		
 		logger.info("Initializing simulation stepper...");
-		stepper = new SimulationStepper(this);
+		stepper = new SimulationStepper(configuration);
 
 		if (options.contains(Options.CONSOLE_DISPLAY))
 			onInitializeConsole();
@@ -165,8 +154,8 @@ public class JMESimulationController implements SimulationController, Simulation
 		try {
 			if(plotWindow != null)
 				plotWindow.setVisible(false);
-				
-			plotWindow = new PlotWindow(this);		
+
+			plotWindow = new PlotWindow(configuration.getSelectedAircraft(), getLogsOut());	
 		} catch (Exception e) {
 			logger.error("An error occurred while generating plots!", e);
 		}
@@ -183,7 +172,7 @@ public class JMESimulationController implements SimulationController, Simulation
 			if(consoleTablePanel != null)
 				consoleTablePanel.setVisible(false);
 			
-			consoleTablePanel = new ConsoleTablePanel(this);
+			consoleTablePanel = new ConsoleTablePanel(getLogsOut());
 			consoleTablePanel.startTableRefresh();			
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
@@ -194,16 +183,7 @@ public class JMESimulationController implements SimulationController, Simulation
 	 * @return ArrayList of simulation output data 
 	 * @see SimOuts
 	 */
-	@Override
 	public List<Map<SimOuts, Double>> getLogsOut() {
 		return (stepper != null && stepper.isRunning()) ? stepper.getSimulation().getLogsOut() : null;
-	}
-	
-	/**
-	 * @return if simulation was able to clear data kept in logsOut
-	 */
-	@Override
-	public boolean clearLogsOut() {
-		return (stepper != null && stepper.isRunning()) ? stepper.getSimulation().clearLogsOut() : false;
 	}
 }

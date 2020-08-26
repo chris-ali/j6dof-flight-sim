@@ -30,8 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
-import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.datatransfer.InputData;
 import com.chrisali.javaflightsim.simulation.datatransfer.InputDataListener;
@@ -61,14 +59,12 @@ public class FlightControlsStateManager implements Steppable, InputDataListener 
 	private EnumSet<Options> options;
 	private AtomicInteger simTimeMS;
 
-	public FlightControlsStateManager(SimulationController simController, AtomicInteger simTimeMS) {
+	public FlightControlsStateManager(SimulationConfiguration configuration, AtomicInteger simTimeMS) {
 		logger.info("Initializing flight controls...");
 
-		SimulationConfiguration simConfig = simController.getConfiguration();
-		options = simConfig.getSimulationOptions();
-		controlsState = new FlightControlsState(simConfig);
-		actuator = new FlightControlActuator(simConfig, controlsState);
-		actuator.addSimulationEventListener((LWJGLSwingSimulationController)simController);
+		options = configuration.getSimulationOptions();
+		controlsState = new FlightControlsState(configuration);
+		actuator = new FlightControlActuator(configuration, controlsState);
 
 		this.simTimeMS = simTimeMS;
 
@@ -132,6 +128,10 @@ public class FlightControlsStateManager implements Steppable, InputDataListener 
 
 	public FlightControlsState getControlsState() {
 		return controlsState;
+	}
+
+	public FlightControlActuator getActuator() {
+		return actuator;
 	}
 
 	/**

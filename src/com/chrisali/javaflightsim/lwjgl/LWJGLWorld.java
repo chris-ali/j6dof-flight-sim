@@ -33,7 +33,6 @@ import org.lwjgl.util.vector.Vector4f;
 import static org.lwjgl.glfw.GLFW.*;
 
 import com.chrisali.javaflightsim.interfaces.OTWWorld;
-import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.lwjgl.audio.AudioMaster;
 import com.chrisali.javaflightsim.lwjgl.audio.SoundCollection;
 import com.chrisali.javaflightsim.lwjgl.entities.Camera;

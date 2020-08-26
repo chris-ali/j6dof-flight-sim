@@ -37,7 +37,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 
-import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -55,7 +54,6 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	private Thread refreshPlotThread;
 	private ProgressDialog progressDialog;
 
-	private SimulationController controller;
 	private PlotConfiguration plotConfiguration;
 	private List<Map<SimOuts, Double>> logsOut;
 	
@@ -64,18 +62,16 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	 * the {@link PlotWindow#simPlotCategories()} set to create {@link SimulationPlot} objects using the data 
 	 * from {@link Integrate6DOFEquations#getLogsOut()}, and assigns them to tabs in a JTabbedPane. 
 	 * 
-	 * @param String simPlotCetegories
-	 * @param SimulationController controller
+	 * @param aircaftName
+	 * @param logsOut
 	 */
-	public PlotWindow(SimulationController controller) {
-		super(controller.getConfiguration().getSelectedAircraft() + " Plots");
+	public PlotWindow(String aircaftName, List<Map<SimOuts, Double>> logsOut) {
+		super(aircaftName + " Plots");
 		setLayout(new BorderLayout());
 		
-		logsOut = controller.getLogsOut();
-		this.controller = controller;
+		this.logsOut = logsOut;
 		plotConfiguration = FileUtilities.readPlotConfiguration();
 				
-
 		//------------------ Tab Pane ------------------------------
 		
 		tabPane = new JTabbedPane();
@@ -151,7 +147,7 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 		clearPlotsItem.setMnemonic(KeyEvent.VK_E);
 		clearPlotsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
 		clearPlotsItem.addActionListener(ev -> {
-			controller.clearLogsOut();
+			logsOut.clear();
 			
 			if (logsOut != null && plotConfiguration != null)
 				initializePlots();

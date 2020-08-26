@@ -24,8 +24,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.EnumSet;
 import java.util.Map;
 
@@ -102,12 +100,9 @@ public class ButtonPanel extends JPanel {
 		
 		aircraftButton = new JButton("Aircraft");
 		aircraftButton.setToolTipText("Select and configure an aircraft");
-		aircraftButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (aircraftButtonListener != null)
-					aircraftButtonListener.buttonEventOccurred();
-			}
+		aircraftButton.addActionListener(ev -> {
+			if (aircraftButtonListener != null)
+				aircraftButtonListener.buttonEventOccurred();
 		});
 		add(aircraftButton, gc);
 		
@@ -123,12 +118,9 @@ public class ButtonPanel extends JPanel {
 		
 		initialConditionsButton = new JButton("Initial Conditions");
 		initialConditionsButton.setToolTipText("Set up starting conditions for flight");
-		initialConditionsButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (initialConditionsButtonListener != null)
-					initialConditionsButtonListener.buttonEventOccurred();
-			}
+		initialConditionsButton.addActionListener(ev -> {
+			if (initialConditionsButtonListener != null)
+				initialConditionsButtonListener.buttonEventOccurred();
 		});
 		add(initialConditionsButton, gc);
 		
@@ -145,12 +137,9 @@ public class ButtonPanel extends JPanel {
 	
 		optionsButton = new JButton("Options");
 		optionsButton.setToolTipText("Configure simulation options");
-		optionsButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (optionsButtonListener != null)
-					optionsButtonListener.buttonEventOccurred();
-			}
+		optionsButton.addActionListener(ev -> {
+			if (optionsButtonListener != null)
+				optionsButtonListener.buttonEventOccurred();
 		});
 		add(optionsButton, gc);
 		
@@ -169,12 +158,9 @@ public class ButtonPanel extends JPanel {
 		runButton = new JButton("Start Simulation");
 		runButton.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
 		runButton.setToolTipText("Runs the simulation with the selected options");
-		runButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (startSimulationButtonListener != null)
-					startSimulationButtonListener.buttonEventOccurred();
-			}
+		runButton.addActionListener(ev -> {
+			if (startSimulationButtonListener != null)
+				startSimulationButtonListener.buttonEventOccurred();
 		});
 		add(runButton, gc);
 		

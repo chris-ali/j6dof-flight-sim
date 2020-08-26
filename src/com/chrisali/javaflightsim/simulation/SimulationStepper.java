@@ -19,13 +19,15 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
+import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -47,9 +49,9 @@ public class SimulationStepper {
 
 	private FlightControlsStateManager flightControlsManager;
 	private Integrate6DOFEquations simulation;
-		
-	private Map<IntegratorConfig, Double> integratorConfig;
-		
+	
+	private List<SimulationEventListener> simulationEventListeners = new ArrayList<>();	
+
 	private AtomicInteger timeMS = new AtomicInteger(0);
 	private int frameStepMS;
 	
@@ -59,11 +61,10 @@ public class SimulationStepper {
 	 * Constructor that initialize main simulation ({@link Integrate6DOFEquations} and {@link FlightControlsState}) components and 
 	 * configures simulation time
 	 * 
-	 * @param simController
+	 * @param configuration
 	 */
-	public SimulationStepper(SimulationController simController) {
-		SimulationConfiguration configuration = simController.getConfiguration();
-		integratorConfig = configuration.getIntegratorConfig();
+	public SimulationStepper(SimulationConfiguration configuration) {
+		Map<IntegratorConfig, Double> integratorConfig = configuration.getIntegratorConfig();
 		
 		// Set up running parameters for simulation
 		timeMS = new AtomicInteger(integratorConfig.get(IntegratorConfig.STARTTIME).intValue() * TO_MILLISEC);
@@ -72,7 +73,7 @@ public class SimulationStepper {
 		frameStepMS = (int) (integratorConfig.get(IntegratorConfig.DT) * TO_MILLISEC);
 		
 		logger.info("Initializing flight controls manager...");
-		flightControlsManager = new FlightControlsStateManager(simController, timeMS);
+		flightControlsManager = new FlightControlsStateManager(configuration, timeMS);
 		
 		logger.info("Initializing simulation...");
 		simulation = new Integrate6DOFEquations(flightControlsManager.getControlsState(), configuration);;
@@ -99,10 +100,27 @@ public class SimulationStepper {
 			logger.error("Exception encountered while iteration of simulation. Attempting to continue...", ez);
 		} 
 	}
+
+	/**
+	 * Adds SimulationEventListener objects to listener list for the out the window (if Normal mode) 
+	 * and flight controls manager
+	 * 
+	 * @param listener
+	 */
+	public void addSimulationEventListener(SimulationEventListener listener) {
+		if (listener != null) {
+			logger.info("Adding simulation event listener: " + listener.getClass());
+			simulationEventListeners.add(listener);
+
+			//if (outTheWindow != null)
+			//	outTheWindow.addSimulationEventListener(listener);
+
+			if (flightControlsManager.getActuator() != null)
+				flightControlsManager.getActuator().addSimulationEventListener(listener);
+		}
+	}
 	
 	public Integrate6DOFEquations getSimulation() { return simulation; }
-	
-	public AtomicInteger getTimeMS() { return timeMS; }
 	
 	/**
 	 * @return If stepper is running

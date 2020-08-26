@@ -23,7 +23,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
@@ -51,7 +50,7 @@ import org.apache.logging.log4j.Logger;
  * @author Christopher Ali
  *
  */
-public class LWJGLSwingSimulationController implements SimulationController, SimulationEventListener {
+public class LWJGLSwingSimulationController implements SimulationEventListener {
 	
 	//Logging
 	private static final Logger logger = LogManager.getLogger(LWJGLSwingSimulationController.class);
@@ -80,25 +79,16 @@ public class LWJGLSwingSimulationController implements SimulationController, Sim
 	 */
 	public LWJGLSwingSimulationController(SimulationConfiguration configuration) {
 		this.configuration = configuration;
-		guiFrame = new GuiFrame(this);
+		guiFrame = new GuiFrame(configuration);
+		guiFrame.addSimulationEventListener(this);
 	}
 	
-	//============================== Configuration =========================================================
-	
-	/**
-	 * @return instance of configuraion
-	 */
-	@Override
-	public SimulationConfiguration getConfiguration() { return configuration; }
-	
-	//=============================== Simulation ===========================================================
-
 	/**
 	 * Initializes, trims and starts the flight controls, simulation (and flight and environment data, if selected) threads.
 	 * Depending on options specified, a console panel and/or plot window will also be initialized and opened 
 	 */
 	@Override
-	public void startSimulation() {
+	public void onStartSimulation() {
 		if (runner != null && runner.isRunning()) {
 			logger.warn("Simulation is already running! Please wait until it has finished");
 			return;
@@ -113,7 +103,7 @@ public class LWJGLSwingSimulationController implements SimulationController, Sim
 		Trimming.trimSim(configuration, false);
 		
 		logger.info("Initializing simulation runner...");
-		runner = new SimulationRunner(this);
+		runner = new SimulationRunner(configuration);
 		runner.addSimulationEventListener(this);
 
 		logger.info("Initializaing and starting simulation runner thread...");
@@ -186,7 +176,7 @@ public class LWJGLSwingSimulationController implements SimulationController, Sim
 			if(plotWindow != null)
 				plotWindow.setVisible(false);
 				
-			plotWindow = new PlotWindow(this);		
+			plotWindow = new PlotWindow(configuration.getSelectedAircraft(), getLogsOut());
 		} catch (Exception e) {
 			logger.error("An error occurred while generating plots!", e);
 		}
@@ -203,7 +193,7 @@ public class LWJGLSwingSimulationController implements SimulationController, Sim
 			if(consoleTablePanel != null)
 				consoleTablePanel.setVisible(false);
 			
-			consoleTablePanel = new ConsoleTablePanel(this);
+			consoleTablePanel = new ConsoleTablePanel(getLogsOut());
 			consoleTablePanel.startTableRefresh();			
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
@@ -216,12 +206,5 @@ public class LWJGLSwingSimulationController implements SimulationController, Sim
 	 */
 	public List<Map<SimOuts, Double>> getLogsOut() {
 		return (runner != null) ? runner.getSimulation().getLogsOut() : null;
-	}
-	
-	/**
-	 * @return if simulation was able to clear data kept in logsOut
-	 */
-	public boolean clearLogsOut() {
-		return (runner != null && runner.isRunning()) ? runner.getSimulation().clearLogsOut() : false;
 	}
 }

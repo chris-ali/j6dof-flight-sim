@@ -25,6 +25,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -40,7 +42,7 @@ import javax.swing.SwingWorker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.interfaces.SimulationController;
+import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 public class ConsoleTablePanel extends JFrame {
@@ -50,21 +52,27 @@ public class ConsoleTablePanel extends JFrame {
 	private static final Logger logger = LogManager.getLogger(ConsoleTablePanel.class);
 	
 	private JTable table;
-	private SimulationController controller;
 	private ConsoleTableModel consoleTableModel;
 	private SwingWorker<Void,Integer> tableRefreshWorker;
+
+	private List<Map<SimOuts, Double>> logsOut;
 	
-	public ConsoleTablePanel(SimulationController controller) {
+	/**
+	 * Generates a Swing window with a JTable to dislpay a table of all simulation outputs
+	 * 
+	 * @param logsOut
+	 */
+	public ConsoleTablePanel(List<Map<SimOuts, Double>> logsOut) {
 		super("Raw Data Output");
 		
 		setLayout(new BorderLayout());
 		
-		this.controller = controller;
+		this.logsOut = logsOut;
 		
 		//-------------- Table Panel ------------------------
 		
 		consoleTableModel = new ConsoleTableModel();
-		consoleTableModel.setData(controller.getLogsOut());
+		consoleTableModel.setData(logsOut);
 		table = new JTable(consoleTableModel);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setColumnSelectionAllowed(true);
@@ -121,7 +129,7 @@ public class ConsoleTablePanel extends JFrame {
 		exportItem.addActionListener(ev -> {
 			if (fileChooser.showSaveDialog(ConsoleTablePanel.this) == JFileChooser.APPROVE_OPTION) {
 				try {
-					FileUtilities.saveToCSVFile(fileChooser.getSelectedFile(), controller.getLogsOut());
+					FileUtilities.saveToCSVFile(fileChooser.getSelectedFile(), logsOut);
 				} catch (Exception ex) {
 					JOptionPane.showMessageDialog(ConsoleTablePanel.this, 
 							"Could not save data to file", "Error", JOptionPane.ERROR_MESSAGE);

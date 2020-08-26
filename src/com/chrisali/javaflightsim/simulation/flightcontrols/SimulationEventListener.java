@@ -22,6 +22,8 @@ package com.chrisali.javaflightsim.simulation.flightcontrols;
 import java.util.EventListener;
 
 public interface SimulationEventListener extends EventListener {
+	public void onStartSimulation();
+
 	public void onPauseUnpauseSimulation();
 
 	public void onResetSimulation();

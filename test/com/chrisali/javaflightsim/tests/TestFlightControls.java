@@ -21,8 +21,6 @@ package com.chrisali.javaflightsim.tests;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.chrisali.javaflightsim.initializer.JMESimulationController;
-import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.lwjgl.input.InputMaster;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
@@ -41,11 +39,9 @@ import org.lwjgl.opengl.DisplayMode;
  */
 public class TestFlightControls implements Runnable {
 	private FlightControlsStateManager flightControls;
-	private SimulationController simController;
 	
 	public TestFlightControls() {
-		simController = new JMESimulationController(FileUtilities.readSimulationConfiguration());
-		flightControls = new FlightControlsStateManager(simController, new AtomicInteger(0));
+		flightControls = new FlightControlsStateManager(FileUtilities.readSimulationConfiguration(), new AtomicInteger(0));
 		
 		try {
 			InputMaster.init();

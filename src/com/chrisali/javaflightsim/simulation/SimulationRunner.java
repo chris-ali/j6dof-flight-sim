@@ -28,8 +28,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
-import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
@@ -64,19 +62,18 @@ public class SimulationRunner implements Runnable {
 	private boolean running = false;
 	
 	/**
-	 * Constructor that initialize main simulation components and configures simulation run time parameters
+	 * Constructor that initialize main simulation components, their event listeners and configures simulation run time parameters
 	 * 
-	 * @param simController
+	 * @param configuration
 	 */
-	public SimulationRunner(SimulationController simController) {
-		SimulationConfiguration configuration = simController.getConfiguration();
+	public SimulationRunner(SimulationConfiguration configuration) {
 		Map<IntegratorConfig, Double> integratorConfig = configuration.getIntegratorConfig();
 		Set<Options> options = configuration.getSimulationOptions();
 		
 		configureSimulationTime(options, integratorConfig);
 		
 		logger.info("Initializing flight controls manager...");
-		flightControlsManager = new FlightControlsStateManager(simController, timeMS);
+		flightControlsManager = new FlightControlsStateManager(configuration, timeMS);
 		
 		logger.info("Initializing simulation...");
 		simulation = new Integrate6DOFEquations(flightControlsManager.getControlsState(), configuration);
@@ -86,9 +83,8 @@ public class SimulationRunner implements Runnable {
 		} else {
 			logger.info("Will run simulation in Normal Mode...");
 						
-			logger.info("Initializing LWJGL world...");
-			outTheWindow = new LWJGLWorld(simController.getConfiguration());
-			outTheWindow.addSimulationEventListener((LWJGLSwingSimulationController)simController);
+			logger.info("Instantiating LWJGL world...");
+			outTheWindow = new LWJGLWorld(configuration);
 			outTheWindow.addEnvironmentDataListener(simulation);
 			outTheWindow.addinputDataListener(flightControlsManager);
 			
@@ -126,8 +122,10 @@ public class SimulationRunner implements Runnable {
 		running = true;
 
 		// Must init GLFW window from same thread as update method
-		if (outTheWindow != null)
+		if (outTheWindow != null) {
+			logger.info("Initializing LWJGL world...");
 			outTheWindow.init();
+		}
 		
 		while (running && timeMS.get() < endTimeMS) {
 			try {
@@ -156,16 +154,26 @@ public class SimulationRunner implements Runnable {
 		simulationEventListeners.forEach(listener -> listener.onStopSimulation());
 	}
 
+	/**
+	 * Adds SimulationEventListener objects to listener list for the out the window (if Normal mode) 
+	 * and flight controls manager
+	 * 
+	 * @param listener
+	 */
 	public void addSimulationEventListener(SimulationEventListener listener) {
-		if (simulationEventListeners != null) {
+		if (listener != null) {
 			logger.info("Adding simulation event listener: " + listener.getClass());
 			simulationEventListeners.add(listener);
+
+			if (outTheWindow != null)
+				outTheWindow.addSimulationEventListener(listener);
+
+			if (flightControlsManager.getActuator() != null)
+				flightControlsManager.getActuator().addSimulationEventListener(listener);
 		}
 	}
 	
 	public Integrate6DOFEquations getSimulation() { return simulation; }
-	
-	public AtomicInteger getTimeMS() { return timeMS; }
 	
 	/**
 	 * @return If out sumulation is running
