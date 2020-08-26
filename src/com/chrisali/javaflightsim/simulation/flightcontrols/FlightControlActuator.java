@@ -117,8 +117,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 				elevatorUp();
 				break;
 			case EXIT_SIMULATION:
-				for (SimulationEventListener listener : simulationEventListeners)
-					listener.onStopSimulation();
+				simulationEventListeners.forEach(listener ->listener.onStopSimulation());					
 				break;
 			case GEAR_DOWN:
 				extendGear();
@@ -130,8 +129,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 				cycleGear();
 				break;
 			case GENERATE_PLOTS:
-				for (SimulationEventListener listener : simulationEventListeners)
-					listener.onPlotSimulation();
+				simulationEventListeners.forEach(listener -> listener.onPlotSimulation());
 				break;
 			case INCREASE_FLAPS:
 				extendFlaps();
@@ -144,12 +142,10 @@ public class FlightControlActuator implements ControlParameterActuator {
 				increaseThrottle();
 				break;
 			case PAUSE_UNPAUSE_SIM:
-				for (SimulationEventListener listener : simulationEventListeners)
-					listener.onPauseUnpauseSimulation();
+				simulationEventListeners.forEach(listener -> listener.onPauseUnpauseSimulation());
 				break;
 			case RESET_SIM:
-				for (SimulationEventListener listener : simulationEventListeners)
-					listener.onResetSimulation();
+				simulationEventListeners.forEach(listener -> listener.onResetSimulation());
 				break;
 			case RUDDER_LEFT:
 				rudderLeft();

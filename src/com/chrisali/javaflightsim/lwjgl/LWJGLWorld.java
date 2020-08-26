@@ -66,6 +66,7 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.simulation.datatransfer.InputDataListener;
+import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.setup.CameraMode;
 import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -111,14 +112,15 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	private List<WindowClosedListener> windowClosedListeners = new ArrayList<>();
 	private List<InputDataListener> inputDataListeners = new ArrayList<>();
 	private List<EnvironmentDataListener> environmentDataListeners = new ArrayList<>();
+	private List<SimulationEventListener> simulationEventListeners = new ArrayList<>();
 			
 	/**
 	 * Sets up OTW display with {@link SimulationConfiguration} provided by {@link SimulationController} 
 	 * 
 	 * @param controller
 	 */
-	public LWJGLWorld(SimulationController controller) {
-		configuration = controller.getConfiguration();
+	public LWJGLWorld(SimulationConfiguration configuration) {
+		this.configuration = configuration;
 	}	
 	
 	@Override
@@ -178,6 +180,7 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 	 */
 	private void cleanUp() {
 		fireWindowClosed();
+		fireStopSimulation();
 
 		try {  
 			logger.info("Cleaning up and closing LWJGL display...");
@@ -353,19 +356,27 @@ public class LWJGLWorld implements FlightDataListener, OTWWorld {
 			environmentDataListeners.add(listener);
 		}
 	}
+
+	public void addSimulationEventListener(SimulationEventListener listener) {
+		if (simulationEventListeners != null) {
+			logger.info("Adding simulation event listener: " + listener.getClass());
+			simulationEventListeners.add(listener);
+		}
+	}
+
+	private void fireStopSimulation() {
+		simulationEventListeners.forEach(listener -> listener.onStopSimulation());
+	}
 	
 	private void fireWindowClosed() {
-		for (WindowClosedListener listener : windowClosedListeners)
-			listener.onWindowClosed();
+		windowClosedListeners.forEach(listener -> listener.onWindowClosed());
 	}
 
 	private void fireInputDataReceived() {
-		for (InputDataListener listener : inputDataListeners)
-			listener.onInputDataReceived(InputMaster.getInputData());
+		inputDataListeners.forEach(listener -> listener.onInputDataReceived(InputMaster.getInputData()));
 	}
 
 	private void fireEnvironmentDataReceived() {
-		for (EnvironmentDataListener listener : environmentDataListeners)
-			listener.onEnvironmentDataReceived(environmentData);
+		environmentDataListeners.forEach(listener -> listener.onEnvironmentDataReceived(environmentData));
 	}
 }

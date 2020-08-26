@@ -25,7 +25,6 @@ import java.util.Map;
 
 import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
-import com.chrisali.javaflightsim.lwjgl.events.WindowClosedListener;
 import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
@@ -52,7 +51,7 @@ import org.apache.logging.log4j.Logger;
  * @author Christopher Ali
  *
  */
-public class LWJGLSwingSimulationController implements SimulationController, WindowClosedListener, SimulationEventListener {
+public class LWJGLSwingSimulationController implements SimulationController, SimulationEventListener {
 	
 	//Logging
 	private static final Logger logger = LogManager.getLogger(LWJGLSwingSimulationController.class);
@@ -115,40 +114,39 @@ public class LWJGLSwingSimulationController implements SimulationController, Win
 		
 		logger.info("Initializing simulation runner...");
 		runner = new SimulationRunner(this);
+		runner.addSimulationEventListener(this);
 
 		logger.info("Initializaing and starting simulation runner thread...");
 		runnerThread = new Thread(runner);
 		runnerThread.start();
+				
+		if (options.contains(Options.CONSOLE_DISPLAY))
+			onInitializeConsole();
 	}
 	
 	/**
-	 * Stops simulation and data transfer threads (if running), closes the raw data {@link ConsoleTablePanel},
-	 * {@link SimulationWindow}, and opens the main menus window again
-	 */
-	@Override
-	public void stopSimulation() {
-		logger.info("Stopping simulation...");
-
-		runner.setRunning(false);	
-		
-		logger.info("Returning to menus...");
-		guiFrame.setVisible(true);
-	}
-			
-	/**
-	 * When LWJGL OTW window is closed, this event is fired
-	 */
-	@Override
-	public void onWindowClosed() {
-		stopSimulation();	
-	}
-	
-	/**
-	 * Stops the simulation
+	 * Stops simulation and console table refresh if running, calls generate plots event if in Analysis Mode, 
+	 * and opens main menus again if not visible
 	 */
 	@Override
 	public void onStopSimulation() {
-		stopSimulation();
+		if (runner.isRunning()) {
+			logger.info("Stopping simulation...");
+			runner.setRunning(false);
+		}
+		
+		if (consoleTablePanel != null) {
+			logger.info("Stopping flight data console refresh...");
+			consoleTablePanel.stopTableRefresh();
+		}
+
+		if (options.contains(Options.ANALYSIS_MODE))
+			onPlotSimulation();
+		
+		if (!guiFrame.isVisible()) {
+			logger.info("Returning to menus...");
+			guiFrame.setVisible(true);
+		}
 	}
 	
 	/**
@@ -178,21 +176,40 @@ public class LWJGLSwingSimulationController implements SimulationController, Win
 	}
 
 	/**
-	 * Generates plots of the simulation thus far
+	 * Initializes the plot window if not already initialized, otherwise refreshes the window and sets it visible again
 	 */
 	@Override
 	public void onPlotSimulation() {
-		plotSimulation();
+		logger.info("Plotting simulation results...");
+		
+		try {
+			if(plotWindow != null)
+				plotWindow.setVisible(false);
+				
+			plotWindow = new PlotWindow(this);		
+		} catch (Exception e) {
+			logger.error("An error occurred while generating plots!", e);
+		}
 	}
 
 	/**
-	 * @return if simulation is running
+	 * Initializes the raw data console window and starts the auto-refresh of its contents
 	 */
 	@Override
-	public boolean isSimulationRunning() {
-		return (runner != null && runner.isRunning());
+	public void onInitializeConsole() {
+		try {
+			logger.info("Starting flight data console...");
+			
+			if(consoleTablePanel != null)
+				consoleTablePanel.setVisible(false);
+			
+			consoleTablePanel = new ConsoleTablePanel(this);
+			consoleTablePanel.startTableRefresh();			
+		} catch (Exception e) {
+			logger.error("An error occurred while starting the console panel!", e);
+		}
 	}
-	
+
 	/**
 	 * @return ArrayList of simulation output data 
 	 * @see SimOuts
@@ -206,49 +223,5 @@ public class LWJGLSwingSimulationController implements SimulationController, Win
 	 */
 	public boolean clearLogsOut() {
 		return (runner != null && runner.isRunning()) ? runner.getSimulation().clearLogsOut() : false;
-	}
-		
-	//=============================== Plotting =============================================================
-	
-	/**
-	 * Initializes the plot window if not already initialized, otherwise refreshes the window and sets it visible again
-	 */
-	@Override
-	public void plotSimulation() {
-		logger.info("Plotting simulation results...");
-		
-		try {
-			if(plotWindow != null)
-				plotWindow.setVisible(false);
-				
-			plotWindow = new PlotWindow(this);		
-		} catch (Exception e) {
-			logger.error("An error occurred while generating plots!", e);
-		}
-	}
-	
-	/**
-	 * @return Instance of the plot window
-	 */
-	public PlotWindow getPlotWindow() { return plotWindow; }
-
-	//=============================== Console =============================================================
-	
-	/**
-	 * Initializes the raw data console window and starts the auto-refresh of its contents
-	 */
-	@Override
-	public void initializeConsole() {
-		try {
-			logger.info("Starting flight data console...");
-			
-			if(consoleTablePanel != null)
-				consoleTablePanel.setVisible(false);
-			
-			consoleTablePanel = new ConsoleTablePanel(this);
-			consoleTablePanel.startTableRefresh();			
-		} catch (Exception e) {
-			logger.error("An error occurred while starting the console panel!", e);
-		}
 	}
 }

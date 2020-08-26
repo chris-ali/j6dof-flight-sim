@@ -519,17 +519,16 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 	 * @param dataListener
 	 */
 	public void addFlightDataListener(FlightDataListener dataListener) {
-		logger.info("Adding flight data listener: " + dataListener.getClass());
-		flightDataListeners.add(dataListener);
+		if (dataListener != null) {
+			logger.info("Adding flight data listener: " + dataListener.getClass());
+			flightDataListeners.add(dataListener);
+		}
 	}
 
 	/**
 	 * Lets registered listeners know that data has arrived so that they can use it as needed
 	 */
 	private void fireFlightDataArrived() {
-		for (FlightDataListener listener : flightDataListeners) {
-			if(listener != null) 
-				listener.onFlightDataReceived(flightData);
-		}
+		flightDataListeners.forEach(listener -> listener.onFlightDataReceived(flightData));
 	}
 }

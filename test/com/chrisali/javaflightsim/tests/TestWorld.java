@@ -19,7 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.tests;
 
-import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -29,7 +28,7 @@ public class TestWorld {
 	public static void main(String[] args) {
 		SimulationConfiguration configuration = FileUtilities.readSimulationConfiguration();
 		
-		LWJGLWorld world = new LWJGLWorld(new LWJGLSwingSimulationController(configuration));
+		LWJGLWorld world = new LWJGLWorld(configuration);
 		
 		while (true) {
 			world.step();

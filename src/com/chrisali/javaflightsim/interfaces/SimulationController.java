@@ -19,16 +19,8 @@ import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 public interface SimulationController {
 	
 	public SimulationConfiguration getConfiguration();
-	
-	public void plotSimulation();
-	
-	public void initializeConsole();
-		
+				
 	public void startSimulation();
-
-	public void stopSimulation();
-
-	public boolean isSimulationRunning();
 
 	public List<Map<SimOuts, Double>> getLogsOut();
 

@@ -22,11 +22,9 @@ package com.chrisali.javaflightsim.swing.consoletable;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -73,18 +71,14 @@ public class ConsoleTablePanel extends JFrame {
 		table.setRowSelectionAllowed(true);
 		tableRefreshWorker = new SwingWorker<Void, Integer>() {
 			@Override
-			protected void done() {
-				//if (!controller.isSimulationRunning())
-				//	ConsoleTablePanel.this.setVisible(false);
-			}
+			protected void done() {}
 
 			@Override
 			protected Void doInBackground() throws Exception {
-				while (controller.isSimulationRunning()) {
+				while (true) {
 					consoleTableModel.fireTableDataChanged();
 					Thread.sleep(50);
 				}
-				return null;
 			}
 		};
 		add(new JScrollPane(table), BorderLayout.CENTER);
@@ -124,18 +118,14 @@ public class ConsoleTablePanel extends JFrame {
 		JMenuItem exportItem = new JMenuItem("Export as CSV...");
 		exportItem.setMnemonic(KeyEvent.VK_E);
 		exportItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
-		exportItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent ev) {
-				if (fileChooser.showSaveDialog(ConsoleTablePanel.this) == JFileChooser.APPROVE_OPTION) {
-					try {
-						File file = fileChooser.getSelectedFile();
-						FileUtilities.saveToCSVFile(file, controller.getLogsOut());
-					} catch (Exception ex) {
-						JOptionPane.showMessageDialog(ConsoleTablePanel.this, 
-								"Could not save data to file", "Error", JOptionPane.ERROR_MESSAGE);
-						logger.error("Unable to save CSV file!", ex);
-					}
+		exportItem.addActionListener(ev -> {
+			if (fileChooser.showSaveDialog(ConsoleTablePanel.this) == JFileChooser.APPROVE_OPTION) {
+				try {
+					FileUtilities.saveToCSVFile(fileChooser.getSelectedFile(), controller.getLogsOut());
+				} catch (Exception ex) {
+					JOptionPane.showMessageDialog(ConsoleTablePanel.this, 
+							"Could not save data to file", "Error", JOptionPane.ERROR_MESSAGE);
+					logger.error("Unable to save CSV file!", ex);
 				}
 			}
 		});
@@ -146,11 +136,8 @@ public class ConsoleTablePanel extends JFrame {
 		JMenuItem exitItem = new JMenuItem("Exit");
 		exitItem.setMnemonic(KeyEvent.VK_X);
 		exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK));
-		exitItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ConsoleTablePanel.this.setVisible(false);
-			}
+		exitItem.addActionListener(ev -> {
+			ConsoleTablePanel.this.setVisible(false);
 		});
 		fileMenu.add(exitItem);
 		
@@ -168,4 +155,7 @@ public class ConsoleTablePanel extends JFrame {
 		tableRefreshWorker.execute();
 	}
 
+	public void stopTableRefresh() {
+		tableRefreshWorker.cancel(true);
+	}
 }

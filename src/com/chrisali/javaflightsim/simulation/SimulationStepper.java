@@ -20,16 +20,14 @@
 package com.chrisali.javaflightsim.simulation;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
+import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
-import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 import org.apache.logging.log4j.LogManager;
@@ -51,7 +49,6 @@ public class SimulationStepper {
 	private Integrate6DOFEquations simulation;
 		
 	private Map<IntegratorConfig, Double> integratorConfig;
-	private Set<Options> options;	
 		
 	private AtomicInteger timeMS = new AtomicInteger(0);
 	private int frameStepMS;
@@ -67,7 +64,6 @@ public class SimulationStepper {
 	public SimulationStepper(SimulationController simController) {
 		SimulationConfiguration configuration = simController.getConfiguration();
 		integratorConfig = configuration.getIntegratorConfig();
-		options = configuration.getSimulationOptions();
 		
 		// Set up running parameters for simulation
 		timeMS = new AtomicInteger(integratorConfig.get(IntegratorConfig.STARTTIME).intValue() * TO_MILLISEC);
@@ -81,9 +77,6 @@ public class SimulationStepper {
 		logger.info("Initializing simulation...");
 		simulation = new Integrate6DOFEquations(flightControlsManager.getControlsState(), configuration);;
 		//simulation.addFlightDataListener(outTheWindow);
-		
-		if (options.contains(Options.CONSOLE_DISPLAY))
-			simController.initializeConsole();
 	}
 	
 	/**

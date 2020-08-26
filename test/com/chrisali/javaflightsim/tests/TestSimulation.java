@@ -47,7 +47,7 @@ public class TestSimulation {
 		//configuration.setAircraftBuilder(new AircraftBuilder("Navion")); // Navion with lookup tables with Lycoming IO-360
 		
 		controller.startSimulation();
-		controller.getPlotWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//controller.getPlotWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
 	public static void main(String[] args) {new TestSimulation();}

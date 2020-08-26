@@ -29,4 +29,6 @@ public interface SimulationEventListener extends EventListener {
 	public void onStopSimulation();
 
 	public void onPlotSimulation();
+
+	public void onInitializeConsole();
 }
