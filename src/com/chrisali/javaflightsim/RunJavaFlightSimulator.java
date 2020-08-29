@@ -23,6 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.initializer.Initializer;
+import com.chrisali.javaflightsim.initializer.PomReader;
 
 /**
  * Runner class to start Java Flight Simulator
@@ -35,7 +36,7 @@ public class RunJavaFlightSimulator {
 	
 	public static void main(String[] args) {
 		logger.info("===============================================");
-		logger.info("Java Flight Simulator v0.6a by Christopher Ali");
+		logger.info(PomReader.getProjectName() +  " v" + PomReader.getVersionNumber() +" by Christopher Ali");
 		logger.info("===============================================");
 		
 		Initializer.selectRunConfigurationAndRun();

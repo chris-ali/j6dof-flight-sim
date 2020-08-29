@@ -277,6 +277,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-model</artifactId>
+			<version>3.3.9</version>
+		</dependency>
+
+		<dependency>
 			<groupId>${jme3_g}</groupId>
 			<artifactId>jme3-core</artifactId>
 			<version>${jme3_v}</version>
