@@ -19,8 +19,6 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.tests;
 
-import javax.swing.JFrame;
-
 import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -46,8 +44,8 @@ public class TestSimulation {
 		//configuration.setAircraftBuilder(new AircraftBuilder()); // Default Navion with Lycoming IO-360
 		//configuration.setAircraftBuilder(new AircraftBuilder("Navion")); // Navion with lookup tables with Lycoming IO-360
 		
-		controller.startSimulation();
-		controller.getPlotWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		controller.onStartSimulation();
+		//controller.getPlotWindow().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
 	public static void main(String[] args) {new TestSimulation();}

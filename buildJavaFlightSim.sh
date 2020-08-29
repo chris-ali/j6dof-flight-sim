@@ -30,10 +30,7 @@ echo "Copying build artifacts from ./target/ ..."
 
 # Move/copy/rename files as needed 
 cp -f target/${mavenArchiveName} ${buildDirectory}/${finalFileName}.jar
-
-cp -r -f target/natives/ natives/
 cp -r target/natives/ ${buildDirectory}/natives/
-
 cp -r -f Aircraft/ ${buildDirectory}/Aircraft/
 cp -r -f Resources/ ${buildDirectory}/Resources/
 cp -r -f SimConfig/ ${buildDirectory}/SimConfig/

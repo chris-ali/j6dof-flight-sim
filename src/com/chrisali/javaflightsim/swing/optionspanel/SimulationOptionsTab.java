@@ -20,7 +20,6 @@
 package com.chrisali.javaflightsim.swing.optionspanel;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -29,15 +28,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.EnumSet;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -55,9 +50,9 @@ public class SimulationOptionsTab extends JPanel {
 	private JLabel headerLabel;
 	private JCheckBox analysisMode;
 	private JCheckBox consoleDisplay;
-	private JList<String> controllers;
 	private JSpinner stepSizeSpinner;
 	private StepSizeValueChangedListener stepSizeValueChangedListener;
+	private JCheckBox debugMode;
 
 	private EnumSet<Options> simulationOptions;
 	
@@ -120,12 +115,9 @@ public class SimulationOptionsTab extends JPanel {
 				if(((JCheckBox)e.getSource()).isSelected()) {
 					simulationOptions.removeIf(p -> (p != Options.CONSOLE_DISPLAY));
 					simulationOptions.add(Options.ANALYSIS_MODE);
-					controllers.setEnabled(false);
 				} else {
 					simulationOptions.remove(Options.ANALYSIS_MODE);
 					simulationOptions.add(Options.UNLIMITED_FLIGHT);
-					controllers.setEnabled(true);
-					setDesiredController(controllers.getSelectedValue()); // adds previously removed value back to options map 
 				}
 			}
 		});
@@ -153,31 +145,6 @@ public class SimulationOptionsTab extends JPanel {
 		});
 		controlsPanel.add(consoleDisplay, gc);
 		
-		//-------------- Controllers List  ------------------------ 
-		gc.gridy++;
-		
-		gc.gridx = 0;
-		gc.anchor = GridBagConstraints.EAST;
-		controlsPanel.add(new JLabel("Selected Controller:"), gc);
-		
-		gc.gridx = 1;
-		gc.anchor = GridBagConstraints.WEST;
-		DefaultListModel<String> controllerList = new DefaultListModel<>();
-		controllerList.addElement("Joystick");
-		controllerList.addElement("Mouse");
-		controllers = new JList<String>(controllerList);
-		controllers.setToolTipText("Chooses which input device will control the simulation");
-		controllers.setSelectedIndex(0);
-		controllers.setEnabled(!analysisMode.isSelected());
-		controllers.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-		controllers.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				setDesiredController(controllers.getSelectedValue());
-			}
-		});
-		controlsPanel.add(controllers, gc);
-		
 		//--------- Simulation Step Size Spinner ----------------- 
 		gc.gridy++;
 		
@@ -198,34 +165,33 @@ public class SimulationOptionsTab extends JPanel {
 		});
 		controlsPanel.add(stepSizeSpinner, gc);
 
+		//---------- Debug Mode Checkbox ------------------- 
+		gc.gridy++;
+		
+		gc.gridx = 0;
+		gc.anchor = GridBagConstraints.EAST;
+		controlsPanel.add(new JLabel("Debug Mode:"), gc);
+		
+		gc.gridx = 1;
+		gc.anchor = GridBagConstraints.WEST;
+		debugMode = new JCheckBox("Enabled");
+		debugMode.setToolTipText("Generates extra logging and telemetry for debug purposes");
+		debugMode.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(((JCheckBox)e.getSource()).isSelected())
+					simulationOptions.add(Options.DEBUG_MODE);
+				else
+					simulationOptions.remove(Options.DEBUG_MODE);
+			}
+		});
+		controlsPanel.add(debugMode, gc);
 		
 		//========================== Window Settings ===============================================
 		
 		Dimension dims = new Dimension(400, 400);
 		setSize(dims);
 		setPreferredSize(dims);
-	}
-	
-	/**
-	 * Adds desired HID controller to simulationOptions EnumMap depending on string passed in; removes all other
-	 * HID controller values before adding new value, unless "Keyboard Only" is selected, in which case no option
-	 * is added
-	 * 
-	 * @param selectedValue
-	 */
-	private void setDesiredController(String selectedValue) {
-		switch (selectedValue) {
-		case ("Joystick"):
-			simulationOptions.removeIf(p -> (p == Options.USE_MOUSE));
-			simulationOptions.add(Options.USE_JOYSTICK);
-			break;
-		case ("Mouse"):
-			simulationOptions.removeIf(p -> (p == Options.USE_JOYSTICK));
-			simulationOptions.add(Options.USE_MOUSE);
-			break;
-		default:
-			break;
-		}
 	}
 	
 	/**
@@ -237,15 +203,10 @@ public class SimulationOptionsTab extends JPanel {
 	public void setOptionsTab(EnumSet<Options> options, int stepSize) {
 		this.simulationOptions = options;
 		
-		analysisMode.setSelected(simulationOptions.contains(Options.ANALYSIS_MODE) ? true : false);
-		consoleDisplay.setSelected(simulationOptions.contains(Options.CONSOLE_DISPLAY) ? true : false);
-		
-		if (simulationOptions.contains(Options.USE_MOUSE))
-			controllers.setSelectedIndex(1);
-		else
-			controllers.setSelectedIndex(0);
-		
+		analysisMode.setSelected(simulationOptions.contains(Options.ANALYSIS_MODE));
+		consoleDisplay.setSelected(simulationOptions.contains(Options.CONSOLE_DISPLAY));
 		stepSizeSpinner.setValue(stepSize);
+		debugMode.setSelected(simulationOptions.contains(Options.DEBUG_MODE));
 	}
 	
 	protected EnumSet<Options> getSimulationOptions() {

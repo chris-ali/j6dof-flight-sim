@@ -156,8 +156,8 @@
       },
       "hatAssignments" : {
         "1" : "ELEVATOR_TRIM_DOWN",
-        "4" : "ELEVATOR_TRIM_UP",
-        "8" : "AILERON_TRIM_LEFT",
+        "8" : "ELEVATOR_TRIM_UP",
+        "4" : "AILERON_TRIM_LEFT",
         "2" : "AILERON_TRIM_RIGHT"
       }
 	}

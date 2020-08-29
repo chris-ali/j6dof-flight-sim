@@ -91,7 +91,7 @@ public class LookupTable {
 		this.name = name;
 		
 		if (breakPointAngle != null && breakPointFlap != null && lookupValues != null) {
-			logger.debug("Creating an interpolating lookup table for " + name + "...");
+			logger.info("Creating an interpolating lookup table for " + name + "...");
 			pbsif = new PiecewiseBicubicSplineInterpolatingFunction(breakPointAngle, breakPointFlap, lookupValues);
 		}
 	}

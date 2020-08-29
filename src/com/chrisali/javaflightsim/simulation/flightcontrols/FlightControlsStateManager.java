@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.simulation.datatransfer.InputData;
 import com.chrisali.javaflightsim.simulation.datatransfer.InputDataListener;
@@ -55,27 +54,24 @@ public class FlightControlsStateManager implements Steppable, InputDataListener 
 
 	private FlightControlsState controlsState;
 	private AnalysisControls analysisControls;
-	private ControlParameterActuator actuator;
+	private FlightControlActuator actuator;
 
 	private EnumSet<Options> options;
 	private AtomicInteger simTimeMS;
 
-	public FlightControlsStateManager(SimulationController simController, AtomicInteger simTimeMS) {
-		logger.debug("Initializing flight controls...");
+	public FlightControlsStateManager(SimulationConfiguration configuration, AtomicInteger simTimeMS) {
+		logger.info("Initializing flight controls...");
 
-		SimEvents.init(simController);
-
-		SimulationConfiguration simConfig = simController.getConfiguration();
-		options = simConfig.getSimulationOptions();
-		controlsState = new FlightControlsState(simConfig);
-		actuator = new FlightControlActuator(simConfig, controlsState);
+		options = configuration.getSimulationOptions();
+		controlsState = new FlightControlsState(configuration);
+		actuator = new FlightControlActuator(configuration, controlsState);
 
 		this.simTimeMS = simTimeMS;
 
 		analysisControls = FileUtilities.readAnalysisControls();
 		if (analysisControls != null) {
-			logger.debug(analysisControls.getAnalysisInputs().size() + " analysis flight control inputs found:");
-			logger.debug(analysisControls.toString());
+			logger.info(analysisControls.getAnalysisInputs().size() + " analysis flight control inputs found:");
+			logger.info(analysisControls.toString());
 		}
 	}
 
@@ -132,6 +128,10 @@ public class FlightControlsStateManager implements Steppable, InputDataListener 
 
 	public FlightControlsState getControlsState() {
 		return controlsState;
+	}
+
+	public FlightControlActuator getActuator() {
+		return actuator;
 	}
 
 	/**

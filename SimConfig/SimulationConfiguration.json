@@ -1,5 +1,5 @@
 {
-  "simulationOptions" : [ "UNLIMITED_FLIGHT", "USE_JOYSTICK" ],
+  "simulationOptions" : [ "UNLIMITED_FLIGHT" ],
   "initialConditions" : {
     "INITU" : 210.0,
     "INITV" : 0.0,
@@ -44,8 +44,9 @@
   },
   "selectedAircraft" : "TwinNavion",
   "displayConfiguration" : {
-    "useAntiAliasing" : false,
-    "anisotropicFiltering" : 0,
+    "useFullScreen" : false,
+    "useAntiAliasing" : true,
+    "anisotropicFiltering" : 8,
     "displayHeight" : 900,
     "displayWidth" : 1440
   },

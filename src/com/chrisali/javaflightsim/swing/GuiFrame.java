@@ -24,28 +24,25 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.chrisali.javaflightsim.initializer.LWJGLSwingSimulationController;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
+import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
-import com.chrisali.javaflightsim.swing.aircraftpanel.AircraftConfigurationListener;
-import com.chrisali.javaflightsim.swing.aircraftpanel.AircraftDropDownListener;
 import com.chrisali.javaflightsim.swing.aircraftpanel.AircraftPanel;
-import com.chrisali.javaflightsim.swing.aircraftpanel.WeightConfiguredListener;
-import com.chrisali.javaflightsim.swing.initialconditionspanel.InitialConditionsConfigurationListener;
 import com.chrisali.javaflightsim.swing.initialconditionspanel.InitialConditionsPanel;
-import com.chrisali.javaflightsim.swing.optionspanel.OptionsConfigurationListener;
 import com.chrisali.javaflightsim.swing.optionspanel.OptionsPanel;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Main Swing class that contains the main menus to configure the and start simulation. 
@@ -59,9 +56,10 @@ public class GuiFrame extends JFrame {
 	
 	private static final Logger logger = LogManager.getLogger(GuiFrame.class);
 	
-	private LWJGLSwingSimulationController simulationController;
 	private SimulationConfiguration configuration;
 	private Aircraft aircraft;
+
+	private List<SimulationEventListener> simulationEventListeners = new ArrayList<>();
 	
 	private ButtonPanel buttonPanel;
 	private AircraftPanel aircraftPanel;
@@ -71,16 +69,13 @@ public class GuiFrame extends JFrame {
 	private CardLayout cardLayout;
 	
 	/**
-	 * Constructor, which takes a {@link LWJGLSwingSimulationController} reference to gain access to methods to
-	 * configure the simulation
+	 * Initializes the main GUI window of Java Flight Simulator
 	 * 
 	 * @param controller
 	 */
-	public GuiFrame(LWJGLSwingSimulationController controller) {
-		super("Java Flight Sim");
-		
-		simulationController = controller;
-		configuration = controller.getConfiguration(); 
+	public GuiFrame(SimulationConfiguration configuration) {
+		super("Java Flight Simulator");
+		this.configuration = configuration;
 		
 		setLayout(new BorderLayout());
 		Dimension dims = new Dimension(200, 400);
@@ -96,66 +91,48 @@ public class GuiFrame extends JFrame {
 		//-------------------------- Aircraft Panel ------------------------------------------------
 		
 		aircraftPanel = new AircraftPanel(this);
-		aircraftPanel.setAircraftConfigurationListener(new AircraftConfigurationListener() {
-			@Override
-			public void aircraftConfigured(String aircraftName) {
-				buttonPanel.setAircraftLabel(aircraftName);
-				
-				configuration.setSelectedAircraft(aircraftName);
-				configuration.save();
+		aircraftPanel.setAircraftConfigurationListener((String aircraftName) -> {
+			buttonPanel.setAircraftLabel(aircraftName);
+			
+			configuration.setSelectedAircraft(aircraftName);
+			configuration.save();
 
-				setSize(dims);
-				cardPanel.setVisible(false);
+			setSize(dims);
+			cardPanel.setVisible(false);
+		});
+		aircraftPanel.setWeightConfiguredListener((double fuelWeight, double payloadWeight) -> {
+			if (aircraft != null) {
+				aircraft.updateWeightPercentages(fuelWeight, payloadWeight);
+				aircraft.save();					
 			}
 		});
-		aircraftPanel.setWeightConfiguredListener(new WeightConfiguredListener() {
-			@Override
-			public void weightConfigured(double fuelWeight, double payloadWeight) {
-				if (aircraft != null) {
-					aircraft.updateWeightPercentages(fuelWeight, payloadWeight);
-					aircraft.save();					
-				}
-			}
+		aircraftPanel.setCancelButtonListener(() -> {
+			setSize(dims);
+			cardPanel.setVisible(false);
 		});
-		aircraftPanel.setCancelButtonListener(new CancelButtonListener() {
-			@Override
-			public void cancelButtonClicked() {
-				setSize(dims);
-				cardPanel.setVisible(false);
-			}
-		});
-		aircraftPanel.setAircraftSelectedListener(new AircraftDropDownListener() {
-			@Override
-			public void aircraftSelected(String aircraftName) {
-				aircraft = FileUtilities.readAircraftConfiguration(aircraftName);
-				
-				if (aircraftPanel != null && aircraftPanel.getWeightDialog() != null)
-					aircraftPanel.getWeightDialog().refreshWeightOptions(aircraft);
-			}
+		aircraftPanel.setAircraftSelectedListener((String aircraftName) -> {
+			aircraft = FileUtilities.readAircraftConfiguration(aircraftName);
+			
+			if (aircraftPanel != null && aircraftPanel.getWeightDialog() != null)
+				aircraftPanel.getWeightDialog().refreshWeightOptions(aircraft);
 		});
 		cardPanel.add(aircraftPanel, "aircraft");
 		
 		//--------------------------- Options Panel ------------------------------------------------
 		
 		optionsPanel = new OptionsPanel();
-		optionsPanel.setOptionsConfigurationListener(new OptionsConfigurationListener() {
-			@Override
-			public void simulationOptionsConfigured(EnumSet<Options> options, int stepSize) {
-				buttonPanel.setOptionsLabel(options, stepSize);
-				configuration.setSimulationRateHz(stepSize);
-				configuration.updateOptions(options);
-				configuration.save();
-				
-				setSize(dims);
-				cardPanel.setVisible(false);
-			}
+		optionsPanel.setOptionsConfigurationListener((EnumSet<Options> options, int stepSize) -> {
+			buttonPanel.setOptionsLabel(options, stepSize);
+			configuration.setSimulationRateHz(stepSize);
+			configuration.updateOptions(options);
+			configuration.save();
+			
+			setSize(dims);
+			cardPanel.setVisible(false);
 		});
-		optionsPanel.setCancelButtonListener(new CancelButtonListener() {
-			@Override
-			public void cancelButtonClicked() {
-				setSize(dims);
-				cardPanel.setVisible(false);
-			}
+		optionsPanel.setCancelButtonListener(() -> {
+			setSize(dims);
+			cardPanel.setVisible(false);
 		});
 		cardPanel.add(optionsPanel, "options");
 		
@@ -163,62 +140,45 @@ public class GuiFrame extends JFrame {
 		
 		initialConditionsPanel = new InitialConditionsPanel();
 		initialConditionsPanel.setInitialConditionsPanel(configuration.getInitialConditions());
-		initialConditionsPanel.setInitialConditionsConfigurationListener(new InitialConditionsConfigurationListener() {
-			@Override
-			public void initialConditonsConfigured(double[] coordinates, double heading, double altitude, double airspeed) {
-				buttonPanel.setInitialConditionsLabel(coordinates, heading, altitude, airspeed);
-				configuration.setInitialConditions(coordinates, heading, altitude, airspeed);
-				configuration.save();
-				
-				setSize(dims);
-				cardPanel.setVisible(false);
-			}
+		initialConditionsPanel.setInitialConditionsConfigurationListener(
+		(double[] coordinates, double heading, double altitude, double airspeed) -> {
+			buttonPanel.setInitialConditionsLabel(coordinates, heading, altitude, airspeed);
+			configuration.setInitialConditions(coordinates, heading, altitude, airspeed);
+			configuration.save();
+			
+			setSize(dims);
+			cardPanel.setVisible(false);
 		});
-		initialConditionsPanel.setCancelButtonListener(new CancelButtonListener() {
-			@Override
-			public void cancelButtonClicked() {
-				setSize(dims);
-				cardPanel.setVisible(false);
-			}
+		initialConditionsPanel.setCancelButtonListener(() -> {
+			setSize(dims);
+			cardPanel.setVisible(false);
 		});
 		cardPanel.add(initialConditionsPanel, "initialConditions");
 		
 		//-------------------------- Button Panel --------------------------------------------------
 		
 		buttonPanel = new ButtonPanel(configuration);
-		buttonPanel.setAircraftButtonListener(new AircraftButtonListener() {
-			@Override
-			public void buttonEventOccurred() {
-				setSize((dims.width+aircraftPanel.getPreferredSize().width), dims.height);
-				cardPanel.setVisible(true);
-				cardLayout.show(cardPanel, "aircraft");
-			}
+		buttonPanel.setAircraftButtonListener(() -> {
+			setSize((dims.width+aircraftPanel.getPreferredSize().width), dims.height);
+			cardPanel.setVisible(true);
+			cardLayout.show(cardPanel, "aircraft");
 		});
-		buttonPanel.setInitialConditionsButtonListener(new InitialConditionsButtonListener() {
-			@Override
-			public void buttonEventOccurred() {
-				setSize((dims.width+initialConditionsPanel.getPreferredSize().width), dims.height);
-				cardPanel.setVisible(true);
-				cardLayout.show(cardPanel, "initialConditions");
-			}
+		buttonPanel.setInitialConditionsButtonListener(() -> {
+			setSize((dims.width+initialConditionsPanel.getPreferredSize().width), dims.height);
+			cardPanel.setVisible(true);
+			cardLayout.show(cardPanel, "initialConditions");
 		});
-		buttonPanel.setOptionsButtonListener(new OptionsButtonListener() {
-			@Override
-			public void buttonEventOccurred() {
-				setSize((dims.width+optionsPanel.getPreferredSize().width), dims.height);
-				cardPanel.setVisible(true);
-				cardLayout.show(cardPanel, "options");
-			}
+		buttonPanel.setOptionsButtonListener(() -> {
+			setSize((dims.width+optionsPanel.getPreferredSize().width), dims.height);
+			cardPanel.setVisible(true);
+			cardLayout.show(cardPanel, "options");
 		});
-		buttonPanel.setStartSimulationButtonListener(new StartSimulationButtonListener() {
-			@Override
-			public void buttonEventOccurred() {
-				setSize(dims);
-				cardPanel.setVisible(false);
-				
-				simulationController.startSimulation();
-				GuiFrame.this.setVisible(configuration.getSimulationOptions().contains(Options.ANALYSIS_MODE) ? true : false);
-			}
+		buttonPanel.setStartSimulationButtonListener(() -> {
+			setSize(dims);
+			cardPanel.setVisible(false);
+			GuiFrame.this.setVisible(configuration.getSimulationOptions().contains(Options.ANALYSIS_MODE));
+
+			simulationEventListeners.forEach(listener -> listener.onStartSimulation());
 		});
 		add(buttonPanel, BorderLayout.CENTER);
 		
@@ -234,7 +194,7 @@ public class GuiFrame extends JFrame {
 				int closeDialog = JOptionPane.showConfirmDialog(GuiFrame.this, "Are you sure you wish to quit?",
 																"Confirm Exit", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if (closeDialog == JOptionPane.YES_OPTION) {
-					logger.debug("Closing Java Flight Simulator");
+					logger.info("Closing Java Flight Simulator");
 					
 					System.gc();
 					System.exit(0);
@@ -247,6 +207,13 @@ public class GuiFrame extends JFrame {
 		
 		setVisible(true);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+	}
+
+	public void addSimulationEventListener(SimulationEventListener listener) {
+		if (simulationEventListeners != null) {
+			logger.info("Adding simulation event listener: " + listener.getClass());
+			simulationEventListeners.add(listener);
+		}
 	}
 	
 	/**

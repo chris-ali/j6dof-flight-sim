@@ -21,7 +21,6 @@ package com.chrisali.javaflightsim.swing.plotting;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -37,10 +36,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
-import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -58,7 +54,6 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	private Thread refreshPlotThread;
 	private ProgressDialog progressDialog;
 
-	private SimulationController controller;
 	private PlotConfiguration plotConfiguration;
 	private List<Map<SimOuts, Double>> logsOut;
 	
@@ -67,35 +62,29 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	 * the {@link PlotWindow#simPlotCategories()} set to create {@link SimulationPlot} objects using the data 
 	 * from {@link Integrate6DOFEquations#getLogsOut()}, and assigns them to tabs in a JTabbedPane. 
 	 * 
-	 * @param String simPlotCetegories
-	 * @param SimulationController controller
+	 * @param aircaftName
+	 * @param logsOut
 	 */
-	public PlotWindow(SimulationController controller) {
-		super(controller.getConfiguration().getSelectedAircraft() + " Plots");
+	public PlotWindow(String aircaftName, List<Map<SimOuts, Double>> logsOut) {
+		super(aircaftName + " Plots");
 		setLayout(new BorderLayout());
 		
-		logsOut = controller.getLogsOut();
-		this.controller = controller;
+		this.logsOut = logsOut;
 		plotConfiguration = FileUtilities.readPlotConfiguration();
-		
-		//-------------- Progress Dialog ----------------------------
-		
-		progressDialog = new ProgressDialog(this, "Refreshing Plots");
-		progressDialog.setProgressDialogListener(this);
-
+				
 		//------------------ Tab Pane ------------------------------
 		
 		tabPane = new JTabbedPane();
-		
+		tabPane.addChangeListener(ev -> {
+			if (tabPane.getSelectedComponent() != null)
+				PlotWindow.this.setSize(tabPane.getSelectedComponent().getPreferredSize());
+			else 				
+				PlotWindow.this.setSize(tabPane.getMinimumSize());
+		});
+
 		if (logsOut != null && plotConfiguration != null)
 			initializePlots();
 		
-		tabPane.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				PlotWindow.this.setSize(tabPane.getSelectedComponent().getPreferredSize());
-			}
-		});
 		add(tabPane, BorderLayout.CENTER);
 		
 		//================== Window Settings ====================================
@@ -131,11 +120,8 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 		JMenuItem closeItem = new JMenuItem("Close");
 		closeItem.setMnemonic(KeyEvent.VK_C);
 		closeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.CTRL_MASK));
-		closeItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				PlotWindow.this.setVisible(false);
-			}
+		closeItem.addActionListener(ev -> { 
+			PlotWindow.this.setVisible(false);
 		});
 		fileMenu.add(closeItem);
 		
@@ -149,25 +135,22 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 		JMenuItem refreshItem = new JMenuItem("Refresh");
 		refreshItem.setMnemonic(KeyEvent.VK_R);
 		refreshItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));
-		refreshItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent ev) {
-				controller.plotSimulation();
-			}
+		refreshItem.addActionListener(ev -> {
+			if (logsOut != null && plotConfiguration != null)
+				initializePlots();
 		});
 		plotsMenu.add(refreshItem);
 		
-		//---------------- Clear Pots Item -------------------------------
+		//---------------- Clear Plots Item -------------------------------
 		
 		JMenuItem clearPlotsItem = new JMenuItem("Clear Plots");
 		clearPlotsItem.setMnemonic(KeyEvent.VK_E);
 		clearPlotsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
-		clearPlotsItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent ev) {
-				controller.clearLogsOut();
-				controller.plotSimulation();
-			}
+		clearPlotsItem.addActionListener(ev -> {
+			logsOut.clear();
+			
+			if (logsOut != null && plotConfiguration != null)
+				initializePlots();
 		});
 		plotsMenu.add(clearPlotsItem);
 		
@@ -186,10 +169,13 @@ public class PlotWindow extends JFrame implements ProgressDialogListener {
 	 * Initalizes the plot window by generating plot objects and adding them to a tabbed pane 
 	 */
 	private void initializePlots() {
+		//-------------- Progress Dialog ----------------------------
+		progressDialog = new ProgressDialog(this, "Refreshing Plots");
+		progressDialog.setProgressDialogListener(this);
 		progressDialog.setMaximum(plotConfiguration.subPlotBundles.size());
 		progressDialog.setTitle("Generating Plots");
 		progressDialog.setVisible(true);
-		
+
 		tabPaneWorker = new SwingWorker<Void, Integer>() {
 			
 			@Override

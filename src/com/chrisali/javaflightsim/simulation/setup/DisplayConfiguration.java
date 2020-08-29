@@ -7,7 +7,9 @@ package com.chrisali.javaflightsim.simulation.setup;
  * Contains collections and fields used to configure various display options for the out the window view
  */
 public class DisplayConfiguration {
-		
+	
+	private boolean useFullScreen;
+
 	private boolean useAntiAliasing;
 	
 	private int anisotropicFiltering;
@@ -17,6 +19,10 @@ public class DisplayConfiguration {
 	private int displayWidth;
 		
 	public DisplayConfiguration() {}
+
+	public boolean isUseFullScreen() { return useFullScreen; }
+
+	public void setUseFullScreen(boolean useFullScreen) { this.useFullScreen = useFullScreen; }
 
 	public boolean isUseAntiAliasing() { return useAntiAliasing; }
 

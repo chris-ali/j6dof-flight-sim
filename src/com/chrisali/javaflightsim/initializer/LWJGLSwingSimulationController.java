@@ -19,25 +19,25 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.initializer;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.SimulationRunner;
+import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
+import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.swing.GuiFrame;
 import com.chrisali.javaflightsim.swing.consoletable.ConsoleTablePanel;
 import com.chrisali.javaflightsim.swing.plotting.PlotWindow;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Controls the configuration and running of processes supporting the simulation component of JavaFlightSim. This consists of: 
@@ -50,14 +50,15 @@ import com.chrisali.javaflightsim.swing.plotting.PlotWindow;
  * @author Christopher Ali
  *
  */
-public class LWJGLSwingSimulationController implements SimulationController {
+public class LWJGLSwingSimulationController implements SimulationEventListener {
 	
 	//Logging
 	private static final Logger logger = LogManager.getLogger(LWJGLSwingSimulationController.class);
 	
 	// Configuration
 	private SimulationConfiguration configuration;
-	
+	private EnumSet<Options> options;
+			
 	// Simulation and Threads
 	private SimulationRunner runner;
 	private Thread runnerThread;
@@ -70,156 +71,140 @@ public class LWJGLSwingSimulationController implements SimulationController {
 	
 	// Raw Data Console
 	private ConsoleTablePanel consoleTablePanel;
+
+	private boolean wasReset = false;
 		
 	/**
 	 * Initializes initial settings, configurations and conditions to be edited through menu options
 	 */
 	public LWJGLSwingSimulationController(SimulationConfiguration configuration) {
 		this.configuration = configuration;
-		guiFrame = new GuiFrame(this);
+		guiFrame = new GuiFrame(configuration);
+		guiFrame.addSimulationEventListener(this);
 	}
 	
-	//============================== Configuration =========================================================
-	
-	/**
-	 * @return instance of configuraion
-	 */
-	@Override
-	public SimulationConfiguration getConfiguration() { return configuration; }
-	
-	//=============================== Simulation ===========================================================
-
 	/**
 	 * Initializes, trims and starts the flight controls, simulation (and flight and environment data, if selected) threads.
 	 * Depending on options specified, a console panel and/or plot window will also be initialized and opened 
 	 */
 	@Override
-	public void startSimulation() {
+	public void onStartSimulation() {
 		if (runner != null && runner.isRunning()) {
 			logger.warn("Simulation is already running! Please wait until it has finished");
 			return;
 		}
 		
 		configuration = FileUtilities.readSimulationConfiguration();
+		options = configuration.getSimulationOptions();
 			
-		logger.debug("Starting simulation...");
+		logger.info("Starting simulation...");
 		
-		logger.debug("Trimming aircraft...");
+		logger.info("Trimming aircraft...");
 		Trimming.trimSim(configuration, false);
 		
-		logger.debug("Initializing simulation runner...");
-		runner = new SimulationRunner(this);
+		logger.info("Initializing simulation runner...");
+		runner = new SimulationRunner(configuration);
+		runner.addSimulationEventListener(this);
 
-		logger.debug("Initializaing and starting simulation runner thread...");
+		logger.info("Initializaing and starting simulation runner thread...");
 		runnerThread = new Thread(runner);
 		runnerThread.start();
+				
+		if (options.contains(Options.CONSOLE_DISPLAY))
+			onInitializeConsole();
 	}
 	
 	/**
-	 * Stops simulation and data transfer threads (if running), closes the raw data {@link ConsoleTablePanel},
-	 * {@link SimulationWindow}, and opens the main menus window again
+	 * Stops simulation and console table refresh if running, calls generate plots event if in Analysis Mode, 
+	 * and opens main menus again if not visible
 	 */
 	@Override
-	public void stopSimulation() {
-		logger.debug("Stopping simulation...");
-
-		runner.setRunning(false);	
+	public void onStopSimulation() {
+		if (runner.isRunning()) {
+			logger.info("Stopping simulation...");
+			runner.setRunning(false);
+		}
 		
-		logger.debug("Returning to menus...");
-		guiFrame.setVisible(true);
-	}
+		if (consoleTablePanel != null) {
+			logger.info("Stopping flight data console refresh...");
+			consoleTablePanel.stopTableRefresh();
+		}
 
+		if (options.contains(Options.ANALYSIS_MODE))
+			onPlotSimulation();
+		
+		if (!guiFrame.isVisible()) {
+			logger.info("Returning to menus...");
+			guiFrame.setVisible(true);
+		}
+	}
+	
 	/**
-	 * @return if simulation is running
+	 * Pauses and unpauses the simulation 
 	 */
 	@Override
-	public boolean isSimulationRunning() {
-		return (runner != null && runner.isRunning());
+	public void onPauseUnpauseSimulation() {
+		if(!options.contains(Options.PAUSED)) {
+			options.add(Options.PAUSED);
+		} else {
+			options.remove(Options.PAUSED);
+			options.remove(Options.RESET);
+			wasReset = false;
+		} 
 	}
-	
+
 	/**
-	 * @return ArrayList of simulation output data 
-	 * @see SimOuts
+	 * When the simulation is paused, it can be reset back to initial conditions once per pause 
 	 */
-	public List<Map<SimOuts, Double>> getLogsOut() {
-		return (runner != null && runner.isRunning()) ? runner.getSimulation().getLogsOut() : null;
+	@Override
+	public void onResetSimulation() {
+		if(options.contains(Options.PAUSED) && !options.contains(Options.RESET) && !wasReset) {
+			options.add(Options.RESET);
+			logger.debug("Resetting simulation to initial conditions...");
+			wasReset = true;
+		}
 	}
-	
-	/**
-	 * @return if simulation was able to clear data kept in logsOut
-	 */
-	public boolean clearLogsOut() {
-		return (runner != null && runner.isRunning()) ? runner.getSimulation().clearLogsOut() : false;
-	}
-		
-	//=============================== Plotting =============================================================
-	
+
 	/**
 	 * Initializes the plot window if not already initialized, otherwise refreshes the window and sets it visible again
 	 */
 	@Override
-	public void plotSimulation() {
-		logger.debug("Plotting simulation results...");
+	public void onPlotSimulation() {
+		logger.info("Plotting simulation results...");
 		
 		try {
 			if(plotWindow != null)
 				plotWindow.setVisible(false);
 				
-			plotWindow = new PlotWindow(this);		
+			plotWindow = new PlotWindow(configuration.getSelectedAircraft(), getLogsOut());
 		} catch (Exception e) {
 			logger.error("An error occurred while generating plots!", e);
 		}
 	}
-	
-	/**
-	 * @return Instance of the plot window
-	 */
-	public PlotWindow getPlotWindow() { return plotWindow; }
 
-	/**
-	 * @return if the plot window is visible
-	 */
-	@Override
-	public boolean isPlotWindowVisible() {
-		return (plotWindow == null) ? false : plotWindow.isVisible();
-	}
-	
-	//=============================== Console =============================================================
-	
 	/**
 	 * Initializes the raw data console window and starts the auto-refresh of its contents
 	 */
 	@Override
-	public void initializeConsole() {
+	public void onInitializeConsole() {
 		try {
-			logger.debug("Starting flight data console...");
+			logger.info("Starting flight data console...");
 			
 			if(consoleTablePanel != null)
 				consoleTablePanel.setVisible(false);
 			
-			consoleTablePanel = new ConsoleTablePanel(this);
+			consoleTablePanel = new ConsoleTablePanel(getLogsOut());
 			consoleTablePanel.startTableRefresh();			
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
 		}
 	}
-	
+
 	/**
-	 * @return if the raw data console window is visible
+	 * @return ArrayList of simulation output data 
+	 * @see SimOuts
 	 */
-	public boolean isConsoleWindowVisible() {
-		return (consoleTablePanel == null) ? false : consoleTablePanel.isVisible();
-	}
-	
-	/**
-	 * Saves the raw data in the console window to a .csv file 
-	 * 
-	 * @param file
-	 * @throws IOException
-	 */
-	public void saveConsoleOutput(File file) throws IOException {
-		logger.debug("Saving console output to: " + file.getAbsolutePath());
-		
-		FileUtilities.saveToCSVFile(file, runner.getSimulation().getLogsOut());
+	public List<Map<SimOuts, Double>> getLogsOut() {
+		return (runner != null) ? runner.getSimulation().getLogsOut() : null;
 	}
 }

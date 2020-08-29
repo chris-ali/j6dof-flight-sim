@@ -151,19 +151,15 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 		integratorConfig  = ArrayUtils.toPrimitive(configuration.getIntegratorConfig().values()
 				   												.toArray(new Double[integratorConfig.length]));
 		
-		// Run forever as a pilot in the loop simulation
-		if (!options.contains(Options.ANALYSIS_MODE) && options.contains(Options.UNLIMITED_FLIGHT))
-			integratorConfig[2] = Double.POSITIVE_INFINITY; 
-		
 		// Initial time
 		t = integratorConfig[0];
 				
 		// Use fourth-order Runge-Kutta numerical integration with time step of dt
-		logger.debug("Setting up Runge Kutta Integrator for 6DOF calculations...");
+		logger.info("Setting up Runge Kutta Integrator for 6DOF calculations...");
 		integrator = new ClassicalRungeKuttaIntegrator(integratorConfig[1]);
 		
 		// Set up ground reaction integration
-		logger.debug("Initializing ground reaction model...");
+		logger.info("Initializing ground reaction model...");
 		
 		groundReaction = new IntegrateGroundReaction(linearVelocities, 
 													 NEDPosition, 
@@ -214,10 +210,8 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 		try {	
 			// If paused and reset selected, reset initialConditions to saved values in configuration
 			if (options.contains(Options.PAUSED) && options.contains(Options.RESET)) {
-				logger.debug("Simulation reset to initial conditions!");
 				initialConditions = resetInitialConditions;
 				flightControls.reset();
-				options.remove(Options.RESET);
 			}
 							
 			// If paused, skip the integration and update process
@@ -525,17 +519,16 @@ public class Integrate6DOFEquations implements Steppable, EnvironmentDataListene
 	 * @param dataListener
 	 */
 	public void addFlightDataListener(FlightDataListener dataListener) {
-		logger.debug("Adding flight data listener: " + dataListener.getClass());
-		flightDataListeners.add(dataListener);
+		if (dataListener != null) {
+			logger.info("Adding flight data listener: " + dataListener.getClass());
+			flightDataListeners.add(dataListener);
+		}
 	}
 
 	/**
 	 * Lets registered listeners know that data has arrived so that they can use it as needed
 	 */
 	private void fireFlightDataArrived() {
-		for (FlightDataListener listener : flightDataListeners) {
-			if(listener != null) 
-				listener.onFlightDataReceived(flightData);
-		}
+		flightDataListeners.forEach(listener -> listener.onFlightDataReceived(flightData));
 	}
 }

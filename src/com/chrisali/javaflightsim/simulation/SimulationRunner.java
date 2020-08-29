@@ -19,6 +19,8 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.simulation;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,38 +28,32 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
-import com.chrisali.javaflightsim.lwjgl.events.WindowClosedListener;
-import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
+import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
 /**
- * Main runner thread for JavaFlightSimulator that combines all {@link Steppable} components into a single thread so that they can run
- * synchronously and not cause concurrency issues with each other
+ * Main runner thread for JavaFlightSimulator that combines all {@link Steppable} components into a single thread
  * 
  * @author Christopher
  *
  */
-public class SimulationRunner implements Runnable, WindowClosedListener {
+public class SimulationRunner implements Runnable {
 	
 	private static final Logger logger = LogManager.getLogger(SimulationRunner.class);
 	private static final int TO_MILLISEC = 1000;
 
-	private SimulationController simController;
-	
 	private FlightControlsStateManager flightControlsManager;
 	private Integrate6DOFEquations simulation;
 	private LWJGLWorld outTheWindow;
+
+	private List<SimulationEventListener> simulationEventListeners = new ArrayList<>();
 	
-	private Map<IntegratorConfig, Double> integratorConfig;
-	private Set<Options> options;	
-		
 	private AtomicInteger timeMS = new AtomicInteger(0);
 	private int frameStepMS;
 	private int endTimeMS;
@@ -66,32 +62,44 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 	private boolean running = false;
 	
 	/**
-	 * Constructor that initialize main simulation ({@link Integrate6DOFEquations} and {@link FlightControlsState}) components and 
-	 * configrures simulation time
+	 * Constructor that initialize main simulation components, their event listeners and configures simulation run time parameters
 	 * 
-	 * @param simController
+	 * @param configuration
 	 */
-	public SimulationRunner(SimulationController simController) {
-		this.simController = simController;
+	public SimulationRunner(SimulationConfiguration configuration) {
+		Map<IntegratorConfig, Double> integratorConfig = configuration.getIntegratorConfig();
+		Set<Options> options = configuration.getSimulationOptions();
 		
-		SimulationConfiguration configuration = simController.getConfiguration();
-		integratorConfig = configuration.getIntegratorConfig();
-		options = configuration.getSimulationOptions();
+		configureSimulationTime(options, integratorConfig);
 		
-		configureSimulationTime();
+		logger.info("Initializing flight controls manager...");
+		flightControlsManager = new FlightControlsStateManager(configuration, timeMS);
 		
-		logger.debug("Initializing flight controls manager...");
-		flightControlsManager = new FlightControlsStateManager(simController, timeMS);
-		
-		logger.debug("Initializing simulation...");
+		logger.info("Initializing simulation...");
 		simulation = new Integrate6DOFEquations(flightControlsManager.getControlsState(), configuration);
+
+		if (options.contains(Options.ANALYSIS_MODE)) {
+			logger.info("Will run simulation in Analysis Mode...");
+		} else {
+			logger.info("Will run simulation in Normal Mode...");
+						
+			logger.info("Instantiating LWJGL world...");
+			outTheWindow = new LWJGLWorld(configuration);
+			outTheWindow.addEnvironmentDataListener(simulation);
+			outTheWindow.addinputDataListener(flightControlsManager);
+			
+			simulation.addFlightDataListener(outTheWindow);
+		}
 	}
 	
 	/**
-	 * Sets running parameters (start/end time and frame step time) for the timulation. Time is kept as an AtomicInteger to ensure
+	 * Sets running parameters (start/end time and frame step time) for the simulation. Time is kept as an AtomicInteger to ensure
 	 * atomic incrementation
+	 * 
+	 * @param options
+	 * @param integratorConfig
 	 */
-	public void configureSimulationTime() {
+	public void configureSimulationTime(Set<Options> options, Map<IntegratorConfig, Double> integratorConfig) {
 		// Set up running parameters for simulation
 		timeMS = new AtomicInteger(integratorConfig.get(IntegratorConfig.STARTTIME).intValue() * TO_MILLISEC);
 		
@@ -105,39 +113,20 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 		else
 			endTimeMS = integratorConfig.get(IntegratorConfig.ENDTIME).intValue() * TO_MILLISEC;		
 	}
-	
-	/**
-	 * Depending on the presence of ANALYSIS_MODE in options EnumMap, configures the runner to initialize the OTW display and all necessary listeners
-	 */
-	private void configureAnalysisNormalMode() {
-		if (options.contains(Options.ANALYSIS_MODE)) {
-			logger.debug("Running simulation in Analysis Mode...");
-		} else {
-			logger.debug("Running simulation in Normal Mode...");
-						
-			logger.debug("Initializing LWJGL world...");
-			outTheWindow = new LWJGLWorld(simController);
-			outTheWindow.addWindowClosedListener(this);
-			outTheWindow.addEnvironmentDataListener(simulation);
-			outTheWindow.addinputDataListener(flightControlsManager);
-			outTheWindow.init();
 
-			simulation.addFlightDataListener(outTheWindow);
-		}
-	}
-	
 	/**
 	 * Main runner loop where {@link Steppable} components are step updated each iteration of the loop depending on the current value of time
 	 */
 	@Override
 	public void run() {
 		running = true;
-				
-		configureAnalysisNormalMode();
-		
-		if (options.contains(Options.CONSOLE_DISPLAY))
-			simController.initializeConsole();
 
+		// Must init GLFW window from same thread as update method
+		if (outTheWindow != null) {
+			logger.info("Initializing LWJGL world...");
+			outTheWindow.init();
+		}
+		
 		while (running && timeMS.get() < endTimeMS) {
 			try {
 				// Step update each component if allowed to based on the current time 
@@ -160,23 +149,31 @@ public class SimulationRunner implements Runnable, WindowClosedListener {
 			} 
 		}
 		
-		if (options.contains(Options.ANALYSIS_MODE))
-			simController.plotSimulation();
-		
 		running = false;
-	}
-			
-	/**
-	 * When LWJGL OTW window is closed, this event is fired
-	 */
-	@Override
-	public void onWindowClosed() {
-		simController.stopSimulation();	
+
+		simulationEventListeners.forEach(listener -> listener.onStopSimulation());
 	}
 
-	public Integrate6DOFEquations getSimulation() { return simulation; }
+	/**
+	 * Adds SimulationEventListener objects to listener list for the out the window (if Normal mode) 
+	 * and flight controls manager
+	 * 
+	 * @param listener
+	 */
+	public void addSimulationEventListener(SimulationEventListener listener) {
+		if (listener != null) {
+			logger.info("Adding simulation event listener: " + listener.getClass());
+			simulationEventListeners.add(listener);
+
+			if (outTheWindow != null)
+				outTheWindow.addSimulationEventListener(listener);
+
+			if (flightControlsManager.getActuator() != null)
+				flightControlsManager.getActuator().addSimulationEventListener(listener);
+		}
+	}
 	
-	public AtomicInteger getTimeMS() { return timeMS; }
+	public Integrate6DOFEquations getSimulation() { return simulation; }
 	
 	/**
 	 * @return If out sumulation is running

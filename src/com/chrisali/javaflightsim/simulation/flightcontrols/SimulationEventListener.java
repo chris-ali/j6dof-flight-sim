@@ -17,28 +17,20 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim;
+package com.chrisali.javaflightsim.simulation.flightcontrols;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.EventListener;
 
-import com.chrisali.javaflightsim.initializer.Initializer;
-import com.chrisali.javaflightsim.initializer.PomReader;
+public interface SimulationEventListener extends EventListener {
+	public void onStartSimulation();
 
-/**
- * Runner class to start Java Flight Simulator
- * 
- * @author Christopher Ali
- *
- */
-public class RunJavaFlightSimulator {
-	private static final Logger logger = LogManager.getLogger(RunJavaFlightSimulator.class);
-	
-	public static void main(String[] args) {
-		logger.info("===============================================");
-		logger.info(PomReader.getProjectName() +  " v" + PomReader.getVersionNumber() +" by Christopher Ali");
-		logger.info("===============================================");
-		
-		Initializer.selectRunConfigurationAndRun();
-	}
+	public void onPauseUnpauseSimulation();
+
+	public void onResetSimulation();
+
+	public void onStopSimulation();
+
+	public void onPlotSimulation();
+
+	public void onInitializeConsole();
 }

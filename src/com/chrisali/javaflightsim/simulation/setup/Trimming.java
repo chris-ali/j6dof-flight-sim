@@ -97,7 +97,7 @@ public class Trimming {
 		
 		int counter = 0;
 		
-		logger.debug("Finding trim pitch and elevator...");
+		logger.info("Finding trim pitch and elevator...");
 		
 		do {
 			alphaTrim = (alphaMin + alphaMax) / 2;
@@ -152,7 +152,7 @@ public class Trimming {
 					   
 		} while (Math.abs(zForce) > 1);
 		
-		logger.debug("...done!");
+		logger.info("...done!");
 
 		//==================================================== Throttle ============================================================
 		
@@ -162,7 +162,7 @@ public class Trimming {
 		
 		counter = 0;
 		
-		logger.debug("Finding trim throttle...");
+		logger.info("Finding trim throttle...");
 		
 		do {
 			throttleTrim = (throttleMin + throttleMax) / 2;
@@ -195,7 +195,7 @@ public class Trimming {
 			
 		} while (Math.abs(totalThrust - drag) > 1);
 		
-		logger.debug("...done!");
+		logger.info("...done!");
 		
 		// Update initialControls and initialConditions
 		initialConditions.put(InitialConditions.INITTHETA, thetaTrim);
@@ -205,18 +205,18 @@ public class Trimming {
 		initialControls.put(FlightControl.AILERON, 0.0);
 		initialControls.put(FlightControl.RUDDER, 0.0);
 		
-		logger.debug("Finished trimming aircraft!");
-		logger.debug(String.format("Trim controls are: \nElevator: %.4f rad\nThrottle: %.4f", elevTrim, throttleTrim));
-		logger.debug(String.format("Trim states are: \nW Velocity: %3.4f ft/sec\nTheta: %.4f rad\nAlpha: %.4f rad", wVelocityTrim, thetaTrim, alphaTrim));
+		logger.info("Finished trimming aircraft!");
+		logger.info(String.format("Trim controls are: \nElevator: %.4f rad\nThrottle: %.4f", elevTrim, throttleTrim));
+		logger.info(String.format("Trim states are: \nW Velocity: %3.4f ft/sec\nTheta: %.4f rad\nAlpha: %.4f rad", wVelocityTrim, thetaTrim, alphaTrim));
 		
 		// In test mode do not write any config settings to files
 		if (!testMode) {
-			logger.debug("Updating initial conditions and initial flight controls...");
+			logger.info("Updating initial conditions and initial flight controls...");
 			configuration.setInitialConditions(initialConditions);
 			configuration.setInitialControls(initialControls);
 			configuration.save();
 		} else {
-			logger.debug(Trimming.outputTrimValues());
+			logger.info(Trimming.outputTrimValues());
 		}
 	}
 	

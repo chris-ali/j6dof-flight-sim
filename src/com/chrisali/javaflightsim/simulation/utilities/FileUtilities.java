@@ -159,7 +159,7 @@ public class FileUtilities {
 		StringBuilder sb = new StringBuilder();
 		sb.append(FILE_ROOT).append(filepath).append(File.separator).append(filename).append(CONFIG_EXT);
 				
-		logger.debug("Reading file: " + sb.toString() + "...");
+		logger.info("Reading file: " + sb.toString() + "...");
 		
 		T objToDeserialize = null;
 		ObjectMapper mapper = new ObjectMapper();
@@ -172,7 +172,7 @@ public class FileUtilities {
 		catch (NullPointerException e) {logger.error("Bad reference when reading: " + filename + CONFIG_EXT + "!", e);}
 		catch (NumberFormatException e) {logger.error("Error parsing data from " + filename + CONFIG_EXT + "!", e);}
 		
-		logger.debug("...done!");
+		logger.info("...done!");
 		
 		return objToDeserialize;
 	}
@@ -208,7 +208,7 @@ public class FileUtilities {
 		StringBuilder sb = new StringBuilder();
 		sb.append(FILE_ROOT).append(filepath).append(File.separator).append(filename).append(CONFIG_EXT);
 		
-		logger.debug("Saving configuration file to: " + sb.toString());
+		logger.info("Saving configuration file to: " + sb.toString());
 		
 		ObjectMapper mapper = new ObjectMapper();	
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -220,7 +220,7 @@ public class FileUtilities {
 		catch (IOException e) {logger.error("Could not read: " + filename + CONFIG_EXT + "!", e);}
 		catch (NullPointerException e) {logger.error("Bad reference to: " + filename + CONFIG_EXT + "!", e);}
 		
-		logger.debug(filename + CONFIG_EXT + " saved successfully!");
+		logger.info(filename + CONFIG_EXT + " saved successfully!");
 	}
 			
 	/**
@@ -232,7 +232,7 @@ public class FileUtilities {
 	 */
 	public static void saveToCSVFile(File file, List<Map<SimOuts, Double>> logsOut) throws IOException {
 		
-		logger.debug("Saving configuration file to: " + file.getAbsolutePath());
+		logger.info("Saving output to: " + file.getAbsolutePath());
 		
 		BufferedWriter bw = new BufferedWriter(new FileWriter(file.getPath()));
 		
@@ -254,6 +254,6 @@ public class FileUtilities {
 		
 		bw.close();
 		
-		logger.debug(file.getName() + " saved successfully!");
+		logger.info(file.getName() + " saved successfully!");
 	}
 }

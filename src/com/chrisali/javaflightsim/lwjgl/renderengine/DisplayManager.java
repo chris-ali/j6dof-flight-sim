@@ -73,7 +73,7 @@ public class DisplayManager {
 	 * Creates the OpenGL display in its own window
 	 */
 	public static void createDisplay() {
-		logger.debug("Initializing GLFW display...");
+		logger.info("Initializing GLFW display...");
 
 		//Initialize GLFW.
 		glfwInit();
@@ -90,13 +90,11 @@ public class DisplayManager {
 		glfwWindowHint(GLFW_DEPTH_BITS, colorDepth);
 		glfwWindowHint(GLFW_SAMPLES, aaSamples);
 
-		//TODO Add fullscreen support
         long monitor = 0;
         if(useFullScreen) {
-            //Get the primary monitor.
+            //Get the primary monitor, then get desktop resolution
 			monitor = glfwGetPrimaryMonitor();
 			
-            //Retrieve the desktop resolution
             GLFWVidMode vidMode = glfwGetVideoMode(monitor);
             width = vidMode.width();
             height = vidMode.height();
@@ -117,7 +115,7 @@ public class DisplayManager {
 
 		glfwShowWindow(window);
 
-		logger.debug("...done!");
+		logger.info("...done!");
 	}
 	
 	/**

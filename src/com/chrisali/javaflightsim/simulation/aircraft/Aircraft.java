@@ -173,7 +173,7 @@ public class Aircraft implements Saveable {
 		fuelWeightPercent = SaturationUtilities.saturatePercentage(fuelWeightPercent);
 		payloadWeightPercent = SaturationUtilities.saturatePercentage(payloadWeightPercent);
 		
-		logger.debug("Updating weights for " + name + " to " + fuelWeightPercent 
+		logger.info("Updating weights for " + name + " to " + fuelWeightPercent 
 				+ " percent fuel and " + payloadWeightPercent + " percent payload...");
 		
 		try {	

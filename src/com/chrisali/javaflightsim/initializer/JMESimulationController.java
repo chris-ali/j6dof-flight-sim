@@ -19,15 +19,15 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.initializer;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.interfaces.SimulationController;
 import com.chrisali.javaflightsim.simulation.SimulationStepper;
+import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
+import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
@@ -46,13 +46,14 @@ import org.apache.logging.log4j.Logger;
  * @author Christopher Ali
  *
  */
-public class JMESimulationController implements SimulationController {
+public class JMESimulationController implements SimulationEventListener {
 	
 	//Logging
 	private static final Logger logger = LogManager.getLogger(JMESimulationController.class);
 	
 	// Configuration
 	private SimulationConfiguration configuration;
+	private EnumSet<Options> options;
 	
 	// Simulation
 	private SimulationStepper stepper;
@@ -62,6 +63,8 @@ public class JMESimulationController implements SimulationController {
 	
 	// Raw Data Console
 	private ConsoleTablePanel consoleTablePanel;
+
+	private boolean wasReset = false;
 		
 	/**
 	 * Initializes initial settings, configurations and conditions to be edited through menu options
@@ -69,143 +72,118 @@ public class JMESimulationController implements SimulationController {
 	public JMESimulationController(SimulationConfiguration configuration) {
 		this.configuration = configuration;
 	}
-	
-	//============================== Configuration =========================================================
-	
-	/**
-	 * @return instance of configuraion
-	 */
-	@Override
-	public SimulationConfiguration getConfiguration() { return configuration; }
-	
-	//=============================== Simulation ===========================================================
 
 	/**
 	 * Initializes, trims and starts the flight controls, simulation, and flight/environment data steppers.
 	 * Depending on options specified, a console panel and/or plot window will also be initialized and opened 
 	 */
 	@Override
-	public void startSimulation() {
+	public void onStartSimulation() {
 		if (stepper != null && stepper.isRunning()) {
 			logger.warn("Simulation is already running! Please wait until it has finished");
 			return;
 		}
 		
 		configuration = FileUtilities.readSimulationConfiguration();
+		options = configuration.getSimulationOptions();
 			
-		logger.debug("Starting simulation...");
+		logger.info("Starting simulation...");
 		
-		logger.debug("Trimming aircraft...");
+		logger.info("Trimming aircraft...");
 		Trimming.trimSim(configuration, false);
 		
-		logger.debug("Initializing simulation stepper...");
-		stepper = new SimulationStepper(this);
-	}
-	
-	/**
-	 * Stops simulation stepping
-	 */
-	@Override
-	public void stopSimulation() {
-		logger.debug("Stopping simulation...");
+		logger.info("Initializing simulation stepper...");
+		stepper = new SimulationStepper(configuration);
 
-		stepper.setRunning(false);
+		if (options.contains(Options.CONSOLE_DISPLAY))
+			onInitializeConsole();
+	}
+	
+	/**
+	 * Stops simulation and console table refresh if stepping, and calls generate plots event if in Analysis Mode
+	 */
+	@Override
+	public void onStopSimulation() {
+		if (stepper.isRunning()) {
+			logger.info("Stopping simulation...");
+			stepper.setRunning(false);
+		}
+
+		if (consoleTablePanel != null) {
+			logger.info("Stopping flight data console refresh...");
+			consoleTablePanel.stopTableRefresh();
+		}
+
+		if (options.contains(Options.ANALYSIS_MODE))
+			onPlotSimulation();
+	}
+	
+	/**
+	 * Pauses and unpauses the simulation 
+	 */
+	@Override
+	public void onPauseUnpauseSimulation() {
+		if(!options.contains(Options.PAUSED)) {
+			options.add(Options.PAUSED);
+		} else {
+			options.remove(Options.PAUSED);
+			options.remove(Options.RESET);
+			wasReset = false;
+		} 
 	}
 
 	/**
-	 * @return if simulation is running
+	 * When the simulation is paused, it can be reset back to initial conditions once per pause 
 	 */
 	@Override
-	public boolean isSimulationRunning() {
-		return (stepper != null && stepper.isRunning());
+	public void onResetSimulation() {
+		if(options.contains(Options.PAUSED) && !options.contains(Options.RESET) && !wasReset) {
+			options.add(Options.RESET);
+			logger.debug("Resetting simulation to initial conditions...");
+			wasReset = true;
+		}
 	}
-	
-	/**
-	 * @return ArrayList of simulation output data 
-	 * @see SimOuts
-	 */
-	@Override
-	public List<Map<SimOuts, Double>> getLogsOut() {
-		return (stepper != null && stepper.isRunning()) ? stepper.getSimulation().getLogsOut() : null;
-	}
-	
-	/**
-	 * @return if simulation was able to clear data kept in logsOut
-	 */
-	@Override
-	public boolean clearLogsOut() {
-		return (stepper != null && stepper.isRunning()) ? stepper.getSimulation().clearLogsOut() : false;
-	}
-		
-	//=============================== Plotting =============================================================
-	
+
 	/**
 	 * Initializes the plot window if not already initialized, otherwise refreshes the window and sets it visible again
 	 */
 	@Override
-	public void plotSimulation() {
-		logger.debug("Plotting simulation results...");
+	public void onPlotSimulation() {
+		logger.info("Plotting simulation results...");
 		
 		try {
 			if(plotWindow != null)
 				plotWindow.setVisible(false);
-				
-			plotWindow = new PlotWindow(this);		
+
+			plotWindow = new PlotWindow(configuration.getSelectedAircraft(), getLogsOut());	
 		} catch (Exception e) {
 			logger.error("An error occurred while generating plots!", e);
 		}
 	}
-	
-	/**
-	 * @return Instance of the plot window
-	 */
-	public PlotWindow getPlotWindow() { return plotWindow; }
 
-	/**
-	 * @return if the plot window is visible
-	 */
-	@Override
-	public boolean isPlotWindowVisible() {
-		return (plotWindow == null) ? false : plotWindow.isVisible();
-	}
-	
-	//=============================== Console =============================================================
-	
 	/**
 	 * Initializes the raw data console window and starts the auto-refresh of its contents
 	 */
 	@Override
-	public void initializeConsole() {
+	public void onInitializeConsole() {
 		try {
-			logger.debug("Starting flight data console...");
+			logger.info("Starting flight data console...");
 			
 			if(consoleTablePanel != null)
 				consoleTablePanel.setVisible(false);
 			
-			consoleTablePanel = new ConsoleTablePanel(this);
+			consoleTablePanel = new ConsoleTablePanel(getLogsOut());
 			consoleTablePanel.startTableRefresh();			
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
 		}
 	}
-	
+
 	/**
-	 * @return if the raw data console window is visible
+	 * @return ArrayList of simulation output data 
+	 * @see SimOuts
 	 */
-	public boolean isConsoleWindowVisible() {
-		return (consoleTablePanel == null) ? false : consoleTablePanel.isVisible();
-	}
-	
-	/**
-	 * Saves the raw data in the console window to a .csv file 
-	 * 
-	 * @param file
-	 * @throws IOException
-	 */
-	@Override
-	public void saveConsoleOutput(File file) throws IOException {
-		logger.debug("Saving console output to: " + file.getAbsolutePath());
-		
-		FileUtilities.saveToCSVFile(file, stepper.getSimulation().getLogsOut());
+	public List<Map<SimOuts, Double>> getLogsOut() {
+		return (stepper != null && stepper.isRunning()) ? stepper.getSimulation().getLogsOut() : null;
 	}
 }

@@ -55,7 +55,7 @@ public class SimulationConfiguration implements Saveable {
 	 * @param newOptions
 	 */
 	public void updateOptions(EnumSet<Options> newOptions) {
-		logger.debug("Updating simulation options...");
+		logger.info("Updating simulation options...");
 		
 		try { simulationOptions = EnumSet.copyOf(newOptions); } 
 		catch (Exception e) { logger.error("Error updating simulation options!", e); }
@@ -103,7 +103,7 @@ public class SimulationConfiguration implements Saveable {
 	 * @param airspeed
 	 */
 	public void setInitialConditions(double[] coordinates, double heading, double altitude, double airspeed) {
-		logger.debug("Updating simulation intitial conditions...");
+		logger.info("Updating simulation intitial conditions...");
 		
 		try {	
 			initialConditions.put(InitialConditions.INITLAT, Math.toRadians(coordinates[0]));

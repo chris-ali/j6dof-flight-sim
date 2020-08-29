@@ -20,6 +20,7 @@
 package com.chrisali.javaflightsim.lwjgl.interfaces.text;
 
 import java.text.DecimalFormat;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import com.chrisali.javaflightsim.lwjgl.entities.Entity;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.simulation.datatransfer.InputData;
 import com.chrisali.javaflightsim.simulation.datatransfer.InputDataListener;
+import com.chrisali.javaflightsim.simulation.setup.CameraConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.CameraMode;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -57,6 +59,7 @@ public class SimulationTexts implements InputDataListener {
 		texts.put("Camera", new GUIText("", 0.5f, font, new Vector2f(0.01f, 0.05f), 1f, false, true));
 		texts.put("Entity", new GUIText("", 0.5f, font, new Vector2f(0.01f, 0.09f), 1f, false, true));
 		texts.put("Paused", new GUIText("PAUSED", 1.15f, font, new Vector2f(0.5f, 0.5f), 1f, false, new Vector3f(1, 0, 0), false));
+		texts.put("Reset", new GUIText("RESET", 1.15f, font, new Vector2f(0.5f, 0.55f), 1f, false, new Vector3f(1, 0, 0), false));
 
 		this.configuration = configuration;
 	}
@@ -77,10 +80,18 @@ public class SimulationTexts implements InputDataListener {
 	
 	@Override
 	public void onInputDataReceived(InputData inputData) {
-		texts.get("FlightData").setVisible(!configuration.getCameraConfiguration().isShowPanel());
-		texts.get("Camera").setVisible(configuration.getCameraConfiguration().getMode() == CameraMode.CHASE);
-		texts.get("Entity").setVisible(configuration.getCameraConfiguration().getMode() == CameraMode.CHASE);
-		texts.get("Paused").setVisible(configuration.getSimulationOptions().contains(Options.PAUSED));
+		CameraConfiguration camCon = configuration.getCameraConfiguration();
+		boolean isChase = camCon.getMode() == CameraMode.CHASE;
+		
+		EnumSet<Options> options = configuration.getSimulationOptions();
+		boolean isDebug = options.contains(Options.DEBUG_MODE);
+		boolean isPaused = options.contains(Options.PAUSED);
+
+		texts.get("FlightData").setVisible(!camCon.isShowPanel());
+		texts.get("Camera").setVisible(isChase && isDebug);
+		texts.get("Entity").setVisible(isChase && isDebug);
+		texts.get("Paused").setVisible(isPaused);
+		texts.get("Reset").setVisible(isPaused && configuration.getSimulationOptions().contains(Options.RESET));
 	}
 
 	/**

@@ -32,11 +32,9 @@ One day I'd like to tie objectives or a scoring element into the simulation to m
 ## Libraries
 - The Apache Commons Math libraries perform the numerical integration (Runge-Kutta) necessary to make the program tick.
 
-- jFreeChart libraries are used to graph the simulation states after the simulation stops.
+- jFreeChart libraries are used to graph the aircraft's response.
 
-- jinput is used for joystick support
-
-- LWJGL is used to create the out the window display and sounds using OpenGL and OpenAL
+- LWJGL is used to create the out the window display and sounds using OpenGL through GLFW and OpenAL
 
 ## Reference
 - The 6DOF state equations come from *Small Unmanned Aircraft: Theory and Practice by Beard, R.W. and McLain, T.W.*
@@ -46,6 +44,8 @@ One day I'd like to tie objectives or a scoring element into the simulation to m
 ## Building and Development
 - Maven is required to build project and generate natives
 
-- Running build script ./buildJavaFlightSim.sh will execute the Maven task, package all required dependencies and natives, and generate natives in the workspace folder
+- Currently being developed with Java 11, but should be compatible with Java 14 and Java 8 
 
-- buildJavaFlightSim.sh should be compatible with in Windows if running through WSL shell
+- Running the build script ./buildJavaFlightSim.sh will execute the Maven package task and package all required dependencies and natives
+
+- buildJavaFlightSim.sh should work in Windows if run through WSL shell or Cygwin

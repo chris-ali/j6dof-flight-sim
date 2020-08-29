@@ -68,7 +68,7 @@ public class InstrumentPanel {
 	public List<InterfaceTexture> loadAndGetTextures(Loader loader, String aircraftName) {
 		List<InterfaceTexture> interfaceTextures = new ArrayList<>();
 		
-		logger.debug("Initializing instrument panel...");
+		logger.info("Initializing instrument panel...");
 		
 		InterfaceTexture panelBase = new InterfaceTexture(loader.loadTexture(SimDirectories.AIRCRAFT.toString(), getClass().getSimpleName(), aircraftName), 
 														  panelPosition, 
@@ -82,7 +82,7 @@ public class InstrumentPanel {
 			interfaceTextures.addAll(gauge.getTextures());
 		}
 		
-		logger.debug("...done!");
+		logger.info("...done!");
 		
 		return interfaceTextures;
 	}
