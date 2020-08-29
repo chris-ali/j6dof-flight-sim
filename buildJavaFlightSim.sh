@@ -6,10 +6,10 @@ mvn package
 echo "Maven build complete! Packaging build artifacts..."
 
 # Parse the version number and project names from the pom file
-versionNumber=$(grep -e '<version>' -m 1  pom.xml | cut -c 11-14)
-artifactId=$(grep -e '<artifactId>' -m 1  pom.xml | cut -c 14-26)
+versionNumber=$(grep -e '<version>' -m 1  pom.xml | awk -F '[<>]' '/version/{print $3}')
+artifactId=$(grep -e '<artifactId>' -m 1  pom.xml | awk -F '[<>]' '/artifactId/{print $3}')
 mavenArchiveName=$(ls target/${artifactId}-${versionNumber}-* | cut -c 8-)
-finalFileName=$(grep -e '<name>' -m 1  pom.xml | cut -c 8-28 | awk '{gsub(/ /,"", $0); print tolower($0)}')
+finalFileName=$(grep -e '<name>' -m 1  pom.xml | awk -F '[<>]' '/name/{print $3}' | awk '{gsub(/ /,"", $0); print tolower($0)}')
 buildDirectory=${finalFileName}
 
 # Temp archive directory
