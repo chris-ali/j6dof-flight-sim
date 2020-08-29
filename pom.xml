@@ -22,7 +22,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.chrisali</groupId>
 	<artifactId>javaflightsim</artifactId>
-	<version>0.6a</version>
+	<version>0.65a</version>
 	<name>Java Flight Simulator</name>
 	
 	<properties>
