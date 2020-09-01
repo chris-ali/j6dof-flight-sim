@@ -23,7 +23,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="478.0" prefWidth="850.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="478.0" prefWidth="850.0" type="Pane" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="MainMenuController">
    <children>
       <VBox prefHeight="478.0" prefWidth="850.0" spacing="5.0">
          <children>
@@ -33,22 +33,19 @@
                   <content>
                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="310.0" prefWidth="744.0">
                            <children>
-                              <HBox layoutX="-4.0" layoutY="-2.0" prefHeight="334.0" prefWidth="850.0" spacing="10.0" AnchorPane.leftAnchor="-4.0">
+                              <HBox prefHeight="334.0" prefWidth="850.0" spacing="10.0">
                                  <children>
                                     <VBox prefHeight="301.0" prefWidth="318.0">
                                        <children>
                                           <HBox alignment="CENTER" prefHeight="45.0" prefWidth="318.0">
                                              <children>
                                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Selected Aircraft:" wrappingWidth="144.0" />
-                                                <ComboBox fx:id="dropDownAircraft" prefHeight="29.0" prefWidth="157.0" />
+                                                <ComboBox fx:id="dropDownAircraft" onAction="#dropDownAircraftChanged" prefHeight="29.0" prefWidth="157.0" />
                                              </children>
                                           </HBox>
                                           <ImageView fx:id="imageAircraft" fitHeight="193.0" fitWidth="318.0" pickOnBounds="true" preserveRatio="true" />
                                           <TextArea fx:id="textDescription" editable="false" prefHeight="84.0" prefWidth="310.0" />
                                        </children>
-                                       <padding>
-                                          <Insets left="15.0" />
-                                       </padding>
                                     </VBox>
                                     <Separator orientation="VERTICAL" prefHeight="291.0" prefWidth="0.0" />
                                     <VBox prefHeight="302.0" prefWidth="512.0">
@@ -71,8 +68,8 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                             </rowConstraints>
                                              <children>
-                                                <Slider fx:id="sliderPayloadWeight" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                <Slider fx:id="sliderFuelWeight" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                <Slider fx:id="sliderPayloadWeight" onDragDone="#sliderPayloadWeightChanged" onKeyReleased="#sliderPayloadWeightChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <Slider fx:id="sliderFuelWeight" onDragDone="#sliderFuelWeightChanged" onKeyReleased="#sliderFuelWeightChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Payload:" wrappingWidth="117.0" GridPane.rowIndex="1" />
                                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Fuel:" wrappingWidth="117.0" GridPane.rowIndex="2" />
                                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Total:" wrappingWidth="117.0" GridPane.rowIndex="3" />
@@ -107,6 +104,9 @@
                                        </children>
                                     </VBox>
                                  </children>
+                                 <padding>
+                                    <Insets left="10.0" right="10.0" />
+                                 </padding>
                               </HBox>
                            </children>
                         </AnchorPane>
@@ -134,27 +134,27 @@
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                       </rowConstraints>
                                        <children>
-                                          <TextField fx:id="textInitialLat" editable="false" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                          <TextField fx:id="textInitialLat" editable="false" onAction="#textInitialLatChanged" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                              <GridPane.margin>
                                                 <Insets left="5.0" right="5.0" />
                                              </GridPane.margin>
                                           </TextField>
-                                          <TextField fx:id="textInitialLon" editable="false" text="0.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                                          <TextField fx:id="textInitialLon" editable="false" onAction="#textInitialLonChanged" text="0.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
                                              <GridPane.margin>
                                                 <Insets left="5.0" right="5.0" />
                                              </GridPane.margin>
                                           </TextField>
-                                          <TextField fx:id="textInitialAlt" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                          <TextField fx:id="textInitialAlt" onAction="#textInitialAltChanged" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                                              <GridPane.margin>
                                                 <Insets left="5.0" right="5.0" />
                                              </GridPane.margin>
                                           </TextField>
-                                          <TextField fx:id="textInitialHdg" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                          <TextField fx:id="textInitialHdg" onAction="#textInitialHdgChanged" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                              <GridPane.margin>
                                                 <Insets left="5.0" right="5.0" />
                                              </GridPane.margin>
                                           </TextField>
-                                          <TextField fx:id="txtInitialTas" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                          <TextField fx:id="textInitialTas" onAction="#textInitialTasChanged" text="0.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                                              <GridPane.margin>
                                                 <Insets left="5.0" right="5.0" />
                                              </GridPane.margin>
@@ -241,10 +241,10 @@
                                                                   <Insets left="20.0" />
                                                                </GridPane.margin>
                                                             </Text>
-                                                            <CheckBox fx:id="checkAnalysisMode" mnemonicParsing="false" text="Run Simulation Analysis" GridPane.columnIndex="1" />
-                                                            <CheckBox fx:id="checkShowConsole" mnemonicParsing="false" text="Show Console Output" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                            <CheckBox fx:id="checkShowConsole1" mnemonicParsing="false" text="Enabled" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                                            <Slider fx:id="sliderSimulationRate" majorTickUnit="20.0" max="120.0" min="20.0" minorTickCount="1" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                            <CheckBox fx:id="checkAnalysisMode" mnemonicParsing="false" onAction="#checkAnalysisModeClicked" text="Run Simulation Analysis" GridPane.columnIndex="1" />
+                                                            <CheckBox fx:id="checkShowConsole" mnemonicParsing="false" onAction="#checkShowConsoleClicked" text="Show Console Output" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                            <CheckBox fx:id="checkDebugMode" mnemonicParsing="false" onAction="#checkDebugModeClicked" text="Enabled" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                                            <Slider fx:id="sliderSimulationRate" majorTickUnit="20.0" max="120.0" min="20.0" minorTickCount="1" onDragDone="#sliderSimulationRateChanged" onKeyReleased="#sliderSimulationRateChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                                          </children>
                                                       </GridPane>
                                                       <Separator orientation="VERTICAL" prefHeight="200.0" />
@@ -295,19 +295,19 @@
                                                                   <Insets left="20.0" />
                                                                </GridPane.margin>
                                                             </Text>
-                                                            <CheckBox fx:id="checkAntiAliasing" mnemonicParsing="false" text="Enabled (2x)" GridPane.columnIndex="1" />
-                                                            <CheckBox fx:id="checkAnisoFiltering" mnemonicParsing="false" text="Enabled (16x)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                            <CheckBox fx:id="checkFullScreen" mnemonicParsing="false" text="Enabled" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                            <CheckBox fx:id="checkAntiAliasing" mnemonicParsing="false" onAction="#checkAntiAliasingClicked" text="Enabled (2x)" GridPane.columnIndex="1" />
+                                                            <CheckBox fx:id="checkAnisoFiltering" mnemonicParsing="false" onAction="#checkAnisoFilteringClicked" text="Enabled (16x)" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                            <CheckBox fx:id="checkFullScreen" mnemonicParsing="false" onAction="#checkFullScreenClicked" text="Enabled" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                                             <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                                                <children>
-                                                                  <RadioButton fx:id="radio800450" mnemonicParsing="false" text="800 x 450">
+                                                                  <RadioButton fx:id="radio800450" mnemonicParsing="false" onAction="#radio800450Selected" text="800 x 450">
                                                                      <toggleGroup>
                                                                         <ToggleGroup fx:id="resolutionGroup" />
                                                                      </toggleGroup>
                                                                   </RadioButton>
-                                                                  <RadioButton fx:id="radio1440900" mnemonicParsing="false" text="1440 x 900" toggleGroup="$resolutionGroup" />
-                                                                  <RadioButton fx:id="radio16801050" mnemonicParsing="false" text="1680 x 1050" toggleGroup="$resolutionGroup" />
-                                                                  <RadioButton fx:id="radio19201080" layoutX="10.0" layoutY="70.0" mnemonicParsing="false" text="1920 x 1280" toggleGroup="$resolutionGroup" />
+                                                                  <RadioButton fx:id="radio1440900" mnemonicParsing="false" onAction="#radio1440900Selected" text="1440 x 900" toggleGroup="$resolutionGroup" />
+                                                                  <RadioButton fx:id="radio16801050" mnemonicParsing="false" onAction="#radio16801050Selected" text="1680 x 1050" toggleGroup="$resolutionGroup" />
+                                                                  <RadioButton fx:id="radio19201080" layoutX="10.0" layoutY="70.0" mnemonicParsing="false" onAction="#radio19201080Selected" text="1920 x 1280" toggleGroup="$resolutionGroup" />
                                                                </children>
                                                             </VBox>
                                                          </children>
@@ -351,9 +351,9 @@
                                                                   <Insets left="20.0" />
                                                                </GridPane.margin>
                                                             </Text>
-                                                            <Slider fx:id="sliderEngineVol" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" />
-                                                            <Slider fx:id="sliderSystemsVol" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                            <Slider fx:id="sliderEnvironmentVol" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                            <Slider fx:id="sliderEngineVol" minorTickCount="5" onDragDone="#sliderEngineVolChanged" onKeyReleased="#sliderEngineVolChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" />
+                                                            <Slider fx:id="sliderSystemsVol" minorTickCount="5" onDragDone="#sliderSystemsVolChanged" onKeyReleased="#sliderSystemsVolChenged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                            <Slider fx:id="sliderEnvironmentVol" minorTickCount="5" onDragDone="#sliderEnvironmentVolChanged" onKeyReleased="#sliderEnvironmentVolChenged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                                          </children>
                                                       </GridPane>
                                                       <Separator orientation="VERTICAL" prefHeight="200.0" />
@@ -395,9 +395,9 @@
                                                                   <Insets left="20.0" />
                                                                </GridPane.margin>
                                                             </Text>
-                                                            <CheckBox fx:id="checkShowPanel" mnemonicParsing="false" text="Show Instrument Panel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                            <Slider fx:id="sliderFieldOfView" blockIncrement="5.0" max="135.0" min="60.0" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="85.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                                            <RadioButton fx:id="radioChase" mnemonicParsing="false" text="Chase View" GridPane.columnIndex="1" GridPane.valignment="BOTTOM">
+                                                            <CheckBox fx:id="checkShowPanel" mnemonicParsing="false" onAction="#checkShowPanelClicked" text="Show Instrument Panel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                            <Slider fx:id="sliderFieldOfView" blockIncrement="5.0" max="135.0" min="60.0" onDragDone="#sliderFieldOfViewChanged" onKeyReleased="#sliderFieldOfViewChenged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="85.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                            <RadioButton fx:id="radioChase" mnemonicParsing="false" onAction="#radioChaseSelected" text="Chase View" GridPane.columnIndex="1" GridPane.valignment="BOTTOM">
                                                                <GridPane.margin>
                                                                   <Insets bottom="15.0" />
                                                                </GridPane.margin>
@@ -405,7 +405,7 @@
                                                                   <ToggleGroup fx:id="cameraGroup" />
                                                                </toggleGroup>
                                                             </RadioButton>
-                                                            <RadioButton fx:id="radio2dCockpit" layoutX="201.0" layoutY="43.0" mnemonicParsing="false" selected="true" text="2D Cockpit" toggleGroup="$cameraGroup" GridPane.columnIndex="1" GridPane.valignment="TOP">
+                                                            <RadioButton fx:id="radio2dCockpit" layoutX="201.0" layoutY="43.0" mnemonicParsing="false" onAction="#radio2dCockpitSelected" selected="true" text="2D Cockpit" toggleGroup="$cameraGroup" GridPane.columnIndex="1" GridPane.valignment="TOP">
                                                                <GridPane.margin>
                                                                   <Insets top="15.0" />
                                                                </GridPane.margin>
@@ -437,7 +437,7 @@
                   </Text>
                </left>
                <right>
-                  <Button fx:id="buttonStartSim" alignment="CENTER" mnemonicParsing="false" prefHeight="34.0" prefWidth="188.0" text="Start Simulation" BorderPane.alignment="CENTER_RIGHT">
+                  <Button fx:id="buttonStartSim" alignment="CENTER" mnemonicParsing="false" onAction="#buttonStartSimClicked" prefHeight="34.0" prefWidth="188.0" text="Start Simulation" BorderPane.alignment="CENTER_RIGHT">
                      <BorderPane.margin>
                         <Insets bottom="10.0" right="10.0" />
                      </BorderPane.margin>
@@ -457,4 +457,4 @@
          </padding>
       </VBox>
    </children>
-</Pane>
+</fx:root>

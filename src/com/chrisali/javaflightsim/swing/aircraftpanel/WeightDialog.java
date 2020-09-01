@@ -231,7 +231,7 @@ public class WeightDialog extends JDialog {
 	private void recalculateWeights() {
 		fuelWeightValue = fuelFraction*massProperties.get(MassProperties.MAX_WEIGHT_FUEL);
 		payloadWeightValue = payloadFraction*massProperties.get(MassProperties.MAX_WEIGHT_PAYLOAD);
-		totalWeightValue = (fuelFraction*massProperties.get(MassProperties.MAX_WEIGHT_PAYLOAD) +
+		totalWeightValue = (fuelFraction*massProperties.get(MassProperties.MAX_WEIGHT_FUEL) +
 				 		   (payloadFraction*massProperties.get(MassProperties.MAX_WEIGHT_PAYLOAD) +
 						    massProperties.get(MassProperties.WEIGHT_EMPTY)));
 		

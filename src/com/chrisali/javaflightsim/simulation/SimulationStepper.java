@@ -29,6 +29,7 @@ import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsState;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
 import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
+import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 
@@ -120,7 +121,12 @@ public class SimulationStepper {
 		}
 	}
 	
-	public Integrate6DOFEquations getSimulation() { return simulation; }
+	/**
+	 * @return List of simulation outputs during run time
+	 */
+	public List<Map<SimOuts, Double>> getLogsOut() {
+		return (simulation != null) ? simulation.getLogsOut() : null;
+	}
 	
 	/**
 	 * @return If stepper is running

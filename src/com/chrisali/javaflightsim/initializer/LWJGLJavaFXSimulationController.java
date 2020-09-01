@@ -29,7 +29,6 @@ import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
-import com.chrisali.javaflightsim.swing.GuiFrame;
 import com.chrisali.javaflightsim.swing.consoletable.ConsoleTablePanel;
 import com.chrisali.javaflightsim.swing.plotting.PlotWindow;
 
@@ -47,10 +46,10 @@ import org.apache.logging.log4j.Logger;
  * @author Christopher Ali
  *
  */
-public class LWJGLSwingSimulationController implements SimulationEventListener {
+public class LWJGLJavaFXSimulationController implements SimulationEventListener {
 	
 	//Logging
-	private static final Logger logger = LogManager.getLogger(LWJGLSwingSimulationController.class);
+	private static final Logger logger = LogManager.getLogger(LWJGLJavaFXSimulationController.class);
 	
 	// Configuration
 	private SimulationConfiguration configuration;
@@ -59,10 +58,7 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 	// Simulation and Threads
 	private SimulationRunner runner;
 	private Thread runnerThread;
-	
-	// Menus
-	private GuiFrame guiFrame;
-	
+
 	// Plotting
 	private PlotWindow plotWindow;
 	
@@ -74,10 +70,8 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 	/**
 	 * Initializes initial settings, configurations and conditions to be edited through menu options
 	 */
-	public LWJGLSwingSimulationController(SimulationConfiguration configuration) {
+	public LWJGLJavaFXSimulationController(SimulationConfiguration configuration) {
 		this.configuration = configuration;
-		guiFrame = new GuiFrame(configuration);
-		guiFrame.addSimulationEventListener(this);
 	}
 	
 	/**
@@ -129,11 +123,6 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 
 		if (options.contains(Options.ANALYSIS_MODE))
 			onPlotSimulation();
-		
-		if (!guiFrame.isVisible()) {
-			logger.info("Returning to menus...");
-			guiFrame.setVisible(true);
-		}
 	}
 	
 	/**

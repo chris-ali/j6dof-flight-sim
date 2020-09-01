@@ -20,13 +20,10 @@
 package com.chrisali.javaflightsim.initializer;
 
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
 
 import com.chrisali.javaflightsim.simulation.SimulationStepper;
 import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
@@ -155,7 +152,7 @@ public class JMESimulationController implements SimulationEventListener {
 			if(plotWindow != null)
 				plotWindow.setVisible(false);
 
-			plotWindow = new PlotWindow(configuration.getSelectedAircraft(), getLogsOut());	
+			plotWindow = new PlotWindow(configuration.getSelectedAircraft(), stepper.getLogsOut());	
 		} catch (Exception e) {
 			logger.error("An error occurred while generating plots!", e);
 		}
@@ -172,18 +169,10 @@ public class JMESimulationController implements SimulationEventListener {
 			if(consoleTablePanel != null)
 				consoleTablePanel.setVisible(false);
 			
-			consoleTablePanel = new ConsoleTablePanel(getLogsOut());
+			consoleTablePanel = new ConsoleTablePanel(stepper.getLogsOut());
 			consoleTablePanel.startTableRefresh();			
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
 		}
-	}
-
-	/**
-	 * @return ArrayList of simulation output data 
-	 * @see SimOuts
-	 */
-	public List<Map<SimOuts, Double>> getLogsOut() {
-		return (stepper != null && stepper.isRunning()) ? stepper.getSimulation().getLogsOut() : null;
 	}
 }
