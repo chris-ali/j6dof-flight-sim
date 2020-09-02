@@ -440,6 +440,45 @@ public class MainMenuController {
         textInitialAlt.setText(configuration.getInitialConditions().get(InitialConditions.INITD).toString());
         textInitialLat.setText("0.0");
         textInitialLon.setText("0.0");
+
+        textInitialLat.textProperty().addListener((observable, oldValue, newValue) -> {
+            textInitialLat.setText(newValue.replaceAll("[^\\-\\.\\d]", ""));
+
+            float testVal = Float.parseFloat(newValue);
+
+            if (testVal > 90 || testVal < -90)
+                textInitialLat.setText("0.0");
+        });
+
+        textInitialLon.textProperty().addListener((observable, oldValue, newValue) -> {
+            textInitialLon.setText(newValue.replaceAll("[^\\-\\.\\d]", ""));
+
+            float testVal = Float.parseFloat(newValue);
+
+            if (testVal > 180 || testVal < -180)
+                textInitialLon.setText("0.0");
+        });
+
+        textInitialHdg.textProperty().addListener((observable, oldValue, newValue) -> {
+            textInitialHdg.setText(newValue.replaceAll("[^\\d]", ""));
+
+            if (Float.parseFloat(newValue) > 360)
+                textInitialHdg.setText("0");
+        });
+
+        textInitialTas.textProperty().addListener((observable, oldValue, newValue) -> {
+            textInitialTas.setText(newValue.replaceAll("[^\\d]", ""));
+
+            if (Float.parseFloat(newValue) > 400)
+                textInitialTas.setText("400");
+        });
+
+        textInitialAlt.textProperty().addListener((observable, oldValue, newValue) -> {
+            textInitialAlt.setText(newValue.replaceAll("[^\\d]", ""));
+
+            if (Float.parseFloat(newValue) > 40000)
+                textInitialAlt.setText("40000");
+        });
     }
 
     void configureAircraftTab() {
