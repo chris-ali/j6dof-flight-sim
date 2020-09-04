@@ -4,11 +4,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.chrisali.javaflightsim.initializer.PomReader;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
+import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.setup.CameraMode;
 import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -42,6 +45,8 @@ public class MainMenuController {
 
     private Aircraft aircraft;
     private SimulationConfiguration configuration;
+
+    private List<SimulationEventListener> simulationEventListeners = new ArrayList<>();
 
     @FXML
     private ComboBox<String> dropDownAircraft;
@@ -156,7 +161,7 @@ public class MainMenuController {
 
     @FXML
     void buttonStartSimClicked(ActionEvent event) {
-
+        simulationEventListeners.forEach(listener -> listener.onStartSimulation());
     }
 
     @FXML
@@ -557,5 +562,12 @@ public class MainMenuController {
 		
         sliderPayloadWeight.setValue((100 * payloadFraction));
         sliderPayloadWeight.setValue((100 * fuelFraction));
+    }
+
+    public void addSimulationEventListener(SimulationEventListener listener) {
+        if (simulationEventListeners != null) {
+			logger.info("Adding simulation event listener: " + listener.getClass());
+			simulationEventListeners.add(listener);
+		}
     }
 }

@@ -66,6 +66,10 @@ public class Initializer {
 			logger.info(mode.toString() + " selected");
 			runSwingLWJGLApp(configuration);
 			break;
+		case LWJGL_JAVAFX:
+			logger.info(mode.toString() + " selected");
+			runSwingLWJGLApp(configuration);
+			break;
 		case SWING_ONLY:
 			logger.info(mode.toString() + " selected");
 			runSwingApp(configuration);
