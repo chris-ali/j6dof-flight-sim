@@ -17,28 +17,40 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim;
+package com.chrisali.javaflightsim.javafx;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.initializer.Initializer;
-import com.chrisali.javaflightsim.initializer.PomReader;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-/**
- * Runner class to start Java Flight Simulator
- * 
- * @author Christopher Ali
- *
- */
-public class RunJavaFlightSimulator {
-	private static final Logger logger = LogManager.getLogger(RunJavaFlightSimulator.class);
-	
-	public static void main(String[] args) {
-		logger.info("===============================================");
-		logger.info(PomReader.getProjectName() +  " v" + PomReader.getVersionNumber() +" by Christopher Ali");
-		logger.info("===============================================");
-		
-		Initializer.selectRunConfigurationAndRun(args);
-	}
+public class PlotWindow {
+    
+    private static final Logger logger = LogManager.getLogger(PlotWindow.class);
+
+    public PlotWindow() {
+        String fxmlName = "PlotWindow.fxml";
+        
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            FileInputStream fis = new FileInputStream(OTWDirectories.RESOURCES.toString() + File.separator + fxmlName);
+            Parent parent = loader.load(fis);
+    
+            Stage stage = new Stage();
+            stage.setScene(new Scene(parent));
+            stage.setTitle("Raw Data Output");
+            stage.show();
+        } catch (IOException e) {
+            logger.error("Could not find FXML: " + fxmlName, e);
+        }
+    }
 }

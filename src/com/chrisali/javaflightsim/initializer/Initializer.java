@@ -41,8 +41,10 @@ public class Initializer {
 	/**
 	 * Selects an appropriate initialization process based on the the RunDisplayMode enum read/parsed in ______
 	 * and then run the application
+	 * 
+	 * @param args Java VM args
 	 */
-	public static void selectRunConfigurationAndRun() {
+	public static void selectRunConfigurationAndRun(String[] args) {
 		
 		logger.info("Configuring simulation options...");
 		
@@ -64,11 +66,11 @@ public class Initializer {
 		switch (mode) {
 		case LWJGL_SWING:
 			logger.info(mode.toString() + " selected");
-			runSwingLWJGLApp(configuration);
+			runLWJGLSwingApp(configuration);
 			break;
 		case LWJGL_JAVAFX:
 			logger.info(mode.toString() + " selected");
-			runSwingLWJGLApp(configuration);
+			runLWJGLJavaFXApp(configuration);
 			break;
 		case SWING_ONLY:
 			logger.info(mode.toString() + " selected");
@@ -84,7 +86,7 @@ public class Initializer {
 			break;
 		default:
 			logger.error("Invalid run mode selected, defaulting to Swing with LWJGL!");
-			runSwingLWJGLApp(configuration);
+			runLWJGLSwingApp(configuration);
 		}
 	}
 	
@@ -93,7 +95,7 @@ public class Initializer {
 	 * 
 	 * @param configuration
 	 */
-	private static void runSwingLWJGLApp(SimulationConfiguration configuration) {
+	private static void runLWJGLSwingApp(SimulationConfiguration configuration) {
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -107,6 +109,21 @@ public class Initializer {
 				}
 			}
 		});
+	}
+
+	/**
+	 * Initializes {@link LWJGLSwingSimulationController}
+	 * 
+	 * @param configuration
+	 */
+	private static void runLWJGLJavaFXApp(SimulationConfiguration configuration) {
+		try {
+			new LWJGLJavaFXSimulationController(configuration); 			
+		} catch (Exception e) {
+			logger.fatal("Error setting up JavaFX GUI and controller: ", e);
+			
+			return;
+		}
 	}
 	
 	/**

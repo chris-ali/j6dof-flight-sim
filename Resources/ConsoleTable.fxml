@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.input.KeyCodeCombination?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ConsoleTableController">
+  <children>
+    <MenuBar VBox.vgrow="NEVER">
+      <menus>
+        <Menu mnemonicParsing="false" text="File">
+          <items>
+            <MenuItem mnemonicParsing="false" onAction="#exportDataTable" text="Export to CSV...">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="E" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#closeWindow" text="Close">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="Q" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
+                     </accelerator></MenuItem>
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+      <children>
+            <TableView fx:id="rawDataTable" prefHeight="571.0" prefWidth="800.0" />
+      </children>
+    </AnchorPane>
+  </children>
+</VBox>

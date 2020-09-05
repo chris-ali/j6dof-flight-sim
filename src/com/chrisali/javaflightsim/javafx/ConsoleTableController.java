@@ -17,28 +17,39 @@
  *  If you have any questions about this project, you can visit
  *  the project's GitHub repository at: http://github.com/chris-ali/j6dof-flight-sim/
  ******************************************************************************/
-package com.chrisali.javaflightsim;
+package com.chrisali.javaflightsim.javafx;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.List;
+import java.util.Map;
 
-import com.chrisali.javaflightsim.initializer.Initializer;
-import com.chrisali.javaflightsim.initializer.PomReader;
+import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 
-/**
- * Runner class to start Java Flight Simulator
- * 
- * @author Christopher Ali
- *
- */
-public class RunJavaFlightSimulator {
-	private static final Logger logger = LogManager.getLogger(RunJavaFlightSimulator.class);
-	
-	public static void main(String[] args) {
-		logger.info("===============================================");
-		logger.info(PomReader.getProjectName() +  " v" + PomReader.getVersionNumber() +" by Christopher Ali");
-		logger.info("===============================================");
-		
-		Initializer.selectRunConfigurationAndRun(args);
-	}
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.TableView;
+import javafx.stage.Stage;
+
+public class ConsoleTableController {
+
+    @FXML
+    private TableView<List<Map<SimOuts,Double>>> rawDataTable;
+
+    @FXML
+    void closeWindow(ActionEvent event) {
+        Stage stage = (Stage)rawDataTable.getScene().getWindow();
+        
+        if (stage != null)
+            stage.close();
+    }
+
+    @FXML
+    void exportDataTable(ActionEvent event) {
+
+    }
+
+    @FXML
+    void initialize() {
+        assert rawDataTable != null : "fx:id=\"rawDataTable\" was not injected: check your FXML file 'ConsoleTable.fxml'.";
+
+    }
 }
