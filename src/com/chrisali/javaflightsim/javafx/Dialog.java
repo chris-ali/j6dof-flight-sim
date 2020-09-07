@@ -44,7 +44,7 @@ public class Dialog {
      * 
      * @return Optional that contains a ButtonType result if alertType is AlertType.CONFIRMATION 
      */
-    public static Optional<ButtonType> ShowDialog(String contentText, String dialogTitle, AlertType dialogType) {
+    public static Optional<ButtonType> showDialog(String contentText, String dialogTitle, AlertType dialogType) {
         Alert alert = new Alert(dialogType);
         alert.setTitle(dialogTitle);
         alert.setHeaderText(null);
@@ -60,7 +60,7 @@ public class Dialog {
      * @param contentText body text of dialog
      * @param dialogTitle title of dialog
      */
-    public static void ShowExceptionDialog(Exception ex, String contentText, String dialogTitle) {
+    public static void showExceptionDialog(Exception ex, String contentText, String dialogTitle) {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle(dialogTitle);
         alert.setHeaderText(null);

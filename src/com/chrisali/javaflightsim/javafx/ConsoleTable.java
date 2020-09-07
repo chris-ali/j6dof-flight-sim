@@ -37,11 +37,16 @@ public class ConsoleTable {
     
     private static final Logger logger = LogManager.getLogger(MainMenu.class);
 
+    private ConsoleTableController controller;
+
     public ConsoleTable() {
+        controller = new ConsoleTableController();
+
         String fxmlName = "ConsoleTable.fxml";
         
         try {
             FXMLLoader loader = new FXMLLoader();
+            loader.setController(controller);
             FileInputStream fis = new FileInputStream(OTWDirectories.RESOURCES.toString() + File.separator + fxmlName);
             Parent parent = loader.load(fis);
     
@@ -51,6 +56,7 @@ public class ConsoleTable {
             stage.show();
         } catch (IOException e) {
             logger.error("Could not find FXML: " + fxmlName, e);
+            Dialog.showExceptionDialog(e, "Could not find FXML: " + fxmlName, "Unable to find FXML");
         }
     }
 }

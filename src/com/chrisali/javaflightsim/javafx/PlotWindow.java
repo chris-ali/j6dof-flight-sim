@@ -22,8 +22,11 @@ package com.chrisali.javaflightsim.javafx;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
+import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,20 +40,26 @@ public class PlotWindow {
     
     private static final Logger logger = LogManager.getLogger(PlotWindow.class);
 
-    public PlotWindow() {
+    private PlotWindowController controller;
+
+    public PlotWindow(String aircraftName, List<Map<SimOuts, Double>> logsOut) {
+        controller = new PlotWindowController(logsOut);
+
         String fxmlName = "PlotWindow.fxml";
         
         try {
             FXMLLoader loader = new FXMLLoader();
+            loader.setController(controller);
             FileInputStream fis = new FileInputStream(OTWDirectories.RESOURCES.toString() + File.separator + fxmlName);
             Parent parent = loader.load(fis);
     
             Stage stage = new Stage();
             stage.setScene(new Scene(parent));
-            stage.setTitle("Raw Data Output");
+            stage.setTitle(aircraftName + " Plots");
             stage.show();
         } catch (IOException e) {
             logger.error("Could not find FXML: " + fxmlName, e);
+            Dialog.showExceptionDialog(e, "Could not find FXML: " + fxmlName, "Unable to find FXML");
         }
     }
 }

@@ -60,6 +60,7 @@ public class MainMenu {
             stage.show();
         } catch (IOException e) {
             logger.error("Could not find FXML: " + fxmlName, e);
+            Dialog.showExceptionDialog(e, "Could not find FXML: " + fxmlName, "Unable to find FXML");
         }
     }
 
