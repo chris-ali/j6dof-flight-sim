@@ -31,6 +31,7 @@ import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -40,9 +41,10 @@ public class MainMenu {
     private static final Logger logger = LogManager.getLogger(MainMenu.class);
 
     private MainMenuController mainMenuController;
+    private Stage stage;
 
     /**
-     * Constructor that initializes the JavaFX controller(s)
+     * Constructor that initializes the JavaFX controller and loads the stage from the associated FXML file
      */
     public MainMenu(SimulationConfiguration configuration) {
         mainMenuController = new MainMenuController(configuration);
@@ -54,14 +56,44 @@ public class MainMenu {
             loader.setController(mainMenuController);
             FileInputStream fis = new FileInputStream(OTWDirectories.RESOURCES.toString() + File.separator + fxmlName);
             
-            Stage stage = new Stage();
+            stage = new Stage();
             stage.setTitle(PomReader.getProjectName());
             stage.setScene(new Scene(loader.load(fis)));
             stage.show();
         } catch (IOException e) {
-            logger.error("Could not find FXML: " + fxmlName, e);
-            Dialog.showExceptionDialog(e, "Could not find FXML: " + fxmlName, "Unable to find FXML");
+            logger.error("Could not load FXML: " + fxmlName, e);
+            Dialog.showExceptionDialog(e, "Could not load FXML: " + fxmlName, "Unable to find FXML");
         }
+    }
+
+    /**
+     * Hides the stage containing this window
+     */
+    public void hide() {
+        Platform.runLater(() -> {
+            if (stage != null)
+                stage.close();
+        });
+    }
+
+    /**
+     * Shows the stage containing this window
+     */
+    public void show() {
+        Platform.runLater(() -> {
+            if (stage != null)
+                stage.show();
+        });
+    }
+    
+    /**
+     * @return if the stage is visible
+     */
+    public boolean isVisible() {
+        if (stage != null)
+            return stage.isShowing();
+        else 
+            return false;
     }
 
     public void addMainMenuSimulationEventListener(SimulationEventListener listener) {

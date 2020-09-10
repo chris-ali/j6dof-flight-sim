@@ -21,6 +21,9 @@ package com.chrisali.javaflightsim.initializer;
 
 import java.util.EnumSet;
 
+import com.chrisali.javaflightsim.javafx.ConsoleTable;
+import com.chrisali.javaflightsim.javafx.MainMenu;
+import com.chrisali.javaflightsim.javafx.PlotWindow;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
@@ -29,8 +32,6 @@ import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
-import com.chrisali.javaflightsim.swing.consoletable.ConsoleTablePanel;
-import com.chrisali.javaflightsim.swing.plotting.PlotWindow;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,11 +60,10 @@ public class LWJGLJavaFXSimulationController implements SimulationEventListener 
 	private SimulationRunner runner;
 	private Thread runnerThread;
 
-	// Plotting
+	// JavaFX GUIs
+	private MainMenu mainMenu;
 	private PlotWindow plotWindow;
-	
-	// Raw Data Console
-	private ConsoleTablePanel consoleTablePanel;
+	private ConsoleTable consoleTable;
 
 	private boolean wasReset = false;
 		
@@ -72,6 +72,8 @@ public class LWJGLJavaFXSimulationController implements SimulationEventListener 
 	 */
 	public LWJGLJavaFXSimulationController(SimulationConfiguration configuration) {
 		this.configuration = configuration;
+		mainMenu = new MainMenu(configuration);
+		mainMenu.addMainMenuSimulationEventListener(this);
 	}
 	
 	/**
@@ -89,6 +91,7 @@ public class LWJGLJavaFXSimulationController implements SimulationEventListener 
 		options = configuration.getSimulationOptions();
 			
 		logger.info("Starting simulation...");
+		mainMenu.hide();
 		
 		logger.info("Trimming aircraft...");
 		Trimming.trimSim(configuration, false);
@@ -106,7 +109,7 @@ public class LWJGLJavaFXSimulationController implements SimulationEventListener 
 	}
 	
 	/**
-	 * Stops simulation and console table refresh if running, calls generate plots event if in Analysis Mode, 
+	 * Stops simulation and calls generate plots event if in Analysis Mode, 
 	 * and opens main menus again if not visible
 	 */
 	@Override
@@ -116,13 +119,11 @@ public class LWJGLJavaFXSimulationController implements SimulationEventListener 
 			runner.setRunning(false);
 		}
 		
-		if (consoleTablePanel != null) {
-			logger.info("Stopping flight data console refresh...");
-			consoleTablePanel.stopTableRefresh();
-		}
-
 		if (options.contains(Options.ANALYSIS_MODE))
 			onPlotSimulation();
+		
+		if (!mainMenu.isVisible())
+			mainMenu.show();
 	}
 	
 	/**
@@ -160,7 +161,7 @@ public class LWJGLJavaFXSimulationController implements SimulationEventListener 
 		
 		try {
 			if(plotWindow != null)
-				plotWindow.setVisible(false);
+				plotWindow.hide();
 				
 			plotWindow = new PlotWindow(configuration.getSelectedAircraft(), runner.getLogsOut());
 		} catch (Exception e) {
@@ -176,11 +177,10 @@ public class LWJGLJavaFXSimulationController implements SimulationEventListener 
 		try {
 			logger.info("Starting flight data console...");
 			
-			if(consoleTablePanel != null)
-				consoleTablePanel.setVisible(false);
+			if(consoleTable != null)
+				consoleTable.hide();
 			
-			consoleTablePanel = new ConsoleTablePanel(runner.getLogsOut());
-			consoleTablePanel.startTableRefresh();			
+			consoleTable = new ConsoleTable(runner.getLogsOut());
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
 		}

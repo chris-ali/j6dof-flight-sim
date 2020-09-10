@@ -68,6 +68,8 @@ public class SimulationPlot extends JComponent {
 			
 	private CombinedDomainXYPlot combinedDomPlot;
 
+	private JFreeChart chart;
+
 	/**
 	 * Creates plots for data contained in the logsOut List using configuration defined in
 	 * bundle 
@@ -111,10 +113,10 @@ public class SimulationPlot extends JComponent {
 		combinedDomPlot.setOrientation(PlotOrientation.VERTICAL);
 		combinedDomPlot.setGap(20);
 		
-		JFreeChart chart = new JFreeChart(bundle.getTitle(), 
-								 	      JFreeChart.DEFAULT_TITLE_FONT, 
-								 	      combinedDomPlot, 
-								          true);
+		chart = new JFreeChart(bundle.getTitle(), 
+								JFreeChart.DEFAULT_TITLE_FONT, 
+								combinedDomPlot, 
+								true);
 		return new ChartPanel(chart);
 	}
 	
@@ -197,5 +199,12 @@ public class SimulationPlot extends JComponent {
 				combinedDomPlot.getRangeAxis(i).resizeRange(3);
 			}
 		}
+	}
+
+	/**
+	 * @return underlying jFreeChart object for use in JavaFX environments
+	 */
+	public JFreeChart getChart() {
+		return chart;
 	}
 }

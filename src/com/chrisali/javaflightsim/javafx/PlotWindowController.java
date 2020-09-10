@@ -2,16 +2,21 @@ package com.chrisali.javaflightsim.javafx;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 import com.chrisali.javaflightsim.swing.plotting.PlotConfiguration;
+import com.chrisali.javaflightsim.swing.plotting.SimulationPlot;
+import com.chrisali.javaflightsim.swing.plotting.PlotConfiguration.SubPlotBundle;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jfree.chart.fx.ChartViewer;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 
@@ -40,12 +45,24 @@ public class PlotWindowController {
 
     @FXML
     void refreshPlots(ActionEvent event) {
-
+        initialize();
     }
 
     @FXML
     void initialize() {
         assert plotTabPane != null : "fx:id=\"plotTabPane\" was not injected: check your FXML file 'PlotWindow.fxml'.";
+
+        plotTabPane.getTabs().clear();
+        
+        Map<String, SubPlotBundle> subPlotBundles = plotConfiguration.getSubPlotBundles();
+        
+        // Copy to thread-safe ArrayList
+        CopyOnWriteArrayList<Map<SimOuts, Double>> cowLogsOut = new CopyOnWriteArrayList<>(logsOut);
+        
+        for (Map.Entry<String, SubPlotBundle> entry : subPlotBundles.entrySet()) {
+            SimulationPlot plot = new SimulationPlot(cowLogsOut, entry.getValue());
+            plotTabPane.getTabs().add(new Tab(entry.getKey(), new ChartViewer(plot.getChart())));
+        }
     }
 
     public PlotWindowController(List<Map<SimOuts, Double>> logsOut) {

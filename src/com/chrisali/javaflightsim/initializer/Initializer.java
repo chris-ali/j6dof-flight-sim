@@ -24,6 +24,7 @@ import javax.swing.SwingUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.chrisali.javaflightsim.javafx.PrimaryStage;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
@@ -61,7 +62,7 @@ public class Initializer {
 		}
 		
 		// Temporarily set mode to LWJGL Swing mode until parse method is decided
-		RunDisplayMode mode = RunDisplayMode.LWJGL_SWING;
+		RunDisplayMode mode = RunDisplayMode.LWJGL_JAVAFX;
 		
 		switch (mode) {
 		case LWJGL_SWING:
@@ -70,7 +71,7 @@ public class Initializer {
 			break;
 		case LWJGL_JAVAFX:
 			logger.info(mode.toString() + " selected");
-			runLWJGLJavaFXApp(configuration);
+			runLWJGLJavaFXApp(configuration, args);
 			break;
 		case SWING_ONLY:
 			logger.info(mode.toString() + " selected");
@@ -112,13 +113,14 @@ public class Initializer {
 	}
 
 	/**
-	 * Initializes {@link LWJGLSwingSimulationController}
+	 * Initializes {@link PrimaryStage} which will initialize {@link LWJGLSwingSimulationController}
 	 * 
 	 * @param configuration
 	 */
-	private static void runLWJGLJavaFXApp(SimulationConfiguration configuration) {
+	private static void runLWJGLJavaFXApp(SimulationConfiguration configuration, String[] args) {
 		try {
-			new LWJGLJavaFXSimulationController(configuration); 			
+			PrimaryStage stage = new PrimaryStage();
+			stage.launchPrimaryStage(args);		
 		} catch (Exception e) {
 			logger.fatal("Error setting up JavaFX GUI and controller: ", e);
 			

@@ -525,12 +525,12 @@ public class MainMenuController {
           .append(File.separator).append(fileName).append(SimFiles.PREVIEW_PIC_EXT.toString());
 		
 		File imageFile = new File(sb.toString());
-		Image image = new Image("");
+		Image image = null;
 		
 		try { 
 			image = new Image(imageFile.toURI().getPath());
 		} catch (IllegalArgumentException e) {
-			logger.error("Could not find image: " + fileName + SimFiles.PREVIEW_PIC_EXT.toString() + "!");
+			logger.error("Error loading image: " + fileName + SimFiles.PREVIEW_PIC_EXT.toString() + "!");
 		}
 
 		return image;
