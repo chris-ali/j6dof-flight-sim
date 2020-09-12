@@ -23,9 +23,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 
 import com.chrisali.javaflightsim.initializer.PomReader;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
@@ -43,6 +45,7 @@ import com.chrisali.javaflightsim.simulation.utilities.SixDOFUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -55,8 +58,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
+import javafx.scene.web.WebView;
 
 public class MainMenuController {
 
@@ -64,6 +68,9 @@ public class MainMenuController {
 
     private Aircraft aircraft;
     private SimulationConfiguration configuration;
+
+    private DecimalFormat df0 = new DecimalFormat("#");
+    private DecimalFormat df4 = new DecimalFormat("#.####");
 
     private List<SimulationEventListener> simulationEventListeners = new ArrayList<>();
 
@@ -170,7 +177,7 @@ public class MainMenuController {
     private RadioButton radio2dCockpit;
 
     @FXML
-    private Text textSummary;
+    private WebView webviewSummary;
 
     @FXML
     private Button buttonStartSim;
@@ -225,6 +232,7 @@ public class MainMenuController {
     @FXML
     void dropDownAircraftChanged(ActionEvent event) {
         updateConfigurationAndSave();
+        configureAircraftTab();
     }
 
     @FXML
@@ -258,39 +266,39 @@ public class MainMenuController {
     }
 
     @FXML
-    void sliderEngineVolChanged(KeyEvent event) {
+    void sliderEngineVolChanged(MouseEvent event) {
         updateConfigurationAndSave();
     }
 
     @FXML
-    void sliderEnvironmentVolChanged(KeyEvent event) {
+    void sliderEnvironmentVolChanged(MouseEvent event) {
         updateConfigurationAndSave();
     }
 
     @FXML
-    void sliderFieldOfViewChanged(KeyEvent event) {
+    void sliderFieldOfViewChanged(MouseEvent event) {
         updateConfigurationAndSave();
     }
 
     @FXML
-    void sliderFuelWeightChanged(KeyEvent event) {
+    void sliderFuelWeightChanged(MouseEvent event) {
         updateAircraftAndSave();
         recalculateWeights();
     }
 
     @FXML
-    void sliderPayloadWeightChanged(KeyEvent event) {
+    void sliderPayloadWeightChanged(MouseEvent event) {
         updateAircraftAndSave();
         recalculateWeights();
     }
 
     @FXML
-    void sliderSimulationRateChanged(KeyEvent event) {
+    void sliderSimulationRateChanged(MouseEvent event) {
         updateConfigurationAndSave();
     }
 
     @FXML
-    void sliderSystemsVolChanged(KeyEvent event) {
+    void sliderSystemsVolChanged(MouseEvent event) {
         updateConfigurationAndSave();
     }
 
@@ -321,44 +329,6 @@ public class MainMenuController {
     	
     @FXML
     void initialize() {
-        assert dropDownAircraft != null : "fx:id=\"dropDownAircraft\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert imageAircraft != null : "fx:id=\"imageAircraft\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert textDescription != null : "fx:id=\"textDescription\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert sliderPayloadWeight != null : "fx:id=\"sliderPayloadWeight\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert sliderFuelWeight != null : "fx:id=\"sliderFuelWeight\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert textEmptyWeight != null : "fx:id=\"textEmptyWeight\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert textFuelWeight != null : "fx:id=\"textFuelWeight\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert textPayloadWeight != null : "fx:id=\"textPayloadWeight\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert textTotalWeight != null : "fx:id=\"textTotalWeight\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert textInitialLat != null : "fx:id=\"textInitialLat\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert textInitialLon != null : "fx:id=\"textInitialLon\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert textInitialAlt != null : "fx:id=\"textInitialAlt\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert textInitialHdg != null : "fx:id=\"textInitialHdg\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert textInitialTas != null : "fx:id=\"txtInitialTas\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert checkAnalysisMode != null : "fx:id=\"checkAnalysisMode\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert checkShowConsole != null : "fx:id=\"checkShowConsole\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert checkDebugMode != null : "fx:id=\"checkDebugMode\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert sliderSimulationRate != null : "fx:id=\"sliderSimulationRate\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert checkAntiAliasing != null : "fx:id=\"checkAntiAliasing\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert checkAnisoFiltering != null : "fx:id=\"checkAnisoFiltering\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert checkFullScreen != null : "fx:id=\"checkFullScreen\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert radio800450 != null : "fx:id=\"radio800450\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert resolutionGroup != null : "fx:id=\"resolutionGroup\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert radio1440900 != null : "fx:id=\"radio1440900\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert radio16801050 != null : "fx:id=\"radio16801050\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert radio19201080 != null : "fx:id=\"radio19201080\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert sliderEngineVol != null : "fx:id=\"sliderEngineVol\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert sliderSystemsVol != null : "fx:id=\"sliderSystemsVol\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert sliderEnvironmentVol != null : "fx:id=\"sliderEnvironmentVol\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert checkShowPanel != null : "fx:id=\"checkShowPanel\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert sliderFieldOfView != null : "fx:id=\"sliderFieldOfView\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert radioChase != null : "fx:id=\"radioChase\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert cameraGroup != null : "fx:id=\"cameraGroup\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert radio2dCockpit != null : "fx:id=\"radio2dCockpit\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert textSummary != null : "fx:id=\"textSummary\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert buttonStartSim != null : "fx:id=\"buttonStartSim\" was not injected: check your FXML file 'MainMenu.fxml'.";
-        assert textVersion != null : "fx:id=\"textVersion\" was not injected: check your FXML file 'MainMenu.fxml'.";
-
         logger.info("Initializing main menus...");
 
         configureAircraftTab();
@@ -368,6 +338,7 @@ public class MainMenuController {
         configureAudioTab();
         configureCameraTab();
 
+        setSummaryText();
         textVersion.setText("Version: " + PomReader.getVersionNumber());
     }
 
@@ -377,10 +348,12 @@ public class MainMenuController {
 
     void updateConfigurationAndSave() {
         configuration.setSelectedAircraft(dropDownAircraft.getValue().toString());
-        configuration.getInitialConditions().put(InitialConditions.INITD, Double.parseDouble(textInitialAlt.getText()));
-        configuration.getInitialConditions().put(InitialConditions.INITPSI, Math.toRadians(Double.parseDouble(textInitialHdg.getText())));
-        configuration.getInitialConditions().put(InitialConditions.INITU, SixDOFUtilities.toFtPerSec(Double.parseDouble(textInitialTas.getText())));
         
+        configuration.setInitialConditions(new double[] {0,0}, 
+                                            Double.parseDouble(textInitialHdg.getText()), 
+                                            Double.parseDouble(textInitialAlt.getText()), 
+                                            Double.parseDouble(textInitialTas.getText()));
+
         configuration.getSimulationOptions().clear();
 
         if (checkAnalysisMode.isSelected())
@@ -393,6 +366,8 @@ public class MainMenuController {
 
         if (checkShowConsole.isSelected())
             configuration.getSimulationOptions().add(Options.CONSOLE_DISPLAY);
+
+        configuration.setSimulationRateHz((int)sliderSimulationRate.getValue());
 
         configuration.getDisplayConfiguration().setUseAntiAliasing(checkAntiAliasing.isSelected());
         configuration.getDisplayConfiguration().setAnisotropicFiltering(checkAntiAliasing.isSelected() ? 16 : 0);
@@ -423,6 +398,8 @@ public class MainMenuController {
             configuration.getCameraConfiguration().setMode(CameraMode.CHASE);
 
         configuration.save();
+
+        setSummaryText();
     }
 
     void updateAircraftAndSave() {
@@ -461,49 +438,75 @@ public class MainMenuController {
     }
 
     void configureInitialConditionsTab() {
-        textInitialHdg.setText(String.valueOf(Math.toDegrees(configuration.getInitialConditions().get(InitialConditions.INITPSI))));
-		textInitialTas.setText(String.valueOf(SixDOFUtilities.toKnots(configuration.getInitialConditions().get(InitialConditions.INITU))));
-        textInitialAlt.setText(configuration.getInitialConditions().get(InitialConditions.INITD).toString());
+        textInitialHdg.setText(df0.format(Math.toDegrees(configuration.getInitialConditions().get(InitialConditions.INITPSI))));
+		textInitialTas.setText(df0.format(SixDOFUtilities.toKnots(configuration.getInitialConditions().get(InitialConditions.INITU))));
+        textInitialAlt.setText(df0.format(configuration.getInitialConditions().get(InitialConditions.INITD)));
         textInitialLat.setText("0.0");
         textInitialLon.setText("0.0");
 
         textInitialLat.textProperty().addListener((observable, oldValue, newValue) -> {
-            textInitialLat.setText(newValue.replaceAll("[^\\-\\.\\d]", ""));
-
-            float testVal = Float.parseFloat(newValue);
-
-            if (testVal > 90 || testVal < -90)
-                textInitialLat.setText("0.0");
+            try {
+                float parsed = Float.parseFloat(newValue.replaceAll("[^\\-\\.\\d]", ""));
+        
+                if (parsed > 90 || parsed < -90)
+                    parsed = 0;
+                
+                textInitialLat.setText(df4.format(parsed));
+            } catch (NumberFormatException e) {
+                return;
+            }
         });
 
         textInitialLon.textProperty().addListener((observable, oldValue, newValue) -> {
-            textInitialLon.setText(newValue.replaceAll("[^\\-\\.\\d]", ""));
+            try {
+                float parsed = Float.parseFloat(newValue.replaceAll("[^\\-\\.\\d]", ""));
+                
+                if (parsed > 180 || parsed < -180)
+                    parsed = 0;
 
-            float testVal = Float.parseFloat(newValue);
-
-            if (testVal > 180 || testVal < -180)
-                textInitialLon.setText("0.0");
+                textInitialLon.setText(df4.format(parsed));
+            } catch (NumberFormatException e) {
+                return;
+            }
         });
 
         textInitialHdg.textProperty().addListener((observable, oldValue, newValue) -> {
-            textInitialHdg.setText(newValue.replaceAll("[^\\d]", ""));
-
-            if (Float.parseFloat(newValue) > 360)
-                textInitialHdg.setText("0");
+            try {
+                float parsed = Float.parseFloat(newValue.replaceAll("[^\\d]", ""));
+                
+                if (parsed > 360)
+                    parsed = 360;
+                    
+                textInitialHdg.setText(df0.format(parsed));
+            } catch (NumberFormatException e) {
+                return;
+            }
         });
 
         textInitialTas.textProperty().addListener((observable, oldValue, newValue) -> {
-            textInitialTas.setText(newValue.replaceAll("[^\\d]", ""));
-
-            if (Float.parseFloat(newValue) > 400)
-                textInitialTas.setText("400");
+            try {
+                float parsed = Float.parseFloat(newValue.replaceAll("[^\\d]", ""));
+                
+                if (parsed > 400)
+                    parsed = 400;
+                    
+                textInitialTas.setText(df0.format(parsed));
+            } catch (NumberFormatException e) {
+                return;
+            }
         });
 
         textInitialAlt.textProperty().addListener((observable, oldValue, newValue) -> {
-            textInitialAlt.setText(newValue.replaceAll("[^\\d]", ""));
-
-            if (Float.parseFloat(newValue) > 40000)
-                textInitialAlt.setText("40000");
+            try {
+                float parsed = Float.parseFloat(newValue.replaceAll("[^\\d]", ""));
+                
+                if (parsed > 30000)
+                    parsed = 30000;
+                    
+                textInitialAlt.setText(df0.format(parsed));
+            } catch (NumberFormatException e) {
+                return;
+            }
         });
     }
 
@@ -528,9 +531,9 @@ public class MainMenuController {
 		Image image = null;
 		
 		try { 
-			image = new Image(imageFile.toURI().getPath());
+			image = new Image("file:" + imageFile.toURI().getPath());
 		} catch (IllegalArgumentException e) {
-			logger.error("Error loading image: " + fileName + SimFiles.PREVIEW_PIC_EXT.toString() + "!");
+			logger.error("Error loading image: " + fileName + SimFiles.PREVIEW_PIC_EXT.toString() + "!", e);
 		}
 
 		return image;
@@ -548,7 +551,7 @@ public class MainMenuController {
 			while ((readLine = br.readLine()) != null)
 				readFile.append(readLine).append("\n");
 		} catch (IOException e) {
-			logger.error("Could not read: " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!");
+			logger.error("Error reading: " + fileName + SimFiles.DESCRIPTION_EXT.toString() + "!", e);
 		} 
 		
 		return readFile.toString();
@@ -559,11 +562,14 @@ public class MainMenuController {
 		sb.append(SimDirectories.AIRCRAFT.toString()).append(File.separator);
 		
 		File[] directories = new File(sb.toString()).listFiles((File file) -> { return file.isDirectory(); });
-		
+        
+        ArrayList<String> dropdownItems = new ArrayList<>();
 		for (File file : directories) {
 			String[] splitPath = file.toString().split(File.separator.replace("\\", "\\\\"));
-			dropDownAircraft.getItems().add(splitPath[splitPath.length - 1]);
-		}
+			dropdownItems.add(splitPath[splitPath.length - 1]);
+        }
+        
+        dropDownAircraft.setItems(FXCollections.observableArrayList(dropdownItems));
     }
     
     private void recalculateWeights() {
@@ -576,13 +582,43 @@ public class MainMenuController {
 		double totalWeightValue = (fuelFraction * massProperties.get(MassProperties.MAX_WEIGHT_FUEL) +
                                   (payloadFraction * massProperties.get(MassProperties.MAX_WEIGHT_PAYLOAD) +
                                                      massProperties.get(MassProperties.WEIGHT_EMPTY)));
+        
+        textEmptyWeight.setText(df0.format(massProperties.get(MassProperties.WEIGHT_EMPTY)));
+        textPayloadWeight.setText(df0.format(payloadWeightValue));
+        textFuelWeight.setText(df0.format(fuelWeightValue));
+        textTotalWeight.setText(df0.format(totalWeightValue));
 		
-        textPayloadWeight.setText(String.valueOf(payloadWeightValue));
-        textFuelWeight.setText(String.valueOf(fuelWeightValue));
-        textTotalWeight.setText(String.valueOf(totalWeightValue));
-		
-        sliderPayloadWeight.setValue((100 * payloadFraction));
-        sliderPayloadWeight.setValue((100 * fuelFraction));
+        sliderPayloadWeight.setValue(100 * payloadFraction);
+        sliderFuelWeight.setValue(100 * fuelFraction);
+    }
+
+    private void setSummaryText() {
+        StringBuilder sb = new StringBuilder();
+
+        String htmlBodyOpen = "<html><body style='font-family:sans-serif; font-size:11px'>";
+	    String parOpen = "<p>";
+	    String parClose = "</p>";
+        String htmlBodyClose = "</body></html>";
+
+        sb.append(htmlBodyOpen);
+        
+        sb.append(parOpen).append("<b>Selected Aircraft: </b>").append(configuration.getSelectedAircraft()).append(parClose);
+        
+        sb.append(parOpen).append("<b>Initial Conditions: </b>")
+          .append("Latitude: ").append(textInitialLat.getText()).append(" deg | ")
+		  .append("Longitude: ").append(textInitialLon.getText()).append(" deg | ")
+		  .append("Heading: ").append(textInitialHdg.getText()).append(" deg | ")
+		  .append("Altitude: ").append(textInitialAlt.getText()).append(" ft | ")
+          .append("Airspeed: ").append(textInitialTas.getText()).append(" kts")
+          .append(parClose);
+        
+        sb.append(parOpen).append("<b>Simulation Options: </b>");
+        configuration.getSimulationOptions().forEach(option -> { sb.append(option.toString()).append(" | "); });
+		sb.append("Update Rate: ").append(sliderSimulationRate.getValue()).append(" Hz").append(parClose);
+
+        sb.append(htmlBodyClose);
+
+        webviewSummary.getEngine().loadContent(sb.toString());
     }
 
     public void addSimulationEventListener(SimulationEventListener listener) {

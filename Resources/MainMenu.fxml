@@ -14,22 +14,21 @@
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.web.WebView?>
 
 <VBox prefHeight="478.0" prefWidth="850.0" spacing="5.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <TabPane prefHeight="390.0" prefWidth="850.0" tabClosingPolicy="UNAVAILABLE">
+      <TabPane prefHeight="362.0" prefWidth="850.0" tabClosingPolicy="UNAVAILABLE">
          <tabs>
             <Tab text="Aircraft">
             <content>
-               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="310.0" prefWidth="744.0">
+               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="326.0" prefWidth="850.0">
                      <children>
                         <HBox prefHeight="334.0" prefWidth="850.0" spacing="10.0">
                            <children>
@@ -41,8 +40,11 @@
                                           <ComboBox fx:id="dropDownAircraft" onAction="#dropDownAircraftChanged" prefHeight="29.0" prefWidth="157.0" />
                                        </children>
                                     </HBox>
-                                    <ImageView fx:id="imageAircraft" fitHeight="193.0" fitWidth="318.0" pickOnBounds="true" preserveRatio="true" />
-                                    <TextArea fx:id="textDescription" editable="false" prefHeight="84.0" prefWidth="310.0" />
+                                    <ImageView fx:id="imageAircraft" fitHeight="180.0" fitWidth="318.0" pickOnBounds="true" preserveRatio="true">
+                                       <VBox.margin>
+                                          <Insets bottom="10.0" />
+                                       </VBox.margin></ImageView>
+                                    <TextArea fx:id="textDescription" editable="false" prefHeight="84.0" prefWidth="310.0" wrapText="true" />
                                  </children>
                               </VBox>
                               <Separator orientation="VERTICAL" prefHeight="291.0" prefWidth="0.0" />
@@ -66,8 +68,8 @@
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                        </rowConstraints>
                                        <children>
-                                          <Slider fx:id="sliderPayloadWeight" onDragDone="#sliderPayloadWeightChanged" onKeyReleased="#sliderPayloadWeightChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                          <Slider fx:id="sliderFuelWeight" onDragDone="#sliderFuelWeightChanged" onKeyReleased="#sliderFuelWeightChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                          <Slider fx:id="sliderPayloadWeight" onKeyReleased="#sliderPayloadWeightChanged" onMouseReleased="#sliderPayloadWeightChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <Slider fx:id="sliderFuelWeight" onKeyReleased="#sliderFuelWeightChanged" onMouseReleased="#sliderFuelWeightChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                           <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Payload:" wrappingWidth="117.0" GridPane.rowIndex="1" />
                                           <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Fuel:" wrappingWidth="117.0" GridPane.rowIndex="2" />
                                           <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Total:" wrappingWidth="117.0" GridPane.rowIndex="3" />
@@ -80,13 +82,13 @@
                                           </HBox>
                                           <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
                                              <children>
-                                                <Text fx:id="textFuelWeight" strokeType="OUTSIDE" strokeWidth="0.0" text="0.0" wrappingWidth="60.0" />
+                                                <Text fx:id="textPayloadWeight" strokeType="OUTSIDE" strokeWidth="0.0" text="0.0" wrappingWidth="60.0" />
                                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="lbs" wrappingWidth="60.0" />
                                              </children>
                                           </HBox>
                                           <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
                                              <children>
-                                                <Text fx:id="textPayloadWeight" strokeType="OUTSIDE" strokeWidth="0.0" text="0.0" wrappingWidth="60.0" />
+                                                <Text fx:id="textFuelWeight" strokeType="OUTSIDE" strokeWidth="0.0" text="0.0" wrappingWidth="60.0" />
                                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="lbs" wrappingWidth="60.0" />
                                              </children>
                                           </HBox>
@@ -203,9 +205,9 @@
                            <tabs>
                               <Tab text="Simulation">
                               <content>
-                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="240.0" prefWidth="787.0">
+                                 <AnchorPane minHeight="0.0" minWidth="0.0">
                                        <children>
-                                          <HBox prefHeight="280.0" prefWidth="850.0" spacing="10.0">
+                                          <HBox prefHeight="312.0" prefWidth="850.0" spacing="10.0">
                                              <children>
                                                 <GridPane alignment="CENTER" prefHeight="279.0" prefWidth="392.0">
                                                    <columnConstraints>
@@ -242,7 +244,7 @@
                                                       <CheckBox fx:id="checkAnalysisMode" mnemonicParsing="false" onAction="#checkAnalysisModeClicked" text="Run Simulation Analysis" GridPane.columnIndex="1" />
                                                       <CheckBox fx:id="checkShowConsole" mnemonicParsing="false" onAction="#checkShowConsoleClicked" text="Show Console Output" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                                       <CheckBox fx:id="checkDebugMode" mnemonicParsing="false" onAction="#checkDebugModeClicked" text="Enabled" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                                      <Slider fx:id="sliderSimulationRate" majorTickUnit="20.0" max="120.0" min="20.0" minorTickCount="1" onDragDone="#sliderSimulationRateChanged" onKeyReleased="#sliderSimulationRateChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                      <Slider fx:id="sliderSimulationRate" majorTickUnit="20.0" max="120.0" min="20.0" minorTickCount="1" onKeyReleased="#sliderSimulationRateChanged" onMouseReleased="#sliderSimulationRateChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                                    </children>
                                                 </GridPane>
                                                 <Separator orientation="VERTICAL" prefHeight="200.0" />
@@ -254,12 +256,12 @@
                               </Tab>
                               <Tab text="Display">
                               <content>
-                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <AnchorPane minHeight="0.0" minWidth="0.0">
                                        <opaqueInsets>
                                           <Insets />
                                        </opaqueInsets>
                                        <children>
-                                          <HBox prefHeight="273.0" prefWidth="850.0" spacing="10.0">
+                                          <HBox prefHeight="306.0" prefWidth="850.0" spacing="10.0">
                                              <children>
                                                 <GridPane alignment="CENTER" prefHeight="279.0" prefWidth="392.0">
                                                    <columnConstraints>
@@ -321,7 +323,7 @@
                                  <content>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
-                                          <HBox prefHeight="283.0" prefWidth="850.0" spacing="10.0">
+                                          <HBox prefHeight="309.0" prefWidth="850.0" spacing="10.0">
                                              <children>
                                                 <GridPane alignment="CENTER" prefHeight="279.0" prefWidth="392.0">
                                                    <columnConstraints>
@@ -349,9 +351,9 @@
                                                             <Insets left="20.0" />
                                                          </GridPane.margin>
                                                       </Text>
-                                                      <Slider fx:id="sliderEngineVol" minorTickCount="5" onDragDone="#sliderEngineVolChanged" onKeyReleased="#sliderEngineVolChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" />
-                                                      <Slider fx:id="sliderSystemsVol" minorTickCount="5" onDragDone="#sliderSystemsVolChanged" onKeyReleased="#sliderSystemsVolChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                      <Slider fx:id="sliderEnvironmentVol" minorTickCount="5" onDragDone="#sliderEnvironmentVolChanged" onKeyReleased="#sliderEnvironmentVolChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                      <Slider fx:id="sliderEngineVol" minorTickCount="5" onKeyReleased="#sliderEngineVolChanged" onMouseReleased="#sliderEngineVolChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" />
+                                                      <Slider fx:id="sliderSystemsVol" minorTickCount="5" onKeyReleased="#sliderSystemsVolChanged" onMouseReleased="#sliderSystemsVolChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                      <Slider fx:id="sliderEnvironmentVol" minorTickCount="5" onKeyReleased="#sliderEnvironmentVolChanged" onMouseReleased="#sliderEnvironmentVolChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                                    </children>
                                                 </GridPane>
                                                 <Separator orientation="VERTICAL" prefHeight="200.0" />
@@ -365,7 +367,7 @@
                                  <content>
                                     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="292.0" prefWidth="785.0">
                                        <children>
-                                          <HBox prefHeight="287.0" prefWidth="850.0" spacing="10.0">
+                                          <HBox prefHeight="313.0" prefWidth="850.0" spacing="10.0">
                                              <children>
                                                 <GridPane alignment="CENTER" prefHeight="279.0" prefWidth="392.0">
                                                    <columnConstraints>
@@ -394,7 +396,7 @@
                                                          </GridPane.margin>
                                                       </Text>
                                                       <CheckBox fx:id="checkShowPanel" mnemonicParsing="false" onAction="#checkShowPanelClicked" text="Show Instrument Panel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                                      <Slider fx:id="sliderFieldOfView" blockIncrement="5.0" max="135.0" min="60.0" onDragDone="#sliderFieldOfViewChanged" onKeyReleased="#sliderFieldOfViewChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="85.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                                      <Slider fx:id="sliderFieldOfView" blockIncrement="5.0" max="135.0" min="60.0" onKeyReleased="#sliderFieldOfViewChanged" onMouseReleased="#sliderFieldOfViewChanged" prefHeight="24.0" prefWidth="141.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="85.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                                                       <RadioButton fx:id="radioChase" mnemonicParsing="false" onAction="#radioChaseSelected" text="Chase View" GridPane.columnIndex="1" GridPane.valignment="BOTTOM">
                                                          <GridPane.margin>
                                                             <Insets bottom="15.0" />
@@ -426,29 +428,33 @@
          </tabs>
       </TabPane>
       <Separator prefWidth="200.0" />
-      <BorderPane prefHeight="71.0" prefWidth="800.0">
-         <left>
-            <Text fx:id="textSummary" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="570.7294921875" BorderPane.alignment="CENTER">
-               <BorderPane.margin>
-                  <Insets left="10.0" />
-               </BorderPane.margin>
-            </Text>
-         </left>
-         <right>
-            <Button fx:id="buttonStartSim" alignment="CENTER" mnemonicParsing="false" onAction="#buttonStartSimClicked" prefHeight="34.0" prefWidth="188.0" text="Start Simulation" BorderPane.alignment="CENTER_RIGHT">
-               <BorderPane.margin>
-                  <Insets bottom="10.0" right="10.0" />
-               </BorderPane.margin>
+      <GridPane prefHeight="114.0" prefWidth="850.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="722.0" minWidth="10.0" prefWidth="646.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="419.0" minWidth="10.0" prefWidth="204.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <WebView fx:id="webviewSummary" prefHeight="50.0" prefWidth="643.0" GridPane.rowSpan="2">
+               <GridPane.margin>
+                  <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+               </GridPane.margin>
+            </WebView>
+            <Button fx:id="buttonStartSim" alignment="CENTER" mnemonicParsing="false" onAction="#buttonStartSimClicked" prefHeight="34.0" prefWidth="188.0" text="Start Simulation" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
+               <GridPane.margin>
+                  <Insets right="10.0" />
+               </GridPane.margin>
             </Button>
-         </right>
-         <bottom>
-            <Text fx:id="textVersion" strokeType="OUTSIDE" strokeWidth="0.0" text="Version: " wrappingWidth="96.7294921875" BorderPane.alignment="CENTER_RIGHT">
-               <BorderPane.margin>
-                  <Insets bottom="5.0" left="5.0" />
-               </BorderPane.margin>
+            <Text fx:id="textVersion" strokeType="OUTSIDE" strokeWidth="0.0" text="Version: " wrappingWidth="96.7294921875" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+               <GridPane.margin>
+                  <Insets right="10.0" />
+               </GridPane.margin>
             </Text>
-         </bottom>
-      </BorderPane>
+         </children>
+      </GridPane>
    </children>
    <padding>
       <Insets bottom="5.0" />
