@@ -59,9 +59,14 @@ public class PlotWindowController {
         // Copy to thread-safe ArrayList
         CopyOnWriteArrayList<Map<SimOuts, Double>> cowLogsOut = new CopyOnWriteArrayList<>(logsOut);
         
-        for (Map.Entry<String, SubPlotBundle> entry : subPlotBundles.entrySet()) {
-            SimulationPlot plot = new SimulationPlot(cowLogsOut, entry.getValue());
-            plotTabPane.getTabs().add(new Tab(entry.getKey(), new ChartViewer(plot.getChart())));
+        try {
+            for (Map.Entry<String, SubPlotBundle> entry : subPlotBundles.entrySet()) {
+                SimulationPlot plot = new SimulationPlot(cowLogsOut, entry.getValue());
+                plotTabPane.getTabs().add(new Tab(entry.getKey(), new ChartViewer(plot.getChart())));
+            }
+        } catch (Exception ex) {
+            logger.error("Error encountered when adding plots to tab panel!", ex);
+            Dialog.showExceptionDialog(ex, "Error encountered when adding plots to tab panel!", "Plot Window");
         }
     }
 

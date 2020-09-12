@@ -58,10 +58,12 @@ public class PlotWindow {
             FileInputStream fis = new FileInputStream(OTWDirectories.RESOURCES.toString() + File.separator + fxmlName);
             Parent parent = loader.load(fis);
     
-            stage = new Stage();
-            stage.setScene(new Scene(parent));
-            stage.setTitle(aircraftName + " Plots");
-            stage.show();
+            Platform.runLater(() -> {
+                stage = new Stage();
+                stage.setScene(new Scene(parent));
+                stage.setTitle(aircraftName + " Plots");
+                stage.show();
+            });
         } catch (IOException e) {
             logger.error("Could not load FXML: " + fxmlName, e);
             Dialog.showExceptionDialog(e, "Could not load FXML: " + fxmlName, "Unable to find FXML");

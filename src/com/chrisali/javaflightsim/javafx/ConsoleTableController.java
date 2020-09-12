@@ -43,6 +43,8 @@ public class ConsoleTableController {
 
     private static final Logger logger = LogManager.getLogger(ConsoleTableController.class);
 
+    private List<Map<SimOuts,Double>> logsOut;
+
     @FXML
     private TableView<Map<SimOuts,Double>> rawDataTable;
 
@@ -80,6 +82,8 @@ public class ConsoleTableController {
     @FXML
     void initialize() {
         assert rawDataTable != null : "fx:id=\"rawDataTable\" was not injected: check your FXML file 'ConsoleTable.fxml'.";
+
+        rawDataTable.setItems(FXCollections.observableArrayList(logsOut));
     }
 
     /**
@@ -88,7 +92,6 @@ public class ConsoleTableController {
      * @param logsOut
      */
     public void initializeDataTable(List<Map<SimOuts,Double>> logsOut) {
-        if (rawDataTable != null)
-            rawDataTable.setItems(FXCollections.observableArrayList(logsOut));
+        this.logsOut = logsOut;
     }
 }

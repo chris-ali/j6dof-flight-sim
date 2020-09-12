@@ -10,7 +10,6 @@ import javafx.stage.Stage;
 public class PrimaryStage extends Application {
 
     private SimulationConfiguration configuration;
-    private LWJGLJavaFXSimulationController controller;
 
     public PrimaryStage() {
         configuration = FileUtilities.readSimulationConfiguration();
@@ -22,7 +21,8 @@ public class PrimaryStage extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        controller = new LWJGLJavaFXSimulationController(configuration);
+        new LWJGLJavaFXSimulationController(configuration);
+        
         primaryStage.setHeight(1);
         primaryStage.setWidth(1);
         primaryStage.setX(1);
