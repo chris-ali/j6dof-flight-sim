@@ -62,7 +62,9 @@ public class PlotWindowController {
         try {
             for (Map.Entry<String, SubPlotBundle> entry : subPlotBundles.entrySet()) {
                 SimulationPlot plot = new SimulationPlot(cowLogsOut, entry.getValue());
-                plotTabPane.getTabs().add(new Tab(entry.getKey(), new ChartViewer(plot.getChart())));
+                ChartViewer cv = new ChartViewer(plot.getChart());
+                Tab tab = new Tab(entry.getKey(), cv);
+                plotTabPane.getTabs().add(tab);
             }
         } catch (Exception ex) {
             logger.error("Error encountered when adding plots to tab panel!", ex);

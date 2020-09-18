@@ -207,4 +207,11 @@ public class SimulationPlot extends JComponent {
 	public JFreeChart getChart() {
 		return chart;
 	}
+
+	/**
+	 * @return preferred height of the plot object
+	 */
+	public int getPreferredHeight() {
+		return getPreferredSize().height;
+	}
 }
