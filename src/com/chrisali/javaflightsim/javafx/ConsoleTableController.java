@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.FileChooser;
@@ -84,6 +85,10 @@ public class ConsoleTableController {
         assert rawDataTable != null : "fx:id=\"rawDataTable\" was not injected: check your FXML file 'ConsoleTable.fxml'.";
 
         rawDataTable.setItems(FXCollections.observableArrayList(logsOut));
+
+        for (SimOuts simout : SimOuts.values()) {
+            rawDataTable.getColumns().add(new TableColumn<>(simout.toString()));
+        }
     }
 
     /**
