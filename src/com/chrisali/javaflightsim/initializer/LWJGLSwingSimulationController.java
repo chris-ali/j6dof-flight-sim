@@ -121,11 +121,6 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 			logger.info("Stopping simulation...");
 			runner.setRunning(false);
 		}
-		
-		if (consoleTablePanel != null) {
-			logger.info("Stopping flight data console refresh...");
-			consoleTablePanel.stopTableRefresh();
-		}
 
 		if (options.contains(Options.ANALYSIS_MODE))
 			onPlotSimulation();
@@ -190,8 +185,7 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 			if(consoleTablePanel != null)
 				consoleTablePanel.setVisible(false);
 			
-			consoleTablePanel = new ConsoleTablePanel(runner.getLogsOut());
-			consoleTablePanel.startTableRefresh();			
+			consoleTablePanel = new ConsoleTablePanel(runner.getLogsOut());			
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
 		}

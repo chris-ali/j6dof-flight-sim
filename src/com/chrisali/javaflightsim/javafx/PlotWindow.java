@@ -66,7 +66,7 @@ public class PlotWindow {
             });
         } catch (IOException e) {
             logger.error("Could not load FXML: " + fxmlName, e);
-            Dialog.showExceptionDialog(e, "Could not load FXML: " + fxmlName, "Unable to find FXML");
+            Dialog.showExceptionDialog(e, "Could not load FXML: " + fxmlName, "Error Loading FXML");
         }
     }
 

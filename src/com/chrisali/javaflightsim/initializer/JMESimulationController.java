@@ -106,11 +106,6 @@ public class JMESimulationController implements SimulationEventListener {
 			stepper.setRunning(false);
 		}
 
-		if (consoleTablePanel != null) {
-			logger.info("Stopping flight data console refresh...");
-			consoleTablePanel.stopTableRefresh();
-		}
-
 		if (options.contains(Options.ANALYSIS_MODE))
 			onPlotSimulation();
 	}
@@ -170,7 +165,6 @@ public class JMESimulationController implements SimulationEventListener {
 				consoleTablePanel.setVisible(false);
 			
 			consoleTablePanel = new ConsoleTablePanel(stepper.getLogsOut());
-			consoleTablePanel.startTableRefresh();			
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
 		}

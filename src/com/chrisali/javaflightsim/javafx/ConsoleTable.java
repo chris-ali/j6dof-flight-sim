@@ -20,53 +20,98 @@
 package com.chrisali.javaflightsim.javafx;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
+import javax.swing.SwingUtilities;
+
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
+import com.chrisali.javaflightsim.swing.consoletable.ConsoleTableComponent;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
+import javafx.embed.swing.SwingNode;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.FileChooser.ExtensionFilter;
 
 public class ConsoleTable {
     
     private static final Logger logger = LogManager.getLogger(MainMenu.class);
 
-    private ConsoleTableController controller;
     private Stage stage;
 
-    /**
-     * Constructor that initializes the JavaFX controller and loads the stage from the associated FXML file
-     */
     public ConsoleTable(List<Map<SimOuts, Double>> logsOut) {
-        controller = new ConsoleTableController();
-        
-        String fxmlName = "ConsoleTable.fxml";
-        
         try {
-            controller.initializeDataTable(logsOut);
-
-            FXMLLoader loader = new FXMLLoader();
-            loader.setController(controller);
-            FileInputStream fis = new FileInputStream(OTWDirectories.RESOURCES.toString() + File.separator + fxmlName);
-            Parent parent = loader.load(fis);
-    
             stage = new Stage();
-            stage.setScene(new Scene(parent));
+            stage.setScene(new Scene(createParent(logsOut)));
             stage.setTitle("Raw Data Output");
             stage.show();
-        } catch (IOException e) {
-            logger.error("Could not load FXML: " + fxmlName, e);
-            Dialog.showExceptionDialog(e, "Could not load FXML: " + fxmlName, "Unable to find FXML");
+        } catch (Exception e) {
+            logger.error("Could not load Console Table: ", e);
+            Dialog.showExceptionDialog(e, "Could not load Console Table: ", "Error Loading Console Table");
+        }
+    }
+
+    private Parent createParent(List<Map<SimOuts, Double>> logsOut) {
+        VBox vbox = new VBox();
+        vbox.setPrefHeight(600);
+        vbox.setPrefWidth(900);
+
+        MenuBar menuBar = new MenuBar();
+        Menu fileMenu = new Menu("File");
+
+        MenuItem exportItem = new MenuItem("Export");
+        exportItem.acceleratorProperty().set(KeyCombination.keyCombination("Ctrl+E"));
+        exportItem.setOnAction(e -> { exportDataTable(logsOut); });
+
+        MenuItem closeItem = new MenuItem("Close");
+        closeItem.acceleratorProperty().set(KeyCombination.keyCombination("Ctrl+X"));
+        closeItem.setOnAction(e -> { hide(); });
+        
+        fileMenu.getItems().add(exportItem);
+        fileMenu.getItems().add(closeItem);
+        menuBar.getMenus().add(fileMenu);
+        vbox.getChildren().add(menuBar);
+
+        final SwingNode swingNode = new SwingNode();
+                
+        SwingUtilities.invokeLater(() -> {
+            swingNode.setContent(new ConsoleTableComponent(logsOut));
+        });
+        
+        vbox.getChildren().add(swingNode);
+
+        return vbox;
+    }
+
+    private void exportDataTable(List<Map<SimOuts, Double>> logsOut) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export Raw Data to CSV");
+        fileChooser.setSelectedExtensionFilter(new ExtensionFilter(".csv (Comma separated values) File", ".csv"));
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        File file = fileChooser.showSaveDialog(stage);
+
+        if (file != null) {
+            try {
+                FileUtilities.saveToCSVFile(file, logsOut);
+                Dialog.showDialog("Console output successfully exported to CSV to: " + file.getAbsolutePath(), "Exported to CSV", AlertType.INFORMATION);
+            } catch (IOException e) {
+                logger.error("Unable to save CSV file!", e);
+                Dialog.showExceptionDialog(e, "An error was encountered while saving console output to CSV!", "Unable to save to CSV");
+            }
         }
     }
 
