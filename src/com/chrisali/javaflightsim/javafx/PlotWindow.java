@@ -19,55 +19,127 @@
  ******************************************************************************/
 package com.chrisali.javaflightsim.javafx;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
+import com.chrisali.javaflightsim.swing.plotting.PlotConfiguration.SubPlotBundle;
+import com.chrisali.javaflightsim.swing.plotting.SimulationPlot;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jfree.chart.fx.ChartViewer;
 
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class PlotWindow {
     
     private static final Logger logger = LogManager.getLogger(PlotWindow.class);
 
-    private PlotWindowController controller;
     private Stage stage;
+    private TabPane plotTabPane;
+    private List<Map<SimOuts, Double>> logsOut;
 
     /**
      * Constructor that initializes the JavaFX controller and loads the stage from the associated FXML file
      */
     public PlotWindow(String aircraftName, List<Map<SimOuts, Double>> logsOut) {
-        controller = new PlotWindowController(logsOut);
+        this.logsOut = logsOut;
 
-        String fxmlName = "PlotWindow.fxml";
-        
         try {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setController(controller);
-            FileInputStream fis = new FileInputStream(OTWDirectories.RESOURCES.toString() + File.separator + fxmlName);
-            Parent parent = loader.load(fis);
-    
             Platform.runLater(() -> {
                 stage = new Stage();
-                stage.setScene(new Scene(parent));
+                stage.setScene(new Scene(createParent()));
                 stage.setTitle(aircraftName + " Plots");
                 stage.show();
+
+                initializePlots();
             });
-        } catch (IOException e) {
-            logger.error("Could not load FXML: " + fxmlName, e);
-            Dialog.showExceptionDialog(e, "Could not load FXML: " + fxmlName, "Error Loading FXML");
+        } catch (Exception e) {
+            logger.error("Could not load Plot Window", e);
+            Dialog.showExceptionDialog(e, "Could not load Plot Window", "Error Loading Plot Window");
         }
+    }
+
+    private Parent createParent() {
+        VBox vbox = new VBox();
+        vbox.setPrefHeight(600);
+        vbox.setPrefWidth(900);
+
+        MenuBar menuBar = new MenuBar();
+        Menu fileMenu = new Menu("File");
+        Menu plotsMenu = new Menu("Plots");
+
+        MenuItem refreshItem = new MenuItem("Refresh");
+        refreshItem.acceleratorProperty().set(KeyCombination.keyCombination("Ctrl+R"));
+        refreshItem.setOnAction(e -> { initializePlots(); });
+
+        MenuItem clearItem = new MenuItem("Clear");
+        clearItem.acceleratorProperty().set(KeyCombination.keyCombination("Ctrl+C"));
+        clearItem.setOnAction(e -> { clearPlots();; });
+
+        MenuItem closeItem = new MenuItem("Close");
+        closeItem.acceleratorProperty().set(KeyCombination.keyCombination("Ctrl+X"));
+        closeItem.setOnAction(e -> { hide(); });
+        
+        fileMenu.getItems().add(closeItem);
+        plotsMenu.getItems().add(clearItem);
+        plotsMenu.getItems().add(refreshItem);
+        menuBar.getMenus().add(fileMenu);
+        menuBar.getMenus().add(plotsMenu);
+        vbox.getChildren().add(menuBar);
+
+        plotTabPane = new TabPane();
+        vbox.getChildren().add(plotTabPane);
+
+        return vbox;
+    }
+
+    /**
+     * Clears any visible tabs in the plot tab pane, reads the plot configuration and regenerates new tabs based 
+     * on that configuration
+     */
+    private void initializePlots() {
+        plotTabPane.getTabs().clear();
+        
+        Map<String, SubPlotBundle> subPlotBundles = FileUtilities.readPlotConfiguration().getSubPlotBundles();
+        
+        // Copy to thread-safe ArrayList
+        CopyOnWriteArrayList<Map<SimOuts, Double>> cowLogsOut = new CopyOnWriteArrayList<>(logsOut);
+        
+        try {
+            for (Map.Entry<String, SubPlotBundle> entry : subPlotBundles.entrySet()) {
+                SimulationPlot plot = new SimulationPlot(cowLogsOut, entry.getValue());
+
+                ChartViewer cv = new ChartViewer(plot.getChart());
+                cv.setPrefHeight(6000);
+                cv.setPrefWidth(9000);
+
+                Tab tab = new Tab(entry.getKey(), cv);
+                tab.setClosable(false);
+
+                plotTabPane.getTabs().add(tab);
+            }
+        } catch (Exception ex) {
+            logger.error("Error encountered when adding plots to tab panel!", ex);
+            Dialog.showExceptionDialog(ex, "Error encountered when adding plots to tab panel!", "Plot Window");
+        }
+    }
+
+    private void clearPlots() {
+        plotTabPane.getTabs().clear();
     }
 
     /**

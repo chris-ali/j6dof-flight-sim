@@ -73,7 +73,7 @@ public class ConsoleTable {
         MenuBar menuBar = new MenuBar();
         Menu fileMenu = new Menu("File");
 
-        MenuItem exportItem = new MenuItem("Export");
+        MenuItem exportItem = new MenuItem("Export to CSV...");
         exportItem.acceleratorProperty().set(KeyCombination.keyCombination("Ctrl+E"));
         exportItem.setOnAction(e -> { exportDataTable(logsOut); });
 
@@ -100,7 +100,7 @@ public class ConsoleTable {
     private void exportDataTable(List<Map<SimOuts, Double>> logsOut) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Export Raw Data to CSV");
-        fileChooser.setSelectedExtensionFilter(new ExtensionFilter(".csv (Comma separated values) File", ".csv"));
+        fileChooser.getExtensionFilters().add(new ExtensionFilter(".csv (Comma separated values) File", "*.csv"));
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
         File file = fileChooser.showSaveDialog(stage);
 

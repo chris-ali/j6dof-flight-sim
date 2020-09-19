@@ -175,7 +175,7 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 	}
 
 	/**
-	 * Initializes the raw data console window and starts the auto-refresh of its contents
+	 * Initializes the raw data console window
 	 */
 	@Override
 	public void onInitializeConsole() {
