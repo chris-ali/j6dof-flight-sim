@@ -61,7 +61,7 @@ public class PlotWindow {
         try {
             Platform.runLater(() -> {
                 stage = new Stage();
-                stage.setScene(new Scene(createParent()));
+                stage.setScene(new Scene(createParent(), 900, 600));
                 stage.setTitle(aircraftName + " Plots");
                 stage.show();
 
@@ -75,8 +75,6 @@ public class PlotWindow {
 
     private Parent createParent() {
         VBox vbox = new VBox();
-        vbox.setPrefHeight(600);
-        vbox.setPrefWidth(900);
 
         MenuBar menuBar = new MenuBar();
         Menu fileMenu = new Menu("File");

@@ -22,7 +22,7 @@ package com.chrisali.javaflightsim.initializer;
 import java.util.EnumSet;
 
 import com.chrisali.javaflightsim.simulation.SimulationStepper;
-import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
+import com.chrisali.javaflightsim.simulation.datatransfer.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -75,10 +75,10 @@ public class JMESimulationController implements SimulationEventListener {
 	 * Depending on options specified, a console panel and/or plot window will also be initialized and opened 
 	 */
 	@Override
-	public void onStartSimulation() {
+	public boolean onStartSimulation() {
 		if (stepper != null && stepper.isRunning()) {
 			logger.warn("Simulation is already running! Please wait until it has finished");
-			return;
+			return false;
 		}
 		
 		configuration = FileUtilities.readSimulationConfiguration();
@@ -94,6 +94,8 @@ public class JMESimulationController implements SimulationEventListener {
 
 		if (options.contains(Options.CONSOLE_DISPLAY))
 			onInitializeConsole();
+
+		return true;
 	}
 	
 	/**

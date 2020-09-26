@@ -48,6 +48,8 @@ public class ConsoleTableComponent extends JComponent {
 		table.setColumnSelectionAllowed(true);
         table.setRowSelectionAllowed(true);
         
+        setPreferredSize(getToolkit().getScreenSize());
+    
         add(new JScrollPane(table), BorderLayout.CENTER);
     }
 }

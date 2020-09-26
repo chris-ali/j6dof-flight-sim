@@ -22,11 +22,10 @@ package com.chrisali.javaflightsim.initializer;
 import java.util.EnumSet;
 
 import com.chrisali.javaflightsim.javafx.ConsoleTable;
-import com.chrisali.javaflightsim.javafx.MainMenu;
 import com.chrisali.javaflightsim.javafx.PlotWindow;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.SimulationRunner;
-import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
+import com.chrisali.javaflightsim.simulation.datatransfer.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -61,38 +60,36 @@ public class LWJGLJavaFXSimulationController implements SimulationEventListener 
 	private Thread runnerThread;
 
 	// JavaFX GUIs
-	private MainMenu mainMenu;
 	private PlotWindow plotWindow;
 	private ConsoleTable consoleTable;
 
 	private boolean wasReset = false;
 		
 	/**
-	 * Initializes initial settings, configurations and conditions to be edited through menu options
+	 * Initializes controller with specified simulation configuration
+	 * 
+	 * @param configuration
 	 */
 	public LWJGLJavaFXSimulationController(SimulationConfiguration configuration) {
 		this.configuration = configuration;
-		mainMenu = new MainMenu(configuration);
-		mainMenu.addMainMenuSimulationEventListener(this);
 	}
-	
+
 	/**
 	 * Initializes, trims and starts the flight controls, simulation (and flight and environment data, if selected) threads.
 	 * Depending on options specified, a console panel and/or plot window will also be initialized and opened 
 	 */
 	@Override
-	public void onStartSimulation() {
+	public boolean onStartSimulation() {
 		if (runner != null && runner.isRunning()) {
 			logger.warn("Simulation is already running! Please wait until it has finished");
-			return;
+			return false;
 		}
 		
 		configuration = FileUtilities.readSimulationConfiguration();
 		options = configuration.getSimulationOptions();
 			
 		logger.info("Starting simulation...");
-		mainMenu.hide();
-		
+
 		logger.info("Trimming aircraft...");
 		Trimming.trimSim(configuration, false);
 		
@@ -106,6 +103,8 @@ public class LWJGLJavaFXSimulationController implements SimulationEventListener 
 				
 		if (options.contains(Options.CONSOLE_DISPLAY))
 			onInitializeConsole();
+		
+		return true;
 	}
 	
 	/**
@@ -121,9 +120,6 @@ public class LWJGLJavaFXSimulationController implements SimulationEventListener 
 		
 		if (options.contains(Options.ANALYSIS_MODE))
 			onPlotSimulation();
-		
-		if (!mainMenu.isVisible())
-			mainMenu.show();
 	}
 	
 	/**

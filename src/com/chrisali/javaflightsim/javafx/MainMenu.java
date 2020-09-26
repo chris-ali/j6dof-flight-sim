@@ -22,32 +22,41 @@ package com.chrisali.javaflightsim.javafx;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Optional;
 
+import com.chrisali.javaflightsim.initializer.LWJGLJavaFXSimulationController;
 import com.chrisali.javaflightsim.initializer.PomReader;
 import com.chrisali.javaflightsim.lwjgl.utilities.OTWDirectories;
-import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javafx.application.Platform;
+import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
-public class MainMenu {
+public class MainMenu extends Application {
 
     private static final Logger logger = LogManager.getLogger(MainMenu.class);
 
-    private MainMenuController mainMenuController;
-    private Stage stage;
+    public void launchMenus(String[] args) {
+        launch(args);
+    }
 
-    /**
-     * Constructor that initializes the JavaFX controller and loads the stage from the associated FXML file
-     */
-    public MainMenu(SimulationConfiguration configuration) {
-        mainMenuController = new MainMenuController(configuration);
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+
+        SimulationConfiguration configuration = FileUtilities.readSimulationConfiguration();
+        LWJGLJavaFXSimulationController simulationController = new LWJGLJavaFXSimulationController(configuration);
+        
+        MainMenuController mainMenuController = new MainMenuController(configuration);
+        mainMenuController.addSimulationEventListener(simulationController);
         
         String fxmlName = "MainMenu.fxml";
     
@@ -56,49 +65,29 @@ public class MainMenu {
             loader.setController(mainMenuController);
             FileInputStream fis = new FileInputStream(OTWDirectories.RESOURCES.toString() + File.separator + fxmlName);
             
-            stage = new Stage();
-            stage.setTitle(PomReader.getProjectName());
-            stage.setScene(new Scene(loader.load(fis)));
-            stage.show();
+            primaryStage = new Stage();
+            primaryStage.setTitle(PomReader.getProjectName());
+            primaryStage.setScene(new Scene(loader.load(fis)));
+            primaryStage.setOnCloseRequest(event -> { closeWindowEvent(event); });
+            primaryStage.show();
         } catch (IOException e) {
             logger.error("Could not load FXML: " + fxmlName, e);
             Dialog.showExceptionDialog(e, "Could not load FXML: " + fxmlName, "Error Loading FXML");
         }
     }
 
-    /**
-     * Hides the stage containing this window
-     */
-    public void hide() {
-        Platform.runLater(() -> {
-            if (stage != null)
-                stage.close();
-        });
-    }
+    private void closeWindowEvent(WindowEvent event) {
+        String projectName = PomReader.getProjectName();
+        
+        Optional<ButtonType> result = Dialog.showDialog("Are you sure you wish to close " + projectName + "?", 
+            "Close " + projectName, AlertType.CONFIRMATION);
 
-    /**
-     * Shows the stage containing this window
-     */
-    public void show() {
-        Platform.runLater(() -> {
-            if (stage != null)
-                stage.show();
-        });
-    }
-    
-    /**
-     * @return if the stage is visible
-     */
-    public boolean isVisible() {
-        if (stage != null)
-            return stage.isShowing();
-        else 
-            return false;
-    }
-
-    public void addMainMenuSimulationEventListener(SimulationEventListener listener) {
-        if (mainMenuController != null) {
-            mainMenuController.addSimulationEventListener(listener);
+        if(result.get().equals(ButtonType.OK)) {
+            logger.info("Closing " + projectName + "...");
+            System.exit(1);
+        }
+        else {
+            event.consume();
         }
     }
 }

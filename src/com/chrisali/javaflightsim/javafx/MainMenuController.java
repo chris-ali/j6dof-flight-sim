@@ -31,7 +31,7 @@ import java.util.Map;
 import com.chrisali.javaflightsim.initializer.PomReader;
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
 import com.chrisali.javaflightsim.simulation.aircraft.MassProperties;
-import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
+import com.chrisali.javaflightsim.simulation.datatransfer.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.setup.CameraMode;
 import com.chrisali.javaflightsim.simulation.setup.InitialConditions;
 import com.chrisali.javaflightsim.simulation.setup.Options;
@@ -55,6 +55,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -186,7 +187,10 @@ public class MainMenuController {
 
     @FXML
     void buttonStartSimClicked(ActionEvent event) {
-        simulationEventListeners.forEach(listener -> listener.onStartSimulation());
+        simulationEventListeners.forEach(listener -> {
+            if (!listener.onStartSimulation())
+                Dialog.showDialog("Simulation is already running! Please wait until it has finished", "Simulation Running", AlertType.WARNING);
+        });
     }
 
     @FXML

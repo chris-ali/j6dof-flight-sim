@@ -23,7 +23,7 @@ import java.util.EnumSet;
 
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.SimulationRunner;
-import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
+import com.chrisali.javaflightsim.simulation.datatransfer.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
@@ -85,10 +85,10 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 	 * Depending on options specified, a console panel and/or plot window will also be initialized and opened 
 	 */
 	@Override
-	public void onStartSimulation() {
+	public boolean onStartSimulation() {
 		if (runner != null && runner.isRunning()) {
 			logger.warn("Simulation is already running! Please wait until it has finished");
-			return;
+			return false;
 		}
 		
 		configuration = FileUtilities.readSimulationConfiguration();
@@ -109,6 +109,8 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 				
 		if (options.contains(Options.CONSOLE_DISPLAY))
 			onInitializeConsole();
+
+		return false;
 	}
 	
 	/**

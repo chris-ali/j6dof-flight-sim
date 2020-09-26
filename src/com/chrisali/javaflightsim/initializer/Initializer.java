@@ -24,8 +24,7 @@ import javax.swing.SwingUtilities;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.chrisali.javaflightsim.javafx.PrimaryStage;
-import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
+import com.chrisali.javaflightsim.javafx.MainMenu;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
 
 /**
@@ -46,63 +45,46 @@ public class Initializer {
 	 * @param args Java VM args
 	 */
 	public static void selectRunConfigurationAndRun(String[] args) {
-		
-		logger.info("Configuring simulation options...");
-		
-		SimulationConfiguration configuration;
-		
-		try {
-			logger.info("Reading configuration files...");
-			
-			configuration = FileUtilities.readSimulationConfiguration();
-		} catch (Exception e) {
-			logger.fatal("Error initializing configuration!", e);
-			
-			return;
-		}
-		
 		// Temporarily set mode to LWJGL Swing mode until parse method is decided
 		RunDisplayMode mode = RunDisplayMode.LWJGL_JAVAFX;
 		
 		switch (mode) {
 		case LWJGL_SWING:
 			logger.info(mode.toString() + " selected");
-			runLWJGLSwingApp(configuration);
+			runLWJGLSwingApp();
 			break;
 		case LWJGL_JAVAFX:
 			logger.info(mode.toString() + " selected");
-			runLWJGLJavaFXApp(configuration, args);
+			runLWJGLJavaFXApp(args);
 			break;
 		case SWING_ONLY:
 			logger.info(mode.toString() + " selected");
-			runSwingApp(configuration);
+			runSwingApp();
 			break;
 		case JMONKEYENGINE:
 			logger.info(mode.toString() + " selected");
-			runJMonkeyEngineApp(configuration);
+			runJMonkeyEngineApp();
 			break;
 		case NETWORK:
 			logger.info(mode.toString() + " selected");
-			runNetworkApp(configuration);
+			runNetworkApp();
 			break;
 		default:
 			logger.error("Invalid run mode selected, defaulting to Swing with LWJGL!");
-			runLWJGLSwingApp(configuration);
+			runLWJGLSwingApp();
 		}
 	}
 	
 	/**
 	 * Initializes {@link LWJGLSwingSimulationController}
-	 * 
-	 * @param configuration
 	 */
-	private static void runLWJGLSwingApp(SimulationConfiguration configuration) {
+	private static void runLWJGLSwingApp() {
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					new LWJGLSwingSimulationController(configuration); 							
+					new LWJGLSwingSimulationController(FileUtilities.readSimulationConfiguration()); 							
 				} catch (Exception e) {
 					logger.fatal("Error setting up Swing GUI and controller: ", e);
 					
@@ -113,14 +95,14 @@ public class Initializer {
 	}
 
 	/**
-	 * Initializes {@link PrimaryStage} which will initialize {@link LWJGLSwingSimulationController}
+	 * Initializes {@link MainMenu} which will initialize {@link LWJGLSwingSimulationController}
 	 * 
-	 * @param configuration
+	 * @param args
 	 */
-	private static void runLWJGLJavaFXApp(SimulationConfiguration configuration, String[] args) {
+	private static void runLWJGLJavaFXApp(String[] args) {
 		try {
-			PrimaryStage stage = new PrimaryStage();
-			stage.launchPrimaryStage(args);		
+			MainMenu mainMenu = new MainMenu();
+			mainMenu.launchMenus(args);		
 		} catch (Exception e) {
 			logger.fatal("Error setting up JavaFX GUI and controller: ", e);
 			
@@ -130,46 +112,24 @@ public class Initializer {
 	
 	/**
 	 * Initializes {@link SwingSimulationController} and brings up the Swing GUI menus
-	 * 
-	 * @param configuration
 	 */
-	private static void runSwingApp(SimulationConfiguration configuration) {
-		/*
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					SwingSimulationController controller = new SwingSimulationController(configuration); 
-					
-					new GuiFrame(controller);
-				} catch (Exception e) {
-					logger.fatal("Error setting up Swing GUI and controller: ", e);
-					
-					return;
-				}		
-			}
-		});
-		*/
+	private static void runSwingApp() {
 		logger.fatal("This mode is not implemented yet!");
 		return;
 	}
 	
 	/**
 	 * To be implemented later; initializes JMonkeyEngine menus and world
-	 * 
-	 * @param configuration
 	 */
-	private static void runJMonkeyEngineApp(SimulationConfiguration configuration) {
+	private static void runJMonkeyEngineApp() {
 		logger.fatal("This mode is not implemented yet!");
 		return;
 	}
 	
 	/**
 	 * To be implemented later; initializes network adapter for UDP packet transmission
-	 * 
-	 * @param configuration
 	 */
-	private static void runNetworkApp(SimulationConfiguration configuration) {
+	private static void runNetworkApp() {
 		logger.fatal("This mode is not implemented yet!");
 		return;
 	}

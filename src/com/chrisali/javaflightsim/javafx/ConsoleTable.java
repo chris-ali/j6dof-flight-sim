@@ -56,7 +56,7 @@ public class ConsoleTable {
     public ConsoleTable(List<Map<SimOuts, Double>> logsOut) {
         try {
             stage = new Stage();
-            stage.setScene(new Scene(createParent(logsOut)));
+            stage.setScene(new Scene(createParent(logsOut), 900, 600));
             stage.setTitle("Raw Data Output");
             stage.show();
         } catch (Exception e) {
@@ -67,8 +67,6 @@ public class ConsoleTable {
 
     private Parent createParent(List<Map<SimOuts, Double>> logsOut) {
         VBox vbox = new VBox();
-        vbox.setPrefHeight(600);
-        vbox.setPrefWidth(900);
 
         MenuBar menuBar = new MenuBar();
         Menu fileMenu = new Menu("File");
@@ -86,8 +84,8 @@ public class ConsoleTable {
         menuBar.getMenus().add(fileMenu);
         vbox.getChildren().add(menuBar);
 
-        final SwingNode swingNode = new SwingNode();
-                
+        SwingNode swingNode = new SwingNode();
+        
         SwingUtilities.invokeLater(() -> {
             swingNode.setContent(new ConsoleTableComponent(logsOut));
         });
@@ -102,16 +100,17 @@ public class ConsoleTable {
         fileChooser.setTitle("Export Raw Data to CSV");
         fileChooser.getExtensionFilters().add(new ExtensionFilter(".csv (Comma separated values) File", "*.csv"));
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-        File file = fileChooser.showSaveDialog(stage);
 
-        if (file != null) {
-            try {
-                FileUtilities.saveToCSVFile(file, logsOut);
-                Dialog.showDialog("Console output successfully exported to CSV to: " + file.getAbsolutePath(), "Exported to CSV", AlertType.INFORMATION);
-            } catch (IOException e) {
-                logger.error("Unable to save CSV file!", e);
-                Dialog.showExceptionDialog(e, "An error was encountered while saving console output to CSV!", "Unable to save to CSV");
-            }
+        File file = fileChooser.showSaveDialog(stage);
+        if (file == null)
+            return;
+
+        try {
+            FileUtilities.saveToCSVFile(file, logsOut);
+            Dialog.showDialog("Console output successfully exported to CSV to: " + file.getAbsolutePath(), "Exported to CSV", AlertType.INFORMATION);
+        } catch (IOException e) {
+            logger.error("Unable to save CSV file!", e);
+            Dialog.showExceptionDialog(e, "An error was encountered while saving console output to CSV!", "Unable to save to CSV");
         }
     }
 

@@ -5,6 +5,7 @@ import static com.chrisali.javaflightsim.simulation.flightcontrols.FlightControl
 import java.util.ArrayList;
 import java.util.List;
 
+import com.chrisali.javaflightsim.simulation.datatransfer.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;
 import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;

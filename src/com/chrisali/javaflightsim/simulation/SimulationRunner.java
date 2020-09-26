@@ -31,7 +31,7 @@ import org.apache.logging.log4j.Logger;
 import com.chrisali.javaflightsim.interfaces.Steppable;
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.flightcontrols.FlightControlsStateManager;
-import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
+import com.chrisali.javaflightsim.simulation.datatransfer.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.IntegratorConfig;

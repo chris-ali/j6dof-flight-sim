@@ -65,7 +65,7 @@ import com.chrisali.javaflightsim.simulation.datatransfer.FlightData;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataListener;
 import com.chrisali.javaflightsim.simulation.datatransfer.FlightDataType;
 import com.chrisali.javaflightsim.simulation.datatransfer.InputDataListener;
-import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
+import com.chrisali.javaflightsim.simulation.datatransfer.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.setup.CameraMode;
 import com.chrisali.javaflightsim.simulation.setup.KeyCommand;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
