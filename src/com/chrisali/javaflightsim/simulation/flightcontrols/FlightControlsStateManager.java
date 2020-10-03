@@ -80,6 +80,9 @@ public class FlightControlsStateManager implements Steppable, InputDataListener 
 		try {
 			if (options.contains(Options.ANALYSIS_MODE))
 				analysisControls.updateFlightControls(simTimeMS, actuator);
+
+			if (options.contains(Options.RESET))
+				actuator.resetTrimTabs();
 			
 			limitControls(controlsState);
 		} catch (Exception e) {

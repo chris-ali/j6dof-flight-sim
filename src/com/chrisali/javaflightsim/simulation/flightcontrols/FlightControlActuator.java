@@ -42,7 +42,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 	private boolean gearLeverDown = false;
 	
 	// If true, don't directly calculate controls; use a transient value 
-	private boolean useTransientLag = true;
+	private boolean useTransientLag = false;
 	
 	public FlightControlActuator(SimulationConfiguration configuration, FlightControlsState controlsState) {
 		dt = configuration.getIntegratorConfig().get(IntegratorConfig.DT);
@@ -51,6 +51,10 @@ public class FlightControlActuator implements ControlParameterActuator {
 		
 		gearLeverDown = controlsState.get(GEAR) == 1.0;
 		
+		resetTrimTabs();
+	}
+
+	public void resetTrimTabs() {
 		trimAileron  = controlsState.getTrimValue(AILERON);
 		trimElevator = controlsState.getTrimValue(ELEVATOR);
 		trimRudder   = controlsState.getTrimValue(RUDDER);
@@ -250,7 +254,7 @@ public class FlightControlActuator implements ControlParameterActuator {
 		double desiredValue = (value <= 0) ? (controlType.getMaximum()*Math.abs(value)) : (controlType.getMinimum()*value);   
 						
 		// Scale the rate as desired and transient values near each other
-		double rateScale = 0.125;
+		double rateScale = 0.5;
 		
 		transientValue += (desiredValue - transientValue) * rateScale;
 			

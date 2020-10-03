@@ -215,9 +215,10 @@ public class MainMenuController {
 
     @FXML
     void checkFullScreenClicked(ActionEvent event) {
+        radio800450.setDisable(checkFullScreen.isSelected());
         radio1440900.setDisable(checkFullScreen.isSelected());
         radio16801050.setDisable(checkFullScreen.isSelected());
-        radio16801050.setDisable(checkFullScreen.isSelected());
+        radio19201080.setDisable(checkFullScreen.isSelected());
         
         updateConfigurationAndSave();
     }

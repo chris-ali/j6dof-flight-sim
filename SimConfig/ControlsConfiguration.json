@@ -134,17 +134,17 @@
     },
 	"Microsoft X-Box 360 pad" : {
 	  "axisAssignments" : {
-        "0" : {
+        "1" : {
           "axisAssignment" : "ELEVATOR",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-        "1" : {
+        "0" : {
           "axisAssignment" : "AILERON",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
         },
-	    "3" : {
+	      "3" : {
           "axisAssignment" : "RUDDER",
           "deadZone" : 0.0,
           "sensitivity" : 1.0
@@ -156,8 +156,8 @@
       },
       "hatAssignments" : {
         "1" : "ELEVATOR_TRIM_DOWN",
-        "8" : "ELEVATOR_TRIM_UP",
-        "4" : "AILERON_TRIM_LEFT",
+        "4" : "ELEVATOR_TRIM_UP",
+        "8" : "AILERON_TRIM_LEFT",
         "2" : "AILERON_TRIM_RIGHT"
       }
 	}

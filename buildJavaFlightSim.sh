@@ -18,7 +18,7 @@ mkdir ${buildDirectory}/
 echo "Creating run scripts..."
 
 # Use to run program in shell and bat scripts
-runCommand="java -Djava.library.path=natives/ -jar ${finalFileName}.jar" 
+runCommand="java -Djava.library.path=natives/ -jar ${finalFileName}.jar LWJGL_JAVAFX" 
 
 echo ${runCommand} >> ${buildDirectory}/${finalFileName}.sh
 echo ${runCommand} >> ${buildDirectory}/${finalFileName}.bat

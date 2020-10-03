@@ -63,7 +63,6 @@ public class InputMaster {
 
         glfwSetKeyCallback(DisplayManager.getWindow(), (window, key, scancode, action, mods) -> {
             inputData.clearKeysPressed();
-
             for (Map.Entry<Integer, KeyCommand> entry : controlsConfig.getKeyboardAssignments().entrySet()) {            
                 if (key == entry.getKey() && (action == GLFW_PRESS || action == GLFW_REPEAT))
                     inputData.addKeyPressed(entry.getValue());
@@ -141,13 +140,12 @@ public class InputMaster {
             // Loop through buttons on connected controller
             Map<Integer, KeyCommand> buttonAssignments = joystickAssignments.getButtonAssignments();
             for (int buttonIndex = 0; buttonIndex < glfwButtons.capacity(); buttonIndex++) {
+                KeyCommand command = buttonAssignments.get(buttonIndex);
+                inputData.removeKeyPressed(command);
                 
                 // If controls configuration has an assignment for this pressed button, use it
-                if (glfwButtons.get(buttonIndex) == GLFW_TRUE) {
-                    KeyCommand command = buttonAssignments.get(buttonIndex);
-
-                    if (command != null)
-                        inputData.addKeyPressed(command);
+                if (glfwButtons.get(buttonIndex) == GLFW_TRUE && command != null) {
+                    inputData.addKeyPressed(command);
                 }
             }
 
@@ -155,6 +153,7 @@ public class InputMaster {
             Map<Integer, KeyCommand> hatAssignments = joystickAssignments.getHatAssignments();
             if (hatAssignments != null) {
                 KeyCommand command = hatAssignments.get((int)glfwHats.get(0));
+                inputData.removeKeyPressed(command);
 
                 if (command != null)
                     inputData.addKeyPressed(command);

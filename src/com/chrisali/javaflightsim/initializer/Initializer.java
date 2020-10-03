@@ -45,8 +45,17 @@ public class Initializer {
 	 * @param args Java VM args
 	 */
 	public static void selectRunConfigurationAndRun(String[] args) {
-		// Temporarily set mode to LWJGL Swing mode until parse method is decided
 		RunDisplayMode mode = RunDisplayMode.LWJGL_JAVAFX;
+		
+		if(args.length > 0) {
+			logger.info("Found a Java arg: " + args[0]);
+
+			try {
+				mode = RunDisplayMode.valueOf(args[0]);
+			} catch (IllegalArgumentException e) {
+				logger.error("Unable to parse RunDisplayMode enum from provided arg! Reverting to default mode...");
+			}
+		}
 		
 		switch (mode) {
 		case LWJGL_SWING:
