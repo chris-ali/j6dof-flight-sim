@@ -49,6 +49,7 @@ public class ConsoleTablePanel extends JFrame {
 	private static final Logger logger = LogManager.getLogger(ConsoleTablePanel.class);
 
 	private List<Map<SimOuts, Double>> logsOut;
+	private ConsoleTableComponent tableComponent;
 	
 	/**
 	 * Generates a Swing window with a JTable to display a table of all simulation outputs
@@ -61,9 +62,11 @@ public class ConsoleTablePanel extends JFrame {
 		setLayout(new BorderLayout());
 		
 		this.logsOut = logsOut;
+		tableComponent = new ConsoleTableComponent(logsOut);
+		tableComponent.startTableRefresh();
 		
 		//-------------- Table Panel ------------------------
-		add(new ConsoleTableComponent(logsOut), BorderLayout.CENTER);
+		add(tableComponent, BorderLayout.CENTER);
 		
 		//=================== Window Settings =======================
 		
@@ -74,6 +77,7 @@ public class ConsoleTablePanel extends JFrame {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				setVisible(false);
+				tableComponent.stopTableRefresh();
 			}
 		});
 		

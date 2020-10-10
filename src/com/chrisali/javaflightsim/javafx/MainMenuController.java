@@ -117,6 +117,9 @@ public class MainMenuController {
     private TextField textInitialTas;
 
     @FXML
+    private Button buttonUpdateInitial;
+
+    @FXML
     private CheckBox checkAnalysisMode;
 
     @FXML
@@ -191,6 +194,11 @@ public class MainMenuController {
             if (!listener.onStartSimulation())
                 Dialog.showDialog("Simulation is already running! Please wait until it has finished", "Simulation Running", AlertType.WARNING);
         });
+    }
+
+    @FXML
+    void buttonUpdateInitialClicked(ActionEvent event) {
+        updateConfigurationAndSave();
     }
 
     @FXML
@@ -599,16 +607,16 @@ public class MainMenuController {
     private void setSummaryText() {
         StringBuilder sb = new StringBuilder();
 
-        String htmlBodyOpen = "<html><body style='font-family:sans-serif; font-size:11px'>";
+        String htmlBodyOpen = "<html><body style='font-family:sans-serif; font-size:10px; background-color: #F4F4F4'>";
 	    String parOpen = "<p>";
 	    String parClose = "</p>";
         String htmlBodyClose = "</body></html>";
 
         sb.append(htmlBodyOpen);
         
-        sb.append(parOpen).append("<b>Selected Aircraft: </b>").append(configuration.getSelectedAircraft()).append(parClose);
+        sb.append(parOpen).append("<b>Selected Aircraft:</b><br/>").append(configuration.getSelectedAircraft()).append(parClose);
         
-        sb.append(parOpen).append("<b>Initial Conditions: </b>")
+        sb.append(parOpen).append("<b>Initial Conditions:</b><br/>")
           .append("Latitude: ").append(textInitialLat.getText()).append(" deg | ")
 		  .append("Longitude: ").append(textInitialLon.getText()).append(" deg | ")
 		  .append("Heading: ").append(textInitialHdg.getText()).append(" deg | ")
@@ -616,7 +624,7 @@ public class MainMenuController {
           .append("Airspeed: ").append(textInitialTas.getText()).append(" kts")
           .append(parClose);
         
-        sb.append(parOpen).append("<b>Simulation Options: </b>");
+        sb.append(parOpen).append("<b>Simulation Options:</b><br/>");
         configuration.getSimulationOptions().forEach(option -> { sb.append(option.toString()).append(" | "); });
 		sb.append("Update Rate: ").append(sliderSimulationRate.getValue()).append(" Hz").append(parClose);
 

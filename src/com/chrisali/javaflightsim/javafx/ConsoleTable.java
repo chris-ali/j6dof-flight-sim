@@ -52,6 +52,7 @@ public class ConsoleTable {
     private static final Logger logger = LogManager.getLogger(MainMenu.class);
 
     private Stage stage;
+    ConsoleTableComponent tableComponent;
 
     public ConsoleTable(List<Map<SimOuts, Double>> logsOut) {
         try {
@@ -87,7 +88,9 @@ public class ConsoleTable {
         SwingNode swingNode = new SwingNode();
         
         SwingUtilities.invokeLater(() -> {
-            swingNode.setContent(new ConsoleTableComponent(logsOut));
+            tableComponent = new ConsoleTableComponent(logsOut);
+            tableComponent.startTableRefresh();
+            swingNode.setContent(tableComponent);
         });
         
         vbox.getChildren().add(swingNode);
@@ -121,6 +124,9 @@ public class ConsoleTable {
         Platform.runLater(() -> {
             if (stage != null)
                 stage.close();
+                
+            if (tableComponent != null)
+                tableComponent.stopTableRefresh();
         });
     }
 

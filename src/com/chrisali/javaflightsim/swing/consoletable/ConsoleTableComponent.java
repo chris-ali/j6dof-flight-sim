@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 
@@ -35,7 +36,8 @@ public class ConsoleTableComponent extends JComponent {
     private static final long serialVersionUID = 1L;
 
     private JTable table;
-	private ConsoleTableModel consoleTableModel;
+    private ConsoleTableModel consoleTableModel;
+    private SwingWorker<Void, Integer> tableRefreshWorker;
 
     public ConsoleTableComponent(List<Map<SimOuts, Double>> logsOut) {
         consoleTableModel = new ConsoleTableModel();
@@ -47,9 +49,30 @@ public class ConsoleTableComponent extends JComponent {
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setColumnSelectionAllowed(true);
         table.setRowSelectionAllowed(true);
+
+        tableRefreshWorker = new SwingWorker<Void, Integer>() {
+			@Override
+			protected void done() {}
+
+			@Override
+			protected Void doInBackground() throws Exception {
+				while (true) {
+					consoleTableModel.fireTableDataChanged();
+					Thread.sleep(100);
+				}
+			}
+		};
         
         setPreferredSize(getToolkit().getScreenSize());
     
         add(new JScrollPane(table), BorderLayout.CENTER);
     }
+
+    public void startTableRefresh() {
+		tableRefreshWorker.execute();
+	}
+
+	public void stopTableRefresh() {
+		tableRefreshWorker.cancel(true);
+	}
 }
