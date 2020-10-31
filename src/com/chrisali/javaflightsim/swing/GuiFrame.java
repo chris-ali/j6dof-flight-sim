@@ -33,7 +33,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.chrisali.javaflightsim.simulation.aircraft.Aircraft;
-import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
+import com.chrisali.javaflightsim.simulation.datatransfer.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;

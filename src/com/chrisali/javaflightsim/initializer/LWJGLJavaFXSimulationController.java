@@ -21,15 +21,16 @@ package com.chrisali.javaflightsim.initializer;
 
 import java.util.EnumSet;
 
-import com.chrisali.javaflightsim.simulation.SimulationStepper;
+import com.chrisali.javaflightsim.javafx.ConsoleTable;
+import com.chrisali.javaflightsim.javafx.PlotWindow;
+import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
+import com.chrisali.javaflightsim.simulation.SimulationRunner;
 import com.chrisali.javaflightsim.simulation.datatransfer.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
-import com.chrisali.javaflightsim.swing.consoletable.ConsoleTablePanel;
-import com.chrisali.javaflightsim.swing.plotting.PlotWindow;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,46 +38,49 @@ import org.apache.logging.log4j.Logger;
 /**
  * Controls the configuration and running of processes supporting the simulation component of JavaFlightSim. This consists of: 
  * <p>The simulation engine that integrates the 6DOF equations ({@link Integrate6DOFEquations})</p>
+ * <p>Initialization and control of the LWJGL out the window (OTW) world ({@link LWJGLWorld})</p>
+ * <p>Initializing the Swing GUI menus</p>
  * <p>Plotting of the simulation states and data ({@link PlotWindow})</p>
  * <p>Raw data display of simulation states ({@link ConsoleTablePanel})</p>
  * 
  * @author Christopher Ali
  *
  */
-public class JMESimulationController implements SimulationEventListener {
+public class LWJGLJavaFXSimulationController implements SimulationEventListener {
 	
 	//Logging
-	private static final Logger logger = LogManager.getLogger(JMESimulationController.class);
+	private static final Logger logger = LogManager.getLogger(LWJGLJavaFXSimulationController.class);
 	
 	// Configuration
 	private SimulationConfiguration configuration;
 	private EnumSet<Options> options;
-	
-	// Simulation
-	private SimulationStepper stepper;
-		
-	// Plotting
+			
+	// Simulation and Threads
+	private SimulationRunner runner;
+	private Thread runnerThread;
+
+	// JavaFX GUIs
 	private PlotWindow plotWindow;
-	
-	// Raw Data Console
-	private ConsoleTablePanel consoleTablePanel;
+	private ConsoleTable consoleTable;
 
 	private boolean wasReset = false;
 		
 	/**
-	 * Initializes initial settings, configurations and conditions to be edited through menu options
+	 * Initializes controller with specified simulation configuration
+	 * 
+	 * @param configuration
 	 */
-	public JMESimulationController(SimulationConfiguration configuration) {
+	public LWJGLJavaFXSimulationController(SimulationConfiguration configuration) {
 		this.configuration = configuration;
 	}
 
 	/**
-	 * Initializes, trims and starts the flight controls, simulation, and flight/environment data steppers.
+	 * Initializes, trims and starts the flight controls, simulation (and flight and environment data, if selected) threads.
 	 * Depending on options specified, a console panel and/or plot window will also be initialized and opened 
 	 */
 	@Override
 	public boolean onStartSimulation() {
-		if (stepper != null && stepper.isRunning()) {
+		if (runner != null && runner.isRunning()) {
 			logger.warn("Simulation is already running! Please wait until it has finished");
 			return false;
 		}
@@ -85,29 +89,35 @@ public class JMESimulationController implements SimulationEventListener {
 		options = configuration.getSimulationOptions();
 			
 		logger.info("Starting simulation...");
-		
+
 		logger.info("Trimming aircraft...");
 		Trimming.trimSim(configuration, false);
 		
-		logger.info("Initializing simulation stepper...");
-		stepper = new SimulationStepper(configuration);
+		logger.info("Initializing simulation runner...");
+		runner = new SimulationRunner(configuration);
+		runner.addSimulationEventListener(this);
 
+		logger.info("Initializaing and starting simulation runner thread...");
+		runnerThread = new Thread(runner);
+		runnerThread.start();
+				
 		if (options.contains(Options.CONSOLE_DISPLAY))
 			onInitializeConsole();
-
+		
 		return true;
 	}
 	
 	/**
-	 * Stops simulation and console table refresh if stepping, and calls generate plots event if in Analysis Mode
+	 * Stops simulation and calls generate plots event if in Analysis Mode, 
+	 * and opens main menus again if not visible
 	 */
 	@Override
 	public void onStopSimulation() {
-		if (stepper.isRunning()) {
+		if (runner.isRunning()) {
 			logger.info("Stopping simulation...");
-			stepper.setRunning(false);
+			runner.setRunning(false);
 		}
-
+		
 		if (options.contains(Options.ANALYSIS_MODE))
 			onPlotSimulation();
 	}
@@ -147,26 +157,26 @@ public class JMESimulationController implements SimulationEventListener {
 		
 		try {
 			if(plotWindow != null)
-				plotWindow.setVisible(false);
-
-			plotWindow = new PlotWindow(configuration.getSelectedAircraft(), stepper.getLogsOut());	
+				plotWindow.hide();
+				
+			plotWindow = new PlotWindow(configuration.getSelectedAircraft(), runner.getLogsOut());
 		} catch (Exception e) {
 			logger.error("An error occurred while generating plots!", e);
 		}
 	}
 
 	/**
-	 * Initializes the raw data console window
+	 * Initializes the raw data console window and starts the auto-refresh of its contents
 	 */
 	@Override
 	public void onInitializeConsole() {
 		try {
 			logger.info("Starting flight data console...");
 			
-			if(consoleTablePanel != null)
-				consoleTablePanel.setVisible(false);
+			if(consoleTable != null)
+				consoleTable.hide();
 			
-			consoleTablePanel = new ConsoleTablePanel(stepper.getLogsOut());
+			consoleTable = new ConsoleTable(runner.getLogsOut());
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
 		}

@@ -1,15 +1,15 @@
 {
-  "simulationOptions" : [ "UNLIMITED_FLIGHT" ],
+  "simulationOptions" : [ "ANALYSIS_MODE" ],
   "initialConditions" : {
-    "INITU" : 210.0,
+    "INITU" : 209.28844,
     "INITV" : 0.0,
-    "INITW" : 2.944089344258892,
+    "INITW" : -3.605677066155438,
     "INITN" : 0.0,
     "INITE" : 0.0,
     "INITD" : 5000.0,
     "INITPHI" : 0.0,
-    "INITTHETA" : 0.0140185546875,
-    "INITPSI" : 6.125704248772137,
+    "INITTHETA" : -0.0172265625,
+    "INITPSI" : 6.126105674500097,
     "INITP" : 0.0,
     "INITQ" : 0.0,
     "INITR" : 0.0,
@@ -22,13 +22,13 @@
     "ENDTIME" : 100.0
   },
   "initialControls" : {
-    "ELEVATOR" : 0.011295045664612676,
+    "ELEVATOR" : 0.034415755349404116,
     "AILERON" : 0.0,
     "RUDDER" : 0.0,
-    "THROTTLE_1" : 0.466796875,
-    "THROTTLE_2" : 0.466796875,
-    "THROTTLE_3" : 0.466796875,
-    "THROTTLE_4" : 0.466796875,
+    "THROTTLE_1" : 0.421875,
+    "THROTTLE_2" : 0.421875,
+    "THROTTLE_3" : 0.421875,
+    "THROTTLE_4" : 0.421875,
     "PROPELLER_1" : 1.0,
     "PROPELLER_2" : 1.0,
     "PROPELLER_3" : 1.0,
@@ -42,11 +42,11 @@
     "BRAKE_L" : 0.0,
     "BRAKE_R" : 0.0
   },
-  "selectedAircraft" : "TwinNavion",
+  "selectedAircraft" : "Navion",
   "displayConfiguration" : {
     "useFullScreen" : false,
     "useAntiAliasing" : true,
-    "anisotropicFiltering" : 8,
+    "anisotropicFiltering" : 16,
     "displayHeight" : 900,
     "displayWidth" : 1440
   },

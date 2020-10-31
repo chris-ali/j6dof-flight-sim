@@ -22,7 +22,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.chrisali</groupId>
 	<artifactId>javaflightsim</artifactId>
-	<version>0.65a</version>
+	<version>0.75a</version>
 	<name>Java Flight Simulator</name>
 	
 	<properties>
@@ -201,11 +201,46 @@
 			<version>2.9.3</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-controls -->
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>16-ea+2</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-web -->
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-web</artifactId>
+			<version>16-ea+2</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-fxml -->
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-fxml</artifactId>
+			<version>16-ea+2</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-swing -->
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-swing</artifactId>
+			<version>16-ea+2</version>
+		</dependency>
+		
 		<!-- https://mvnrepository.com/artifact/org.jfree/jfreechart -->
 		<dependency>
 			<groupId>org.jfree</groupId>
 			<artifactId>jfreechart</artifactId>
 			<version>1.5.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.jfree/jfreechart-fx -->
+		<dependency>
+			<groupId>org.jfree</groupId>
+			<artifactId>jfreechart-fx</artifactId>
+			<version>1.0.1</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
@@ -228,34 +263,6 @@
 		    <artifactId>commons-csv</artifactId>
 		    <version>1.8</version>
 		</dependency>
-
-		 <!-- the core, which includes Streaming API, shared low-level abstractions (but NOT data-binding) -->
-		 <dependency>
-		   <groupId>com.fasterxml.jackson.core</groupId>
-		   <artifactId>jackson-core</artifactId>
-		   <version>2.11.2</version>
-		 </dependency>
-		
-		 <!-- Just the annotations; use this dependency if you want to attach annotations
-		      to classes without connecting them to the code. -->
-		 <dependency>
-		   <groupId>com.fasterxml.jackson.core</groupId>
-		   <artifactId>jackson-annotations</artifactId>
-		   <version>2.11.2</version>
-		</dependency>
-		
-		<!-- databinding; ObjectMapper, JsonNode and related classes are here -->
-		<dependency>
-		  <groupId>com.fasterxml.jackson.core</groupId>
-		  <artifactId>jackson-databind</artifactId>
-      <version>2.11.2</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.l33tlabs.twl</groupId>
-			<artifactId>pngdecoder</artifactId>
-			<version>1.0</version>
-		</dependency>
 		
 		<dependency>
 		    <groupId>org.apache.logging.log4j</groupId>
@@ -266,11 +273,11 @@
 		<dependency>
 		    <groupId>org.apache.logging.log4j</groupId>
 		    <artifactId>log4j-core</artifactId>
-        <version>2.13.3</version>
+        	<version>2.13.3</version>
 		</dependency>
 		
 		<dependency>
-		  <groupId>junit</groupId>
+      <groupId>junit</groupId>
 		  <artifactId>junit</artifactId>
 		  <version>4.13.1</version>
 		  <scope>test</scope>
@@ -282,26 +289,54 @@
 			<version>3.3.9</version>
 		</dependency>
 
+		<!-- the core, which includes Streaming API, shared low-level abstractions (but NOT data-binding) -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.11.2</version>
+		</dependency>
+		
+		<!-- Just the annotations; use this dependency if you want to attach annotations
+		      to classes without connecting them to the code. -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.11.2</version>
+		</dependency>
+		
+		<!-- databinding; ObjectMapper, JsonNode and related classes are here -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.11.2</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.l33tlabs.twl</groupId>
+			<artifactId>pngdecoder</artifactId>
+			<version>1.0</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>${jme3_g}</groupId>
 			<artifactId>jme3-core</artifactId>
 			<version>${jme3_v}</version>
-		  </dependency>
-		  <dependency>
+		</dependency>
+		<dependency>
 			<groupId>${jme3_g}</groupId>
 			<artifactId>jme3-desktop</artifactId>
 			<version>${jme3_v}</version>
 			<scope>runtime</scope>
-		  </dependency>
-		  <dependency>
+		</dependency>
+		<dependency>
 			<groupId>${jme3_g}</groupId>
 			<artifactId>jme3-lwjgl</artifactId>
 			<version>${jme3_v}</version>
-		  </dependency>
-		  <dependency>
+		</dependency>
+		<dependency>
 			<groupId>${jme3_g}</groupId>
 			<artifactId>jme3-terrain</artifactId>
 			<version>${jme3_v}</version>
-		  </dependency>
+		</dependency>
 	</dependencies>
 </project>

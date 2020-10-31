@@ -20,14 +20,11 @@
 package com.chrisali.javaflightsim.initializer;
 
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
 
 import com.chrisali.javaflightsim.lwjgl.LWJGLWorld;
 import com.chrisali.javaflightsim.simulation.SimulationRunner;
-import com.chrisali.javaflightsim.simulation.flightcontrols.SimulationEventListener;
+import com.chrisali.javaflightsim.simulation.datatransfer.SimulationEventListener;
 import com.chrisali.javaflightsim.simulation.integration.Integrate6DOFEquations;
-import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.setup.Options;
 import com.chrisali.javaflightsim.simulation.setup.SimulationConfiguration;
 import com.chrisali.javaflightsim.simulation.setup.Trimming;
@@ -63,7 +60,7 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 	private SimulationRunner runner;
 	private Thread runnerThread;
 	
-	// Menus and Integrated Simulation Window
+	// Menus
 	private GuiFrame guiFrame;
 	
 	// Plotting
@@ -88,10 +85,10 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 	 * Depending on options specified, a console panel and/or plot window will also be initialized and opened 
 	 */
 	@Override
-	public void onStartSimulation() {
+	public boolean onStartSimulation() {
 		if (runner != null && runner.isRunning()) {
 			logger.warn("Simulation is already running! Please wait until it has finished");
-			return;
+			return false;
 		}
 		
 		configuration = FileUtilities.readSimulationConfiguration();
@@ -112,6 +109,8 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 				
 		if (options.contains(Options.CONSOLE_DISPLAY))
 			onInitializeConsole();
+
+		return false;
 	}
 	
 	/**
@@ -123,11 +122,6 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 		if (runner.isRunning()) {
 			logger.info("Stopping simulation...");
 			runner.setRunning(false);
-		}
-		
-		if (consoleTablePanel != null) {
-			logger.info("Stopping flight data console refresh...");
-			consoleTablePanel.stopTableRefresh();
 		}
 
 		if (options.contains(Options.ANALYSIS_MODE))
@@ -176,14 +170,14 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 			if(plotWindow != null)
 				plotWindow.setVisible(false);
 				
-			plotWindow = new PlotWindow(configuration.getSelectedAircraft(), getLogsOut());
+			plotWindow = new PlotWindow(configuration.getSelectedAircraft(), runner.getLogsOut());
 		} catch (Exception e) {
 			logger.error("An error occurred while generating plots!", e);
 		}
 	}
 
 	/**
-	 * Initializes the raw data console window and starts the auto-refresh of its contents
+	 * Initializes the raw data console window
 	 */
 	@Override
 	public void onInitializeConsole() {
@@ -193,18 +187,9 @@ public class LWJGLSwingSimulationController implements SimulationEventListener {
 			if(consoleTablePanel != null)
 				consoleTablePanel.setVisible(false);
 			
-			consoleTablePanel = new ConsoleTablePanel(getLogsOut());
-			consoleTablePanel.startTableRefresh();			
+			consoleTablePanel = new ConsoleTablePanel(runner.getLogsOut());			
 		} catch (Exception e) {
 			logger.error("An error occurred while starting the console panel!", e);
 		}
-	}
-
-	/**
-	 * @return ArrayList of simulation output data 
-	 * @see SimOuts
-	 */
-	public List<Map<SimOuts, Double>> getLogsOut() {
-		return (runner != null) ? runner.getSimulation().getLogsOut() : null;
 	}
 }

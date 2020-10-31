@@ -39,6 +39,6 @@ public class RunJavaFlightSimulator {
 		logger.info(PomReader.getProjectName() +  " v" + PomReader.getVersionNumber() +" by Christopher Ali");
 		logger.info("===============================================");
 		
-		Initializer.selectRunConfigurationAndRun();
+		Initializer.selectRunConfigurationAndRun(args);
 	}
 }

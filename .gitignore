@@ -1,6 +1,7 @@
 /.settings/
 /.vscode/
 /bin/
+/docs/
 /target/
 /natives/
 /Release/

@@ -75,6 +75,17 @@ public class InputData {
 	}
 
 	/**
+	 * Thread safely removes KeyCommand that has been pressed when last polled
+	 * 
+	 * @param command
+	 */
+	public void removeKeyPressed(KeyCommand command) {
+		synchronized (keyCommands) {
+			keyCommands.remove(command);
+		}
+	}
+
+	/**
 	 * Thread safely adds new mouse button that has been pressed since last polled
 	 * 
 	 * @see GLFW_MOUSE_BUTTON_x

@@ -44,6 +44,15 @@ One day I'd like to tie objectives or a scoring element into the simulation to m
 ## Building and Development
 - Maven is required to build project and generate natives
 
+- When setting up your IDE to develop, add the VM argument:
+
+    -Djava.library.path=natives/
+
+  and one of the two following command line arguments to run using JavaFX or Swing GUIs:
+
+    LWJGL_SWING
+    LWJGL_JAVAFX
+
 - Currently being developed with Java 11, but should be compatible with Java 14 and Java 8 
 
 - Running the build script ./buildJavaFlightSim.sh will execute the Maven package task and package all required dependencies and natives

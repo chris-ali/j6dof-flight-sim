@@ -34,31 +34,25 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.KeyStroke;
-import javax.swing.SwingWorker;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.chrisali.javaflightsim.simulation.integration.SimOuts;
 import com.chrisali.javaflightsim.simulation.utilities.FileUtilities;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ConsoleTablePanel extends JFrame {
 
 	private static final long serialVersionUID = 555700867777925736L;
 	
 	private static final Logger logger = LogManager.getLogger(ConsoleTablePanel.class);
-	
-	private JTable table;
-	private ConsoleTableModel consoleTableModel;
-	private SwingWorker<Void,Integer> tableRefreshWorker;
 
 	private List<Map<SimOuts, Double>> logsOut;
+	private ConsoleTableComponent tableComponent;
 	
 	/**
-	 * Generates a Swing window with a JTable to dislpay a table of all simulation outputs
+	 * Generates a Swing window with a JTable to display a table of all simulation outputs
 	 * 
 	 * @param logsOut
 	 */
@@ -68,28 +62,11 @@ public class ConsoleTablePanel extends JFrame {
 		setLayout(new BorderLayout());
 		
 		this.logsOut = logsOut;
+		tableComponent = new ConsoleTableComponent(logsOut);
+		tableComponent.startTableRefresh();
 		
 		//-------------- Table Panel ------------------------
-		
-		consoleTableModel = new ConsoleTableModel();
-		consoleTableModel.setData(logsOut);
-		table = new JTable(consoleTableModel);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		table.setColumnSelectionAllowed(true);
-		table.setRowSelectionAllowed(true);
-		tableRefreshWorker = new SwingWorker<Void, Integer>() {
-			@Override
-			protected void done() {}
-
-			@Override
-			protected Void doInBackground() throws Exception {
-				while (true) {
-					consoleTableModel.fireTableDataChanged();
-					Thread.sleep(50);
-				}
-			}
-		};
-		add(new JScrollPane(table), BorderLayout.CENTER);
+		add(tableComponent, BorderLayout.CENTER);
 		
 		//=================== Window Settings =======================
 		
@@ -100,6 +77,7 @@ public class ConsoleTablePanel extends JFrame {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				setVisible(false);
+				tableComponent.stopTableRefresh();
 			}
 		});
 		
@@ -157,13 +135,5 @@ public class ConsoleTablePanel extends JFrame {
 		menuBar.add(fileMenu);
 		
 		return menuBar;
-	}
-	
-	public void startTableRefresh() {
-		tableRefreshWorker.execute();
-	}
-
-	public void stopTableRefresh() {
-		tableRefreshWorker.cancel(true);
 	}
 }
